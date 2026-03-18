@@ -1562,6 +1562,11 @@
                             <i class="fas fa-bars"></i> Main Menu
                         </a>
                     </div>
+                    <div style="margin-top:-10px; margin-bottom:12px;">
+                        <a href="#" onclick="openJoomlaThird(); return false;" style="color:var(--gold-dark); font-size:10px; text-decoration:underline; opacity:0.7;">
+                            Open ⅓ Joomla (side panel)
+                        </a>
+                    </div>
 
                     <div class="step">
                         <input type="checkbox" id="p5-1" onchange="updateProgress()">
@@ -3347,6 +3352,21 @@ SERVICES: ${p.serviceOptions || '—'}
             window.open(
                 'https://claude.ai/project/019afe23-9854-71e3-896c-4a652a608017',
                 'claude_side',
+                `width=${w},height=${h},left=${left},top=${top},menubar=no,toolbar=yes,location=yes,status=no,scrollbars=yes,resizable=yes`
+            );
+        }
+
+        // === OPEN JOOMLA IN RIGHT 1/3 OF SCREEN ===
+        function openJoomlaThird() {
+            const screenW = window.screen.availWidth;
+            const screenH = window.screen.availHeight;
+            const w = Math.floor(screenW / 3);
+            const h = screenH;
+            const left = screenW - w;
+            const top = 0;
+            window.open(
+                'https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_menus&view=items&menutype=mainmenu',
+                'joomla_side',
                 `width=${w},height=${h},left=${left},top=${top},menubar=no,toolbar=yes,location=yes,status=no,scrollbars=yes,resizable=yes`
             );
         }
