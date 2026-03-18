@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M.A.R.K. v10.11 | Page Terminal</title>
+    <title>M.A.R.K. v10.12 | Page Terminal</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,6 +27,7 @@
             --border-light: #e8e4dc;
             --shadow-soft: rgba(30, 58, 95, 0.08);
             --shadow-medium: rgba(30, 58, 95, 0.12);
+            --dcd-teal: #0d9488;
             
             /* Legacy compatibility */
             --primary: var(--navy);
@@ -40,7 +41,7 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--cream);
+            background-color: var(--navy-dark);
             color: var(--text-primary);
             line-height: 1.6;
             padding-bottom: 80px;
@@ -100,19 +101,18 @@
 
         /* ===== HEADER ===== */
         .ai-header {
-            background: linear-gradient(135deg, var(--white) 0%, var(--cream) 100%);
-            color: var(--navy);
+            background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
+            color: var(--white);
             padding: 50px 20px 60px;
             position: relative;
             overflow: hidden;
             border-bottom: 2px solid var(--gold);
-            animation: breathingBg 20s ease-in-out infinite;
         }
         
         /* EFFECT 2: Breathing Gradient */
         @keyframes breathingBg {
-            0%, 100% { background: linear-gradient(135deg, var(--white) 0%, var(--cream) 100%); }
-            50% { background: linear-gradient(135deg, var(--cream) 0%, #f5f3ef 100%); }
+            0%, 100% { background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%); }
+            50% { background: linear-gradient(135deg, var(--navy-dark) 0%, #0f1f33 100%); }
         }
 
         /* EFFECT 3: Data Stream Lines */
@@ -242,9 +242,9 @@
             position: absolute;
             width: 2px;
             height: 2px;
-            background: var(--navy);
+            background: var(--gold-light);
             border-radius: 50%;
-            opacity: 0.15;
+            opacity: 0.25;
             animation: starDrift 25s ease-in-out infinite;
         }
         
@@ -373,7 +373,7 @@
         }
 
         .header-content {
-            position: relative; z-index: 1; max-width: 900px; margin: 0 auto;
+            position: relative; z-index: 1; max-width: 1200px; margin: 0 auto;
             display: flex; justify-content: space-between; align-items: center;
         }
 
@@ -383,25 +383,25 @@
         /* ===== PROGRESS STICKY ===== */
         .progress-sticky {
             position: sticky; top: 0; z-index: 1000;
-            background: var(--white);
-            border-bottom: 1px solid var(--border-light);
+            background: var(--navy);
+            border-bottom: 1px solid rgba(201, 169, 98, 0.3);
             padding: 16px 0;
-            box-shadow: 0 2px 8px var(--shadow-soft);
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
         }
 
         .progress-wrapper {
-            max-width: 900px; margin: 0 auto; padding: 0 20px;
+            max-width: 1200px; margin: 0 auto; padding: 0 30px;
             display: flex; align-items: center; justify-content: space-between;
         }
 
         .progress-stats {
             font-family: 'JetBrains Mono', monospace; font-size: 12px;
-            color: var(--navy); font-weight: 600;
+            color: var(--gold-light); font-weight: 600;
         }
 
         .progress-bar-container {
             flex: 1; margin: 0 20px; height: 6px;
-            background: var(--border-light); border-radius: 3px; overflow: hidden;
+            background: rgba(255,255,255,0.15); border-radius: 3px; overflow: hidden;
         }
 
         .progress-fill {
@@ -413,20 +413,20 @@
         }
 
         /* ===== CONTAINER ===== */
-        .container { max-width: 900px; margin: 30px auto; padding: 0 20px; }
+        .container { max-width: 1200px; margin: 40px auto; padding: 0 30px; }
 
         /* ===== LUXURY CARDS ===== */
         .card {
             background: var(--white);
-            border-radius: 12px;
+            border-radius: 14px;
             border: 1px solid var(--border-light);
-            box-shadow: 0 2px 8px var(--shadow-soft);
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
             margin-bottom: 20px; 
             overflow: hidden;
             transition: box-shadow 0.3s ease, transform 0.3s ease;
         }
         .card:hover {
-            box-shadow: 0 4px 20px var(--shadow-medium);
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3);
         }
 
         /* ===== PHASE STATES ===== */
@@ -472,7 +472,7 @@
         /* Active Phase */
         .phase.active {
             border-color: var(--navy);
-            box-shadow: 0 2px 16px var(--shadow-medium);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
         .phase.active .phase-num {
             background: var(--navy);
@@ -614,7 +614,7 @@
 
         /* ===== SETUP SECTION ===== */
         .setup-section { 
-            padding: 30px; 
+            padding: 40px; 
             border-left: 3px solid var(--gold);
             background: var(--white);
         }
@@ -635,7 +635,7 @@
             border: 1px solid var(--border-light); 
             border-radius: 6px;
             font-family: 'Inter', sans-serif; 
-            font-size: 14px;
+            font-size: 15px;
             background: var(--white);
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
@@ -654,7 +654,7 @@
 
         /* ===== PHASE HEADERS ===== */
         .phase-header {
-            padding: 20px 25px; 
+            padding: 24px 30px; 
             background: var(--white);
             border-bottom: 1px solid var(--border-light); 
             cursor: pointer;
@@ -665,7 +665,7 @@
         }
         .phase-header:hover { background: var(--cream); }
         .phase-title { 
-            font-size: 15px; 
+            font-size: 16px; 
             font-weight: 600; 
             color: var(--navy);
             display: flex; 
@@ -693,7 +693,7 @@
             font-weight: 500;
         }
 
-        .phase-content { padding: 25px; display: none; background: var(--white); }
+        .phase-content { padding: 30px; display: none; background: var(--white); }
         .phase.active .phase-content { display: block; }
         .phase.active .phase-header { 
             background: var(--cream); 
@@ -702,8 +702,8 @@
 
         /* ===== STEPS ===== */
         .step {
-            display: flex; gap: 15px; padding: 14px 16px;
-            border-radius: 8px; margin-bottom: 10px;
+            display: flex; gap: 18px; padding: 18px 20px;
+            border-radius: 8px; margin-bottom: 18px;
             border: 1px solid transparent; 
             transition: all 0.2s ease;
             align-items: flex-start;
@@ -734,7 +734,7 @@
         /* ===== BUTTONS ===== */
         .btn {
             display: inline-flex; align-items: center; gap: 8px;
-            padding: 10px 18px; border-radius: 6px;
+            padding: 12px 22px; border-radius: 6px;
             font-size: 13px; font-weight: 600; border: none; cursor: pointer;
             transition: all 0.2s ease;
             text-transform: uppercase;
@@ -945,11 +945,11 @@
         /* ===== TOAST ===== */
         .toast {
             position: fixed; bottom: 30px; right: 30px;
-            background: var(--navy); 
-            color: var(--white);
+            background: var(--white); 
+            color: var(--navy);
             padding: 14px 24px; 
             border-radius: 6px;
-            box-shadow: 0 10px 40px rgba(30, 58, 95, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
             display: flex; align-items: center; gap: 10px;
             transform: translateY(100px); 
             transition: transform 0.3s ease; 
@@ -992,85 +992,12 @@
         <div class="boot-text" id="bootText"></div>
     </div>
 
-    <header class="ai-header">
-        <!-- EFFECT 1: Neural Network Nodes + Connections -->
-        <div class="neural-network">
-            <div class="neural-node"></div>
-            <div class="neural-node"></div>
-            <div class="neural-node"></div>
-            <div class="neural-node"></div>
-            <div class="neural-node"></div>
-            <div class="neural-node"></div>
-            <div class="neural-node"></div>
-            <div class="neural-node"></div>
-            <svg class="neural-connections" viewBox="0 0 100 100" preserveAspectRatio="none">
-                <line class="neural-line" x1="10" y1="20" x2="40" y2="30"/>
-                <line class="neural-line" x1="25" y1="60" x2="55" y2="70"/>
-                <line class="neural-line" x1="40" y1="30" x2="70" y2="25"/>
-                <line class="neural-line" x1="55" y1="70" x2="85" y2="65"/>
-            </svg>
-        </div>
-        
-        <!-- EFFECT 5: Constellation Drift -->
-        <div class="constellation">
-            <div class="star"></div>
-            <div class="star"></div>
-            <div class="star"></div>
-            <div class="star"></div>
-            <div class="star"></div>
-            <div class="star"></div>
-        </div>
-        
-        <!-- EFFECT 8: Circuit Traces -->
-        <div class="circuit-traces">
-            <div class="circuit-path"></div>
-            <div class="circuit-path"></div>
-            <div class="circuit-path"></div>
-            <div class="circuit-path"></div>
-            <div class="circuit-path"></div>
-            <div class="circuit-node"></div>
-            <div class="circuit-node"></div>
-            <div class="circuit-node"></div>
-            <div class="circuit-node"></div>
-        </div>
-        
-        <!-- Soft Glowing Orbs -->
-        <div class="header-glow glow-1"></div>
-        <div class="header-glow glow-2"></div>
-        <div class="header-glow glow-3"></div>
-        
-        <!-- EFFECT 6: Status Line -->
-        <div class="ai-status-line">
-            <span class="status-text" id="aiStatusText">● Neural Engine Active</span>
-        </div>
-        
-        <div class="header-content" style="align-items: center;">
-            <div>
-                <div style="font-size:10px; font-weight:500; color:var(--gold-dark); letter-spacing:3px; margin-bottom:8px; text-transform:uppercase;">
-                    Machine Assisted Routing Kit
-                </div>
-                <h1 style="font-size:32px; font-weight:300; letter-spacing:1px; margin:0; color:var(--navy);">
-                    M.A.R.K<span style="color:var(--gold);">.</span> <span style="font-weight:500; font-size:18px; color:var(--text-muted);">v10.11</span>
-                </h1>
-            </div>
-            <div style="text-align:right;">
-                <div style="font-size:11px; font-weight:600; color:var(--gold-dark); margin-bottom:6px; text-transform:uppercase; letter-spacing:1px;">Page Terminal</div>
-                <div style="font-size:10px; color:var(--text-muted); line-height:1.6;">
-                    <div>GEO-PARSE Engine</div>
-                    <div>CID Protocol • Schema Module</div>
-                </div>
-            </div>
-        </div>
-    </header>
 
-    <div class="progress-sticky">
-        <div class="progress-wrapper">
-            <div class="progress-stats" id="timerDisplay">00:00</div>
-            <div class="progress-bar-container">
-                <div class="progress-fill" id="progressBar"></div>
-            </div>
-            <div class="progress-stats" id="percentDisplay">0%</div>
-        </div>
+    <!-- Hidden elements for JS compatibility -->
+    <div style="display:none;">
+        <div id="timerDisplay">00:00</div>
+        <div id="progressBar"></div>
+        <div id="percentDisplay">0%</div>
     </div>
 
     <div class="container">
@@ -1078,7 +1005,7 @@
         <!-- MISSION CONTROL -->
         <div class="card setup-section">
             <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-                <h2 style="color:var(--primary); font-size:18px;">⚙️ Mission Control</h2>
+                <h2 style="color:var(--primary); font-size:18px;">⚙️ Mission Control (Page Builder)</h2>
                 <button class="btn btn-ghost" onclick="resetAll()" style="border-color: #ef4444;"><span style="color:#ef4444;">⚠️</span> Reset System</button>
             </div>
 
@@ -1136,7 +1063,7 @@
                     </div>
 
                     <div class="form-group" style="margin-top:15px;">
-                        <label>GMB Raw Data (Copy entire page)</label>
+                        <label style="color:#dc2626; font-size:14px; font-weight:800; letter-spacing:0.5px;">⚠️ GMB RAW DATA (Copy entire page)</label>
                         <textarea id="gmbData" style="height:80px;" placeholder="Select all & copy the entire GMB listing page..."></textarea>
                         <div style="color: #059669; font-size: 11px; font-weight: 600; margin-top: 5px;">
                             <i class="fas fa-clock"></i> Hours auto-set to: Mon-Fri 9 AM – 5 PM
@@ -1325,14 +1252,27 @@
                             <i class="fas fa-exclamation-triangle" style="font-size:18px;"></i>
                             ⚠️ MUST USE CLAUDE SONNET 4.6 — NOT OPUS ⚠️
                         </div>
-                        <div style="color:#fca5a5; font-size:11px; margin-bottom:10px;">
+                        <div style="color:#fca5a5; font-size:11px; margin-bottom:15px;">
                             Check model selector in bottom-left of Claude chat
                         </div>
-                        
-                        <a href="https://claude.ai/project/019afe23-9854-71e3-896c-4a652a608017" target="_blank" class="side-by-side-btn" style="flex-direction:column; gap:6px; background:#dc2626;">
-                            <span style="display:flex; align-items:center; gap:10px; font-size:16px;"><i class="fas fa-brain"></i> Open Claude Project</span>
-                            <span style="color:#fef2f2; font-size:13px; font-weight:800; background:rgba(0,0,0,0.3); padding:4px 12px; border-radius:4px;">⚡ SELECT SONNET 4.6 ⚡</span>
-                        </a>
+
+                        <!-- DUAL BUTTONS -->
+                        <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+                            <button onclick="copyPrompt('intro'); animateButton(this, 'Copying...', 'Copied ✓');" class="side-by-side-btn" style="background:var(--gold); margin-top:0; cursor:pointer; border:none; font-family:'Inter',sans-serif;">
+                                <span style="display:flex; align-items:center; gap:10px; font-size:15px;"><i class="fas fa-clipboard"></i> Copy Intro Sequence</span>
+                            </button>
+                            <a href="https://claude.ai/project/019afe23-9854-71e3-896c-4a652a608017" target="_blank" class="side-by-side-btn" style="background:#dc2626; margin-top:0;">
+                                <span style="display:flex; align-items:center; gap:10px; font-size:15px;"><i class="fas fa-brain"></i> Open Claude</span>
+                            </a>
+                        </div>
+                        <div style="color:rgba(255,255,255,0.6); font-size:11px; margin-top:10px;">
+                            Step 1: Copy → Step 2: Open Claude → Paste
+                        </div>
+
+                        <div style="margin-top:12px; font-size:12px; color:rgba(255,255,255,0.7);">
+                            Page Name: <strong id="displayPageName" style="color:var(--gold-light);">—</strong>
+                        </div>
+
                         <div class="side-by-side-tip">
                             Drag windows side-by-side for easy workflow
                         </div>
@@ -1367,7 +1307,7 @@
                             display: inline-flex;
                             align-items: center;
                             gap: 10px;
-                            padding: 12px 24px;
+                            padding: 14px 28px;
                             background: var(--gold);
                             color: var(--white);
                             font-weight: 600;
@@ -1381,7 +1321,6 @@
                         .side-by-side-btn:hover {
                             transform: translateY(-2px);
                             box-shadow: 0 6px 20px rgba(201,169,98,0.4);
-                            background: var(--gold-dark);
                         }
                         .side-by-side-tip {
                             margin-top: 12px;
@@ -1392,16 +1331,7 @@
 
                     <div class="step">
                         <input type="checkbox" id="p1-1" onchange="updateProgress()">
-                        <div>
-                            <div class="step-label">Start New Chat & Run Introduction</div>
-                            <div class="step-sub">This names the chat and sets context</div>
-                            <button class="btn btn-primary btn-compile" style="margin-top:8px;" onclick="copyPrompt('intro'); animateButton(this, 'Compiling...', 'Compiled');">
-                                <i class="fas fa-play"></i> Compile Intro Sequence
-                            </button>
-                            <div style="font-size:12px; color:#64748b; margin-top:5px;">
-                                Page Name: <strong id="displayPageName">—</strong>
-                            </div>
-                        </div>
+                        <div class="step-label">Paste Intro in Claude → Confirm Sonnet 4.6 → "Chat named. Files received. Ready."</div>
                     </div>
 
                     <!-- EXECUTE BOX -->
@@ -1812,7 +1742,7 @@
         
         <!-- BOTTOM RESET -->
         <div style="text-align: center; padding: 30px 0;">
-            <button class="btn btn-ghost" onclick="resetAll()" style="border-color: #ef4444;">
+            <button class="btn" onclick="resetAll()" style="background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.7); border:1px solid rgba(239,68,68,0.5);">
                 <span style="color:#ef4444;">⚠️</span> Reset System & Start New Page
             </button>
         </div>
@@ -1924,7 +1854,7 @@
             // Update status bar phase indicator
             const phaseNumEl = document.getElementById('currentPhaseNum');
             if (phaseNumEl) {
-                phaseNumEl.textContent = Math.min(currentActivePhase, 9);
+                phaseNumEl.textContent = Math.min(currentActivePhase, 8);
             }
             
             // Check for 100% completion
@@ -2236,7 +2166,8 @@
                 });
                 
                 // Reset phase status display
-                document.getElementById('currentPhaseNum').textContent = '1';
+                const phaseNumReset = document.getElementById('currentPhaseNum');
+                if (phaseNumReset) phaseNumReset.textContent = '1';
                 
                 showToast("System Reset Complete!");
             }
@@ -3556,7 +3487,14 @@ TARGET: ${city}${state ? ', ' + state : ''}
 NICHE: ${niche}
 URL: ${url}
 
-Confirm you've named the chat "${chatName}", uploaded the files, and understand these rules. Reply: "Chat named. Files received. Ready."
+Confirm you've named the chat "${chatName}", uploaded the files, and understand these rules.
+
+⚠️ IMPORTANT MODEL CHECK:
+Before responding, state which Claude model you are (e.g. "I am Claude Sonnet 4.6").
+If you are Claude OPUS — STOP IMMEDIATELY. Do NOT proceed. Reply ONLY with:
+"🚫 WRONG MODEL — I am Opus. Switch to Sonnet 4.6 before continuing."
+
+If you are Sonnet 4.6, reply: "Chat named. Files received. Sonnet 4.6 confirmed. Ready."
 
 No lengthy explanations.`;
                     break;
@@ -4044,38 +3982,38 @@ Keep response TIGHT. Code blocks only. No lengthy explanations.`;
     </script>
 
     <!-- TECHNICAL DOCUMENTATION FOOTER -->
-    <footer style="max-width:900px; margin:60px auto 40px; padding:0 20px;">
-        <div style="border-top:1px solid var(--border-light); padding-top:30px;">
-            <div style="font-family:'Inter', sans-serif; font-size:11px; color:var(--text-secondary); line-height:1.9;">
+    <footer style="max-width:1200px; margin:60px auto 40px; padding:0 30px;">
+        <div style="border-top:1px solid rgba(201,169,98,0.3); padding-top:30px;">
+            <div style="font-family:'Inter', sans-serif; font-size:11px; color:rgba(255,255,255,0.5); line-height:1.9;">
                 <div style="margin-bottom:15px; font-size:10px; color:var(--gold); font-weight:600; letter-spacing:2px; text-transform:uppercase;">
                     System Architecture
                 </div>
                 <p style="margin-bottom:12px;">
-                    <strong style="color:var(--navy);">The M.A.R.K. Algorithm:</strong> Machine Assisted Routing Kit is a deterministic workflow orchestration system designed to minimize human error variance in high-volume landing page deployment. The algorithm operates on a principle of progressive data enrichment — where each phase inherits validated outputs from preceding phases, creating an immutable chain of verified data states.
+                    <strong style="color:var(--gold-light);">The M.A.R.K. Algorithm:</strong> Machine Assisted Routing Kit is a deterministic workflow orchestration system designed to minimize human error variance in high-volume landing page deployment. The algorithm operates on a principle of progressive data enrichment — where each phase inherits validated outputs from preceding phases, creating an immutable chain of verified data states.
                 </p>
                 <p style="margin-bottom:12px;">
-                    <strong style="color:var(--navy);">GEO-PARSE Engine:</strong> City extraction utilizes a multi-tiered resolution cascade. Primary resolution queries a pre-indexed hashmap of 317 US metropolitan statistical areas sorted by descending key-length to prevent substring collision. Secondary resolution employs negative-space tokenization against a 47-term exclusion lexicon.
+                    <strong style="color:var(--gold-light);">GEO-PARSE Engine:</strong> City extraction utilizes a multi-tiered resolution cascade. Primary resolution queries a pre-indexed hashmap of 317 US metropolitan statistical areas sorted by descending key-length to prevent substring collision. Secondary resolution employs negative-space tokenization against a 47-term exclusion lexicon.
                 </p>
                 <p style="margin-bottom:12px;">
-                    <strong style="color:var(--navy);">CID Verification Protocol:</strong> Google Place Identifiers are extracted via dual-mode regex parsing targeting hexadecimal pair structures embedded in Google Maps canonical URLs. Verification requires user-initiated confirmation via external redirect to prevent false-positive schema injection.
+                    <strong style="color:var(--gold-light);">CID Verification Protocol:</strong> Google Place Identifiers are extracted via dual-mode regex parsing targeting hexadecimal pair structures embedded in Google Maps canonical URLs. Verification requires user-initiated confirmation via external redirect to prevent false-positive schema injection.
                 </p>
             </div>
             
             <!-- FORENSIC TIMELINE -->
-            <div style="margin-top:25px; padding-top:20px; border-top:1px solid var(--border-light);">
-                <div style="font-family:'Inter', sans-serif; font-size:10px; color:var(--text-muted); line-height:1.8;">
-                    <strong style="color:var(--text-secondary);">Development:</strong> v1.0–v6.x core parsing & UI scaffolding. v7.x 317-MSA city lookup, CID regex overhaul, 9-phase workflow. v10.11 Luxury UI with 7-layer AI animation engine + intelligent button micro-animations.
+            <div style="margin-top:25px; padding-top:20px; border-top:1px solid rgba(201,169,98,0.2);">
+                <div style="font-family:'Inter', sans-serif; font-size:10px; color:rgba(255,255,255,0.35); line-height:1.8;">
+                    <strong style="color:rgba(255,255,255,0.5);">Development:</strong> v1.0–v6.x core parsing & UI scaffolding. v7.x 317-MSA city lookup, CID regex overhaul, 9-phase workflow. v10.11 Luxury UI with 7-layer AI animation engine. v10.12 Dark theme, blog terminal sizing, Opus gate, dual-button launcher.
                 </div>
-                <div style="font-family:'Inter', sans-serif; font-size:10px; color:var(--text-muted); margin-top:8px;">
-                    <strong style="color:var(--text-secondary);">Build Time:</strong> 44.5 hrs (AI-assisted) · <span style="color:var(--gold-dark);">Est. ~345 hrs traditional</span> — UX architecture, algorithm development, visual design, testing & documentation would typically require a small team over 8-10 weeks.
+                <div style="font-family:'Inter', sans-serif; font-size:10px; color:rgba(255,255,255,0.35); margin-top:8px;">
+                    <strong style="color:rgba(255,255,255,0.5);">Build Time:</strong> 47 hrs (AI-assisted) · <span style="color:var(--gold-dark);">Est. ~360 hrs traditional</span> — UX architecture, algorithm development, visual design, testing & documentation would typically require a small team over 8-10 weeks.
                 </div>
             </div>
             
-            <div style="margin-top:25px; padding-top:20px; border-top:1px solid var(--border-light); display:flex; justify-content:space-between; align-items:center;">
-                <div style="font-size:11px; color:var(--text-muted);">
-                    M.A.R.K<span style="color:var(--gold);">.</span> v10.11
+            <div style="margin-top:25px; padding-top:20px; border-top:1px solid rgba(201,169,98,0.2); display:flex; justify-content:space-between; align-items:center;">
+                <div style="font-size:11px; color:rgba(255,255,255,0.4);">
+                    M.A.R.K<span style="color:var(--gold);">.</span> v10.12
                 </div>
-                <div style="font-size:10px; color:var(--text-muted);">
+                <div style="font-size:10px; color:rgba(255,255,255,0.3);">
                     Page Terminal System
                 </div>
             </div>
@@ -4089,7 +4027,7 @@ Keep response TIGHT. Code blocks only. No lengthy explanations.`;
             <div class="completion-stats">
                 <div>Page: <span id="completionPage">—</span></div>
                 <div>Time: <span id="completionTime">—</span></div>
-                <div>Phases: <span>9/9</span></div>
+                <div>Phases: <span>8/8</span></div>
                 <div>Status: <span style="color: var(--gold);">Ready for Deployment</span></div>
             </div>
             <button class="completion-close" onclick="closeCompletion()">Continue</button>
