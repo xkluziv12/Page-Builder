@@ -231,10 +231,10 @@
 
         /* TOAST */
         /* FLOATING CHAT WIDGET */
-        .chat-fab { position:fixed; bottom:30px; right:30px; width:60px; height:60px; border-radius:50%; background:linear-gradient(135deg,var(--navy),var(--navy-dark)); color:var(--white); border:none; cursor:pointer; box-shadow:0 6px 24px rgba(30,58,95,.35); z-index:3000; display:flex; align-items:center; justify-content:center; font-size:24px; transition:all .3s; }
+        .chat-fab { position:fixed; bottom:30px; left:30px; width:60px; height:60px; border-radius:50%; background:linear-gradient(135deg,var(--navy),var(--navy-dark)); color:var(--white); border:none; cursor:pointer; box-shadow:0 6px 24px rgba(30,58,95,.35); z-index:3000; display:flex; align-items:center; justify-content:center; font-size:24px; transition:all .3s; }
         .chat-fab:hover { transform:scale(1.08); box-shadow:0 8px 32px rgba(30,58,95,.45); }
-        .chat-fab .fab-badge { position:absolute; top:-2px; right:-2px; width:16px; height:16px; background:var(--gold); border-radius:50%; display:none; border:2px solid var(--white); }
-        .chat-widget { position:fixed; bottom:100px; right:30px; width:420px; transition:width .3s ease; max-height:600px; background:var(--white); border-radius:16px; box-shadow:0 16px 60px rgba(30,58,95,.25); border:1px solid var(--border-light); z-index:3000; display:none; flex-direction:column; overflow:hidden; }
+        .chat-fab .fab-badge { position:absolute; top:-2px; left:-2px; width:16px; height:16px; background:var(--gold); border-radius:50%; display:none; border:2px solid var(--white); }
+        .chat-widget { position:fixed; bottom:100px; left:30px; width:420px; transition:width .3s ease; max-height:600px; background:var(--white); border-radius:16px; box-shadow:0 16px 60px rgba(30,58,95,.25); border:1px solid var(--border-light); z-index:3000; display:none; flex-direction:column; overflow:hidden; }
         .chat-widget.open { display:flex; animation:chatSlideUp .25s ease; }
         .chat-widget.wide { width:700px; }
         @keyframes chatSlideUp { from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)} }
@@ -267,7 +267,7 @@
         .chat-suggestions { display:flex; flex-wrap:wrap; gap:6px; padding:0 14px 10px; }
         .chat-suggestion { background:var(--cream); border:1px solid var(--border-light); border-radius:16px; padding:4px 10px; font-size:11px; color:var(--navy); cursor:pointer; transition:all .2s; }
         .chat-suggestion:hover { background:var(--navy); color:var(--white); border-color:var(--navy); }
-        .toast { position:fixed; bottom:30px; right:110px; background:var(--navy); color:var(--white); padding:14px 24px; border-radius:6px; box-shadow:0 10px 40px rgba(30,58,95,.3); display:flex; align-items:center; gap:10px; transform:translateY(100px); transition:transform .3s; z-index:2000; font-size:12px; font-weight:500; }
+        .toast { position:fixed; bottom:30px; left:110px; background:var(--navy); color:var(--white); padding:14px 24px; border-radius:6px; box-shadow:0 10px 40px rgba(30,58,95,.3); display:flex; align-items:center; gap:10px; transform:translateY(100px); transition:transform .3s; z-index:2000; font-size:12px; font-weight:500; }
         .toast.show { transform:translateY(0); }
 
         /* COMPLETION */
