@@ -102,11 +102,6 @@
         .company-view{display:none;}
         .company-view.active{display:block;}
 
-        /* COLUMN HEADERS */
-        .col-header{padding:10px 14px;border-radius:8px;font-size:13px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--white);display:flex;align-items:center;gap:8px;margin-bottom:8px;}
-        .col-header.sts{background:linear-gradient(135deg,var(--navy),var(--navy-light));}
-        .col-header.dcd{background:linear-gradient(135deg,var(--dcd-teal),#0f766e);}
-
         /* META PANEL */
         .meta-panel{display:none;background:var(--white);border-radius:10px;padding:16px;margin-bottom:10px;border:2px solid var(--gold);}
         .meta-panel.visible{display:block;}
@@ -407,10 +402,14 @@
                             <a href="https://docs.google.com/document/d/19pAXN_sUNJ8ZOgR3Fv_9Df2CYoFOq_YojSy8yjQW9Zo/edit" target="_blank" class="quick-link"><i class="fas fa-file-alt"></i> STS Prompt v4.3</a>
                             <a href="https://docs.google.com/document/d/1gmZMWbIHt408yf6RgyrnwMsewGqWQSXKDuC7MJZZX1o/edit" target="_blank" class="quick-link"><i class="fas fa-palette"></i> Design Bible</a>
                         </div>
-                        <button class="btn btn-accent btn-compile" onclick="copyPrompt('STS','strategy');animateButton(this,'Generating...','Ready')" style="margin-bottom:6px;"><i class="fas fa-compass"></i> Step 1: Copy Strategy Prompt (~1 min)</button>
-                        <button class="btn btn-compile" style="background:linear-gradient(135deg,var(--navy),var(--navy-dark));color:white;" onclick="copyPrompt('STS','htmlbuild');animateButton(this,'Generating...','Ready')"><i class="fas fa-code"></i> Step 2: Copy Build Prompt (~3 min)</button>
+                        <button class="btn btn-accent btn-compile" onclick="copyPrompt('STS','strategy');animateButton(this,'Generating...','Ready')"><i class="fas fa-compass"></i> Step 1: Copy Strategy Prompt (~1 min)</button>
                     </div>
                     <div class="step"><input type="checkbox" id="sts-p1-1a" onchange="checkAll('STS')"><div class="step-label">Strategy prompt pasted — Claude outputs plan (~1 min)</div></div>
+                    <div class="divider"></div>
+                    <div class="warning-box" style="margin-bottom:8px;"><i class="fas fa-hand-paper"></i> <strong>WAIT</strong> — confirm strategy looks good before proceeding to Step 2.</div>
+                    <div class="data-box" style="border-color:var(--navy);">
+                        <button class="btn btn-compile" style="background:linear-gradient(135deg,var(--navy),var(--navy-dark));color:white;" onclick="copyPrompt('STS','htmlbuild');animateButton(this,'Generating...','Ready')"><i class="fas fa-code"></i> Step 2: Copy Build Prompt (~3 min)</button>
+                    </div>
                     <div class="step"><input type="checkbox" id="sts-p1-1b" onchange="checkAll('STS')"><div class="step-label">Build prompt pasted — Claude generating HTML (~3 min)</div></div>
                     <div class="divider"></div>
                     <div class="part-header"><i class="fas fa-globe"></i> JOOMLA SETUP — while Claude builds</div>
@@ -435,6 +434,7 @@
                     </div></div>
                     <div class="step"><input type="checkbox" id="sts-p1-6" onchange="checkAll('STS')"><div class="step-label">Category: <strong style="color:#dc2626;">Blog</strong></div></div>
                     <div class="step"><input type="checkbox" id="sts-p1-7" onchange="checkAll('STS')"><div class="step-label">Options → Show Title: <strong>Hide</strong> → Save &amp; Close article</div></div>
+                    <div class="step"><input type="checkbox" id="sts-p1-7b" onchange="checkAll('STS')"><div class="step-label">Publishing tab → change <strong>Created Date</strong> and <strong>Start Publishing</strong> to another day</div></div>
                     <div class="step"><input type="checkbox" id="sts-p1-8" onchange="checkAll('STS')"><div class="step-label">Back to Menu → Options → Show Title: <strong>Hide</strong></div></div>
                     <div class="step"><input type="checkbox" id="sts-p1-9" onchange="checkAll('STS')"><div>
                         <div class="step-label">Page Display → paste Page Title</div>
@@ -621,10 +621,14 @@
                             <a href="https://docs.google.com/document/d/148QH1BGJ2JIsVBC5Vq61-Ja-eo175ycOM9OrC3aIzBI/edit" target="_blank" class="quick-link teal"><i class="fas fa-file-alt"></i> DCD Prompt v1.0</a>
                             <a href="https://docs.google.com/document/d/1SfzlHhsowhTQIHIdOUpBSne7vxDvH5NTWD3j7cdOdF0/edit" target="_blank" class="quick-link teal"><i class="fas fa-palette"></i> Design Bible</a>
                         </div>
-                        <button class="btn btn-compile" style="background:linear-gradient(135deg,var(--dcd-teal),#0891b2);color:white;margin-bottom:6px;" onclick="copyPrompt('DCD','strategy');animateButton(this,'Generating...','Ready')"><i class="fas fa-compass"></i> Step 1: Copy Strategy Prompt (~1 min)</button>
-                        <button class="btn btn-compile" style="background:linear-gradient(135deg,#0f766e,#065f46);color:white;" onclick="copyPrompt('DCD','htmlbuild');animateButton(this,'Generating...','Ready')"><i class="fas fa-code"></i> Step 2: Copy Build Prompt (~3 min)</button>
+                        <button class="btn btn-compile" style="background:linear-gradient(135deg,var(--dcd-teal),#0891b2);color:white;" onclick="copyPrompt('DCD','strategy');animateButton(this,'Generating...','Ready')"><i class="fas fa-compass"></i> Step 1: Copy Strategy Prompt (~1 min)</button>
                     </div>
                     <div class="step"><input type="checkbox" id="dcd-p1-1a" onchange="checkAll('DCD')"><div class="step-label">Strategy prompt pasted — Claude outputs plan (~1 min)</div></div>
+                    <div class="divider"></div>
+                    <div class="warning-box" style="margin-bottom:8px;border-left-color:var(--dcd-teal);"><i class="fas fa-hand-paper"></i> <strong>WAIT</strong> — confirm strategy looks good before proceeding to Step 2.</div>
+                    <div class="data-box" style="border-color:var(--dcd-teal);">
+                        <button class="btn btn-compile" style="background:linear-gradient(135deg,#0f766e,#065f46);color:white;" onclick="copyPrompt('DCD','htmlbuild');animateButton(this,'Generating...','Ready')"><i class="fas fa-code"></i> Step 2: Copy Build Prompt (~3 min)</button>
+                    </div>
                     <div class="step"><input type="checkbox" id="dcd-p1-1b" onchange="checkAll('DCD')"><div class="step-label">Build prompt pasted — Claude generating HTML (~3 min)</div></div>
                     <div class="divider"></div>
                     <div class="part-header teal"><i class="fas fa-store"></i> SHOGUN SETUP — while Claude builds</div>
@@ -643,6 +647,7 @@
                         </div>
                     </div></div>
                     <div class="step"><input type="checkbox" id="dcd-p1-3" onchange="checkAll('DCD')"><div class="step-label">⋮ Page Settings → Author: <strong>Mark Domnenko</strong></div></div>
+                    <div class="step"><input type="checkbox" id="dcd-p1-3b" onchange="checkAll('DCD')"><div class="step-label">Publishing Date → change to another day</div></div>
                     <div class="step"><input type="checkbox" id="dcd-p1-4" onchange="checkAll('DCD')"><div>
                         <div class="step-label">Meta Description</div>
                         <div class="copy-strip" style="margin-top:4px;"><div class="copy-strip-row">
@@ -1259,6 +1264,15 @@ function resetAll(){
     });
     document.querySelectorAll('input[type="checkbox"]').forEach(cb=>{ cb.checked=false; cb.closest('.step')?.classList.remove('checked'); });
     document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active','phase-complete'));
+    // Reset log buttons
+    ['sts','dcd'].forEach(k => {
+        const btn = document.getElementById(k+'-logBtn');
+        if(btn){ btn.disabled=false; btn.style.background='#dc2626'; btn.innerHTML='<i class="fas fa-paper-plane"></i> Log to '+k.toUpperCase()+' Sheet'; }
+        const status = document.getElementById(k+'-logStatus');
+        if(status){ status.style.display='none'; status.textContent=''; }
+    });
+    // Reset tabs to STS
+    switchTab('STS');
     const btn = document.getElementById('runResearchBtn');
     btn.disabled=false; btn.innerHTML='<i class="fas fa-rocket"></i> Research Both \u2014 STS + DCD';
     S = { vaName:'', mgmtIdea:'', sts:{ topic:null, meta:null, chatName:'', lastTopics:[], recommendation:'', checks:{} }, dcd:{ topic:null, meta:null, chatName:'', lastTopics:[], recommendation:'', checks:{} }, chatHistory:[] };
