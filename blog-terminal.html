@@ -3,745 +3,281 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>M.A.R.K. Blog Terminal — Split Builder</title>
+    <title>M.A.R.K. Blog Terminal v2.0</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root {
-            --navy:#1e3a5f; --navy-light:#2d4a6f; --navy-dark:#152a45;
-            --gold:#c9a962; --gold-light:#d4bc7d; --gold-dark:#b8954d;
-            --cream:#fdfbf7; --white:#ffffff;
-            --text-primary:#1a1a2e; --text-secondary:#64748b; --text-muted:#94a3b8;
-            --border-light:#e8e4dc;
-            --shadow-soft:rgba(30,58,95,.08); --shadow-medium:rgba(30,58,95,.12);
-            --dcd-teal:#0d9488;
-        }
+        :root{--navy:#1e3a5f;--navy-light:#2d4a6f;--navy-dark:#152a45;--gold:#c9a962;--gold-dark:#b8954d;--cream:#fdfbf7;--white:#fff;--text-primary:#1a1a2e;--text-secondary:#64748b;--text-muted:#94a3b8;--border-light:#e8e4dc;--shadow-soft:rgba(30,58,95,.08);--dcd-teal:#0d9488;}
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--text-primary);line-height:1.5;padding-bottom:80px;}
-
-        /* CONTAINER */
         .container{max-width:1200px;margin:0 auto;padding:0 16px;}
-
-        /* HEADER BAR */
+        /* HEADER */
         .header-bar{background:linear-gradient(135deg,var(--navy-dark),var(--navy));padding:14px 0;margin-bottom:16px;border-bottom:2px solid var(--gold);}
         .header-bar .container{display:flex;justify-content:space-between;align-items:center;}
         .header-title{font-size:16px;font-weight:300;letter-spacing:4px;color:var(--white);text-transform:uppercase;}
         .header-title span{color:var(--gold);font-weight:600;}
         .header-tags{display:flex;gap:6px;}
         .header-tag{padding:3px 10px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:.5px;color:var(--white);}
-        .header-tag.sts{background:var(--gold);}
-        .header-tag.dcd{background:var(--dcd-teal);}
-
-        /* CARDS */
+        .header-tag.sts{background:var(--gold);}.header-tag.dcd{background:var(--dcd-teal);}
+        /* CARD */
         .card{background:var(--white);border-radius:10px;border:1px solid var(--border-light);box-shadow:0 2px 8px var(--shadow-soft);margin-bottom:12px;overflow:hidden;}
-
-        /* SETUP SECTION */
+        /* FORM */
         .setup-section{padding:20px;border-left:3px solid var(--gold);}
         .setup-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
         .setup-title h2{color:var(--navy);font-size:16px;}
         .form-group{margin-bottom:10px;}
         .form-group label{display:block;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--text-secondary);margin-bottom:5px;}
-        .form-group input,.form-group textarea{width:100%;padding:10px 12px;border:1px solid var(--border-light);border-radius:6px;font-family:'Inter',sans-serif;font-size:13px;background:var(--white);transition:border-color .2s;}
+        .form-group input,.form-group textarea{width:100%;padding:10px 12px;border:1px solid var(--border-light);border-radius:6px;font-family:'Inter',sans-serif;font-size:13px;background:var(--white);}
         .form-group input:focus,.form-group textarea:focus{outline:none;border-color:var(--navy);box-shadow:0 0 0 2px rgba(30,58,95,.1);}
-        .input-row{display:flex;gap:12px;}
-        .input-row .form-group{flex:1;}
-
-        /* RESEARCH PANEL */
+        .input-row{display:flex;gap:12px;}.input-row .form-group{flex:1;}
+        /* RESEARCH */
         .research-panel{background:linear-gradient(135deg,var(--navy-dark),var(--navy));border-radius:10px;padding:20px;margin-top:12px;border:1px solid var(--gold);}
-        .research-run-btn{width:100%;padding:14px;border:none;border-radius:6px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:var(--white);font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .3s;letter-spacing:.5px;margin-top:10px;}
+        .research-run-btn{width:100%;padding:14px;border:none;border-radius:6px;background:linear-gradient(135deg,var(--gold),var(--gold-dark));color:var(--white);font-family:'Inter',sans-serif;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.5px;margin-top:10px;}
         .research-run-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(201,169,98,.4);}
         .research-run-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
-
-        /* THINKING */
-        .thinking-indicator{display:none;text-align:center;padding:16px;}
-        .thinking-indicator.active{display:block;}
+        .thinking-indicator{display:none;text-align:center;padding:16px;}.thinking-indicator.active{display:block;}
         .thinking-dots{display:flex;justify-content:center;gap:6px;margin-bottom:8px;}
         .thinking-dot{width:8px;height:8px;background:var(--gold);border-radius:50%;animation:thinkPulse 1.4s ease-in-out infinite;}
         .thinking-dot:nth-child(2){animation-delay:.2s}.thinking-dot:nth-child(3){animation-delay:.4s}
         @keyframes thinkPulse{0%,80%,100%{transform:scale(0);opacity:.3}40%{transform:scale(1);opacity:1}}
-        .thinking-label{font-size:11px;color:var(--gold-light);letter-spacing:1px;text-transform:uppercase;}
-
-        /* TOPICS GRID */
+        .thinking-label{font-size:11px;color:var(--gold);letter-spacing:1px;text-transform:uppercase;}
         .topics-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
         .topics-col-header{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
-        .topics-col-header.sts{color:var(--gold);}
-        .topics-col-header.dcd{color:#5eead4;}
+        .topics-col-header.sts{color:var(--gold);}.topics-col-header.dcd{color:#5eead4;}
         .topic-card{background:rgba(255,255,255,.06);border:1px solid rgba(201,169,98,.2);border-radius:8px;padding:12px 14px 12px 38px;margin-bottom:6px;cursor:pointer;transition:all .2s;position:relative;}
         .topic-card:hover{background:rgba(255,255,255,.1);border-color:var(--gold);transform:translateX(2px);}
         .topic-card.selected{background:rgba(201,169,98,.12);border-color:var(--gold);border-left:3px solid var(--gold);}
-        .topic-card.dcd-card{border-color:rgba(13,148,136,.25);}
-        .topic-card.dcd-card:hover{border-color:var(--dcd-teal);}
+        .topic-card.dcd-card{border-color:rgba(13,148,136,.25);}.topic-card.dcd-card:hover{border-color:var(--dcd-teal);}
         .topic-card.dcd-card.selected{background:rgba(13,148,136,.12);border-color:var(--dcd-teal);border-left-color:var(--dcd-teal);}
         .topic-num{position:absolute;top:10px;left:10px;width:20px;height:20px;border-radius:50%;background:var(--gold);color:var(--white);font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;}
         .topic-num.dcd{background:var(--dcd-teal);}
         .topic-card-title{font-size:13px;font-weight:600;color:var(--white);line-height:1.4;margin-bottom:4px;}
         .topic-card-meta{display:flex;gap:6px;flex-wrap:wrap;}
         .topic-tag{font-size:10px;padding:2px 6px;border-radius:8px;font-weight:600;}
-        .topic-tag.intent{background:rgba(201,169,98,.2);color:var(--gold-light);}
+        .topic-tag.intent{background:rgba(201,169,98,.2);color:var(--gold);}
         .topic-tag.targets{background:rgba(255,255,255,.1);color:rgba(255,255,255,.6);}
         .topic-tag.rec{background:rgba(52,211,153,.15);color:#34d399;}
         .topic-card-why{font-size:11px;color:rgba(255,255,255,.45);margin-top:4px;line-height:1.4;}
         .select-badge{position:absolute;top:10px;right:10px;background:var(--gold);color:var(--white);font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;display:none;}
         .topic-card.selected .select-badge{display:block;}
         .topic-card.dcd-card.selected .select-badge{background:var(--dcd-teal);}
-        .error-box{background:#fef2f2;border:1px solid #fecaca;border-left:3px solid #dc2626;padding:10px 12px;border-radius:6px;font-size:12px;color:#991b1b;margin-top:8px;display:none;}
-        .error-box.visible{display:block;}
-        .regen-btn{padding:8px 14px;border:1px solid rgba(255,255,255,.2);border-radius:6px;background:transparent;color:rgba(255,255,255,.6);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;margin-top:6px;transition:all .2s;display:none;}
+        .error-box{background:#fef2f2;border:1px solid #fecaca;border-left:3px solid #dc2626;padding:10px 12px;border-radius:6px;font-size:12px;color:#991b1b;margin-top:8px;display:none;}.error-box.visible{display:block;}
+        .regen-btn{padding:8px 14px;border:1px solid rgba(255,255,255,.2);border-radius:6px;background:transparent;color:rgba(255,255,255,.6);font-family:'Inter',sans-serif;font-size:11px;font-weight:600;cursor:pointer;margin-top:6px;display:none;}.regen-btn.visible{display:inline-flex;align-items:center;gap:6px;}
         .regen-btn:hover{border-color:var(--gold);color:var(--gold);}
-        .regen-btn.visible{display:inline-flex;align-items:center;gap:6px;}
-        .rec-box{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:11px;color:#34d399;line-height:1.4;}
-
-        /* COMPANY TABS */
+        .rec-box{background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.25);border-radius:6px;padding:8px 10px;margin-bottom:8px;font-size:11px;color:#34d399;}
+        /* TABS */
         .company-tabs{display:flex;gap:0;margin-bottom:12px;border:2px solid var(--border-light);border-radius:8px;overflow:hidden;}
         .company-tab{flex:1;padding:12px 16px;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;transition:all .2s;background:var(--cream);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;gap:8px;}
         .company-tab.active-sts{background:var(--navy);color:var(--white);}
         .company-tab.active-dcd{background:var(--dcd-teal);color:var(--white);}
         .company-tab:not(.active-sts):not(.active-dcd):hover{background:var(--white);}
-        .company-view{display:none;}
-        .company-view.active{display:block;}
-
-        /* META PANEL */
-        .meta-panel{display:none;background:var(--white);border-radius:10px;padding:16px;margin-bottom:10px;border:2px solid var(--gold);}
-        .meta-panel.visible{display:block;}
-        .meta-panel.dcd{border-color:var(--dcd-teal);}
-        .meta-panel-header{display:flex;align-items:center;gap:8px;margin-bottom:12px;padding-bottom:10px;border-bottom:1px solid var(--border-light);flex-wrap:wrap;}
-        .meta-panel-title{font-size:13px;font-weight:700;color:var(--navy);}
-        .meta-field{margin-bottom:10px;}
-        .meta-field-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:4px;}
-        .meta-field-value{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-primary);background:var(--cream);padding:7px 10px;border-radius:4px;border:1px solid var(--border-light);line-height:1.5;word-break:break-word;}
-        .meta-copy-row{display:flex;align-items:flex-start;gap:6px;}
-        .meta-copy-row .meta-field-value{flex:1;}
-        .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-        .chat-name-banner{background:linear-gradient(135deg,var(--navy),var(--navy-light));border-radius:6px;padding:10px 12px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
-        .chat-name-text{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);font-weight:600;flex:1;word-break:break-all;}
-
-        .meta-toggle-btn{width:100%;display:flex;align-items:center;gap:8px;padding:0;border:none;background:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;color:var(--navy);text-align:left;}
-        .meta-toggle-icon{font-size:10px;color:var(--text-muted);transition:transform .2s;}
-        .meta-toggle-icon.open{transform:rotate(180deg);}
-        .meta-body{padding-top:12px;}
-
-        /* PHASES (compact) */
-        .phase{position:relative;}
-        .phase.phase-complete{border-color:var(--gold);box-shadow:0 1px 8px rgba(201,169,98,.15);}
-        .phase.phase-complete .phase-header{background:linear-gradient(135deg,#fdfbf7,#f9f6f0);border-left:3px solid var(--gold);}
-        .phase.phase-complete .phase-num{background:var(--gold);color:var(--white);}
-        .phase.phase-complete::after{content:'✓';position:absolute;top:12px;right:12px;background:var(--gold);color:var(--white);width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;}
-        .phase.active{border-color:var(--navy);box-shadow:0 2px 10px var(--shadow-medium);}
-        .phase.active .phase-num{background:var(--navy);}
-        .phase.active .phase-header{background:var(--cream);border-left:3px solid var(--gold);}
-        .phase.dcd-phase.active .phase-header{border-left-color:var(--dcd-teal);}
-        .phase.dcd-phase.active .phase-num{background:var(--dcd-teal);}
-        .phase.dcd-phase.phase-complete{border-color:var(--dcd-teal);}
-        .phase.dcd-phase.phase-complete .phase-header{border-left-color:var(--dcd-teal);}
-        .phase.dcd-phase.phase-complete .phase-num{background:var(--dcd-teal);}
-        .phase.dcd-phase.phase-complete::after{background:var(--dcd-teal);}
-        .phase-header{padding:12px 14px;background:var(--white);border-bottom:1px solid var(--border-light);cursor:pointer;display:flex;justify-content:space-between;align-items:center;transition:background .2s;}
-        .phase-header:hover{background:var(--cream);}
-        .phase-title{font-size:13px;font-weight:600;color:var(--navy);display:flex;align-items:center;gap:8px;}
-        .phase-num{background:var(--navy);color:var(--white);width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;}
-        .phase-time{font-size:11px;color:var(--text-muted);}
-        .phase-content{padding:14px;display:none;background:var(--white);}
-        .phase.active .phase-content{display:block;}
-        .phase.phase-unlocking{animation:phaseUnlock .4s ease;}
-        @keyframes phaseUnlock{0%{opacity:.7;transform:translateY(-3px)}100%{opacity:1;transform:translateY(0)}}
-
-        /* STEPS (compact) */
-        .step{display:flex;gap:10px;padding:8px 10px;border-radius:6px;margin-bottom:6px;border:1px solid transparent;transition:all .2s;align-items:flex-start;background:var(--white);}
+        .company-view{display:none;}.company-view.active{display:block;}
+        /* PROGRESS DOTS */
+        .progress-dots{display:flex;gap:3px;margin-bottom:14px;}
+        .pdot{height:4px;flex:1;border-radius:2px;background:var(--border-light);transition:background .3s;}
+        .pdot.done{background:#16a34a;}.pdot.active{background:var(--navy);}
+        .pdot.done-dcd{background:#16a34a;}.pdot.active-dcd{background:var(--dcd-teal);}
+        /* LAUNCHER */
+        .launcher{background:var(--navy);border-radius:8px;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+        .launcher.dcd{background:var(--dcd-teal);}
+        .launcher-label{color:var(--white);font-size:13px;font-weight:600;display:flex;align-items:center;gap:8px;}
+        .launcher-warn{font-size:9px;background:#dc2626;color:#fff;padding:2px 8px;border-radius:4px;font-weight:700;margin-left:6px;}
+        .launcher-link{color:var(--gold);font-size:12px;font-weight:600;text-decoration:none;padding:6px 14px;border:1px solid var(--gold);border-radius:6px;white-space:nowrap;}
+        .launcher-link:hover{background:var(--gold);color:var(--white);text-decoration:none;}
+        .launcher.dcd .launcher-link{color:#5eead4;border-color:#5eead4;}.launcher.dcd .launcher-link:hover{background:#5eead4;color:var(--dcd-teal);}
+        /* WIZARD PHASES */
+        .wiz-phase{margin-bottom:6px;}
+        .wp-done,.wp-active,.wp-upcoming{display:none;}
+        .wiz-phase.is-done .wp-done{display:flex;}
+        .wiz-phase.is-active .wp-active{display:block;}
+        .wiz-phase.is-upcoming .wp-upcoming{display:flex;}
+        /* Done row */
+        .wp-done{align-items:center;gap:8px;padding:10px 14px;border-radius:8px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:13px;color:#166534;}
+        .wp-done-check{color:#16a34a;font-size:14px;flex-shrink:0;}
+        .wp-done-time{font-size:11px;color:#86efac;margin-left:auto;}
+        /* Active card */
+        .wp-active{background:var(--white);border:2px solid var(--navy);border-radius:10px;overflow:hidden;}
+        .wp-active.dcd{border-color:var(--dcd-teal);}
+        .wp-active-head{padding:10px 16px;display:flex;align-items:center;justify-content:space-between;}
+        .wp-active-head.sts-head{background:var(--navy);}.wp-active-head.dcd-head{background:var(--dcd-teal);}
+        .wp-step-label{color:rgba(255,255,255,.6);font-size:10px;text-transform:uppercase;letter-spacing:1px;}
+        .wp-title{color:var(--white);font-size:15px;font-weight:600;}
+        .wp-time{color:rgba(255,255,255,.5);font-size:11px;}
+        .wp-body{padding:16px;}
+        .wp-next{display:flex;justify-content:flex-end;padding-top:14px;border-top:1px solid var(--border-light);margin-top:14px;}
+        .btn-next{padding:10px 24px;border:none;border-radius:6px;background:#16a34a;color:#fff;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;}
+        .btn-next:hover{background:#15803d;}
+        /* Upcoming row */
+        .wp-upcoming{align-items:center;gap:8px;padding:8px 14px;font-size:12px;color:var(--text-muted);}
+        .wp-up-num{width:22px;height:22px;border-radius:50%;background:var(--cream);border:1px solid var(--border-light);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--text-secondary);flex-shrink:0;}
+        .wp-up-time{margin-left:auto;font-size:10px;}
+        /* STEPS */
+        .step{display:flex;align-items:flex-start;gap:10px;padding:7px 0;font-size:13px;}
         .step>div{flex:1;min-width:0;}
-        .step input[type="checkbox"]{order:2;width:20px;height:20px;accent-color:var(--gold);cursor:pointer;margin-top:1px;flex-shrink:0;}
-        .step:hover{background:var(--cream);border-color:var(--border-light);}
-        .step.checked{background:#fdfbf7;border-color:var(--gold);border-left:3px solid var(--gold);}
+        .step input[type="checkbox"]{width:18px;height:18px;accent-color:var(--navy);cursor:pointer;margin-top:1px;flex-shrink:0;}
+        .step.checked{color:#16a34a;}
         .step-label{font-weight:500;font-size:13px;color:var(--text-primary);}
-        .step-sub{font-size:11px;color:var(--text-secondary);margin-top:2px;}
-
-        /* BUTTONS (compact) */
-        .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border-radius:5px;font-size:11px;font-weight:600;border:none;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.3px;position:relative;overflow:hidden;}
+        /* BUTTONS */
+        .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 14px;border-radius:6px;font-size:12px;font-weight:600;border:none;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
         .btn:active{transform:scale(.98);}
-        .btn-primary{background:var(--navy);color:var(--white);}
-        .btn-primary:hover{background:var(--navy-dark);}
-        .btn-accent{background:var(--gold);color:var(--white);}
-        .btn-accent:hover{background:var(--gold-dark);}
-        .btn-teal{background:var(--dcd-teal);color:var(--white);}
-        .btn-teal:hover{background:#0f766e;}
+        .btn-gold{background:var(--gold);color:var(--white);}.btn-gold:hover{background:var(--gold-dark);}
+        .btn-navy{background:var(--navy);color:var(--white);}.btn-navy:hover{background:var(--navy-dark);}
+        .btn-teal{background:var(--dcd-teal);color:var(--white);}.btn-teal:hover{background:#0f766e;}
+        .btn-red{background:#dc2626;color:var(--white);}
+        .btn-orange{background:#ea580c;color:var(--white);}
         .btn-ghost{background:var(--cream);color:var(--navy);border:1px solid var(--border-light);}
         .btn-ghost:hover{background:var(--white);border-color:var(--navy);}
         .btn-ghost.sm{padding:4px 8px;font-size:10px;}
-        .btn-danger{background:#dc2626;color:white;}
-        .btn-compile{width:100%;justify-content:center;box-shadow:0 3px 10px rgba(30,58,95,.2);font-size:12px;padding:10px 16px;}
+        .btn-full{width:100%;justify-content:center;}
         .btn.processing{pointer-events:none;opacity:.9;}
-        .btn.processing::after{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent);animation:btnSweep .6s ease-out forwards;}
-        @keyframes btnSweep{0%{left:-100%}100%{left:100%}}
         .btn.success{background:var(--gold)!important;}
-
-        /* BOXES (compact) */
-        .data-box{background:var(--cream);border:1px solid var(--border-light);border-radius:6px;padding:12px;margin:8px 0;}
-        .warning-box{background:#fef7f7;border:1px solid #f5d5d5;border-left:3px solid #dc2626;padding:10px;border-radius:5px;font-size:11px;margin-top:6px;}
-        .info-box{background:#fdfbf7;border:1px solid var(--border-light);border-left:3px solid var(--gold);padding:10px;border-radius:5px;font-size:11px;}
-        .info-box.teal{border-left-color:var(--dcd-teal);background:#f0fdfa;border-color:#99f6e4;}
-        .model-warning{background:#dc2626;color:white;padding:6px 10px;border-radius:6px;margin:6px 0;font-weight:700;font-size:11px;display:flex;align-items:center;justify-content:center;gap:6px;}
+        /* COPY ROWS */
+        .copy-row{display:flex;gap:6px;align-items:center;margin:6px 0;}
+        .copy-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:2px;}
+        .copy-val{flex:1;font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--cream);padding:6px 8px;border-radius:4px;border:1px solid var(--border-light);word-break:break-word;}
+        .copy-btn{font-size:10px;padding:4px 8px;border:1px solid var(--border-light);border-radius:4px;background:var(--white);cursor:pointer;color:var(--text-secondary);font-weight:600;}
+        .copy-btn:hover{border-color:var(--navy);color:var(--navy);}
+        /* UTILITY */
         .divider{border-top:1px solid var(--border-light);margin:12px 0;}
-        .part-header{background:linear-gradient(90deg,var(--navy),var(--navy-light));color:white;padding:7px 12px;border-radius:6px;font-weight:700;font-size:12px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
-        .part-header.teal{background:linear-gradient(90deg,var(--dcd-teal),#0f766e);}
-        .part-header.red{background:linear-gradient(90deg,#dc2626,#b91c1c);}
-
-        /* QUICK LINKS (compact) */
-        .quick-links{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0;}
-        .quick-link{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;background:var(--white);border:1px solid var(--border-light);border-radius:5px;font-size:11px;font-weight:600;color:var(--navy);text-decoration:none;transition:all .2s;}
-        .quick-link:hover{background:var(--navy);color:var(--white);border-color:var(--navy);}
-        .quick-link.teal:hover{background:var(--dcd-teal);border-color:var(--dcd-teal);}
-
-        /* COPY STRIPS (compact) */
-        .copy-strip{background:var(--cream);border:1px solid var(--border-light);border-radius:5px;padding:6px 8px;margin:6px 0;}
-        .copy-strip-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:2px;}
-        .copy-strip-row{display:flex;gap:4px;align-items:center;}
-        .copy-strip-row+.copy-strip-row{margin-top:4px;}
-        .copy-strip-value{flex:1;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text-primary);background:var(--white);border:1px solid var(--border-light);border-radius:3px;padding:4px 6px;line-height:1.4;word-break:break-word;min-height:22px;}
-        .copy-strip-btn{background:var(--gold);color:var(--white);border:none;border-radius:3px;padding:3px 6px;font-size:9px;font-weight:700;cursor:pointer;white-space:nowrap;transition:all .15s;}
-        .copy-strip-btn:hover{background:var(--gold-dark);}
-
-        /* LAUNCHER (compact) */
-        .launcher-box{background:linear-gradient(135deg,var(--navy),var(--navy-dark));border-radius:8px;padding:14px;text-align:center;margin-bottom:10px;border:1px solid var(--gold);}
-        .launcher-box.dcd{border-color:var(--dcd-teal);}
-        .open-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--gold);color:var(--white);font-weight:600;font-size:12px;border-radius:5px;text-decoration:none;margin-top:8px;transition:all .2s;}
-        .open-btn:hover{transform:translateY(-1px);background:var(--gold-dark);}
-        .open-btn.teal{background:var(--dcd-teal);}
-        .open-btn.teal:hover{background:#0f766e;}
-
-        /* SEF URL BOX */
-        .sef-box{background:var(--cream);border:2px solid var(--gold);border-radius:8px;padding:12px;margin:8px 0;}
-
-        /* TRACKER LOG BOX */
-        .tracker-box{background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:12px;margin:8px 0;}
+        .section-sep{display:flex;align-items:center;gap:8px;padding:10px 0;font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--text-muted);font-weight:600;}
+        .section-sep::after{content:'';flex:1;height:1px;background:var(--border-light);}
+        .link-pill{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:var(--white);border:1px solid var(--border-light);border-radius:6px;font-size:11px;font-weight:600;color:var(--navy);text-decoration:none;transition:all .2s;}
+        .link-pill:hover{background:var(--navy);color:var(--white);border-color:var(--navy);text-decoration:none;}
+        .link-pill.teal:hover{background:var(--dcd-teal);border-color:var(--dcd-teal);}
+        .warn-box{background:#fef7f7;border-left:3px solid #dc2626;padding:10px 12px;border-radius:0 6px 6px 0;font-size:12px;color:#991b1b;margin:8px 0;}
+        .info-box{background:var(--cream);border-left:3px solid var(--gold);padding:10px 12px;border-radius:0 6px 6px 0;font-size:12px;margin:8px 0;}
+        .info-box.teal{border-left-color:var(--dcd-teal);}
+        .log-preview{background:#fef2f2;border:1px solid #fecaca;border-radius:6px;padding:12px;margin:8px 0;}
+        /* META TOGGLE */
+        .meta-panel{display:none;background:var(--white);border-radius:10px;padding:14px;margin-bottom:10px;border:2px solid var(--gold);}
+        .meta-panel.visible{display:block;}
+        .meta-panel.dcd{border-color:var(--dcd-teal);}
+        .meta-toggle-btn{width:100%;display:flex;align-items:center;gap:8px;padding:0;border:none;background:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;color:var(--navy);text-align:left;}
+        .meta-toggle-icon{font-size:10px;color:var(--text-muted);transition:transform .2s;}.meta-toggle-icon.open{transform:rotate(180deg);}
+        .meta-body{padding-top:12px;display:none;}
+        .meta-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+        .meta-field-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-muted);margin-bottom:3px;}
+        .meta-field-value{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--text-primary);background:var(--cream);padding:6px 8px;border-radius:4px;border:1px solid var(--border-light);word-break:break-word;}
+        .chat-name-banner{background:linear-gradient(135deg,var(--navy),var(--navy-light));border-radius:6px;padding:8px 10px;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+        .chat-name-text{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);font-weight:600;flex:1;word-break:break-all;}
         /* TOAST */
         .toast{position:fixed;bottom:30px;left:110px;background:var(--navy);color:var(--white);padding:10px 18px;border-radius:6px;box-shadow:0 8px 30px rgba(30,58,95,.3);display:flex;align-items:center;gap:8px;transform:translateY(100px);transition:transform .3s;z-index:2000;font-size:11px;font-weight:500;}
         .toast.show{transform:translateY(0);}
-
-        /* FLOATING CHAT WIDGET */
-        .chat-fab{position:fixed;bottom:24px;left:24px;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy-dark));color:var(--white);border:none;cursor:pointer;box-shadow:0 4px 18px rgba(30,58,95,.35);z-index:3000;display:flex;align-items:center;justify-content:center;font-size:20px;transition:all .3s;}
-        .chat-fab:hover{transform:scale(1.08);}
+        /* CHAT WIDGET */
+        .chat-fab{position:fixed;bottom:24px;left:24px;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--navy),var(--navy-dark));color:var(--white);border:none;cursor:pointer;box-shadow:0 4px 18px rgba(30,58,95,.35);z-index:3000;display:flex;align-items:center;justify-content:center;font-size:20px;}.chat-fab:hover{transform:scale(1.08);}
         .chat-widget{position:fixed;bottom:84px;left:24px;width:380px;max-height:520px;background:var(--white);border-radius:14px;box-shadow:0 12px 50px rgba(30,58,95,.25);border:1px solid var(--border-light);z-index:3000;display:none;flex-direction:column;overflow:hidden;}
-        .chat-widget.open{display:flex;animation:chatSlideUp .25s ease;}
-        .chat-widget.wide{width:640px;}
+        .chat-widget.open{display:flex;animation:chatSlideUp .25s ease;}.chat-widget.wide{width:640px;}
         @keyframes chatSlideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-        .chat-widget-header{background:linear-gradient(135deg,var(--navy),var(--navy-dark));padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;flex-shrink:0;}
+        .chat-widget-header{background:linear-gradient(135deg,var(--navy),var(--navy-dark));padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;}
         .chat-widget-title{color:var(--white);font-size:13px;font-weight:700;letter-spacing:.5px;display:flex;align-items:center;gap:6px;}
         .chat-widget-close{background:none;border:none;color:rgba(255,255,255,.6);font-size:16px;cursor:pointer;}
         .chat-widget-body{flex:1;display:flex;flex-direction:column;overflow:hidden;}
-        .chat-widget-models{display:flex;gap:4px;padding:8px 10px;border-bottom:1px solid var(--border-light);background:var(--cream);flex-shrink:0;}
-        .chat-model-btn{padding:5px 8px;border:1px solid var(--border-light);border-radius:5px;background:var(--white);color:var(--text-secondary);font-size:10px;font-weight:600;cursor:pointer;transition:all .2s;}
-        .chat-model-btn:hover{border-color:var(--navy);color:var(--navy);}
-        .chat-model-btn.active-model{border-color:var(--navy);background:var(--navy);color:var(--white);}
+        .chat-widget-models{display:flex;gap:4px;padding:8px 10px;border-bottom:1px solid var(--border-light);background:var(--cream);}
+        .chat-model-btn{padding:5px 8px;border:1px solid var(--border-light);border-radius:5px;background:var(--white);color:var(--text-secondary);font-size:10px;font-weight:600;cursor:pointer;}.chat-model-btn.active-model{border-color:var(--navy);background:var(--navy);color:var(--white);}
         .chat-thread{background:var(--white);padding:10px;flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;min-height:0;}
         .chat-bubble{max-width:85%;padding:8px 12px;border-radius:10px;font-size:12px;line-height:1.5;word-break:break-word;}
         .chat-bubble.user{background:var(--navy);color:var(--white);align-self:flex-end;border-bottom-right-radius:3px;}
         .chat-bubble.assistant{background:var(--cream);border:1px solid var(--border-light);color:var(--text-primary);align-self:flex-start;border-bottom-left-radius:3px;}
         .chat-bubble.thinking{opacity:.6;font-style:italic;}
         .chat-bubble .bubble-label{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:3px;opacity:.6;}
-        .chat-widget-input{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--border-light);background:var(--white);flex-shrink:0;}
-        .chat-textarea{flex:1;padding:8px 10px;border:1px solid var(--border-light);border-radius:6px;font-family:'Inter',sans-serif;font-size:12px;resize:none;min-height:36px;max-height:80px;outline:none;line-height:1.4;}
-        .chat-textarea:focus{border-color:var(--navy);}
-        .chat-send-btn{background:var(--navy);color:var(--white);border:none;border-radius:6px;padding:8px 12px;cursor:pointer;font-size:13px;transition:background .2s;}
-        .chat-send-btn:disabled{opacity:.5;cursor:not-allowed;}
-        .chat-widget-footer{display:flex;justify-content:space-between;align-items:center;padding:4px 10px;border-top:1px solid var(--border-light);background:var(--cream);flex-shrink:0;}
+        .chat-widget-input{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--border-light);}
+        .chat-textarea{flex:1;padding:8px 10px;border:1px solid var(--border-light);border-radius:6px;font-family:'Inter',sans-serif;font-size:12px;resize:none;min-height:36px;max-height:80px;outline:none;}.chat-textarea:focus{border-color:var(--navy);}
+        .chat-send-btn{background:var(--navy);color:var(--white);border:none;border-radius:6px;padding:8px 12px;cursor:pointer;font-size:13px;}.chat-send-btn:disabled{opacity:.5;}
+        .chat-widget-footer{display:flex;justify-content:space-between;align-items:center;padding:4px 10px;border-top:1px solid var(--border-light);background:var(--cream);}
         .chat-clear-btn{background:none;border:none;font-size:10px;color:var(--text-muted);cursor:pointer;}
         .chat-empty{text-align:center;padding:30px 12px;color:var(--text-muted);}
         .chat-empty i{font-size:24px;margin-bottom:6px;opacity:.3;display:block;}
         .chat-suggestions{display:flex;flex-wrap:wrap;gap:4px;padding:0 10px 8px;}
-        .chat-suggestion{background:var(--cream);border:1px solid var(--border-light);border-radius:12px;padding:3px 8px;font-size:10px;color:var(--navy);cursor:pointer;transition:all .2s;}
-        .chat-suggestion:hover{background:var(--navy);color:var(--white);border-color:var(--navy);}
+        .chat-suggestion{background:var(--cream);border:1px solid var(--border-light);border-radius:12px;padding:3px 8px;font-size:10px;color:var(--navy);cursor:pointer;}.chat-suggestion:hover{background:var(--navy);color:var(--white);border-color:var(--navy);}
     </style>
 </head>
 <body>
-
-<!-- HEADER BAR -->
-<div class="header-bar">
-    <div class="container">
-        <div class="header-title"><span>M.A.R.K.</span> Blog Terminal</div>
-        <div class="header-tags">
-            <span class="header-tag sts">STS</span>
-            <span class="header-tag dcd">DCD</span>
-        </div>
-    </div>
-</div>
-
+<div class="header-bar"><div class="container"><div class="header-title"><span>M.A.R.K.</span> Blog Terminal</div><div class="header-tags"><span class="header-tag sts">STS</span><span class="header-tag dcd">DCD</span></div></div></div>
 <div class="container">
-
-    <!-- ===== MISSION CONTROL ===== -->
+    <!-- MISSION CONTROL -->
     <div class="card setup-section">
-        <div class="setup-title">
-            <h2><i class="fas fa-satellite-dish" style="color:var(--gold);"></i> Mission Control</h2>
-            <button class="btn btn-ghost" onclick="resetAll()" style="border-color:#ef4444;"><span style="color:#ef4444;">⚠️</span> Reset</button>
-        </div>
-
+        <div class="setup-title"><h2><i class="fas fa-satellite-dish" style="color:var(--gold);"></i> Mission Control</h2><button class="btn btn-ghost" onclick="resetAll()" style="border-color:#ef4444;"><span style="color:#ef4444;">⚠️</span> Reset</button></div>
         <div class="input-row">
-            <div class="form-group">
-                <label>VA Name</label>
-                <input type="text" id="vaName" placeholder="Enter your name">
-            </div>
-            <div class="form-group">
-                <label>Management Directive <span style="color:var(--text-muted);font-weight:400;text-transform:none;">(optional)</span></label>
-                <input type="text" id="mgmtIdea" placeholder="e.g. 'Write about Chromebook recycling for K-12 districts'">
-            </div>
+            <div class="form-group"><label>VA Name</label><input type="text" id="vaName" placeholder="Enter your name"></div>
+            <div class="form-group"><label>Management Directive <span style="color:var(--text-muted);font-weight:400;text-transform:none;">(optional)</span></label><input type="text" id="mgmtIdea" placeholder="e.g. 'Write about Chromebook recycling for K-12 districts'"></div>
         </div>
-
-        <!-- RESEARCH PANEL -->
         <div class="research-panel">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
-                <div style="color:var(--white);font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;">
-                    <i class="fas fa-brain" style="color:var(--gold);"></i> AI Research Engine
-                </div>
-                <div style="font-size:9px;color:rgba(255,255,255,.4);font-family:'JetBrains Mono',monospace;">
-                    <span style="background:#000;color:white;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:700;">GROK 4</span>
-                    <span style="color:rgba(255,255,255,.3);margin-left:4px;">live web + X search</span>
-                </div>
+                <div style="color:var(--white);font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;"><i class="fas fa-brain" style="color:var(--gold);"></i> AI Research Engine</div>
+                <div style="font-size:9px;color:rgba(255,255,255,.4);font-family:'JetBrains Mono',monospace;"><span style="background:#000;color:white;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:700;">GROK 4</span></div>
             </div>
-            <div style="font-size:11px;color:rgba(255,255,255,.45);margin-bottom:2px;">Fires two parallel searches — generates 5 topics per company with meta fields</div>
-
-            <button class="research-run-btn" id="runResearchBtn" onclick="runResearch()">
-                <i class="fas fa-rocket"></i> Research Both — STS + DCD
-            </button>
-
-            <!-- THINKING -->
+            <button class="research-run-btn" id="runResearchBtn" onclick="runResearch()"><i class="fas fa-rocket"></i> Research Both</button>
             <div class="topics-grid" id="thinkingGrid" style="display:none;">
-                <div class="thinking-indicator active" id="stsThinking">
-                    <div class="thinking-dots"><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div></div>
-                    <div class="thinking-label">Researching STS...</div>
-                </div>
-                <div class="thinking-indicator active" id="dcdThinking">
-                    <div class="thinking-dots"><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div></div>
-                    <div class="thinking-label">Researching DCD...</div>
-                </div>
+                <div class="thinking-indicator active" id="stsThinking"><div class="thinking-dots"><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div></div><div class="thinking-label">Researching STS...</div></div>
+                <div class="thinking-indicator active" id="dcdThinking"><div class="thinking-dots"><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div></div><div class="thinking-label">Researching DCD...</div></div>
             </div>
-
-            <!-- TOPIC RESULTS -->
             <div class="topics-grid" id="topicsGrid" style="display:none;">
-                <div>
-                    <div class="topics-col-header sts"><i class="fas fa-recycle"></i> STS Topics</div>
-                    <div id="stsTopicCards"></div>
-                    <div class="error-box" id="stsResearchError"></div>
-                    <button class="regen-btn" id="stsRegenBtn" onclick="runResearchSingle('STS')"><i class="fas fa-sync"></i> Regenerate STS</button>
-                </div>
-                <div>
-                    <div class="topics-col-header dcd"><i class="fas fa-store"></i> DCD Topics</div>
-                    <div id="dcdTopicCards"></div>
-                    <div class="error-box" id="dcdResearchError"></div>
-                    <button class="regen-btn" id="dcdRegenBtn" onclick="runResearchSingle('DCD')"><i class="fas fa-sync"></i> Regenerate DCD</button>
-                </div>
+                <div><div class="topics-col-header sts"><i class="fas fa-recycle"></i> STS Topics</div><div id="stsTopicCards"></div><div class="error-box" id="stsResearchError"></div><button class="regen-btn" id="stsRegenBtn" onclick="runResearchSingle('STS')"><i class="fas fa-sync"></i> Regenerate STS</button></div>
+                <div><div class="topics-col-header dcd"><i class="fas fa-store"></i> DCD Topics</div><div id="dcdTopicCards"></div><div class="error-box" id="dcdResearchError"></div><button class="regen-btn" id="dcdRegenBtn" onclick="runResearchSingle('DCD')"><i class="fas fa-sync"></i> Regenerate DCD</button></div>
             </div>
         </div>
     </div>
 
-    <!-- ===== COMPANY TABS ===== -->
+    <!-- WIZARD AREA -->
     <div id="columnsGrid" style="display:none;margin-top:12px;">
-
         <div class="company-tabs">
-            <button id="tabSTS" class="company-tab active-sts" onclick="switchTab('STS')"><i class="fas fa-recycle"></i> STS Electronic Recycling</button>
-            <button id="tabDCD" class="company-tab" onclick="switchTab('DCD')"><i class="fas fa-store"></i> Discount Computer Depot</button>
+            <button id="tabSTS" class="company-tab active-sts" onclick="switchTab('STS')"><i class="fas fa-recycle"></i> STS</button>
+            <button id="tabDCD" class="company-tab" onclick="switchTab('DCD')"><i class="fas fa-store"></i> DCD</button>
         </div>
 
-        <!-- ========== STS VIEW ========== -->
+        <!-- ===== STS VIEW ===== -->
         <div class="company-view active" id="stsView">
-
-            <!-- STS META TOGGLE -->
+            <div class="progress-dots" id="sts-progress"></div>
             <div class="meta-panel" id="sts-metaPanel">
-                <button class="meta-toggle-btn" onclick="toggleMeta('STS')">
-                    <i class="fas fa-tags" style="color:var(--gold);"></i> STS Meta Fields
-                    <i class="fas fa-chevron-down meta-toggle-icon" id="sts-metaIcon"></i>
-                    <span style="margin-left:auto;display:flex;gap:4px;">
-                        <button class="btn btn-ghost sm" onclick="event.stopPropagation();copyAllMeta('STS')"><i class="fas fa-copy"></i> All</button>
-                    </span>
-                </button>
-                <div class="meta-body" id="sts-metaBody" style="display:none;">
-                    <div class="chat-name-banner">
-                        <div style="flex:1;">
-                            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold-dark);margin-bottom:2px;">Claude Chat Name</div>
-                            <div class="chat-name-text" id="sts-chatName">—</div>
-                        </div>
-                        <button class="btn btn-ghost sm" onclick="copyField('STS','chatName')"><i class="fas fa-copy"></i></button>
-                    </div>
+                <button class="meta-toggle-btn" onclick="toggleMeta('STS')"><i class="fas fa-tags" style="color:var(--gold);"></i> STS Meta Fields <i class="fas fa-chevron-down meta-toggle-icon" id="sts-metaIcon"></i><span style="margin-left:auto;"><button class="btn btn-ghost sm" onclick="event.stopPropagation();copyAllMeta('STS')"><i class="fas fa-copy"></i> All</button></span></button>
+                <div class="meta-body" id="sts-metaBody">
+                    <div class="chat-name-banner"><div style="flex:1;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--gold-dark);margin-bottom:2px;">Claude Chat Name</div><div class="chat-name-text" id="sts-chatName">—</div></div><button class="btn btn-ghost sm" onclick="copyField('STS','chatName')"><i class="fas fa-copy"></i></button></div>
                     <div class="meta-grid">
-                        <div class="meta-field">
-                            <div class="meta-field-label">Page Title <span style="color:var(--text-muted);">(60c)</span></div>
-                            <div class="meta-copy-row"><div class="meta-field-value" id="sts-mf-title">—</div><button class="btn btn-ghost sm" onclick="copyField('STS','title')"><i class="fas fa-copy"></i></button></div>
-                            <div style="font-size:10px;color:var(--text-muted);margin-top:2px;" id="sts-mf-title-count"></div>
-                        </div>
-                        <div class="meta-field">
-                            <div class="meta-field-label">URL Slug</div>
-                            <div class="meta-copy-row"><div class="meta-field-value" id="sts-mf-slug">—</div><button class="btn btn-ghost sm" onclick="copyField('STS','slug')"><i class="fas fa-copy"></i></button></div>
-                        </div>
+                        <div><div class="meta-field-label">Page Title (60c)</div><div class="copy-row"><div class="meta-field-value" id="sts-mf-title">—</div><button class="btn btn-ghost sm" onclick="copyField('STS','title')"><i class="fas fa-copy"></i></button></div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;" id="sts-mf-title-count"></div></div>
+                        <div><div class="meta-field-label">URL Slug</div><div class="copy-row"><div class="meta-field-value" id="sts-mf-slug">—</div><button class="btn btn-ghost sm" onclick="copyField('STS','slug')"><i class="fas fa-copy"></i></button></div></div>
                     </div>
-                    <div class="meta-field">
-                        <div class="meta-field-label">Meta Description <span style="color:var(--text-muted);">(150–160c)</span></div>
-                        <div class="meta-copy-row"><div class="meta-field-value" id="sts-mf-desc">—</div><button class="btn btn-ghost sm" onclick="copyField('STS','desc')"><i class="fas fa-copy"></i></button></div>
-                        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;" id="sts-mf-desc-count"></div>
-                    </div>
-                    <div class="meta-field">
-                        <div class="meta-field-label">Meta Keywords</div>
-                        <div class="meta-copy-row"><div class="meta-field-value" id="sts-mf-keywords">—</div><button class="btn btn-ghost sm" onclick="copyField('STS','keywords')"><i class="fas fa-copy"></i></button></div>
-                    </div>
+                    <div><div class="meta-field-label">Meta Description (150-160c)</div><div class="copy-row"><div class="meta-field-value" id="sts-mf-desc">—</div><button class="btn btn-ghost sm" onclick="copyField('STS','desc')"><i class="fas fa-copy"></i></button></div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;" id="sts-mf-desc-count"></div></div>
+                    <div><div class="meta-field-label">Meta Keywords</div><div class="copy-row"><div class="meta-field-value" id="sts-mf-keywords">—</div><button class="btn btn-ghost sm" onclick="copyField('STS','keywords')"><i class="fas fa-copy"></i></button></div></div>
                 </div>
             </div>
-
-            <!-- STS PHASE 1: BUILD + JOOMLA -->
-            <div class="card phase" id="sts-phase1">
-                <div class="phase-header" onclick="togglePhase('sts-phase1')">
-                    <div class="phase-title"><span class="phase-num">1</span> Build + Joomla Setup</div>
-                    <div class="phase-time">~10 min</div>
-                </div>
-                <div class="phase-content">
-                    <div class="launcher-box">
-                        <div style="font-size:14px;font-weight:600;color:white;display:flex;align-items:center;justify-content:center;gap:8px;"><i class="fas fa-brain"></i> STS Claude Project</div>
-                        <div class="model-warning"><i class="fas fa-exclamation-triangle"></i> MUST USE SONNET 4.6 — NOT OPUS</div>
-                        <a href="https://claude.ai/project/019aef3e-df18-7142-a666-8397254c5fe8" target="_blank" class="open-btn"><i class="fas fa-external-link-alt"></i> Open Project <span style="font-size:10px;opacity:.8;">⚡ SONNET 4.6</span></a>
-                    </div>
-                    <div class="data-box" style="border-color:var(--navy);">
-                        <div style="font-size:10px;color:var(--text-secondary);margin-bottom:6px;"><i class="fas fa-info-circle" style="color:var(--gold);"></i> Loaded in project — links for reference</div>
-                        <div class="quick-links" style="margin-bottom:8px;">
-                            <a href="https://docs.google.com/document/d/19pAXN_sUNJ8ZOgR3Fv_9Df2CYoFOq_YojSy8yjQW9Zo/edit" target="_blank" class="quick-link"><i class="fas fa-file-alt"></i> STS Prompt v4.3</a>
-                            <a href="https://docs.google.com/document/d/1gmZMWbIHt408yf6RgyrnwMsewGqWQSXKDuC7MJZZX1o/edit" target="_blank" class="quick-link"><i class="fas fa-palette"></i> Design Bible</a>
-                        </div>
-                        <button class="btn btn-accent btn-compile" onclick="copyPrompt('STS','strategy');animateButton(this,'Generating...','Ready')"><i class="fas fa-compass"></i> Step 1: Copy Strategy Prompt (~1 min)</button>
-                    </div>
-                    <div class="step"><input type="checkbox" id="sts-p1-1a" onchange="checkAll('STS')"><div class="step-label">Strategy prompt pasted — Claude outputs plan (~1 min)</div></div>
-                    <div class="divider"></div>
-                    <div class="warning-box" style="margin-bottom:8px;"><i class="fas fa-hand-paper"></i> <strong>WAIT</strong> — confirm strategy looks good before proceeding to Step 2.</div>
-                    <div class="data-box" style="border-color:var(--navy);">
-                        <button class="btn btn-compile" style="background:linear-gradient(135deg,var(--navy),var(--navy-dark));color:white;" onclick="copyPrompt('STS','htmlbuild');animateButton(this,'Generating...','Ready')"><i class="fas fa-code"></i> Step 2: Copy Build Prompt (~3 min)</button>
-                    </div>
-                    <div class="step"><input type="checkbox" id="sts-p1-1b" onchange="checkAll('STS')"><div class="step-label">Build prompt pasted — Claude generating HTML (~3 min)</div></div>
-                    <div class="divider"></div>
-                    <div class="part-header"><i class="fas fa-globe"></i> JOOMLA SETUP — while Claude builds</div>
-                    <div class="quick-links" style="margin-bottom:8px;"><a href="https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_menus&view=items&menutype=blog" target="_blank" class="quick-link"><i class="fas fa-bars"></i> Open Blog Menu</a></div>
-                    <div class="step"><input type="checkbox" id="sts-p1-2" onchange="checkAll('STS')"><div>
-                        <div class="step-label">Click <strong>New</strong> → paste Title + Alias</div>
-                        <div class="copy-strip" style="margin-top:4px;"><div class="copy-strip-row">
-                            <div><div class="copy-strip-label">Page Title</div><div class="copy-strip-value" id="sts-cs-menu-title">—</div></div>
-                            <button class="copy-strip-btn" onclick="copyCsField('STS','title')"><i class="fas fa-copy"></i></button>
-                            <div><div class="copy-strip-label">URL Alias</div><div class="copy-strip-value" id="sts-cs-menu-slug">—</div></div>
-                            <button class="copy-strip-btn" onclick="copyCsField('STS','slug')"><i class="fas fa-copy"></i></button>
-                        </div></div>
-                    </div></div>
-                    <div class="step"><input type="checkbox" id="sts-p1-3" onchange="checkAll('STS')"><div class="step-label">Menu Item Type → <strong>Articles</strong> → <strong>Single Article</strong></div></div>
-                    <div class="step"><input type="checkbox" id="sts-p1-4" onchange="checkAll('STS')"><div class="step-label">Template: <code style="background:#f1f5f9;padding:1px 4px;border-radius:3px;font-size:11px;">Clean Top 2026</code></div></div>
-                    <div class="step"><input type="checkbox" id="sts-p1-5" onchange="checkAll('STS')"><div>
-                        <div class="step-label">Select Article → <strong>Create</strong> → paste Article Title</div>
-                        <div class="copy-strip" style="margin-top:4px;"><div class="copy-strip-row">
-                            <div style="flex:1;"><div class="copy-strip-label">Article Title</div><div class="copy-strip-value" id="sts-cs-article-title">—</div></div>
-                            <button class="copy-strip-btn" onclick="copyCsField('STS','title')"><i class="fas fa-copy"></i></button>
-                        </div></div>
-                    </div></div>
-                    <div class="step"><input type="checkbox" id="sts-p1-6" onchange="checkAll('STS')"><div class="step-label">Category: <strong style="color:#dc2626;">Blog</strong></div></div>
-                    <div class="step"><input type="checkbox" id="sts-p1-7" onchange="checkAll('STS')"><div class="step-label">Options → Show Title: <strong>Hide</strong> → Save &amp; Close article</div></div>
-                    <div class="step"><input type="checkbox" id="sts-p1-7b" onchange="checkAll('STS')"><div class="step-label">Publishing tab → change <strong>Created Date</strong> and <strong>Start Publishing</strong> to another day</div></div>
-                    <div class="step"><input type="checkbox" id="sts-p1-8" onchange="checkAll('STS')"><div class="step-label">Back to Menu → Options → Show Title: <strong>Hide</strong></div></div>
-                    <div class="step"><input type="checkbox" id="sts-p1-9" onchange="checkAll('STS')"><div>
-                        <div class="step-label">Page Display → paste Page Title</div>
-                        <div class="copy-strip" style="margin-top:4px;"><div class="copy-strip-row">
-                            <div class="copy-strip-value" id="sts-cs-pagedisplay-title">—</div>
-                            <button class="copy-strip-btn" onclick="copyCsField('STS','title')"><i class="fas fa-copy"></i></button>
-                        </div></div>
-                    </div></div>
-                    <div class="step"><input type="checkbox" id="sts-p1-10" onchange="checkAll('STS')"><div>
-                        <div class="step-label">Metadata → paste Description + Keywords</div>
-                        <div class="copy-strip" style="margin-top:4px;">
-                            <div class="copy-strip-row"><div style="flex:1;"><div class="copy-strip-label">Meta Desc</div><div class="copy-strip-value" id="sts-cs-meta-desc">—</div></div><button class="copy-strip-btn" onclick="copyCsField('STS','desc')"><i class="fas fa-copy"></i></button></div>
-                            <div class="copy-strip-row"><div style="flex:1;"><div class="copy-strip-label">Keywords</div><div class="copy-strip-value" id="sts-cs-meta-keywords">—</div></div><button class="copy-strip-btn" onclick="copyCsField('STS','keywords')"><i class="fas fa-copy"></i></button></div>
-                        </div>
-                    </div></div>
-                    <div class="step"><input type="checkbox" id="sts-p1-11" onchange="checkAll('STS')"><div class="step-label"><strong>Save</strong> menu item</div></div>
-                </div>
+            <div class="launcher" id="sts-launcher" style="display:none;">
+                <div class="launcher-label"><i class="fas fa-brain"></i> STS Claude Project<span class="launcher-warn">Sonnet 4.6 only</span></div>
+                <a href="https://claude.ai/project/019aef3e-df18-7142-a666-8397254c5fe8" target="_blank" class="launcher-link">Open project ↗</a>
             </div>
+            <div id="sts-wizard"></div>
+        </div>
 
-            <!-- STS PHASE 2: SEO AUDIT -->
-            <div class="card phase" id="sts-phase2">
-                <div class="phase-header" onclick="togglePhase('sts-phase2')">
-                    <div class="phase-title"><span class="phase-num">2</span> SEO Audit</div>
-                    <div class="phase-time">5 min</div>
-                </div>
-                <div class="phase-content">
-                    <div class="step"><input type="checkbox" id="sts-p2-0" onchange="checkAll('STS')"><div>
-                        <div class="step-label">Upload SEO Blog Audit doc to Claude</div>
-                        <div class="quick-links" style="margin-top:4px;"><a href="https://docs.google.com/document/d/1Vb63LshVu9SYBvOQfESrCGQ1BVnJ3wZ7rRj0dJitFRc/edit" target="_blank" class="quick-link"><i class="fas fa-search"></i> SEO Audit Doc</a></div>
-                    </div></div>
-                    <button class="btn btn-accent btn-compile" style="margin-bottom:8px;" onclick="copyPrompt('STS','seo');animateButton(this,'Generating...','Ready')"><i class="fas fa-search"></i> Copy SEO Audit Prompt</button>
-                    <div class="step"><input type="checkbox" id="sts-p2-1" onchange="checkAll('STS')"><div class="step-label">SEO audit pasted — Claude auditing</div></div>
-                    <div class="step"><input type="checkbox" id="sts-p2-2" onchange="checkAll('STS')"><div class="step-label">Review changes — design preserved</div></div>
-                    <div class="step"><input type="checkbox" id="sts-p2-3" onchange="checkAll('STS')"><div class="step-label">✅ SEO-optimized HTML ready</div></div>
-                </div>
-            </div>
-
-            <!-- STS PHASE 3: SCHEMA (Master Schema Generator v1.4) -->
-            <div class="card phase" id="sts-phase3">
-                <div class="phase-header" onclick="togglePhase('sts-phase3')">
-                    <div class="phase-title"><span class="phase-num">3</span> Schema Creation</div>
-                    <div class="phase-time">5 min</div>
-                </div>
-                <div class="phase-content">
-                    <div class="info-box" style="margin-bottom:8px;"><i class="fas fa-code" style="color:var(--gold);"></i> Uses <strong>Master Schema Generator v1.4</strong> — runs AFTER SEO audit on final HTML.</div>
-                    <div class="step"><input type="checkbox" id="sts-p3-0" onchange="checkAll('STS')"><div>
-                        <div class="step-label">Upload Schema Generator doc to Claude</div>
-                        <div class="quick-links" style="margin-top:4px;"><a href="https://docs.google.com/document/d/1labL6l4YBkop02jZhGEujg_OfAgKYElCwQ2hctGIXI8/edit" target="_blank" class="quick-link"><i class="fas fa-database"></i> Master Schema Generator v1.4</a></div>
-                    </div></div>
-                    <button class="btn btn-accent btn-compile" style="margin-bottom:8px;" onclick="copyPrompt('STS','schema');animateButton(this,'Generating...','Ready')"><i class="fas fa-code"></i> Copy Schema Prompt</button>
-                    <div class="step"><input type="checkbox" id="sts-p3-1" onchange="checkAll('STS')"><div class="step-label">Schema prompt pasted — Claude generating</div></div>
-                    <div class="step"><input type="checkbox" id="sts-p3-2" onchange="checkAll('STS')"><div class="step-label">Verify: wrapped in <code style="font-size:10px;">&lt;script type="application/ld+json"&gt;</code></div></div>
-                    <div class="step"><input type="checkbox" id="sts-p3-3" onchange="checkAll('STS')"><div class="step-label">✅ Schema ready — download schema.txt</div></div>
-                </div>
-            </div>
-
-            <!-- STS PHASE 4: LINK AUDIT -->
-            <div class="card phase" id="sts-phase4">
-                <div class="phase-header" onclick="togglePhase('sts-phase4')">
-                    <div class="phase-title"><span class="phase-num">4</span> Link Audit</div>
-                    <div class="phase-time">2 min</div>
-                </div>
-                <div class="phase-content">
-                    <div class="warning-box" style="margin-bottom:8px;"><i class="fas fa-exclamation-triangle"></i> <strong>Last check before publishing.</strong></div>
-                    <button class="btn btn-compile" style="margin-bottom:8px;background:linear-gradient(135deg,#f97316,#ea580c);color:white;" onclick="copyPrompt('STS','links');animateButton(this,'Scanning...','Ready')"><i class="fas fa-link"></i> Copy Link Audit Prompt</button>
-                    <div class="step"><input type="checkbox" id="sts-p4-1" onchange="checkAll('STS')"><div class="step-label">Link audit pasted — scanning</div></div>
-                    <div class="step"><input type="checkbox" id="sts-p4-2" onchange="checkAll('STS')"><div class="step-label">✅ All links verified</div></div>
-                </div>
-            </div>
-
-            <!-- STS PHASE 5: PUBLISH TO JOOMLA -->
-            <div class="card phase" id="sts-phase5">
-                <div class="phase-header" onclick="togglePhase('sts-phase5')">
-                    <div class="phase-title"><span class="phase-num">5</span> Publish to Joomla</div>
-                    <div class="phase-time">8 min</div>
-                </div>
-                <div class="phase-content">
-                    <div class="part-header"><i class="fas fa-file-code"></i> PASTE CONTENT</div>
-                    <div class="step"><input type="checkbox" id="sts-p5-1" onchange="checkAll('STS')"><div class="step-label">Editor → Source view → paste <code style="font-size:10px;">blog-final.html</code></div></div>
-                    <div class="step"><input type="checkbox" id="sts-p5-2" onchange="checkAll('STS')"><div class="step-label">Verify HTML ends with <code style="font-size:10px;">&lt;/body&gt;</code></div></div>
-                    <div class="step"><input type="checkbox" id="sts-p5-3" onchange="checkAll('STS')"><div>
-                        <div class="step-label">Structured Data tab → paste <code style="font-size:10px;">schema.txt</code></div>
-                        <div class="warning-box">Must start with <code>&lt;script&gt;</code> and end with <code>&lt;/script&gt;</code></div>
-                    </div></div>
-                    <div class="step"><input type="checkbox" id="sts-p5-4" onchange="checkAll('STS')"><div class="step-label"><strong>Save &amp; Close</strong></div></div>
-
-                    <div class="divider"></div>
-                    <div class="part-header"><i class="fas fa-link"></i> SEF URL</div>
-                    <div class="sef-box">
-                        <div style="font-size:10px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">1. Test pre-SEF URL → 2. Open SEF Manager → 3. Filter by slug → 4. Shorten</div>
-                        <div style="display:flex;gap:6px;align-items:center;margin-bottom:4px;">
-                            <div id="sts-slugCopyBox" style="flex:1;font-family:'JetBrains Mono',monospace;font-size:11px;background:var(--white);border:2px solid var(--gold);border-radius:4px;padding:7px 10px;cursor:pointer;" onclick="copySlug('STS')">—</div>
-                            <button class="btn btn-accent" onclick="copySlug('STS')" style="white-space:nowrap;"><i class="fas fa-copy"></i> Slug</button>
-                        </div>
-                        <div id="sts-joomlaUrl" style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);margin-bottom:8px;word-break:break-all;">—</div>
-                        <div style="display:flex;gap:6px;">
-                            <button class="btn btn-primary" onclick="testLiveUrl('STS')" style="flex:1;justify-content:center;"><i class="fas fa-external-link-alt"></i> Test Pre-SEF URL</button>
-                            <a href="https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_sef&controller=sefurls&viewmode=3" target="_blank" class="btn btn-accent" style="flex:1;justify-content:center;text-decoration:none;"><i class="fas fa-link"></i> Open SEF Manager</a>
-                        </div>
-                    </div>
-                    <div class="step"><input type="checkbox" id="sts-p5-5" onchange="checkAll('STS')"><div class="step-label">Pre-SEF URL loads — page confirmed live</div></div>
-                    <div class="step"><input type="checkbox" id="sts-p5-6" onchange="checkAll('STS')"><div class="step-label">SEF Manager → filter by slug → shorten URL → Save</div></div>
-
-                    <div class="divider"></div>
-                    <div class="part-header"><i class="fas fa-broom"></i> CACHE + VERIFY</div>
-                    <div class="quick-links"><a href="https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_cache" target="_blank" class="quick-link"><i class="fas fa-broom"></i> Clear Cache</a></div>
-                    <div class="step"><input type="checkbox" id="sts-p5-7" onchange="checkAll('STS')"><div class="step-label">System → Clear Cache → <strong>Delete All</strong></div></div>
-                    <div class="step"><input type="checkbox" id="sts-p5-8" onchange="checkAll('STS')"><div class="step-label">Shortened SEF URL loads — no 404</div></div>
-
-                    <div class="divider"></div>
-                    <div class="part-header red"><i class="fas fa-clipboard-list"></i> LOG TO TRACKER</div>
-                    <div class="tracker-box">
-                        <div style="margin-bottom:8px;">
-                            <div class="copy-strip-row" style="margin-bottom:4px;"><div style="flex:1;"><div class="copy-strip-label">Title → Sheet</div><div class="copy-strip-value" id="sts-log-title">—</div></div></div>
-                            <div class="copy-strip-row"><div style="flex:1;"><div class="copy-strip-label">Slug → Sheet</div><div class="copy-strip-value" id="sts-log-slug">—</div></div></div>
-                        </div>
-                        <button class="btn btn-compile" id="sts-logBtn" style="background:#dc2626;color:white;margin-bottom:6px;" onclick="logBlog('STS')"><i class="fas fa-paper-plane"></i> Log to STS Sheet</button>
-                        <div id="sts-logStatus" style="font-size:10px;color:var(--text-muted);text-align:center;display:none;"></div>
-                    </div>
-                    <div class="step"><input type="checkbox" id="sts-p5-9" onchange="checkAll('STS')"><div class="step-label">✅ Logged to sheet</div></div>
-                </div>
-            </div>
-        </div><!-- end STS view -->
-
-        <!-- ========== DCD VIEW ========== -->
+        <!-- ===== DCD VIEW ===== -->
         <div class="company-view" id="dcdView">
-
-            <!-- DCD META TOGGLE -->
+            <div class="progress-dots" id="dcd-progress"></div>
             <div class="meta-panel dcd" id="dcd-metaPanel">
-                <button class="meta-toggle-btn" onclick="toggleMeta('DCD')">
-                    <i class="fas fa-tags" style="color:var(--dcd-teal);"></i> DCD Meta Fields
-                    <i class="fas fa-chevron-down meta-toggle-icon" id="dcd-metaIcon"></i>
-                    <span style="margin-left:auto;display:flex;gap:4px;">
-                        <button class="btn btn-ghost sm" onclick="event.stopPropagation();copyAllMeta('DCD')"><i class="fas fa-copy"></i> All</button>
-                    </span>
-                </button>
-                <div class="meta-body" id="dcd-metaBody" style="display:none;">
-                    <div class="chat-name-banner" style="background:linear-gradient(135deg,var(--dcd-teal),#0f766e);">
-                        <div style="flex:1;">
-                            <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#99f6e4;margin-bottom:2px;">Claude Chat Name</div>
-                            <div class="chat-name-text" id="dcd-chatName" style="color:#5eead4;">—</div>
-                        </div>
-                        <button class="btn btn-ghost sm" onclick="copyField('DCD','chatName')"><i class="fas fa-copy"></i></button>
-                    </div>
+                <button class="meta-toggle-btn" onclick="toggleMeta('DCD')"><i class="fas fa-tags" style="color:var(--dcd-teal);"></i> DCD Meta Fields <i class="fas fa-chevron-down meta-toggle-icon" id="dcd-metaIcon"></i><span style="margin-left:auto;"><button class="btn btn-ghost sm" onclick="event.stopPropagation();copyAllMeta('DCD')"><i class="fas fa-copy"></i> All</button></span></button>
+                <div class="meta-body" id="dcd-metaBody">
+                    <div class="chat-name-banner" style="background:linear-gradient(135deg,var(--dcd-teal),#0f766e);"><div style="flex:1;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#99f6e4;margin-bottom:2px;">Claude Chat Name</div><div class="chat-name-text" id="dcd-chatName" style="color:#5eead4;">—</div></div><button class="btn btn-ghost sm" onclick="copyField('DCD','chatName')"><i class="fas fa-copy"></i></button></div>
                     <div class="meta-grid">
-                        <div class="meta-field">
-                            <div class="meta-field-label">Page Title <span style="color:var(--text-muted);">(60c)</span></div>
-                            <div class="meta-copy-row"><div class="meta-field-value" id="dcd-mf-title">—</div><button class="btn btn-ghost sm" onclick="copyField('DCD','title')"><i class="fas fa-copy"></i></button></div>
-                            <div style="font-size:10px;color:var(--text-muted);margin-top:2px;" id="dcd-mf-title-count"></div>
-                        </div>
-                        <div class="meta-field">
-                            <div class="meta-field-label">URL Slug</div>
-                            <div class="meta-copy-row"><div class="meta-field-value" id="dcd-mf-slug">—</div><button class="btn btn-ghost sm" onclick="copyField('DCD','slug')"><i class="fas fa-copy"></i></button></div>
-                        </div>
+                        <div><div class="meta-field-label">Page Title (60c)</div><div class="copy-row"><div class="meta-field-value" id="dcd-mf-title">—</div><button class="btn btn-ghost sm" onclick="copyField('DCD','title')"><i class="fas fa-copy"></i></button></div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;" id="dcd-mf-title-count"></div></div>
+                        <div><div class="meta-field-label">URL Slug</div><div class="copy-row"><div class="meta-field-value" id="dcd-mf-slug">—</div><button class="btn btn-ghost sm" onclick="copyField('DCD','slug')"><i class="fas fa-copy"></i></button></div></div>
                     </div>
-                    <div class="meta-field">
-                        <div class="meta-field-label">Meta Description <span style="color:var(--text-muted);">(150–160c)</span></div>
-                        <div class="meta-copy-row"><div class="meta-field-value" id="dcd-mf-desc">—</div><button class="btn btn-ghost sm" onclick="copyField('DCD','desc')"><i class="fas fa-copy"></i></button></div>
-                        <div style="font-size:10px;color:var(--text-muted);margin-top:2px;" id="dcd-mf-desc-count"></div>
-                    </div>
-                    <div class="meta-field">
-                        <div class="meta-field-label">Meta Keywords</div>
-                        <div class="meta-copy-row"><div class="meta-field-value" id="dcd-mf-keywords">—</div><button class="btn btn-ghost sm" onclick="copyField('DCD','keywords')"><i class="fas fa-copy"></i></button></div>
-                    </div>
+                    <div><div class="meta-field-label">Meta Description (150-160c)</div><div class="copy-row"><div class="meta-field-value" id="dcd-mf-desc">—</div><button class="btn btn-ghost sm" onclick="copyField('DCD','desc')"><i class="fas fa-copy"></i></button></div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;" id="dcd-mf-desc-count"></div></div>
+                    <div><div class="meta-field-label">Meta Keywords</div><div class="copy-row"><div class="meta-field-value" id="dcd-mf-keywords">—</div><button class="btn btn-ghost sm" onclick="copyField('DCD','keywords')"><i class="fas fa-copy"></i></button></div></div>
                 </div>
             </div>
-
-            <!-- DCD PHASE 1: BUILD + SHOGUN -->
-            <div class="card phase dcd-phase" id="dcd-phase1">
-                <div class="phase-header" onclick="togglePhase('dcd-phase1')">
-                    <div class="phase-title"><span class="phase-num" style="background:var(--dcd-teal);">1</span> Build + Shogun Setup</div>
-                    <div class="phase-time">~10 min</div>
-                </div>
-                <div class="phase-content">
-                    <div class="launcher-box dcd">
-                        <div style="font-size:14px;font-weight:600;color:white;display:flex;align-items:center;justify-content:center;gap:8px;"><i class="fas fa-brain"></i> DCD Claude Project</div>
-                        <div class="model-warning"><i class="fas fa-exclamation-triangle"></i> MUST USE SONNET 4.6 — NOT OPUS</div>
-                        <a href="https://claude.ai/project/019c504e-fef3-75e0-862b-85cd4539579f" target="_blank" class="open-btn teal"><i class="fas fa-external-link-alt"></i> Open Project <span style="font-size:10px;opacity:.8;">⚡ SONNET 4.6</span></a>
-                    </div>
-                    <div class="info-box teal" style="margin-bottom:8px;"><strong>DCD:</strong> Upload Blog Creation Prompt + Design Bible to Claude before pasting build prompt.</div>
-                    <div class="data-box" style="border-color:var(--dcd-teal);">
-                        <div style="color:#ef4444;font-size:10px;font-weight:600;margin-bottom:6px;"><i class="fas fa-arrow-down"></i> UPLOAD BOTH FILES FIRST</div>
-                        <div class="quick-links" style="margin-bottom:8px;">
-                            <a href="https://docs.google.com/document/d/148QH1BGJ2JIsVBC5Vq61-Ja-eo175ycOM9OrC3aIzBI/edit" target="_blank" class="quick-link teal"><i class="fas fa-file-alt"></i> DCD Prompt v1.0</a>
-                            <a href="https://docs.google.com/document/d/1SfzlHhsowhTQIHIdOUpBSne7vxDvH5NTWD3j7cdOdF0/edit" target="_blank" class="quick-link teal"><i class="fas fa-palette"></i> Design Bible</a>
-                        </div>
-                        <button class="btn btn-compile" style="background:linear-gradient(135deg,var(--dcd-teal),#0891b2);color:white;" onclick="copyPrompt('DCD','strategy');animateButton(this,'Generating...','Ready')"><i class="fas fa-compass"></i> Step 1: Copy Strategy Prompt (~1 min)</button>
-                    </div>
-                    <div class="step"><input type="checkbox" id="dcd-p1-1a" onchange="checkAll('DCD')"><div class="step-label">Strategy prompt pasted — Claude outputs plan (~1 min)</div></div>
-                    <div class="divider"></div>
-                    <div class="warning-box" style="margin-bottom:8px;border-left-color:var(--dcd-teal);"><i class="fas fa-hand-paper"></i> <strong>WAIT</strong> — confirm strategy looks good before proceeding to Step 2.</div>
-                    <div class="data-box" style="border-color:var(--dcd-teal);">
-                        <button class="btn btn-compile" style="background:linear-gradient(135deg,#0f766e,#065f46);color:white;" onclick="copyPrompt('DCD','htmlbuild');animateButton(this,'Generating...','Ready')"><i class="fas fa-code"></i> Step 2: Copy Build Prompt (~3 min)</button>
-                    </div>
-                    <div class="step"><input type="checkbox" id="dcd-p1-1b" onchange="checkAll('DCD')"><div class="step-label">Build prompt pasted — Claude generating HTML (~3 min)</div></div>
-                    <div class="divider"></div>
-                    <div class="part-header teal"><i class="fas fa-store"></i> SHOGUN SETUP — while Claude builds</div>
-                    <div class="quick-links" style="margin-bottom:8px;"><a href="https://store-w5trgcbv.mybigcommerce.com/manage/app/11680" target="_blank" class="quick-link teal"><i class="fas fa-external-link-alt"></i> Open Shogun</a></div>
-                    <div class="step"><input type="checkbox" id="dcd-p1-2" onchange="checkAll('DCD')"><div>
-                        <div class="step-label"><strong>Build a Page</strong> → <strong>Blog Post</strong> → paste name + URL</div>
-                        <div class="copy-strip" style="margin-top:4px;">
-                            <div class="copy-strip-row">
-                                <div style="flex:1;"><div class="copy-strip-label">Page Name</div><div class="copy-strip-value" id="dcd-cs-title">—</div></div>
-                                <button class="copy-strip-btn" onclick="copyCsField('DCD','title')"><i class="fas fa-copy"></i></button>
-                            </div>
-                            <div class="copy-strip-row">
-                                <div style="flex:1;"><div class="copy-strip-label">URL Slug</div><div class="copy-strip-value" id="dcd-cs-slug">—</div></div>
-                                <button class="copy-strip-btn" onclick="copyCsField('DCD','slug')"><i class="fas fa-copy"></i></button>
-                            </div>
-                        </div>
-                    </div></div>
-                    <div class="step"><input type="checkbox" id="dcd-p1-3" onchange="checkAll('DCD')"><div class="step-label">⋮ Page Settings → Author: <strong>Mark Domnenko</strong></div></div>
-                    <div class="step"><input type="checkbox" id="dcd-p1-3b" onchange="checkAll('DCD')"><div class="step-label">Publishing Date → change to another day</div></div>
-                    <div class="step"><input type="checkbox" id="dcd-p1-4" onchange="checkAll('DCD')"><div>
-                        <div class="step-label">Meta Description</div>
-                        <div class="copy-strip" style="margin-top:4px;"><div class="copy-strip-row">
-                            <div style="flex:1;"><div class="copy-strip-value" id="dcd-cs-desc">—</div></div>
-                            <button class="copy-strip-btn" onclick="copyCsField('DCD','desc')"><i class="fas fa-copy"></i></button>
-                        </div></div>
-                    </div></div>
-                    <div class="step"><input type="checkbox" id="dcd-p1-5" onchange="checkAll('DCD')"><div class="step-label"><strong>Save</strong> page settings</div></div>
-                </div>
+            <div class="launcher dcd" id="dcd-launcher" style="display:none;">
+                <div class="launcher-label"><i class="fas fa-brain"></i> DCD Claude Project<span class="launcher-warn">Sonnet 4.6 only</span></div>
+                <a href="https://claude.ai/project/019c504e-fef3-75e0-862b-85cd4539579f" target="_blank" class="launcher-link">Open project ↗</a>
             </div>
-
-            <!-- DCD PHASE 2: SEO AUDIT -->
-            <div class="card phase dcd-phase" id="dcd-phase2">
-                <div class="phase-header" onclick="togglePhase('dcd-phase2')">
-                    <div class="phase-title"><span class="phase-num" style="background:var(--dcd-teal);">2</span> SEO Audit</div>
-                    <div class="phase-time">5 min</div>
-                </div>
-                <div class="phase-content">
-                    <div class="step"><input type="checkbox" id="dcd-p2-0" onchange="checkAll('DCD')"><div>
-                        <div class="step-label">Upload SEO Blog Audit doc to Claude</div>
-                        <div class="quick-links" style="margin-top:4px;"><a href="https://docs.google.com/document/d/1Vb63LshVu9SYBvOQfESrCGQ1BVnJ3wZ7rRj0dJitFRc/edit" target="_blank" class="quick-link teal"><i class="fas fa-search"></i> SEO Audit Doc</a></div>
-                    </div></div>
-                    <button class="btn btn-compile" style="margin-bottom:8px;background:linear-gradient(135deg,var(--dcd-teal),#0891b2);color:white;" onclick="copyPrompt('DCD','seo');animateButton(this,'Generating...','Ready')"><i class="fas fa-search"></i> Copy SEO Audit Prompt</button>
-                    <div class="step"><input type="checkbox" id="dcd-p2-1" onchange="checkAll('DCD')"><div class="step-label">SEO audit pasted — Claude auditing</div></div>
-                    <div class="step"><input type="checkbox" id="dcd-p2-2" onchange="checkAll('DCD')"><div class="step-label">Review changes — design preserved</div></div>
-                    <div class="step"><input type="checkbox" id="dcd-p2-3" onchange="checkAll('DCD')"><div class="step-label">✅ SEO-optimized HTML ready</div></div>
-                </div>
-            </div>
-
-            <!-- DCD PHASE 3: LINK AUDIT -->
-            <div class="card phase dcd-phase" id="dcd-phase3">
-                <div class="phase-header" onclick="togglePhase('dcd-phase3')">
-                    <div class="phase-title"><span class="phase-num" style="background:var(--dcd-teal);">3</span> Link Audit</div>
-                    <div class="phase-time">2 min</div>
-                </div>
-                <div class="phase-content">
-                    <div class="warning-box" style="margin-bottom:8px;"><i class="fas fa-exclamation-triangle"></i> <strong>Last check before publishing.</strong></div>
-                    <button class="btn btn-compile" style="margin-bottom:8px;background:linear-gradient(135deg,#f97316,#ea580c);color:white;" onclick="copyPrompt('DCD','links');animateButton(this,'Scanning...','Ready')"><i class="fas fa-link"></i> Copy Link Audit Prompt</button>
-                    <div class="step"><input type="checkbox" id="dcd-p3-1" onchange="checkAll('DCD')"><div class="step-label">Link audit pasted — scanning</div></div>
-                    <div class="step"><input type="checkbox" id="dcd-p3-2" onchange="checkAll('DCD')"><div class="step-label">✅ All links verified</div></div>
-                </div>
-            </div>
-
-            <!-- DCD PHASE 4: PUBLISH TO SHOGUN -->
-            <div class="card phase dcd-phase" id="dcd-phase4">
-                <div class="phase-header" onclick="togglePhase('dcd-phase4')">
-                    <div class="phase-title"><span class="phase-num" style="background:var(--dcd-teal);">4</span> Publish to Shogun</div>
-                    <div class="phase-time">5 min</div>
-                </div>
-                <div class="phase-content">
-                    <div class="part-header teal"><i class="fas fa-code"></i> PASTE CONTENT</div>
-                    <div class="step"><input type="checkbox" id="dcd-p4-1" onchange="checkAll('DCD')"><div class="step-label">Drag HTML element → paste <code style="font-size:10px;">blog-content.html</code> (includes schema) → click X</div></div>
-                    <div class="step"><input type="checkbox" id="dcd-p4-2" onchange="checkAll('DCD')"><div class="step-label">Visual check — renders correctly in preview</div></div>
-                    <div class="step"><input type="checkbox" id="dcd-p4-3" onchange="checkAll('DCD')"><div class="step-label">Click <strong>Publish</strong></div></div>
-
-                    <div class="divider"></div>
-                    <div class="part-header teal"><i class="fas fa-link"></i> VERIFY URL</div>
-                    <div style="background:var(--cream);border:2px solid var(--dcd-teal);border-radius:8px;padding:12px;margin:8px 0;">
-                        <div style="font-size:10px;font-weight:700;color:var(--dcd-teal);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Live Blog URL</div>
-                        <a id="dcd-liveLink" href="#" target="_blank" style="display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dcd-teal);word-break:break-all;text-decoration:underline;">—</a>
-                    </div>
-
-                    <div class="step"><input type="checkbox" id="dcd-p4-4" onchange="checkAll('DCD')"><div>
-                        <div class="step-label">Live URL loads correctly — no 404</div>
-                    </div></div>
-
-                    <div class="divider"></div>
-                    <div class="part-header red"><i class="fas fa-clipboard-list"></i> LOG TO TRACKER</div>
-                    <div class="tracker-box">
-                        <div style="margin-bottom:8px;">
-                            <div class="copy-strip-row" style="margin-bottom:4px;"><div style="flex:1;"><div class="copy-strip-label">Title → Sheet</div><div class="copy-strip-value" id="dcd-log-title">—</div></div></div>
-                            <div class="copy-strip-row"><div style="flex:1;"><div class="copy-strip-label">Slug → Sheet</div><div class="copy-strip-value" id="dcd-log-slug">—</div></div></div>
-                        </div>
-                        <button class="btn btn-compile" id="dcd-logBtn" style="background:#dc2626;color:white;margin-bottom:6px;" onclick="logBlog('DCD')"><i class="fas fa-paper-plane"></i> Log to DCD Sheet</button>
-                        <div id="dcd-logStatus" style="font-size:10px;color:var(--text-muted);text-align:center;display:none;"></div>
-                    </div>
-                    <div class="step"><input type="checkbox" id="dcd-p4-5" onchange="checkAll('DCD')"><div class="step-label">✅ Logged to sheet</div></div>
-                </div>
-            </div>
-        </div><!-- end DCD view -->
-    </div><!-- end columnsGrid -->
-
-    <div style="text-align:center;padding:20px 0;">
-        <button class="btn btn-ghost" onclick="resetAll()" style="border-color:#ef4444;"><span style="color:#ef4444;">⚠️</span> Reset &amp; Start New Session</button>
+            <div id="dcd-wizard"></div>
+        </div>
     </div>
-</div><!-- end container -->
+    <div style="text-align:center;padding:20px 0;"><button class="btn btn-ghost" onclick="resetAll()" style="border-color:#ef4444;"><span style="color:#ef4444;">⚠️</span> Reset &amp; Start New Session</button></div>
+</div>
 
-<!-- FLOATING CHAT WIDGET -->
+<!-- CHAT WIDGET -->
 <button class="chat-fab" id="chatFab" onclick="toggleChat()"><i class="fas fa-comments"></i></button>
 <div class="chat-widget" id="chatWidget">
-    <div class="chat-widget-header" onclick="toggleChat()">
-        <div class="chat-widget-title"><i class="fas fa-robot"></i> Ask Mark</div>
-        <button class="chat-widget-close"><i class="fas fa-chevron-down"></i></button>
-    </div>
+    <div class="chat-widget-header" onclick="toggleChat()"><div class="chat-widget-title"><i class="fas fa-robot"></i> Ask Mark</div><button class="chat-widget-close"><i class="fas fa-chevron-down"></i></button></div>
     <div class="chat-widget-body">
         <div class="chat-widget-models">
             <button id="modelGrok" class="chat-model-btn active-model" onclick="setChatModel('grok')"><span style="background:#000;color:white;padding:1px 4px;border-radius:3px;font-size:8px;font-weight:700;margin-right:2px;">GROK</span>Web</button>
@@ -754,48 +290,260 @@
             <div class="chat-suggestion" onclick="useSuggestion(this)">Refurbished laptop trends</div>
             <div class="chat-suggestion" onclick="useSuggestion(this)">R2v3 vs e-Stewards?</div>
         </div>
-        <div class="chat-thread" id="chatThread">
-            <div class="chat-empty" id="chatEmpty"><i class="fas fa-robot"></i><div style="font-weight:600;color:var(--text-secondary);margin-bottom:3px;font-size:12px;">Ask Mark anything</div><div style="font-size:11px;">Research, write, review — pick a model and go.</div></div>
-        </div>
-        <div class="chat-widget-input">
-            <textarea id="chatInput" class="chat-textarea" placeholder="Ask anything..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea>
-            <button class="chat-send-btn" id="chatSendBtn" onclick="sendChat()"><i class="fas fa-paper-plane"></i></button>
-        </div>
-        <div class="chat-widget-footer">
-            <div style="font-size:9px;color:var(--text-muted);">Shift+Enter for new line</div>
-            <button class="chat-clear-btn" onclick="clearChat()"><i class="fas fa-trash-alt"></i> Clear</button>
-        </div>
+        <div class="chat-thread" id="chatThread"><div class="chat-empty" id="chatEmpty"><i class="fas fa-robot"></i><div style="font-weight:600;color:var(--text-secondary);margin-bottom:3px;font-size:12px;">Ask Mark anything</div><div style="font-size:11px;">Research, write, review — pick a model and go.</div></div></div>
+        <div class="chat-widget-input"><textarea id="chatInput" class="chat-textarea" placeholder="Ask anything..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}" oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea><button class="chat-send-btn" id="chatSendBtn" onclick="sendChat()"><i class="fas fa-paper-plane"></i></button></div>
+        <div class="chat-widget-footer"><div style="font-size:9px;color:var(--text-muted);">Shift+Enter for new line</div><button class="chat-clear-btn" onclick="clearChat()"><i class="fas fa-trash-alt"></i> Clear</button></div>
     </div>
 </div>
-
 <div id="toast" class="toast"><i class="fas fa-check-circle"></i><span id="toastMsg">Done</span></div>
 
 <script>
-// ===== CONFIG =====
 const CFG = {
-    STS: {
-        label:'STS Electronic Recycling', short:'STS',
-        projectUrl:'https://claude.ai/project/019aef3e-df18-7142-a666-8397254c5fe8',
-        siteUrl:'https://www.stselectronicrecyclinginc.com',
-        color:'#c9a962'
-    },
-    DCD: {
-        label:'Discount Computer Depot', short:'DCD',
-        projectUrl:'https://claude.ai/project/019c504e-fef3-75e0-862b-85cd4539579f',
-        siteUrl:'https://www.discountcomputerdepot.com',
-        color:'#0d9488'
-    }
+    STS: { label:'STS Electronic Recycling', short:'STS', projectUrl:'https://claude.ai/project/019aef3e-df18-7142-a666-8397254c5fe8', siteUrl:'https://www.stselectronicrecyclinginc.com', color:'#c9a962' },
+    DCD: { label:'Discount Computer Depot', short:'DCD', projectUrl:'https://claude.ai/project/019c504e-fef3-75e0-862b-85cd4539579f', siteUrl:'https://www.discountcomputerdepot.com', color:'#0d9488' }
 };
 const WEBHOOK = 'https://stsrecycling.app.n8n.cloud/webhook/mark-ai-brain';
-
-// ===== STATE =====
-let S = {
-    vaName:'', mgmtIdea:'',
-    sts:{ topic:null, meta:null, chatName:'', lastTopics:[], recommendation:'', checks:{} },
-    dcd:{ topic:null, meta:null, chatName:'', lastTopics:[], recommendation:'', checks:{} },
-    chatHistory:[]
+const PHASE_DEFS = {
+    STS: [
+        { name:'Strategize', time:'~1 min' },
+        { name:'Build HTML', time:'~3 min' },
+        { name:'Set up Joomla', time:'while building' },
+        { name:'Audit SEO', time:'~5 min' },
+        { name:'Generate schema', time:'~5 min' },
+        { name:'Check links', time:'~2 min' },
+        { name:'Publish + log', time:'~5 min' }
+    ],
+    DCD: [
+        { name:'Strategize', time:'~1 min' },
+        { name:'Build HTML', time:'~3 min' },
+        { name:'Set up Shogun', time:'while building' },
+        { name:'Audit SEO', time:'~5 min' },
+        { name:'Check links', time:'~2 min' },
+        { name:'Publish + log', time:'~5 min' }
+    ]
 };
-const co = c => c.toLowerCase(); // shorthand
+
+let S = { vaName:'', mgmtIdea:'', sts:{ topic:null, meta:null, chatName:'', lastTopics:[], recommendation:'', checks:{}, wizPhase:0, wizTimes:{} }, dcd:{ topic:null, meta:null, chatName:'', lastTopics:[], recommendation:'', checks:{}, wizPhase:0, wizTimes:{} }, chatHistory:[] };
+const co = c => c.toLowerCase();
+
+// ===== WIZARD RENDERING =====
+function buildWizardHTML(company) {
+    const key = co(company);
+    const phases = PHASE_DEFS[company];
+    const m = S[key].meta || {};
+    const slug = m.slug || '';
+    const liveUrl = slug ? CFG[company].siteUrl+'/'+slug : '';
+    const joomlaUrl = slug ? CFG[company].siteUrl+'/'+slug+'/blog/'+slug : '';
+    const isDCD = company === 'DCD';
+    const headClass = isDCD ? 'dcd-head' : 'sts-head';
+    const activeClass = isDCD ? ' dcd' : '';
+    const btnClass = isDCD ? 'btn-teal' : 'btn-gold';
+    const btnClass2 = isDCD ? 'btn-teal' : 'btn-navy';
+
+    const phaseContent = [];
+
+    // Phase 1: Strategize
+    phaseContent.push(`<div class="wp-body">
+        ${!isDCD ? `<div class="info-box" style="margin-bottom:8px;"><i class="fas fa-info-circle" style="color:var(--gold);"></i> Loaded in project — links for reference</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"><a href="https://docs.google.com/document/d/19pAXN_sUNJ8ZOgR3Fv_9Df2CYoFOq_YojSy8yjQW9Zo/edit" target="_blank" class="link-pill"><i class="fas fa-file-alt"></i> STS Prompt v4.3</a><a href="https://docs.google.com/document/d/1gmZMWbIHt408yf6RgyrnwMsewGqWQSXKDuC7MJZZX1o/edit" target="_blank" class="link-pill"><i class="fas fa-palette"></i> Design Bible</a></div>` :
+        `<div class="info-box teal" style="margin-bottom:8px;"><strong>Upload both files first</strong> — DCD Blog Prompt + Design Bible</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"><a href="https://docs.google.com/document/d/148QH1BGJ2JIsVBC5Vq61-Ja-eo175ycOM9OrC3aIzBI/edit" target="_blank" class="link-pill teal"><i class="fas fa-file-alt"></i> DCD Prompt v1.0</a><a href="https://docs.google.com/document/d/1SfzlHhsowhTQIHIdOUpBSne7vxDvH5NTWD3j7cdOdF0/edit" target="_blank" class="link-pill teal"><i class="fas fa-palette"></i> Design Bible</a></div>`}
+        <button class="btn ${btnClass} btn-full" onclick="copyPrompt('${company}','strategy');animateButton(this,'Copying...','Copied!')"><i class="fas fa-compass"></i> Copy strategy prompt</button>
+        <div class="step"><input type="checkbox" id="${key}-p1" onchange="saveState()"><div class="step-label">Strategy pasted — plan confirmed</div></div>
+    </div>`);
+
+    // Phase 2: Build HTML
+    phaseContent.push(`<div class="wp-body">
+        <div class="warn-box"><i class="fas fa-hand-paper"></i> Strategy must be confirmed before pasting this prompt.</div>
+        <button class="btn ${btnClass2} btn-full" style="margin-top:8px;" onclick="copyPrompt('${company}','htmlbuild');animateButton(this,'Copying...','Copied!')"><i class="fas fa-code"></i> Copy build prompt</button>
+        <div class="step"><input type="checkbox" id="${key}-p2" onchange="saveState()"><div class="step-label">HTML generating — do CMS setup while waiting (~3 min)</div></div>
+    </div>`);
+
+    // Phase 3: CMS Setup
+    if(!isDCD) {
+        phaseContent.push(`<div class="wp-body">
+        <a href="https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_menus&view=items&menutype=blog" target="_blank" class="link-pill" style="margin-bottom:10px;"><i class="fas fa-bars"></i> Open Blog Menu ↗</a>
+        <div class="step"><input type="checkbox" id="${key}-p3-1" onchange="saveState()"><div><div class="step-label">New → paste Title + Alias</div>
+            <div class="copy-row" style="margin-top:4px;"><div style="flex:1"><div class="copy-label">Title</div><div class="copy-val" id="sts-cs-title">${m.title||'—'}</div></div><button class="copy-btn" onclick="copyCsField('STS','title')">Copy</button></div>
+            <div class="copy-row"><div style="flex:1"><div class="copy-label">Alias</div><div class="copy-val" id="sts-cs-slug">${slug||'—'}</div></div><button class="copy-btn" onclick="copyCsField('STS','slug')">Copy</button></div>
+        </div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-2" onchange="saveState()"><div class="step-label">Menu Item Type → <strong>Articles</strong> → <strong>Single Article</strong></div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-3" onchange="saveState()"><div class="step-label">Template: <code style="font-size:11px;background:var(--cream);padding:1px 4px;border-radius:3px;">Clean Top 2026</code></div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-4" onchange="saveState()"><div class="step-label">Select Article → <strong>Create</strong> → paste title → Category: <strong style="color:#dc2626;">Blog</strong></div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-5" onchange="saveState()"><div class="step-label">Options → Show Title: <strong>Hide</strong> → Save &amp; Close article</div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-6" onchange="saveState()"><div class="step-label">Publishing → change <strong>Created Date</strong> + <strong>Start Publishing</strong> to another day</div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-7" onchange="saveState()"><div class="step-label">Back to Menu → Options → Show Title: <strong>Hide</strong></div></div>
+        <div class="divider"></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-8" onchange="saveState()"><div><div class="step-label">Page Display → paste title</div>
+            <div class="copy-row" style="margin-top:4px;"><div class="copy-val">${m.title||'—'}</div><button class="copy-btn" onclick="copyCsField('STS','title')">Copy</button></div>
+        </div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-9" onchange="saveState()"><div><div class="step-label">Metadata → paste description + keywords</div>
+            <div class="copy-row" style="margin-top:4px;"><div style="flex:1"><div class="copy-label">Description</div><div class="copy-val" id="sts-cs-desc">${m.desc||'—'}</div></div><button class="copy-btn" onclick="copyCsField('STS','desc')">Copy</button></div>
+            <div class="copy-row"><div style="flex:1"><div class="copy-label">Keywords</div><div class="copy-val" id="sts-cs-keywords">${m.keywords||'—'}</div></div><button class="copy-btn" onclick="copyCsField('STS','keywords')">Copy</button></div>
+        </div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-10" onchange="saveState()"><div class="step-label"><strong>Save</strong> menu item</div></div>
+    </div>`);
+    } else {
+        phaseContent.push(`<div class="wp-body">
+        <a href="https://store-w5trgcbv.mybigcommerce.com/manage/app/11680" target="_blank" class="link-pill teal" style="margin-bottom:10px;"><i class="fas fa-external-link-alt"></i> Open Shogun ↗</a>
+        <div class="step"><input type="checkbox" id="${key}-p3-1" onchange="saveState()"><div><div class="step-label"><strong>Build a Page</strong> → <strong>Blog Post</strong> → paste name + URL</div>
+            <div class="copy-row" style="margin-top:4px;"><div style="flex:1"><div class="copy-label">Page Name</div><div class="copy-val" id="dcd-cs-title">${m.title||'—'}</div></div><button class="copy-btn" onclick="copyCsField('DCD','title')">Copy</button></div>
+            <div class="copy-row"><div style="flex:1"><div class="copy-label">URL Slug</div><div class="copy-val" id="dcd-cs-slug">${slug||'—'}</div></div><button class="copy-btn" onclick="copyCsField('DCD','slug')">Copy</button></div>
+        </div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-2" onchange="saveState()"><div class="step-label">⋮ Page Settings → Author: <strong>Mark Domnenko</strong></div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-3" onchange="saveState()"><div class="step-label">Publishing Date → change to another day</div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-4" onchange="saveState()"><div><div class="step-label">Meta Description</div>
+            <div class="copy-row" style="margin-top:4px;"><div class="copy-val" id="dcd-cs-desc">${m.desc||'—'}</div><button class="copy-btn" onclick="copyCsField('DCD','desc')">Copy</button></div>
+        </div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-5" onchange="saveState()"><div class="step-label"><strong>Save</strong> page settings</div></div>
+    </div>`);
+    }
+
+    // Phase 4: SEO Audit
+    phaseContent.push(`<div class="wp-body">
+        <div class="step"><input type="checkbox" id="${key}-p4-0" onchange="saveState()"><div><div class="step-label">Upload SEO Blog Audit doc to Claude</div>
+            <a href="https://docs.google.com/document/d/1Vb63LshVu9SYBvOQfESrCGQ1BVnJ3wZ7rRj0dJitFRc/edit" target="_blank" class="link-pill${isDCD?' teal':''}" style="margin-top:4px;"><i class="fas fa-search"></i> SEO Audit Doc ↗</a>
+        </div></div>
+        <button class="btn ${btnClass2} btn-full" style="margin:8px 0;" onclick="copyPrompt('${company}','seo');animateButton(this,'Copying...','Copied!')"><i class="fas fa-search"></i> Copy SEO audit prompt</button>
+        <div class="step"><input type="checkbox" id="${key}-p4-1" onchange="saveState()"><div class="step-label">Audit complete — design preserved</div></div>
+    </div>`);
+
+    // Phase 5 (STS only): Schema
+    if(!isDCD) {
+        phaseContent.push(`<div class="wp-body">
+        <div class="step"><input type="checkbox" id="${key}-p5-0" onchange="saveState()"><div><div class="step-label">Upload Schema Generator doc to Claude</div>
+            <a href="https://docs.google.com/document/d/1labL6l4YBkop02jZhGEujg_OfAgKYElCwQ2hctGIXI8/edit" target="_blank" class="link-pill" style="margin-top:4px;"><i class="fas fa-database"></i> Master Schema Generator v1.4 ↗</a>
+        </div></div>
+        <button class="btn btn-gold btn-full" style="margin:8px 0;" onclick="copyPrompt('STS','schema');animateButton(this,'Copying...','Copied!')"><i class="fas fa-code"></i> Copy schema prompt</button>
+        <div class="step"><input type="checkbox" id="${key}-p5-1" onchange="saveState()"><div class="step-label">Schema ready — wrapped in script tags</div></div>
+    </div>`);
+    }
+
+    // Link Check phase
+    const linkPhaseIdx = isDCD ? 4 : 5;
+    phaseContent.push(`<div class="wp-body">
+        <button class="btn btn-orange btn-full" onclick="copyPrompt('${company}','links');animateButton(this,'Copying...','Copied!')"><i class="fas fa-link"></i> Copy link audit prompt</button>
+        <div class="step"><input type="checkbox" id="${key}-p${linkPhaseIdx+1}-1" onchange="saveState()"><div class="step-label">All links verified</div></div>
+    </div>`);
+
+    // Publish + Log phase
+    const pubPhaseIdx = isDCD ? 5 : 6;
+    if(!isDCD) {
+        phaseContent.push(`<div class="wp-body">
+        <div class="section-sep">Paste content</div>
+        <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-1" onchange="saveState()"><div class="step-label">Editor → Source view → paste blog HTML</div></div>
+        <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-2" onchange="saveState()"><div class="step-label">Structured Data tab → paste schema.txt</div></div>
+        <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-3" onchange="saveState()"><div class="step-label"><strong>Save &amp; Close</strong></div></div>
+        <div class="section-sep">SEF URL</div>
+        <div style="font-size:11px;color:var(--text-secondary);margin-bottom:6px;">Test pre-SEF URL → Open SEF Manager → Filter by slug → Shorten</div>
+        <div class="copy-row"><div class="copy-val" id="sts-cs-sef-slug">${slug||'—'}</div><button class="copy-btn" onclick="copyCsField('STS','slug')">Slug</button></div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);margin:4px 0;" id="sts-joomlaUrl">${joomlaUrl||'—'}</div>
+        <div style="display:flex;gap:6px;margin:8px 0;">
+            <button class="btn btn-navy" style="flex:1;" onclick="testLiveUrl('STS')"><i class="fas fa-external-link-alt"></i> Test pre-SEF URL</button>
+            <a href="https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_sef&controller=sefurls&viewmode=3" target="_blank" class="btn btn-gold" style="flex:1;text-decoration:none;"><i class="fas fa-link"></i> SEF Manager</a>
+        </div>
+        <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-4" onchange="saveState()"><div class="step-label">SEF URL shortened and saved</div></div>
+        <div class="section-sep">Cache + verify</div>
+        <a href="https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_cache" target="_blank" class="link-pill" style="margin-bottom:8px;"><i class="fas fa-broom"></i> Clear Cache ↗</a>
+        <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-5" onchange="saveState()"><div class="step-label">Cache cleared — shortened URL loads</div></div>
+        <div class="section-sep">Log to tracker</div>
+        <div class="log-preview">
+            <div class="copy-row" style="margin:0 0 4px;"><div style="flex:1"><div class="copy-label">Title → sheet</div><div class="copy-val" id="sts-log-title">${m.title||'—'}</div></div></div>
+            <div class="copy-row" style="margin:0;"><div style="flex:1"><div class="copy-label">URL → sheet</div><div class="copy-val" id="sts-log-slug">${liveUrl||'—'}</div></div></div>
+        </div>
+        <button class="btn btn-red btn-full" id="sts-logBtn" style="margin-top:8px;" onclick="logBlog('STS')"><i class="fas fa-paper-plane"></i> Log to STS sheet</button>
+        <div id="sts-logStatus" style="font-size:10px;color:var(--text-muted);text-align:center;display:none;margin-top:4px;"></div>
+    </div>`);
+    } else {
+        phaseContent.push(`<div class="wp-body">
+        <div class="section-sep">Paste content</div>
+        <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-1" onchange="saveState()"><div class="step-label">Drag HTML element → paste blog content (includes schema) → click X</div></div>
+        <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-2" onchange="saveState()"><div class="step-label">Visual check — renders correctly in preview</div></div>
+        <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-3" onchange="saveState()"><div class="step-label">Click <strong>Publish</strong></div></div>
+        <div class="section-sep">Verify URL</div>
+        <div style="background:var(--cream);border:2px solid var(--dcd-teal);border-radius:8px;padding:12px;margin:8px 0;">
+            <div style="font-size:10px;font-weight:700;color:var(--dcd-teal);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Live blog URL</div>
+            <a id="dcd-liveLink" href="${liveUrl||'#'}" target="_blank" style="display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dcd-teal);word-break:break-all;text-decoration:underline;">${liveUrl||'—'}</a>
+        </div>
+        <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-4" onchange="saveState()"><div class="step-label">Live URL loads — no 404</div></div>
+        <div class="section-sep">Log to tracker</div>
+        <div class="log-preview">
+            <div class="copy-row" style="margin:0 0 4px;"><div style="flex:1"><div class="copy-label">Title → sheet</div><div class="copy-val" id="dcd-log-title">${m.title||'—'}</div></div></div>
+            <div class="copy-row" style="margin:0;"><div style="flex:1"><div class="copy-label">URL → sheet</div><div class="copy-val" id="dcd-log-slug">${liveUrl||'—'}</div></div></div>
+        </div>
+        <button class="btn btn-red btn-full" id="dcd-logBtn" style="margin-top:8px;" onclick="logBlog('DCD')"><i class="fas fa-paper-plane"></i> Log to DCD sheet</button>
+        <div id="dcd-logStatus" style="font-size:10px;color:var(--text-muted);text-align:center;display:none;margin-top:4px;"></div>
+    </div>`);
+    }
+
+    // Build full wizard HTML
+    let html = '';
+    phases.forEach((p, i) => {
+        html += `<div class="wiz-phase ${i===0?'is-active':'is-upcoming'}" id="${key}-wp-${i}">
+            <div class="wp-done"><span class="wp-done-check"><i class="fas fa-check-circle"></i></span> ${p.name}<span class="wp-done-time" id="${key}-wt-${i}"></span></div>
+            <div class="wp-active${activeClass}"><div class="wp-active-head ${headClass}"><div><div class="wp-step-label">Step ${i+1} of ${phases.length}</div><div class="wp-title">${p.name}</div></div><div class="wp-time">${p.time}</div></div>${phaseContent[i]}<div class="wp-next"><button class="btn-next" onclick="advancePhase('${company}')"><i class="fas fa-arrow-right"></i> Done — next step</button></div></div>
+            <div class="wp-upcoming"><div class="wp-up-num">${i+1}</div>${p.name}<span class="wp-up-time">${p.time}</span></div>
+        </div>`;
+    });
+    return html;
+}
+
+function renderWizard(company) {
+    const key = co(company);
+    const el = document.getElementById(key+'-wizard');
+    el.innerHTML = buildWizardHTML(company);
+    document.getElementById(key+'-launcher').style.display = 'flex';
+    // Restore wizard phase
+    const cur = S[key].wizPhase || 0;
+    const phases = document.querySelectorAll('#'+key+'-wizard .wiz-phase');
+    phases.forEach((p,i) => {
+        p.className = 'wiz-phase ' + (i < cur ? 'is-done' : i === cur ? 'is-active' : 'is-upcoming');
+        if(i < cur) { const t = S[key].wizTimes?.[i]; if(t) document.getElementById(key+'-wt-'+i).textContent = '✓ '+t; }
+    });
+    renderProgressDots(company);
+    // Restore checkboxes
+    if(S[key].checks) {
+        for(const [id, checked] of Object.entries(S[key].checks)){
+            const cb = document.getElementById(id);
+            if(cb){ cb.checked = checked; if(checked){ const s=cb.closest('.step'); if(s) s.classList.add('checked'); }}
+        }
+    }
+}
+
+function renderProgressDots(company) {
+    const key = co(company);
+    const phases = PHASE_DEFS[company];
+    const cur = S[key].wizPhase || 0;
+    const isDCD = company === 'DCD';
+    let html = '';
+    phases.forEach((p,i) => {
+        const cls = i < cur ? (isDCD?'done-dcd':'done') : i === cur ? (isDCD?'active-dcd':'active') : '';
+        html += `<div class="pdot ${cls}"></div>`;
+    });
+    document.getElementById(key+'-progress').innerHTML = html;
+}
+
+function advancePhase(company) {
+    const key = co(company);
+    const phases = PHASE_DEFS[company];
+    const cur = S[key].wizPhase || 0;
+    if(cur >= phases.length - 1) { showToast(company+' — all steps complete!'); return; }
+
+    // Record timestamp
+    const now = new Date();
+    S[key].wizTimes[cur] = now.toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+    S[key].wizPhase = cur + 1;
+
+    // Update DOM
+    const curEl = document.getElementById(key+'-wp-'+cur);
+    const nextEl = document.getElementById(key+'-wp-'+(cur+1));
+    if(curEl) { curEl.className = 'wiz-phase is-done'; const t = document.getElementById(key+'-wt-'+cur); if(t) t.textContent = '✓ '+S[key].wizTimes[cur]; }
+    if(nextEl) nextEl.className = 'wiz-phase is-active';
+
+    renderProgressDots(company);
+    saveState();
+    showToast(phases[cur].name+' done → '+phases[cur+1].name);
+}
 
 // ===== RESEARCH =====
 async function runResearch() {
@@ -803,609 +551,160 @@ async function runResearch() {
     S.vaName = document.getElementById('vaName').value.trim();
     S.mgmtIdea = document.getElementById('mgmtIdea').value.trim();
     if(!S.vaName){ showToast('Enter VA name first!',true); return; }
-
     btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Researching...';
     document.getElementById('thinkingGrid').style.display = 'grid';
     document.getElementById('topicsGrid').style.display = 'none';
-
-    const [stsRes, dcdRes] = await Promise.allSettled([
-        fetchResearch('STS'), fetchResearch('DCD')
-    ]);
-
+    const [stsRes, dcdRes] = await Promise.allSettled([fetchResearch('STS'), fetchResearch('DCD')]);
     document.getElementById('thinkingGrid').style.display = 'none';
     document.getElementById('topicsGrid').style.display = 'grid';
-
-    handleResearchResult('STS', stsRes);
-    handleResearchResult('DCD', dcdRes);
-
-    btn.disabled = false;
-    btn.innerHTML = '<i class="fas fa-sync"></i> Re-Research Both';
+    handleResearchResult('STS', stsRes); handleResearchResult('DCD', dcdRes);
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync"></i> Re-Research Both';
 }
-
 async function runResearchSingle(company) {
-    const btn = document.getElementById(co(company)+'RegenBtn');
-    btn.classList.remove('visible');
-    const thinkEl = document.getElementById(co(company)+'Thinking');
-    thinkEl.style.display = 'block'; thinkEl.classList.add('active');
+    const btn = document.getElementById(co(company)+'RegenBtn'); btn.classList.remove('visible');
+    const thinkEl = document.getElementById(co(company)+'Thinking'); thinkEl.style.display = 'block'; thinkEl.classList.add('active');
     document.getElementById(co(company)+'TopicCards').innerHTML = '';
     document.getElementById(co(company)+'ResearchError').classList.remove('visible');
-
     const res = await Promise.allSettled([fetchResearch(company)]);
-    thinkEl.style.display = 'none'; thinkEl.classList.remove('active');
-    handleResearchResult(company, res[0]);
+    thinkEl.style.display = 'none'; thinkEl.classList.remove('active'); handleResearchResult(company, res[0]);
 }
-
 async function fetchResearch(company) {
-    const resp = await fetch(WEBHOOK, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ tool:'blog', action:'research', company, vaName:S.vaName, directive:S.mgmtIdea })
-    });
-    const raw = await resp.text();
-    if(!raw||!raw.trim()) throw new Error('Empty response from n8n');
-    let data; try{ data=JSON.parse(raw); }catch(e){ throw new Error('Invalid JSON: '+raw.substring(0,100)); }
+    const resp = await fetch(WEBHOOK, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ tool:'blog', action:'research', company, vaName:S.vaName, directive:S.mgmtIdea }) });
+    const raw = await resp.text(); if(!raw||!raw.trim()) throw new Error('Empty response from n8n');
+    let data; try{ data=JSON.parse(raw); }catch(e){ throw new Error('Invalid JSON'); }
     if(!data.success) throw new Error(data.error||'Brain error');
-    if(!data.data?.topics?.length) throw new Error('No topics returned');
-    return data.data;
+    if(!data.data?.topics?.length) throw new Error('No topics returned'); return data.data;
 }
-
 function handleResearchResult(company, result) {
-    const key = co(company);
-    const errEl = document.getElementById(key+'ResearchError');
-    const regenBtn = document.getElementById(key+'RegenBtn');
-
-    if(result.status === 'fulfilled') {
-        const parsed = result.value;
-        S[key].lastTopics = parsed.topics;
-        S[key].recommendation = parsed.recommendation || '';
-        renderTopics(company, parsed.topics, parsed.recommendation);
-        regenBtn.classList.add('visible');
-        errEl.classList.remove('visible');
-    } else {
-        errEl.textContent = 'Failed: ' + (result.reason?.message || 'Unknown error');
-        errEl.classList.add('visible');
-        regenBtn.classList.add('visible');
-    }
+    const key = co(company); const errEl = document.getElementById(key+'ResearchError'); const regenBtn = document.getElementById(key+'RegenBtn');
+    if(result.status === 'fulfilled') { const parsed = result.value; S[key].lastTopics = parsed.topics; S[key].recommendation = parsed.recommendation || ''; renderTopics(company, parsed.topics, parsed.recommendation); regenBtn.classList.add('visible'); errEl.classList.remove('visible'); }
+    else { errEl.textContent = 'Failed: ' + (result.reason?.message || 'Unknown error'); errEl.classList.add('visible'); regenBtn.classList.add('visible'); }
 }
-
 function renderTopics(company, topics, recommendation) {
-    const key = co(company);
-    const list = document.getElementById(key+'TopicCards');
-    const isDCD = company === 'DCD';
-    list.innerHTML = '';
-
-    if(recommendation){
-        const d = document.createElement('div');
-        d.className = 'rec-box';
-        d.innerHTML = '<i class="fas fa-star" style="margin-right:4px;"></i><strong>Pick:</strong> '+recommendation;
-        list.appendChild(d);
-    }
-
-    topics.forEach((t,i) => {
-        const card = document.createElement('div');
-        card.className = 'topic-card'+(isDCD?' dcd-card':'');
-        card.id = key+'-tc-'+i;
-        card.onclick = () => selectTopic(company, i);
-        card.innerHTML = `<div class="topic-num${isDCD?' dcd':''}">${t.num}</div><div class="select-badge">Selected</div>
-            <div class="topic-card-title">${t.title}${t.isRecommended?'&nbsp;<span class="topic-tag rec">★</span>':''}</div>
-            <div class="topic-card-meta"><span class="topic-tag intent">${t.intent}</span><span class="topic-tag targets">${t.targets}</span></div>
-            <div class="topic-card-why">${t.whyNow}</div>`;
-        list.appendChild(card);
-    });
+    const key = co(company); const list = document.getElementById(key+'TopicCards'); const isDCD = company === 'DCD'; list.innerHTML = '';
+    if(recommendation){ const d = document.createElement('div'); d.className = 'rec-box'; d.innerHTML = '<i class="fas fa-star" style="margin-right:4px;"></i><strong>Pick:</strong> '+recommendation; list.appendChild(d); }
+    topics.forEach((t,i) => { const card = document.createElement('div'); card.className = 'topic-card'+(isDCD?' dcd-card':''); card.id = key+'-tc-'+i; card.onclick = () => selectTopic(company, i);
+        card.innerHTML = `<div class="topic-num${isDCD?' dcd':''}">${t.num}</div><div class="select-badge">Selected</div><div class="topic-card-title">${t.title}${t.isRecommended?'&nbsp;<span class="topic-tag rec">★</span>':''}</div><div class="topic-card-meta"><span class="topic-tag intent">${t.intent}</span><span class="topic-tag targets">${t.targets}</span></div><div class="topic-card-why">${t.whyNow}</div>`;
+        list.appendChild(card); });
 }
 
 // ===== TOPIC SELECTION =====
 function selectTopic(company, idx) {
-    const key = co(company);
-    const t = S[key].lastTopics[idx];
-    if(!t) return;
-
-    // Highlight
+    const key = co(company); const t = S[key].lastTopics[idx]; if(!t) return;
     document.querySelectorAll('#'+key+'TopicCards .topic-card').forEach(c => c.classList.remove('selected'));
     document.getElementById(key+'-tc-'+idx).classList.add('selected');
-
     const chatName = CFG[company].short + ' Blog: ' + (t.title.length>50 ? t.title.substring(0,47)+'...' : t.title);
-    S[key].topic = t;
-    S[key].chatName = chatName;
-    S[key].meta = { title:t.pageTitle, desc:t.metaDescription, keywords:t.metaKeywords, slug:t.slug };
-
-    // Populate meta panel
+    S[key].topic = t; S[key].chatName = chatName; S[key].meta = { title:t.pageTitle, desc:t.metaDescription, keywords:t.metaKeywords, slug:t.slug };
+    S[key].wizPhase = 0; S[key].wizTimes = {};
+    // Populate meta
     document.getElementById(key+'-chatName').textContent = chatName;
     document.getElementById(key+'-mf-title').textContent = t.pageTitle || '—';
     document.getElementById(key+'-mf-desc').textContent = t.metaDescription || '—';
     document.getElementById(key+'-mf-keywords').textContent = t.metaKeywords || '—';
     document.getElementById(key+'-mf-slug').textContent = t.slug || '—';
-    const tLen = (t.pageTitle||'').length;
-    const dLen = (t.metaDescription||'').length;
+    const tLen = (t.pageTitle||'').length; const dLen = (t.metaDescription||'').length;
     document.getElementById(key+'-mf-title-count').textContent = tLen+'c'+(tLen>60?' ⚠️ long':'');
     document.getElementById(key+'-mf-desc-count').textContent = dLen+'c'+(dLen<150?' ⚠️ short':dLen>160?' ⚠️ long':'');
-
-    // Show tabs and switch to this company
+    document.getElementById(key+'-metaPanel').classList.add('visible');
     document.getElementById('columnsGrid').style.display = 'block';
     switchTab(company);
-
-    // Populate copy strips
-    populateCopyStrips(company);
-
-    // Unlock Phase 1
-    const p1 = document.getElementById(key+'-phase1');
-    if(!p1.classList.contains('active')){
-        p1.classList.add('phase-unlocking','active');
-        setTimeout(()=>{ p1.classList.remove('phase-unlocking'); },300);
-    }
-
-    // Scroll to company tabs
-    setTimeout(()=>{
-        const tabs = document.querySelector('.company-tabs');
-        if(tabs) tabs.scrollIntoView({behavior:'smooth',block:'start'});
-    },150);
-
-    saveState();
-    showToast(company+' topic selected! Phase 1 unlocked.');
-
-    // Fire blog.complete
-    try{ fetch(WEBHOOK, { method:'POST', headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({ tool:'blog', action:'complete', company, vaName:S.vaName||'VA', topicTitle:t.title })
-    }).catch(()=>{}); }catch(e){}
-}
-
-function populateCopyStrips(company) {
-    const key = co(company);
-    const m = S[key].meta || {};
-    const liveUrl = m.slug ? CFG[company].siteUrl+'/'+m.slug : '—';
-
-    if(company === 'STS') {
-        const joomlaUrl = m.slug ? CFG.STS.siteUrl+'/'+m.slug+'/blog/'+m.slug : '—';
-        const ids = { 'sts-cs-menu-title':m.title, 'sts-cs-menu-slug':m.slug, 'sts-cs-article-title':m.title, 'sts-cs-pagedisplay-title':m.title, 'sts-cs-meta-desc':m.desc, 'sts-cs-meta-keywords':m.keywords, 'sts-slugCopyBox':m.slug, 'sts-joomlaUrl':joomlaUrl, 'sts-log-title':m.title, 'sts-log-slug':liveUrl };
-        for(const [id,val] of Object.entries(ids)){ const el=document.getElementById(id); if(el) el.textContent=val||'—'; }
-    } else {
-        const ids = { 'dcd-cs-title':m.title, 'dcd-cs-slug':m.slug, 'dcd-cs-desc':m.desc, 'dcd-log-title':m.title, 'dcd-log-slug':liveUrl };
-        for(const [id,val] of Object.entries(ids)){ const el=document.getElementById(id); if(el) el.textContent=val||'—'; }
-        // Set DCD live link href + text
-        const dcdLink = document.getElementById('dcd-liveLink');
-        if(dcdLink && m.slug) { dcdLink.href = liveUrl; dcdLink.textContent = liveUrl; }
-        else if(dcdLink) { dcdLink.href = '#'; dcdLink.textContent = '—'; }
-    }
+    renderWizard(company);
+    setTimeout(()=>{ const tabs = document.querySelector('.company-tabs'); if(tabs) tabs.scrollIntoView({behavior:'smooth',block:'start'}); },150);
+    saveState(); showToast(company+' topic selected!');
+    try{ fetch(WEBHOOK, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ tool:'blog', action:'complete', company, vaName:S.vaName||'VA', topicTitle:t.title }) }).catch(()=>{}); }catch(e){}
 }
 
 // ===== COPY HELPERS =====
-function copyField(company, field) {
-    const key = co(company);
-    const map = { chatName:S[key].chatName, title:S[key].meta?.title, desc:S[key].meta?.desc, keywords:S[key].meta?.keywords, slug:S[key].meta?.slug };
-    const val = map[field] || '';
-    navigator.clipboard.writeText(val).then(()=>showToast('Copied!')).catch(()=>showToast('Copy failed',true));
-}
+function copyField(company, field) { const key=co(company); const map={chatName:S[key].chatName,title:S[key].meta?.title,desc:S[key].meta?.desc,keywords:S[key].meta?.keywords,slug:S[key].meta?.slug}; navigator.clipboard.writeText(map[field]||'').then(()=>showToast('Copied!')).catch(()=>showToast('Copy failed',true)); }
+function copyCsField(company, field) { const m=S[co(company)].meta||{}; const map={title:m.title,slug:m.slug,desc:m.desc,keywords:m.keywords}; navigator.clipboard.writeText(map[field]||'').then(()=>showToast('Copied!')).catch(()=>showToast('Copy failed',true)); }
+function copyAllMeta(company) { const key=co(company); const t=S[key].topic; if(!t){showToast('Select a topic first!',true);return;} const text=`BLOG META \u2014 ${CFG[company].label}\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\nChat Name: ${S[key].chatName}\nPage Title: ${t.pageTitle}\nMeta Description: ${t.metaDescription}\nMeta Keywords: ${t.metaKeywords}\nURL Slug: ${t.slug}\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501`; navigator.clipboard.writeText(text).then(()=>showToast(company+' meta copied!')).catch(()=>showToast('Copy failed',true)); }
+function testLiveUrl(company) { const slug=S[co(company)].meta?.slug||''; if(!slug){showToast('Select a topic first',true);return;} const url=company==='STS'?CFG[company].siteUrl+'/'+slug+'/blog/'+slug:CFG[company].siteUrl+'/'+slug; window.open(url,'_blank'); }
 
-function copyCsField(company, field) {
-    const m = S[co(company)].meta || {};
-    const map = { title:m.title, slug:m.slug, desc:m.desc, keywords:m.keywords };
-    navigator.clipboard.writeText(map[field]||'').then(()=>showToast('Copied!')).catch(()=>showToast('Copy failed',true));
-}
-
-function copyAllMeta(company) {
-    const key = co(company);
-    const t = S[key].topic;
-    if(!t){ showToast('Select a topic first!',true); return; }
-    const text = `BLOG META — ${CFG[company].label}\n━━━━━━━━━━━━━━━━━━\nChat Name: ${S[key].chatName}\nPage Title: ${t.pageTitle}\nMeta Description: ${t.metaDescription}\nMeta Keywords: ${t.metaKeywords}\nURL Slug: ${t.slug}\n━━━━━━━━━━━━━━━━━━`;
-    navigator.clipboard.writeText(text).then(()=>showToast(company+' meta copied!')).catch(()=>showToast('Copy failed',true));
-}
-
-function copySlug(company) {
-    const slug = S[co(company)].meta?.slug || '';
-    if(!slug){ showToast('Select a topic first',true); return; }
-    navigator.clipboard.writeText(slug).then(()=>showToast('Slug copied!')).catch(()=>showToast('Copy failed',true));
-}
-
-function copyTrackerUrl(company) {
-    const slug = S[co(company)].meta?.slug || '';
-    if(!slug){ showToast('Select a topic first',true); return; }
-    navigator.clipboard.writeText(CFG[company].siteUrl+'/'+slug).then(()=>showToast('URL copied!')).catch(()=>showToast('Copy failed',true));
-}
-
+// ===== LOGGER =====
 async function logBlog(company) {
-    const key = co(company);
-    const m = S[key].meta;
-    if(!m?.title || !m?.slug){ showToast('No topic selected — cannot log',true); return; }
-
-    const btn = document.getElementById(key+'-logBtn');
-    const status = document.getElementById(key+'-logStatus');
-    const url = CFG[company].siteUrl+'/'+m.slug;
-
-    btn.disabled = true;
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging...';
-    status.style.display = 'block';
-    status.textContent = 'Sending to Google Sheets...';
-    status.style.color = 'var(--text-muted)';
-
-    try {
-        const resp = await fetch('https://stsrecycling.app.n8n.cloud/webhook/mark-blog-log', {
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({ company, title: m.title, url })
-        });
-        const raw = await resp.text();
-        let data; try{ data=JSON.parse(raw); }catch(e){ throw new Error('Invalid response'); }
-        if(!data.success) throw new Error(data.error||'Logger error');
-
-        status.textContent = '\u2705 Logged: ' + m.title;
-        status.style.color = '#16a34a';
-        btn.innerHTML = '<i class="fas fa-check"></i> Logged Successfully';
-        btn.style.background = '#16a34a';
-
-        // Auto-check the final checkbox
-        const cbId = company === 'STS' ? 'sts-p5-9' : 'dcd-p4-5';
-        const cb = document.getElementById(cbId);
-        if(cb){ cb.checked = true; checkAll(company); }
-
-        showToast(company + ' blog logged to sheet!');
-    } catch(e) {
-        status.textContent = '\u274c Failed: ' + e.message + ' — log manually';
-        status.style.color = '#dc2626';
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-redo"></i> Retry';
-        btn.style.background = '#dc2626';
-        showToast('Log failed — try again or log manually',true);
-    }
-}
-
-function testLiveUrl(company) {
-    const slug = S[co(company)].meta?.slug || '';
-    if(!slug){ showToast('Select a topic first',true); return; }
-    // STS Joomla pattern: /[menu-alias]/blog/[article-alias] (before SEF shortening)
-    // DCD Shogun: direct /[slug]
-    const url = company === 'STS'
-        ? CFG[company].siteUrl+'/'+slug+'/blog/'+slug
-        : CFG[company].siteUrl+'/'+slug;
-    window.open(url, '_blank');
+    const key=co(company); const m=S[key].meta; if(!m?.title||!m?.slug){showToast('No topic selected',true);return;}
+    const btn=document.getElementById(key+'-logBtn'); const status=document.getElementById(key+'-logStatus');
+    const url=CFG[company].siteUrl+'/'+m.slug;
+    btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Logging...';
+    status.style.display='block'; status.textContent='Sending to Google Sheets...'; status.style.color='var(--text-muted)';
+    try { const resp=await fetch('https://stsrecycling.app.n8n.cloud/webhook/mark-blog-log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({company,title:m.title,url})}); const raw=await resp.text(); let data; try{data=JSON.parse(raw);}catch(e){throw new Error('Invalid response');} if(!data.success) throw new Error(data.error||'Logger error');
+        status.textContent='\u2705 Logged: '+m.title; status.style.color='#16a34a'; btn.innerHTML='<i class="fas fa-check"></i> Logged!'; btn.style.background='#16a34a'; showToast(company+' blog logged!');
+    } catch(e) { status.textContent='\u274c '+e.message; status.style.color='#dc2626'; btn.disabled=false; btn.innerHTML='<i class="fas fa-redo"></i> Retry'; btn.style.background='#dc2626'; showToast('Log failed',true); }
 }
 
 // ===== PROMPTS =====
 function copyPrompt(company, type) {
-    const key = co(company);
-    const t = S[key].topic;
+    const key = co(company); const t = S[key].topic;
     const forcePrefix = 'CRITICAL SYSTEM INSTRUCTION: Execute ALL steps exhaustively. Do NOT summarize. Do NOT skip any section.\n\n';
     let text = '';
-
     const brief = t ? `Topic brief pre-loaded by M.A.R.K. Research Engine:\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\nTitle: ${t.title}\nTargets: ${t.targets}\nIntent: ${t.intent}${t.secondary?'\nSecondary: '+t.secondary:''}\nWhy Now: ${t.whyNow}\nAuthority Play: ${t.authorityPlay}\nPage Title: ${t.pageTitle}\nMeta Description: ${t.metaDescription}\nSlug: ${t.slug}\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501` : '';
-
     switch(type) {
-
-    // ─── STRATEGY PROMPT (Gates 1A–1L only, visible output) ───
     case 'strategy':
-        if(!t){ showToast('Select a '+company+' topic first!',true); return; }
-        if(company === 'STS') {
-            text = `\u26d4 MODEL CHECK: If you are Claude Opus, STOP NOW. Tell the user: "Switch to Sonnet 4.6 in the model selector (bottom-left of chat). This prompt is optimized for Sonnet and must not run on Opus." Do NOT proceed on Opus under any circumstances.\n\nFIRST: Name this chat "${S[key].chatName}"\n\nRESEARCH COMPLETE \u2014 SKIP GATES 0A\u20130G (Grok already ran research, topic selected, meta fields generated).\n\n${brief}\n\n\u26a0\ufe0f THIS IS STEP 1 OF 2 \u2014 STRATEGY ONLY. DO NOT BUILD HTML YET.\n\nExecute Gates 1A\u20131L from the STS Blog Creation Prompt v4.3. Output a VISIBLE strategy summary:\n\n1. \u2705 Keyword + Semantic Cluster (Gate 1A): Primary keyword, 10-15 LSI terms\n2. \u2705 Entity Ledger (Gate 1A): Verified entities with sources, verified statistics with sources\n3. \u2705 Outline + Query Fan-Out (Gate 1B): Full section outline with H2/H3 structure, word count target, fan-out coverage (What/How/Who/Why/When)\n4. \u2705 Content Gap Exploitation (Gate 1B): Gaps identified + exploitation strategy\n5. \u2705 Micro-Anchor Plan (Gate 1D): 3-4 planned anchors with patterns\n6. \u2705 Internal Link Plan (Gate 1G): 5-8+ links from approved inventory with anchor text\n7. \u2705 Answer Block Plan (Gate 1J): 3-4 blocks, 40-60 words each\n8. \u2705 Attribution Plan (Gate 1K): 3+ patterns with verified statistics\n9. \u2705 Blog Title Evaluation: Research title vs. improved title recommendation\n\nDo NOT execute Gates 2, 3, or 4. Do NOT generate HTML or schema. Output the strategy summary and STOP.\n\u26a0\ufe0f SKIP SCHEMA GENERATION \u2014 schema will be created in a separate prompt using the Master Schema Generator v1.4 after SEO audit.`;
-        } else {
-            text = `\u26d4 MODEL CHECK: If you are Claude Opus, STOP NOW. Tell the user: "Switch to Sonnet 4.6 in the model selector (bottom-left of chat). This prompt is optimized for Sonnet and must not run on Opus." Do NOT proceed on Opus under any circumstances.\n\nFIRST: Name this chat "${S[key].chatName}"\n\nRESEARCH COMPLETE \u2014 Grok already executed research. SKIP these gates entirely:\n\u2022 GATE 0A\u20130G \u2014 all done, topic selected below\n\nDO execute from the uploaded Blog Creation Prompt:\n\u2022 GATE 0F (Design Reference Extraction) \u2014 read the uploaded Design Bible\n\u2022 GATES 1A\u20131L (Content Strategy Engine) \u2014 full execution\n\n\u26a0\ufe0f THIS IS STEP 1 OF 2 \u2014 STRATEGY ONLY. DO NOT BUILD HTML YET.\n\n${brief}\n\nFILES TO UPLOAD FIRST (both required):\n\u2022 DCD Blog Creation Prompt v1.0\n\u2022 DCD Design Bible\n\nOutput a VISIBLE strategy summary:\n1. \u2705 Keyword + Semantic Cluster: Primary keyword, 10-15 LSI terms\n2. \u2705 Entity Ledger: Verified entities + statistics with sources\n3. \u2705 Outline + Query Fan-Out: Section structure, word count target, fan-out coverage\n4. \u2705 Content Gap Exploitation: Gaps + strategy\n5. \u2705 Micro-Anchor Plan: 3-4 planned anchors\n6. \u2705 Internal Link Plan: Links from approved inventory\n7. \u2705 Answer Block Plan: 3-4 blocks, 40-60 words each\n8. \u2705 Blog Title Evaluation: Research title vs. improved recommendation\n\nDo NOT execute Gates 2, 3, or 4. Do NOT generate HTML or schema. Output the strategy and STOP.`;
-        }
+        if(!t){showToast('Select a '+company+' topic first!',true);return;}
+        if(company==='STS'){text=`\u26d4 MODEL CHECK: If you are Claude Opus, STOP NOW. Tell the user: "Switch to Sonnet 4.6 in the model selector (bottom-left of chat). This prompt is optimized for Sonnet and must not run on Opus." Do NOT proceed on Opus under any circumstances.\n\nFIRST: Name this chat "${S[key].chatName}"\n\nRESEARCH COMPLETE \u2014 SKIP GATES 0A\u20130G (Grok already ran research, topic selected, meta fields generated).\n\n${brief}\n\n\u26a0\ufe0f THIS IS STEP 1 OF 2 \u2014 STRATEGY ONLY. DO NOT BUILD HTML YET.\n\nExecute Gates 1A\u20131L from the STS Blog Creation Prompt v4.3. Output a VISIBLE strategy summary:\n\n1. \u2705 Keyword + Semantic Cluster (Gate 1A): Primary keyword, 10-15 LSI terms\n2. \u2705 Entity Ledger (Gate 1A): Verified entities with sources, verified statistics with sources\n3. \u2705 Outline + Query Fan-Out (Gate 1B): Full section outline with H2/H3 structure, word count target, fan-out coverage (What/How/Who/Why/When)\n4. \u2705 Content Gap Exploitation (Gate 1B): Gaps identified + exploitation strategy\n5. \u2705 Micro-Anchor Plan (Gate 1D): 3-4 planned anchors with patterns\n6. \u2705 Internal Link Plan (Gate 1G): 5-8+ links from approved inventory with anchor text\n7. \u2705 Answer Block Plan (Gate 1J): 3-4 blocks, 40-60 words each\n8. \u2705 Attribution Plan (Gate 1K): 3+ patterns with verified statistics\n9. \u2705 Blog Title Evaluation: Research title vs. improved title recommendation\n\nDo NOT execute Gates 2, 3, or 4. Do NOT generate HTML or schema. Output the strategy summary and STOP.\n\u26a0\ufe0f SKIP SCHEMA GENERATION \u2014 schema will be created in a separate prompt using the Master Schema Generator v1.4 after SEO audit.`;}
+        else{text=`\u26d4 MODEL CHECK: If you are Claude Opus, STOP NOW. Tell the user: "Switch to Sonnet 4.6 in the model selector (bottom-left of chat). This prompt is optimized for Sonnet and must not run on Opus." Do NOT proceed on Opus under any circumstances.\n\nFIRST: Name this chat "${S[key].chatName}"\n\nRESEARCH COMPLETE \u2014 Grok already executed research. SKIP these gates entirely:\n\u2022 GATE 0A\u20130G \u2014 all done, topic selected below\n\nDO execute from the uploaded Blog Creation Prompt:\n\u2022 GATE 0F (Design Reference Extraction) \u2014 read the uploaded Design Bible\n\u2022 GATES 1A\u20131L (Content Strategy Engine) \u2014 full execution\n\n\u26a0\ufe0f THIS IS STEP 1 OF 2 \u2014 STRATEGY ONLY. DO NOT BUILD HTML YET.\n\n${brief}\n\nFILES TO UPLOAD FIRST (both required):\n\u2022 DCD Blog Creation Prompt v1.0\n\u2022 DCD Design Bible\n\nOutput a VISIBLE strategy summary:\n1. \u2705 Keyword + Semantic Cluster: Primary keyword, 10-15 LSI terms\n2. \u2705 Entity Ledger: Verified entities + statistics with sources\n3. \u2705 Outline + Query Fan-Out: Section structure, word count target, fan-out coverage\n4. \u2705 Content Gap Exploitation: Gaps + strategy\n5. \u2705 Micro-Anchor Plan: 3-4 planned anchors\n6. \u2705 Internal Link Plan: Links from approved inventory\n7. \u2705 Answer Block Plan: 3-4 blocks, 40-60 words each\n8. \u2705 Blog Title Evaluation: Research title vs. improved recommendation\n\nDo NOT execute Gates 2, 3, or 4. Do NOT generate HTML or schema. Output the strategy and STOP.`;}
         break;
-
-    // ─── HTML BUILD PROMPT (Gates 2–4, after strategy confirmed) ───
     case 'htmlbuild':
-        if(!t){ showToast('Select a '+company+' topic first!',true); return; }
-        if(company === 'STS') {
-            text = `${forcePrefix}\u26a0\ufe0f THIS IS STEP 2 OF 2 \u2014 BUILD HTML NOW.\n\nThe strategy from Step 1 is confirmed. You have the full content plan in this chat.\n\nExecute Gates 2\u20134 from the STS Blog Creation Prompt v4.3:\n\u2022 Gate 3A: HTML Construction \u2014 build the complete blog using ALL strategy from Gates 1A\u20131L above\n\u2022 Gate 3B: UX Scannability Optimization\n\u2022 Gate 3C: Quality Checklist (14 points + anti-pattern validation)\n\u2022 Gate 4: File Delivery with mandatory checklist, proof of work, GEO scoring, and meta fields\n\n\u26a0\ufe0f SKIP SCHEMA GENERATION \u2014 schema will be created separately using the Master Schema Generator v1.4.\n\nBLOG TITLE GUIDANCE:\nIf you recommended an improved title in Step 1, use it. Final Page Title in Joomla meta should be \u226460 chars with primary keyword + "| STS Electronic Recycling".\n\nDeliver:\n\u2192 blog-final.html \u2014 complete blog HTML, NO schema embedded\n\u2192 Gate 4 delivery with full checklist + proof of work + GEO score + meta fields\n\nCREATE ARTIFACTS only \u2014 do NOT paste code in chat.\nBegin now.`;
-        } else {
-            text = `${forcePrefix}\u26a0\ufe0f THIS IS STEP 2 OF 2 \u2014 BUILD HTML NOW.\n\nThe strategy from Step 1 is confirmed. You have the full content plan in this chat.\n\nExecute from the uploaded Blog Creation Prompt:\n\u2022 GATE 2 (Schema Generation) \u2014 8 types EMBEDDED at bottom of content HTML (NOT a separate file)\n\u2022 GATE 3 (HTML Construction + QA) \u2014 build + quality gates\n\u2022 GATE 4 (File Delivery + Checklist) \u2014 full delivery with proof of work\n\n\u26a0\ufe0f OVERRIDE: Embed schema at the bottom of blog-content.html inside a <script type="application/ld+json"> block. Output ONE file only.\n\nBLOG TITLE GUIDANCE:\nIf you recommended an improved title in Step 1, use it. Page Title for Shogun should be \u226460 chars with primary keyword + "| DCD".\n\nDeliver:\n\u2192 "blog-content.html" \u2014 complete blog HTML with schema embedded, ALL CSS scoped to .blog-${t.slug}-container, NO global selectors\n\n\u26a0\ufe0f ALL CSS must be scoped \u2014 global selectors break site navigation.\n\u26a0\ufe0f CREATE ARTIFACTS only \u2014 do NOT paste code in chat.\nBegin now.`;
-        }
+        if(!t){showToast('Select a '+company+' topic first!',true);return;}
+        if(company==='STS'){text=`${forcePrefix}\u26a0\ufe0f THIS IS STEP 2 OF 2 \u2014 BUILD HTML NOW.\n\nThe strategy from Step 1 is confirmed. You have the full content plan in this chat.\n\nExecute Gates 2\u20134 from the STS Blog Creation Prompt v4.3:\n\u2022 Gate 3A: HTML Construction \u2014 build the complete blog using ALL strategy from Gates 1A\u20131L above\n\u2022 Gate 3B: UX Scannability Optimization\n\u2022 Gate 3C: Quality Checklist (14 points + anti-pattern validation)\n\u2022 Gate 4: File Delivery with mandatory checklist, proof of work, GEO scoring, and meta fields\n\n\u26a0\ufe0f SKIP SCHEMA GENERATION \u2014 schema will be created separately using the Master Schema Generator v1.4.\n\nBLOG TITLE GUIDANCE:\nIf you recommended an improved title in Step 1, use it. Final Page Title in Joomla meta should be \u226460 chars with primary keyword + "| STS Electronic Recycling".\n\nDeliver:\n\u2192 blog-final.html \u2014 complete blog HTML, NO schema embedded\n\u2192 Gate 4 delivery with full checklist + proof of work + GEO score + meta fields\n\nCREATE ARTIFACTS only \u2014 do NOT paste code in chat.\nBegin now.`;}
+        else{text=`${forcePrefix}\u26a0\ufe0f THIS IS STEP 2 OF 2 \u2014 BUILD HTML NOW.\n\nThe strategy from Step 1 is confirmed. You have the full content plan in this chat.\n\nExecute from the uploaded Blog Creation Prompt:\n\u2022 GATE 2 (Schema Generation) \u2014 8 types EMBEDDED at bottom of content HTML (NOT a separate file)\n\u2022 GATE 3 (HTML Construction + QA) \u2014 build + quality gates\n\u2022 GATE 4 (File Delivery + Checklist) \u2014 full delivery with proof of work\n\n\u26a0\ufe0f OVERRIDE: Embed schema at the bottom of blog-content.html inside a <script type="application/ld+json"> block. Output ONE file only.\n\nBLOG TITLE GUIDANCE:\nIf you recommended an improved title in Step 1, use it. Page Title for Shogun should be \u226460 chars with primary keyword + "| DCD".\n\nDeliver:\n\u2192 "blog-content.html" \u2014 complete blog HTML with schema embedded, ALL CSS scoped to .blog-${t.slug}-container, NO global selectors\n\n\u26a0\ufe0f ALL CSS must be scoped \u2014 global selectors break site navigation.\n\u26a0\ufe0f CREATE ARTIFACTS only \u2014 do NOT paste code in chat.\nBegin now.`;}
         break;
-
-    // ─── SEO AUDIT ───
     case 'seo':
-        text = `${forcePrefix}TASK: Full SEO Audit on blog HTML\n\nUPLOAD the Universal Blog SEO Audit document to this chat first, then execute every step in it against the blog HTML.\n\n\u26a0\ufe0f CRITICAL: Design and UX quality must ALWAYS be at the forefront. Do NOT flatten, simplify, or remove visual components, hover states, gradients, or layout sophistication during optimization. SEO improvements must work WITHIN the existing design \u2014 never against it.\n\nExecute EVERY step in the uploaded audit document. Do not skip. Do not summarize.\nOutput updated HTML as new artifact: "blog-final-seo.html"\nPreserve ALL design elements. No lengthy explanations.`;
+        text=`${forcePrefix}TASK: Full SEO Audit on blog HTML\n\nUPLOAD the Universal Blog SEO Audit document to this chat first, then execute every step in it against the blog HTML.\n\n\u26a0\ufe0f CRITICAL: Design and UX quality must ALWAYS be at the forefront. Do NOT flatten, simplify, or remove visual components, hover states, gradients, or layout sophistication during optimization. SEO improvements must work WITHIN the existing design \u2014 never against it.\n\nExecute EVERY step in the uploaded audit document. Do not skip. Do not summarize.\nOutput updated HTML as new artifact: "blog-final-seo.html"\nPreserve ALL design elements. No lengthy explanations.`;
         break;
-
-    // ─── STS SCHEMA (Master Schema Generator v1.4) ───
     case 'schema':
-        text = `${forcePrefix}TASK: Generate production-ready JSON-LD schema for this STS blog using the Master Schema Generator v1.4 you just received.\n\nPAGE TYPE: NATIONAL (blog article, not a city page)\nSERVICE: Use the blog topic as the service context\nPAGE URL: ${CFG.STS.siteUrl}/${S.sts.meta?.slug || '[slug]'}\n\nINSTRUCTIONS:\n1. Read the final blog HTML artifact in this chat\n2. Follow the Master Schema Generator v1.4 document exactly\n3. Set PAGE_TYPE = NATIONAL for all blog articles\n4. Generate NICHE_FROM_HTML knowsAbout terms (18-22 terms from blog content)\n5. Generate NICHE_GENERATED service catalog (12-20 services from blog topic)\n6. Generate 8-12 national FAQ entries targeting featured snippets\n7. Use HQ facility defaults: CID cid:2633689675265688157, Jacksonville TX 75766\n\nOVERRIDES FOR BLOG SCHEMA:\n\u2022 Add BlogPosting schema object to the @graph (headline, author, datePublished, dateModified, wordCount, keywords)\n\u2022 IMPORTANT: Include "dateModified" on BlogPosting \u2014 set to today's date (YYYY-MM-DD). The Schema Generator was built for city pages and omits dateModified by default.\n\u2022 Author: "STS Compliance Research Team" (or appropriate team name for topic)\n\u2022 Publisher: reference @id "${CFG.STS.siteUrl}/#org"\n\u2022 Include speakable specification on BlogPosting\n\u2022 FAQPage: extract ALL visible FAQ Q&As from the blog HTML \u2014 answers MUST match page content exactly\n\nRun full Phase 0 preflight (skip CID verification \u2014 use HQ defaults), Phase 1 construction, Phase 2 validation (all 16 checks).\n\n\u26a0\ufe0f OUTPUT FORMAT \u2014 STRICT:\nThe schema.txt artifact must contain ONLY the script-wrapped JSON-LD. Nothing else.\n\u2022 Starts with: <script type="application/ld+json">\n\u2022 Ends with: <\/script>\n\u2022 Do NOT include the HTML comment line\n\u2022 Do NOT include the <meta name="author"> tag\n\u2022 Do NOT include any text outside the script tags\n\nDisplay meta fields in copy/paste boxes in chat.\nNo lengthy explanations.`;
+        text=`${forcePrefix}TASK: Generate production-ready JSON-LD schema for this STS blog using the Master Schema Generator v1.4 you just received.\n\nPAGE TYPE: NATIONAL (blog article, not a city page)\nSERVICE: Use the blog topic as the service context\nPAGE URL: ${CFG.STS.siteUrl}/${S.sts.meta?.slug || '[slug]'}\n\nINSTRUCTIONS:\n1. Read the final blog HTML artifact in this chat\n2. Follow the Master Schema Generator v1.4 document exactly\n3. Set PAGE_TYPE = NATIONAL for all blog articles\n4. Generate NICHE_FROM_HTML knowsAbout terms (18-22 terms from blog content)\n5. Generate NICHE_GENERATED service catalog (12-20 services from blog topic)\n6. Generate 8-12 national FAQ entries targeting featured snippets\n7. Use HQ facility defaults: CID cid:2633689675265688157, Jacksonville TX 75766\n\nOVERRIDES FOR BLOG SCHEMA:\n\u2022 Add BlogPosting schema object to the @graph (headline, author, datePublished, dateModified, wordCount, keywords)\n\u2022 IMPORTANT: Include "dateModified" on BlogPosting \u2014 set to today\u2019s date (YYYY-MM-DD). The Schema Generator was built for city pages and omits dateModified by default.\n\u2022 Author: "STS Compliance Research Team" (or appropriate team name for topic)\n\u2022 Publisher: reference @id "${CFG.STS.siteUrl}/#org"\n\u2022 Include speakable specification on BlogPosting\n\u2022 FAQPage: extract ALL visible FAQ Q&As from the blog HTML \u2014 answers MUST match page content exactly\n\nRun full Phase 0 preflight (skip CID verification \u2014 use HQ defaults), Phase 1 construction, Phase 2 validation (all 16 checks).\n\n\u26a0\ufe0f OUTPUT FORMAT \u2014 STRICT:\nThe schema.txt artifact must contain ONLY the script-wrapped JSON-LD. Nothing else.\n\u2022 Starts with: <script type="application/ld+json">\n\u2022 Ends with: <\/script>\n\u2022 Do NOT include the HTML comment line\n\u2022 Do NOT include the <meta name="author"> tag\n\u2022 Do NOT include any text outside the script tags\n\nDisplay meta fields in copy/paste boxes in chat.\nNo lengthy explanations.`;
         break;
-
-    // ─── LINK AUDIT ───
     case 'links':
-        text = `${forcePrefix}TASK: Final Link Audit\n\nScan ALL links in the HTML and verify:\n1. No invented URLs \u2014 internal links only from approved inventory\n2. No placeholders (example.com, #, undefined, localhost)\n3. Email links correct format\n4. Phone numbers clickable (tel: format)\n5. CTA buttons point to real valid pages\n6. No staging/dev URLs\n\nVERDICT:\n\u2705 ALL LINKS VERIFIED \u2014 Ready to publish\nOR\n\u274c ISSUES: [list every issue + fix]\n\nFix all issues and output updated artifact.\nNo lengthy explanations.`;
+        text=`${forcePrefix}TASK: Final Link Audit\n\nScan ALL links in the HTML and verify:\n1. No invented URLs \u2014 internal links only from approved inventory\n2. No placeholders (example.com, #, undefined, localhost)\n3. Email links correct format\n4. Phone numbers clickable (tel: format)\n5. CTA buttons point to real valid pages\n6. No staging/dev URLs\n\nVERDICT:\n\u2705 ALL LINKS VERIFIED \u2014 Ready to publish\nOR\n\u274c ISSUES: [list every issue + fix]\n\nFix all issues and output updated artifact.\nNo lengthy explanations.`;
         break;
     }
     if(!text) return;
     navigator.clipboard.writeText(text).then(()=>showToast(company+' prompt copied!')).catch(()=>showToast('Copy failed',true));
 }
 
-// ===== PHASE LOGIC =====
-function togglePhase(id){ document.getElementById(id).classList.toggle('active'); }
-
-function toggleMeta(company) {
-    const key = co(company);
-    const body = document.getElementById(key+'-metaBody');
-    const icon = document.getElementById(key+'-metaIcon');
-    if(body.style.display === 'none') { body.style.display = 'block'; icon.classList.add('open'); }
-    else { body.style.display = 'none'; icon.classList.remove('open'); }
-}
-
-function switchTab(company) {
-    // Toggle tab buttons
-    const stsTab = document.getElementById('tabSTS');
-    const dcdTab = document.getElementById('tabDCD');
-    stsTab.className = 'company-tab'+(company==='STS'?' active-sts':'');
-    dcdTab.className = 'company-tab'+(company==='DCD'?' active-dcd':'');
-
-    // Toggle views
-    document.getElementById('stsView').className = 'company-view'+(company==='STS'?' active':'');
-    document.getElementById('dcdView').className = 'company-view'+(company==='DCD'?' active':'');
-
-    // Show meta panel if topic selected for this company
-    const key = co(company);
-    if(S[key].meta) {
-        document.getElementById(key+'-metaPanel').classList.add('visible');
-    }
-}
-
-function checkAll(company) {
-    const key = co(company);
-    const prefix = key+'-';
-    const phases = null; // unused var from old layout
-
-    // Update checked styling
-    document.querySelectorAll('[id^="'+prefix+'p"] input[type="checkbox"]').forEach(cb => {
-        const s = cb.closest('.step');
-        if(s){ cb.checked ? s.classList.add('checked') : s.classList.remove('checked'); }
-        S[key].checks[cb.id] = cb.checked;
-    });
-
-    // Check phase completion
-    const col = document.getElementById(company === 'STS' ? 'stsView' : 'dcdView');
-    if(!col) return;
-    const phaseEls = Array.from(col.querySelectorAll('.phase'));
-    phaseEls.forEach((ph,idx)=>{
-        const boxes = ph.querySelectorAll('input[type="checkbox"]');
-        const chk = ph.querySelectorAll('input[type="checkbox"]:checked');
-        if(boxes.length>0 && boxes.length===chk.length){
-            if(!ph.classList.contains('phase-complete')){
-                ph.classList.add('phase-complete');
-                const next = phaseEls[idx+1];
-                if(next && !next.classList.contains('active')){
-                    setTimeout(()=>{
-                        next.classList.add('phase-unlocking','active');
-                        showToast(company+' Phase '+(idx+1)+' complete → next unlocked');
-                        setTimeout(()=>{ next.classList.remove('phase-unlocking'); },300);
-                    },400);
-                }
-            }
-        } else { ph.classList.remove('phase-complete'); }
-    });
-
-    saveState();
-}
-
-// ===== UTILS =====
-function animateButton(btn,pt,st){
-    const orig=btn.innerHTML;
-    btn.classList.add('processing'); btn.innerHTML='<span style="opacity:.8">\u25d0</span> '+pt;
-    setTimeout(()=>{ btn.classList.remove('processing'); btn.classList.add('success'); btn.innerHTML='<span>\u2713</span> '+st; setTimeout(()=>{ btn.classList.remove('success'); btn.innerHTML=orig; },1200); },600);
-}
-
-function showToast(msg,isErr=false){
-    const t=document.getElementById('toast');
-    t.innerHTML='<i class="fas '+(isErr?'fa-exclamation-circle':'fa-check-circle')+'"></i> <span>'+msg+'</span>';
-    t.style.borderLeft=isErr?'4px solid #ef4444':'4px solid #34d399';
-    t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000);
-}
+// ===== UI HELPERS =====
+function toggleMeta(company) { const key=co(company); const body=document.getElementById(key+'-metaBody'); const icon=document.getElementById(key+'-metaIcon'); if(body.style.display==='none'||!body.style.display){body.style.display='block';icon.classList.add('open');}else{body.style.display='none';icon.classList.remove('open');} }
+function switchTab(company) { document.getElementById('tabSTS').className='company-tab'+(company==='STS'?' active-sts':''); document.getElementById('tabDCD').className='company-tab'+(company==='DCD'?' active-dcd':''); document.getElementById('stsView').className='company-view'+(company==='STS'?' active':''); document.getElementById('dcdView').className='company-view'+(company==='DCD'?' active':''); if(S[co(company)].meta) document.getElementById(co(company)+'-metaPanel').classList.add('visible'); }
+function animateButton(btn,pt,st){ const orig=btn.innerHTML; btn.classList.add('processing'); btn.innerHTML='<span style="opacity:.8">\u25d0</span> '+pt; setTimeout(()=>{btn.classList.remove('processing');btn.classList.add('success');btn.innerHTML='<span>\u2713</span> '+st;setTimeout(()=>{btn.classList.remove('success');btn.innerHTML=orig;},1200);},600); }
+function showToast(msg,isErr=false){ const t=document.getElementById('toast'); t.innerHTML='<i class="fas '+(isErr?'fa-exclamation-circle':'fa-check-circle')+'"></i> <span>'+msg+'</span>'; t.style.borderLeft=isErr?'4px solid #ef4444':'4px solid #34d399'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
 
 // ===== PERSISTENCE =====
-function saveState(){
-    try{
-        S.vaName = document.getElementById('vaName').value.trim();
-        S.mgmtIdea = document.getElementById('mgmtIdea').value.trim();
-        localStorage.setItem('markBlogV2', JSON.stringify(S));
-    }catch(e){}
-}
-
-function loadState(){
-    try{
-        const raw = localStorage.getItem('markBlogV2');
-        if(!raw) return;
-        const saved = JSON.parse(raw);
-        Object.assign(S, saved);
-        if(S.vaName) document.getElementById('vaName').value = S.vaName;
-        if(S.mgmtIdea) document.getElementById('mgmtIdea').value = S.mgmtIdea;
-
-        ['STS','DCD'].forEach(company => {
-            const key = co(company);
-            const cs = S[key];
-            if(cs.lastTopics?.length > 0){
-                document.getElementById('topicsGrid').style.display = 'grid';
-                renderTopics(company, cs.lastTopics, cs.recommendation||'');
-                document.getElementById(key+'RegenBtn').classList.add('visible');
-                document.getElementById('runResearchBtn').innerHTML = '<i class="fas fa-sync"></i> Re-Research Both';
-                if(cs.topic){
-                    const idx = cs.lastTopics.findIndex(t=>t.title===cs.topic.title);
-                    if(idx>=0){ const card=document.getElementById(key+'-tc-'+idx); if(card) card.classList.add('selected'); }
-                }
-            }
-            if(cs.meta){
-                document.getElementById(key+'-chatName').textContent = cs.chatName||'—';
-                document.getElementById(key+'-mf-title').textContent = cs.meta.title||'—';
-                document.getElementById(key+'-mf-desc').textContent = cs.meta.desc||'—';
-                document.getElementById(key+'-mf-keywords').textContent = cs.meta.keywords||'—';
-                document.getElementById(key+'-mf-slug').textContent = cs.meta.slug||'—';
-                document.getElementById(key+'-metaPanel').classList.add('visible');
-                document.getElementById('columnsGrid').style.display = 'block';
-                populateCopyStrips(company);
-            }
-            // Restore checks
-            if(cs.checks){
-                for(const [id, checked] of Object.entries(cs.checks)){
-                    const cb = document.getElementById(id);
-                    if(cb){ cb.checked = checked; const s=cb.closest('.step'); if(s){ checked?s.classList.add('checked'):s.classList.remove('checked'); } }
-                }
-            }
-        });
-
-        // Show correct tab (prefer STS if both have topics, otherwise whichever has one)
-        if(S.sts.meta || S.dcd.meta) {
-            switchTab(S.sts.meta ? 'STS' : 'DCD');
-        }
-
-        // Re-run phase completion check
-        setTimeout(()=>{ checkAll('STS'); checkAll('DCD'); }, 200);
-    }catch(e){ console.error('Load state error:', e); }
-}
-
-function resetAll(){
-    if(!confirm('Reset all data and start a new session?')) return;
-    try{ localStorage.removeItem('markBlogV2'); }catch(e){}
-    document.getElementById('vaName').value = '';
-    document.getElementById('mgmtIdea').value = '';
-    document.getElementById('topicsGrid').style.display = 'none';
-    document.getElementById('columnsGrid').style.display = 'none';
-    document.getElementById('thinkingGrid').style.display = 'none';
-    ['sts','dcd'].forEach(key => {
-        document.getElementById(key+'TopicCards').innerHTML = '';
-        document.getElementById(key+'ResearchError').classList.remove('visible');
-        document.getElementById(key+'RegenBtn').classList.remove('visible');
-        document.getElementById(key+'-metaPanel').classList.remove('visible');
+function saveState(){ try{ S.vaName=document.getElementById('vaName').value.trim(); S.mgmtIdea=document.getElementById('mgmtIdea').value.trim(); document.querySelectorAll('input[type=checkbox]').forEach(function(cb){if(cb.id){var k=cb.id.startsWith('dcd')?'dcd':'sts';S[k].checks[cb.id]=cb.checked;}}); localStorage.setItem('markBlogV2',JSON.stringify(S)); }catch(e){} }
+function loadState(){ try{ const raw=localStorage.getItem('markBlogV2'); if(!raw) return; const saved=JSON.parse(raw); Object.assign(S,saved);
+    if(S.vaName) document.getElementById('vaName').value=S.vaName;
+    if(S.mgmtIdea) document.getElementById('mgmtIdea').value=S.mgmtIdea;
+    ['STS','DCD'].forEach(company=>{ const key=co(company); const cs=S[key];
+        if(cs.lastTopics?.length>0){ document.getElementById('topicsGrid').style.display='grid'; renderTopics(company,cs.lastTopics,cs.recommendation||''); document.getElementById(key+'RegenBtn').classList.add('visible'); document.getElementById('runResearchBtn').innerHTML='<i class="fas fa-sync"></i> Re-Research Both';
+            if(cs.topic){ const idx=cs.lastTopics.findIndex(t=>t.title===cs.topic.title); if(idx>=0){const card=document.getElementById(key+'-tc-'+idx);if(card)card.classList.add('selected');} } }
+        if(cs.meta){ document.getElementById(key+'-chatName').textContent=cs.chatName||'—'; document.getElementById(key+'-mf-title').textContent=cs.meta.title||'—'; document.getElementById(key+'-mf-desc').textContent=cs.meta.desc||'—'; document.getElementById(key+'-mf-keywords').textContent=cs.meta.keywords||'—'; document.getElementById(key+'-mf-slug').textContent=cs.meta.slug||'—'; document.getElementById(key+'-metaPanel').classList.add('visible'); document.getElementById('columnsGrid').style.display='block'; renderWizard(company); }
     });
-    document.querySelectorAll('input[type="checkbox"]').forEach(cb=>{ cb.checked=false; cb.closest('.step')?.classList.remove('checked'); });
-    document.querySelectorAll('.phase').forEach(p=>p.classList.remove('active','phase-complete'));
-    // Reset log buttons
-    ['sts','dcd'].forEach(k => {
-        const btn = document.getElementById(k+'-logBtn');
-        if(btn){ btn.disabled=false; btn.style.background='#dc2626'; btn.innerHTML='<i class="fas fa-paper-plane"></i> Log to '+k.toUpperCase()+' Sheet'; }
-        const status = document.getElementById(k+'-logStatus');
-        if(status){ status.style.display='none'; status.textContent=''; }
-    });
-    // Reset tabs to STS
+    if(S.sts.meta||S.dcd.meta) switchTab(S.sts.meta?'STS':'DCD');
+}catch(e){console.error('Load state error:',e);} }
+function resetAll(){ if(!confirm('Reset all data and start a new session?')) return; try{localStorage.removeItem('markBlogV2');}catch(e){}
+    document.getElementById('vaName').value=''; document.getElementById('mgmtIdea').value='';
+    document.getElementById('topicsGrid').style.display='none'; document.getElementById('columnsGrid').style.display='none'; document.getElementById('thinkingGrid').style.display='none';
+    ['sts','dcd'].forEach(key=>{ document.getElementById(key+'TopicCards').innerHTML=''; document.getElementById(key+'ResearchError').classList.remove('visible'); document.getElementById(key+'RegenBtn').classList.remove('visible'); document.getElementById(key+'-metaPanel').classList.remove('visible'); document.getElementById(key+'-wizard').innerHTML=''; document.getElementById(key+'-launcher').style.display='none'; document.getElementById(key+'-progress').innerHTML=''; });
     switchTab('STS');
-    const btn = document.getElementById('runResearchBtn');
-    btn.disabled=false; btn.innerHTML='<i class="fas fa-rocket"></i> Research Both \u2014 STS + DCD';
-    S = { vaName:'', mgmtIdea:'', sts:{ topic:null, meta:null, chatName:'', lastTopics:[], recommendation:'', checks:{} }, dcd:{ topic:null, meta:null, chatName:'', lastTopics:[], recommendation:'', checks:{} }, chatHistory:[] };
-    showToast('Reset complete \u2014 ready for new session');
-}
+    const btn=document.getElementById('runResearchBtn'); btn.disabled=false; btn.innerHTML='<i class="fas fa-rocket"></i> Research Both';
+    S={vaName:'',mgmtIdea:'',sts:{topic:null,meta:null,chatName:'',lastTopics:[],recommendation:'',checks:{},wizPhase:0,wizTimes:{}},dcd:{topic:null,meta:null,chatName:'',lastTopics:[],recommendation:'',checks:{},wizPhase:0,wizTimes:{}},chatHistory:[]};
+    showToast('Reset complete'); }
 
-// ===== FLOATING CHAT =====
-let chatModel = 'grok';
+// ===== CHAT =====
+let chatModel='grok';
+function toggleChat(){const w=document.getElementById('chatWidget');const f=document.getElementById('chatFab');if(w.classList.contains('open')){w.classList.remove('open');f.innerHTML='<i class="fas fa-comments"></i>';}else{w.classList.add('open');f.innerHTML='<i class="fas fa-chevron-down"></i>';setTimeout(()=>document.getElementById('chatInput').focus(),200);}}
+function setChatModel(m){chatModel=m;const w=document.getElementById('chatWidget');m==='both'?w.classList.add('wide'):w.classList.remove('wide');document.getElementById('modelGrok').className='chat-model-btn'+(m==='grok'?' active-model':'');document.getElementById('modelClaude').className='chat-model-btn'+(m==='claude'?' active-model':'');document.getElementById('modelBoth').className='chat-model-btn'+(m==='both'?' active-model':'');}
+async function callChatAPI(model,msg){const action=model==='claude'?'claude':'message';const controller=new AbortController();const timeout=setTimeout(()=>controller.abort(),30000);try{const resp=await fetch(WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},signal:controller.signal,body:JSON.stringify({tool:'chat',action,company:'STS',vaName:S.vaName||'VA',context:msg,messages:S.chatHistory.slice(-10)})});clearTimeout(timeout);const raw=await resp.text();if(!raw||!raw.trim())throw new Error('Empty response');let data;try{data=JSON.parse(raw);}catch(e){throw new Error('Invalid JSON');}if(!data.success)throw new Error(data.error||'Brain error');return data.text||data.data?.reply||data.data?.text||(typeof data.data==='string'?data.data:'No response');}catch(e){clearTimeout(timeout);if(e.name==='AbortError')throw new Error('Timed out (30s)');throw e;}}
+async function sendChat(){const input=document.getElementById('chatInput');const msg=input.value.trim();if(!msg)return;const btn=document.getElementById('chatSendBtn');const thread=document.getElementById('chatThread');const empty=document.getElementById('chatEmpty');if(empty)empty.style.display='none';document.getElementById('chatSuggestions').style.display='none';appendChatBubble('user',msg,'You');S.chatHistory.push({role:'user',content:msg});input.value='';input.style.height='auto';btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i>';const modelLabel=chatModel==='grok'?'GROK 4':chatModel==='claude'?'SONNET 4.6':null;
+if(chatModel==='both'){const gId='g-'+Date.now(),cId='c-'+Date.now();appendChatBubbleDouble(msg,gId,cId);thread.scrollTop=thread.scrollHeight;const[gR,cR]=await Promise.allSettled([callChatAPI('grok',msg),callChatAPI('claude',msg)]);const gEl=document.getElementById(gId),cEl=document.getElementById(cId);const gT=gR.status==='fulfilled'?gR.value:'\u26a0\ufe0f '+gR.reason?.message;const cT=cR.status==='fulfilled'?cR.value:'\u26a0\ufe0f '+cR.reason?.message;if(gEl)gEl.innerHTML=formatBubble(gT);if(cEl)cEl.innerHTML=formatBubble(cT);S.chatHistory.push({role:'assistant',content:'[Grok]: '+gT+'\n\n[Claude]: '+cT});}else{const thId='think-'+Date.now();appendChatBubble('assistant','\u22ef',modelLabel,thId,true);thread.scrollTop=thread.scrollHeight;try{const reply=await callChatAPI(chatModel,msg);document.getElementById(thId)?.remove();S.chatHistory.push({role:'assistant',content:reply});appendChatBubble('assistant',reply,modelLabel);}catch(e){document.getElementById(thId)?.remove();appendChatBubble('assistant','\u26a0\ufe0f '+e.message,modelLabel);}}
+btn.disabled=false;btn.innerHTML='<i class="fas fa-paper-plane"></i>';thread.scrollTop=thread.scrollHeight;}
+function formatBubble(t){return t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');}
+function appendChatBubbleDouble(userMsg,gId,cId){const thread=document.getElementById('chatThread');const w=document.createElement('div');w.style.cssText='display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px;';w.innerHTML=`<div style="background:var(--cream);border:1px solid var(--border-light);border-radius:8px;padding:8px;"><div style="font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;opacity:.6;"><span style="background:#000;color:white;padding:1px 4px;border-radius:3px;font-size:7px;">GROK</span></div><div id="${gId}" style="font-size:11px;line-height:1.4;color:var(--text-primary);">\u22ef</div></div><div style="background:var(--cream);border:1px solid var(--border-light);border-radius:8px;padding:8px;"><div style="font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;opacity:.6;"><span style="background:var(--navy);color:white;padding:1px 4px;border-radius:3px;font-size:7px;">SONNET</span></div><div id="${cId}" style="font-size:11px;line-height:1.4;color:var(--text-primary);">\u22ef</div></div>`;thread.appendChild(w);}
+function appendChatBubble(role,text,label,id,isThinking){const thread=document.getElementById('chatThread');const w=document.createElement('div');w.style.cssText='display:flex;flex-direction:column;'+(role==='user'?'align-items:flex-end;':'align-items:flex-start;');if(id)w.id=id;const b=document.createElement('div');b.className='chat-bubble '+(role==='user'?'user':'assistant')+(isThinking?' thinking':'');const l=document.createElement('div');l.className='bubble-label';l.textContent=label||(role==='user'?'You':'AI');b.appendChild(l);const c=document.createElement('div');c.innerHTML=formatBubble(text);b.appendChild(c);w.appendChild(b);thread.appendChild(w);}
+function clearChat(){S.chatHistory=[];document.getElementById('chatThread').innerHTML='<div class="chat-empty" id="chatEmpty"><i class="fas fa-robot"></i><div style="font-weight:600;color:var(--text-secondary);margin-bottom:3px;font-size:12px;">Ask Mark anything</div><div style="font-size:11px;">Research, write, review \u2014 pick a model and go.</div></div>';document.getElementById('chatSuggestions').style.display='flex';}
+function useSuggestion(el){document.getElementById('chatInput').value=el.textContent;document.getElementById('chatSuggestions').style.display='none';document.getElementById('chatInput').focus();}
 
-function toggleChat() {
-    const w = document.getElementById('chatWidget');
-    const f = document.getElementById('chatFab');
-    if(w.classList.contains('open')){
-        w.classList.remove('open');
-        f.innerHTML = '<i class="fas fa-comments"></i>';
-    } else {
-        w.classList.add('open');
-        f.innerHTML = '<i class="fas fa-chevron-down"></i>';
-        setTimeout(()=>document.getElementById('chatInput').focus(), 200);
-    }
-}
-
-function setChatModel(m) {
-    chatModel = m;
-    const w = document.getElementById('chatWidget');
-    m==='both' ? w.classList.add('wide') : w.classList.remove('wide');
-    document.getElementById('modelGrok').className = 'chat-model-btn'+(m==='grok'?' active-model':'');
-    document.getElementById('modelClaude').className = 'chat-model-btn'+(m==='claude'?' active-model':'');
-    document.getElementById('modelBoth').className = 'chat-model-btn'+(m==='both'?' active-model':'');
-}
-
-async function callChatAPI(model, msg) {
-    const action = model === 'claude' ? 'claude' : 'message';
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 30000);
-    try {
-        const resp = await fetch(WEBHOOK, {
-            method:'POST', headers:{'Content-Type':'application/json'}, signal:controller.signal,
-            body: JSON.stringify({ tool:'chat', action, company:'STS', vaName:S.vaName||'VA', context:msg, messages:S.chatHistory.slice(-10) })
-        });
-        clearTimeout(timeout);
-        const raw = await resp.text();
-        if(!raw||!raw.trim()) throw new Error('Empty response \u2014 is n8n workflow Active?');
-        let data; try{ data=JSON.parse(raw); }catch(e){ throw new Error('Invalid JSON: '+raw.substring(0,100)); }
-        if(!data.success) throw new Error(data.error||'Brain error');
-        return data.text || data.data?.reply || data.data?.text || (typeof data.data==='string'?data.data:'No response');
-    } catch(e) { clearTimeout(timeout); if(e.name==='AbortError') throw new Error('Timed out (30s)'); throw e; }
-}
-
-async function sendChat() {
-    const input = document.getElementById('chatInput');
-    const msg = input.value.trim();
-    if(!msg) return;
-    const btn = document.getElementById('chatSendBtn');
-    const thread = document.getElementById('chatThread');
-    const empty = document.getElementById('chatEmpty');
-    if(empty) empty.style.display = 'none';
-    document.getElementById('chatSuggestions').style.display = 'none';
-    appendChatBubble('user', msg, 'You');
-    S.chatHistory.push({ role:'user', content:msg });
-    input.value = ''; input.style.height = 'auto';
-    btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    const modelLabel = chatModel==='grok'?'GROK 4':chatModel==='claude'?'SONNET 4.6':null;
-
-    if(chatModel === 'both') {
-        const gId='g-'+Date.now(), cId='c-'+Date.now();
-        appendChatBubbleDouble(msg, gId, cId);
-        thread.scrollTop = thread.scrollHeight;
-        const [gR,cR] = await Promise.allSettled([callChatAPI('grok',msg),callChatAPI('claude',msg)]);
-        const gEl=document.getElementById(gId), cEl=document.getElementById(cId);
-        const gT=gR.status==='fulfilled'?gR.value:'\u26a0\ufe0f '+gR.reason?.message;
-        const cT=cR.status==='fulfilled'?cR.value:'\u26a0\ufe0f '+cR.reason?.message;
-        if(gEl) gEl.innerHTML=formatBubble(gT); if(cEl) cEl.innerHTML=formatBubble(cT);
-        S.chatHistory.push({ role:'assistant', content:'[Grok]: '+gT+'\n\n[Claude]: '+cT });
-    } else {
-        const thId='think-'+Date.now();
-        appendChatBubble('assistant','\u22ef',modelLabel,thId,true);
-        thread.scrollTop = thread.scrollHeight;
-        try{
-            const reply = await callChatAPI(chatModel, msg);
-            document.getElementById(thId)?.remove();
-            S.chatHistory.push({ role:'assistant', content:reply });
-            appendChatBubble('assistant', reply, modelLabel);
-        }catch(e){ document.getElementById(thId)?.remove(); appendChatBubble('assistant','\u26a0\ufe0f '+e.message, modelLabel); }
-    }
-    btn.disabled=false; btn.innerHTML='<i class="fas fa-paper-plane"></i>'; thread.scrollTop=thread.scrollHeight;
-}
-
-function formatBubble(t){ return t.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>'); }
-
-function appendChatBubbleDouble(userMsg, gId, cId) {
-    const thread = document.getElementById('chatThread');
-    const w = document.createElement('div');
-    w.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:4px;';
-    w.innerHTML = `<div style="background:var(--cream);border:1px solid var(--border-light);border-radius:8px;padding:8px;">
-        <div style="font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;opacity:.6;"><span style="background:#000;color:white;padding:1px 4px;border-radius:3px;font-size:7px;">GROK</span></div>
-        <div id="${gId}" style="font-size:11px;line-height:1.4;color:var(--text-primary);">\u22ef</div>
-    </div><div style="background:var(--cream);border:1px solid var(--border-light);border-radius:8px;padding:8px;">
-        <div style="font-size:8px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;opacity:.6;"><span style="background:var(--navy);color:white;padding:1px 4px;border-radius:3px;font-size:7px;">SONNET</span></div>
-        <div id="${cId}" style="font-size:11px;line-height:1.4;color:var(--text-primary);">\u22ef</div>
-    </div>`;
-    thread.appendChild(w);
-}
-
-function appendChatBubble(role, text, label, id, isThinking) {
-    const thread = document.getElementById('chatThread');
-    const w = document.createElement('div');
-    w.style.cssText = 'display:flex;flex-direction:column;'+(role==='user'?'align-items:flex-end;':'align-items:flex-start;');
-    if(id) w.id = id;
-    const b = document.createElement('div');
-    b.className = 'chat-bubble '+(role==='user'?'user':'assistant')+(isThinking?' thinking':'');
-    const l = document.createElement('div'); l.className='bubble-label'; l.textContent=label||(role==='user'?'You':'AI'); b.appendChild(l);
-    const c = document.createElement('div'); c.innerHTML=formatBubble(text); b.appendChild(c);
-    w.appendChild(b); thread.appendChild(w);
-}
-
-function clearChat(){
-    S.chatHistory = [];
-    document.getElementById('chatThread').innerHTML = '<div class="chat-empty" id="chatEmpty"><i class="fas fa-robot"></i><div style="font-weight:600;color:var(--text-secondary);margin-bottom:3px;font-size:12px;">Ask Mark anything</div><div style="font-size:11px;">Research, write, review \u2014 pick a model and go.</div></div>';
-    document.getElementById('chatSuggestions').style.display = 'flex';
-}
-
-function useSuggestion(el){
-    document.getElementById('chatInput').value = el.textContent;
-    document.getElementById('chatSuggestions').style.display = 'none';
-    document.getElementById('chatInput').focus();
-}
-
-// ===== INIT =====
-window.onload = function(){
-    loadState();
-    setInterval(saveState, 10000);
-};
+window.onload=function(){loadState();setInterval(saveState,10000);};
 </script>
 </body>
 </html>
