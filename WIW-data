@@ -1,0 +1,2409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STS WIW — Operations Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{
+  /* Backgrounds */
+  --bg:#f4f6f9; --s1:#ffffff; --s2:#f8f9fb; --s3:#eef1f5;
+  /* Borders */
+  --b1:#e3e7ee; --b2:#f0f2f6; --b3:#dde1e8;
+  /* Text */
+  --ink:#0f172a; --ink2:#475569; --ink3:#94a3b8; --ink4:#cbd5e1;
+  /* Accent + status */
+  --a:#2563eb; --a2:#3b82f6; --adim:rgba(37,99,235,.06);
+  --g:#059669; --gdim:rgba(5,150,105,.06);
+  --r:#dc2626; --rdim:rgba(220,38,38,.06);
+  --w:#d97706; --wdim:rgba(217,119,6,.06);
+  --bl:#7c3aed; --bldim:rgba(124,58,237,.06);
+  /* Fonts (names kept; values swapped to Outfit) */
+  --mono:'IBM Plex Mono',monospace;
+  --serif:'Outfit',system-ui,sans-serif;
+  --sans:'Outfit',system-ui,-apple-system,sans-serif;
+  /* Shadows + overlay */
+  --sh:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.02);
+  --sh2:0 4px 16px rgba(0,0,0,.06),0 1px 3px rgba(0,0,0,.04);
+  --sh3:0 8px 30px rgba(0,0,0,.08);
+  --overlay:rgba(15,23,42,.45);
+}
+[data-t=dark]{
+  --bg:#0a0d14; --s1:#121622; --s2:#181d2e; --s3:#1e2438;
+  --b1:#252d42; --b2:#1e2640; --b3:#2a3450;
+  --ink:#e2e8f0; --ink2:#94a3b8; --ink3:#64748b; --ink4:#475569;
+  --adim:rgba(37,99,235,.12);
+  --gdim:rgba(5,150,105,.12);
+  --rdim:rgba(220,38,38,.10);
+  --wdim:rgba(217,119,6,.10);
+  --bldim:rgba(124,58,237,.10);
+  --sh:0 1px 3px rgba(0,0,0,.20);
+  --sh2:0 4px 16px rgba(0,0,0,.30);
+  --sh3:0 8px 30px rgba(0,0,0,.40);
+  --overlay:rgba(0,0,0,.70);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;transition:background .25s,color .25s}
+::selection{background:var(--a);color:#fff}
+
+/* ============ TOP BAR ============ */
+.top{display:flex;align-items:center;justify-content:space-between;height:58px;padding:0 28px;background:var(--s1);border-bottom:1px solid var(--b1);position:sticky;top:0;z-index:200;backdrop-filter:blur(20px);box-shadow:0 1px 0 var(--b1)}
+[data-t=dark] .top{background:rgba(18,22,34,.88)}
+.brand{display:flex;align-items:center;gap:14px}
+.brand-mark{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--a),var(--bl));color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:800;font-size:14px;letter-spacing:-.02em;box-shadow:var(--sh)}
+.brand-name{font-family:var(--sans);font-size:18px;font-weight:800;color:var(--ink);line-height:1;letter-spacing:-.03em}
+.brand-name em{font-style:normal;background:linear-gradient(135deg,var(--a),var(--bl));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.brand-meta{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;margin-top:3px}
+.top-r{display:flex;align-items:center;gap:14px}
+.ldot{width:7px;height:7px;background:var(--g);border-radius:50%;animation:ld 2.2s ease-in-out infinite}
+@keyframes ld{0%,100%{box-shadow:0 0 0 0 rgba(106,171,120,.55)}50%{box-shadow:0 0 0 6px rgba(106,171,120,0)}}
+.llbl{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase}
+.ubtn{font-family:var(--sans);font-size:11px;letter-spacing:.01em;padding:7px 14px;border:1px solid var(--a);background:var(--a);color:#fff;cursor:pointer;font-weight:600;transition:all .15s;border-radius:8px;box-shadow:var(--sh)}
+.ubtn:hover{background:var(--a2);border-color:var(--a2);box-shadow:var(--sh2)}
+.ubtn.ghost{background:var(--s1);color:var(--ink2);border-color:var(--b1);box-shadow:none}
+.ubtn.ghost:hover{border-color:var(--a);color:var(--a);background:var(--s1);box-shadow:var(--sh)}
+.thm{width:32px;height:32px;border:1px solid var(--b1);background:var(--s1);color:var(--ink2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:14px;line-height:1;transition:all .15s;border-radius:8px;padding:0}
+.thm:hover{border-color:var(--a);color:var(--a)}
+
+/* ============ REFRESH BAR ============ */
+.rbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 28px 0;max-width:1680px;margin:0 auto;flex-wrap:wrap}
+.rbar-l{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.rbar-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.rbar-tier-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
+.rbtn{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:11px;font-weight:600;padding:8px 14px;background:var(--s1);border:1px solid var(--b1);color:var(--ink);cursor:pointer;border-radius:999px;transition:all .15s;box-shadow:var(--sh)}
+.rbtn:hover{border-color:var(--a);color:var(--a);box-shadow:var(--sh2)}
+.rbtn:disabled{opacity:.6;cursor:wait}
+.rbtn .rbtn-i{font-size:13px;line-height:1;display:inline-block;transition:transform .3s}
+.rbtn.spin .rbtn-i{animation:rbtn-spin .8s linear infinite}
+@keyframes rbtn-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.rbtn .rbtn-t{font-weight:600;letter-spacing:.01em}
+.rbtn .rbtn-s{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.04em;font-weight:400;margin-left:4px;padding-left:8px;border-left:1px solid var(--b1)}
+.rbtn.success{border-color:var(--g);color:var(--g)}
+.rbtn.success .rbtn-s{color:var(--g)}
+.rbtn.error{border-color:var(--r);color:var(--r)}
+.rbtn.error .rbtn-s{color:var(--r)}
+.rfi{font-family:var(--sans);font-size:11px;letter-spacing:.01em;padding:7px 28px 7px 12px;border:1px solid var(--b1);background:var(--s1);color:var(--ink2);cursor:pointer;font-weight:500;border-radius:8px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath d='M0 0L4 6L8 0' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:all .15s}
+.rfi:hover{border-color:var(--a);color:var(--a)}
+.rfi:focus{outline:none;border-color:var(--a);box-shadow:0 0 0 3px var(--adim)}
+
+/* ============ TABS ============ */
+.tabs{display:flex;align-items:center;height:42px;padding:0 28px;background:var(--bg);border-bottom:1px solid var(--b1);gap:2px;overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:11px 18px;cursor:pointer;color:var(--ink3);border:none;background:transparent;position:relative;white-space:nowrap;transition:color .15s}
+.tab:hover{color:var(--ink2)}
+.tab.active{color:var(--a)}
+.tab.active::after{content:'';position:absolute;bottom:-1px;left:0;right:0;height:1px;background:var(--a)}
+.tab .dot{display:inline-block;width:4px;height:4px;border-radius:50%;background:var(--ink3);margin-left:7px;vertical-align:middle}
+.tab.active .dot{background:var(--a)}
+.tab.stub{color:var(--ink4)}
+.tab.stub .dot{background:var(--ink4)}
+
+/* ============ TIME RANGE ============ */
+.ranger{display:flex;align-items:center;gap:0;padding:14px 28px 0;max-width:1680px;margin:0 auto}
+.rng{display:flex;border:1px solid var(--b1);background:var(--s1);border-radius:8px;overflow:hidden;box-shadow:var(--sh)}
+.rng-b{font-family:var(--sans);font-size:11px;letter-spacing:.01em;padding:8px 14px;background:transparent;border:none;color:var(--ink2);cursor:pointer;border-right:1px solid var(--b1);transition:all .15s;font-weight:500}
+.rng-b:last-child{border-right:none}
+.rng-b:hover{color:var(--ink);background:var(--s2)}
+.rng-b.on{color:var(--a);background:var(--adim);font-weight:600}
+.rng-lbl{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;margin-left:14px}
+
+/* ============ CONTENT WRAP ============ */
+.wrap{padding:20px 28px 60px;max-width:1680px;margin:0 auto}
+.sec{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink3);margin:24px 0 10px;display:flex;align-items:center;gap:12px}
+.sec::after{content:'';flex:1;height:1px;background:var(--b1)}
+.sec .acc{color:var(--a)}
+.sec .sec-meta{font-family:var(--mono);font-size:9px;color:var(--ink3);text-transform:uppercase}
+
+/* ============ BENTO GRID ============ */
+.bento{display:grid;gap:14px}
+.b4{grid-template-columns:repeat(4,1fr)}
+.b5{grid-template-columns:repeat(5,1fr)}
+.r2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.r3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+
+/* ============ CELL / PANEL ============ */
+.cell{background:var(--s1);padding:22px 22px;position:relative;overflow:hidden;border:1px solid var(--b1);border-radius:12px;box-shadow:var(--sh);transition:transform .15s,box-shadow .15s,background .15s;cursor:pointer}
+.cell:hover{box-shadow:var(--sh2);transform:translateY(-1px)}
+.cell.static{cursor:default}
+.cell.static:hover{box-shadow:var(--sh);transform:none}
+.cell-a{position:absolute;top:0;left:0;right:0;height:2px;z-index:1}
+.klbl{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+.klbl .expand{color:var(--ink4);font-size:8px}
+.cell:hover .klbl .expand{color:var(--a)}
+.kval{font-family:var(--sans);font-size:30px;font-weight:800;line-height:1;margin-bottom:6px;letter-spacing:-.04em}
+.kd{font-family:var(--mono);font-size:10px;color:var(--ink3);display:flex;align-items:center;gap:8px}
+.kd .delta{font-weight:500}
+.kd .delta.up{color:var(--g)}
+.kd .delta.dn{color:var(--r)}
+.kd .delta.flat{color:var(--ink3)}
+
+/* Proportion bar inside a cell */
+.prop{display:flex;height:6px;margin:8px 0 10px;background:var(--ink4);overflow:hidden}
+.prop span{display:block;height:100%}
+.prop .pg{background:var(--g)}
+.prop .py{background:var(--w)}
+.prop .pr{background:var(--r)}
+.prop-lgd{display:flex;gap:12px;font-family:var(--mono);font-size:9px;color:var(--ink2);letter-spacing:.05em}
+.prop-lgd span{display:flex;align-items:center;gap:5px}
+.prop-lgd i{width:6px;height:6px;display:inline-block;border-radius:1px}
+
+/* Panel (for flags/wins/tables) */
+.panel{background:var(--s1);padding:22px 24px;position:relative;border:1px solid var(--b1);border-radius:12px;box-shadow:var(--sh);transition:box-shadow .15s}
+.panel:hover{box-shadow:var(--sh2)}
+.pt{font-family:var(--sans);font-size:16px;font-weight:700;color:var(--ink);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;letter-spacing:-.01em}
+.pt .dm{font-family:var(--mono);font-size:9px;color:var(--ink3);font-style:normal;letter-spacing:.1em;text-transform:uppercase}
+.pt .acc-amber{color:var(--a)}
+
+/* Flag / win list item */
+.li{display:flex;align-items:center;justify-content:space-between;padding:11px 0;border-bottom:1px solid var(--b1);cursor:pointer;transition:background .15s;margin:0 -8px;padding-left:8px;padding-right:8px}
+.li:last-child{border-bottom:none}
+.li:hover{background:var(--s2)}
+.li-l{display:flex;align-items:center;gap:12px;flex:1;min-width:0}
+.li-i{width:8px;height:8px;flex-shrink:0}
+.li-t{font-size:12px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.li-s{font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:.04em;margin-top:2px}
+.li-v{font-family:var(--mono);font-size:14px;font-weight:500;margin-left:12px;flex-shrink:0}
+.li-v.va{color:var(--a)}
+.li-v.vg{color:var(--g)}
+.li-v.vr{color:var(--r)}
+.li-v.vw{color:var(--w)}
+
+/* Chart wrapper */
+.cw{position:relative}
+
+/* Data table */
+.dt{width:100%;border-collapse:collapse}
+.dt th{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);padding:9px 12px;text-align:left;border-bottom:1px solid var(--b1);white-space:nowrap;font-weight:500}
+.dt td{font-family:var(--mono);font-size:11px;color:var(--ink2);padding:9px 12px;border-bottom:1px solid var(--b1);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px}
+.dt tr:last-child td{border-bottom:none}
+.dt tr:hover td{background:var(--s2);color:var(--ink)}
+
+/* Empty state */
+.empty{text-align:center;padding:90px 20px 60px}
+.empty-mark{width:48px;height:48px;border:1px solid var(--a);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:800;color:var(--a);font-size:22px;margin-bottom:20px;background:var(--adim)}
+.empty h2{font-family:var(--sans);font-size:32px;font-weight:700;margin-bottom:10px;color:var(--ink);letter-spacing:-.02em}
+.empty p{font-size:13px;color:var(--ink2);margin-bottom:24px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.5}
+.empty .hint{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;margin-top:18px}
+
+/* Scroll container */
+.sp{max-height:340px;overflow-y:auto}
+.sp::-webkit-scrollbar{width:4px}
+.sp::-webkit-scrollbar-track{background:transparent}
+.sp::-webkit-scrollbar-thumb{background:var(--b2)}
+.sp::-webkit-scrollbar-thumb:hover{background:var(--b3)}
+
+/* ============ STUB TAB STATE ============ */
+.stub-wrap{padding:80px 40px;text-align:center;max-width:640px;margin:40px auto}
+.stub-wrap .stub-tag{font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--a);margin-bottom:16px;padding:6px 12px;border:1px solid var(--b1);background:var(--adim);display:inline-block;border-radius:999px}
+.stub-wrap h2{font-family:var(--sans);font-size:32px;font-weight:700;margin-bottom:14px;color:var(--ink);letter-spacing:-.02em}
+.stub-wrap p{font-size:14px;color:var(--ink2);line-height:1.65;margin-bottom:8px}
+.stub-wrap .blocked{margin-top:30px;padding:20px 24px;background:var(--s1);border:1px solid var(--b1);text-align:left;border-radius:12px;box-shadow:var(--sh)}
+.stub-wrap .blocked-t{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);margin-bottom:10px}
+.stub-wrap .blocked ul{list-style:none;padding:0}
+.stub-wrap .blocked li{font-size:12px;color:var(--ink2);padding:6px 0;padding-left:18px;position:relative}
+.stub-wrap .blocked li::before{content:'→';position:absolute;left:0;color:var(--a)}
+
+/* ============ DRAWER ============ */
+.drawer-overlay{position:fixed;inset:0;background:var(--overlay);backdrop-filter:blur(3px);z-index:300;opacity:0;pointer-events:none;transition:opacity .2s}
+.drawer-overlay.open{opacity:1;pointer-events:auto}
+.drawer{position:fixed;top:0;right:-640px;width:620px;max-width:92vw;height:100vh;background:var(--s1);border-left:1px solid var(--b2);z-index:301;transition:right .28s cubic-bezier(.2,.8,.2,1);overflow-y:auto;box-shadow:var(--sh3)}
+.drawer.open{right:0}
+.drawer-top{display:flex;justify-content:space-between;align-items:center;padding:22px 26px;border-bottom:1px solid var(--b1);position:sticky;top:0;background:var(--s1);z-index:5}
+.drawer-title{font-family:var(--sans);font-size:20px;font-weight:700;color:var(--ink);letter-spacing:-.02em}
+.drawer-sub{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink3);margin-top:3px}
+.drawer-close{background:var(--s1);border:1px solid var(--b1);color:var(--ink2);font-family:var(--sans);font-size:11px;padding:6px 12px;cursor:pointer;letter-spacing:.01em;font-weight:600;transition:all .15s;border-radius:8px}
+.drawer-close:hover{border-color:var(--a);color:var(--a);box-shadow:var(--sh)}
+.drawer-body{padding:22px 26px}
+.drawer-section{margin-bottom:26px}
+.drawer-section:last-child{margin-bottom:0}
+.drawer-section-t{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--ink3);margin-bottom:12px}
+
+/* Stat grid inside drawer */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--b1);border:1px solid var(--b1);margin-bottom:18px}
+.stats .s{background:var(--s1);padding:14px 16px}
+.stats .s-l{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.stats .s-v{font-family:var(--mono);font-size:18px;color:var(--ink)}
+
+/* Badge */
+.b{font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:2px 8px;border:1px solid;display:inline-block}
+.b-g{color:var(--g);border-color:rgba(106,171,120,.35);background:var(--gdim)}
+.b-y{color:var(--w);border-color:rgba(192,148,72,.35);background:var(--wdim)}
+.b-r{color:var(--r);border-color:rgba(184,95,95,.35);background:var(--rdim)}
+.b-a{color:var(--a);border-color:rgba(200,124,56,.35);background:var(--adim)}
+.b-b{color:var(--bl);border-color:rgba(120,152,180,.35);background:var(--bldim)}
+
+/* AI briefing placeholder */
+.ai-card{background:linear-gradient(135deg,var(--s1) 0%,var(--s2) 100%);padding:28px 32px;border:1px solid var(--b1);position:relative;overflow:hidden;border-radius:12px;box-shadow:var(--sh)}
+.ai-card::before{content:'';position:absolute;top:-20px;right:-20px;width:140px;height:140px;border:1px solid var(--a);border-radius:50%;opacity:.06}
+.ai-card::after{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border:1px solid var(--a);border-radius:50%;opacity:.04}
+.ai-tag{font-family:var(--mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--a);margin-bottom:10px;display:inline-block;padding:5px 10px;border-radius:999px;background:var(--adim);border:1px solid var(--b1)}
+.ai-card h3{font-family:var(--sans);font-size:22px;font-weight:700;color:var(--ink);margin-bottom:8px;letter-spacing:-.02em}
+.ai-card p{font-size:13px;color:var(--ink2);line-height:1.6;max-width:720px}
+.ai-meta{display:flex;gap:20px;margin-top:18px;font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase}
+
+/* Hide initial states */
+.view{display:none}
+.view.active{display:block}
+#empty-view{display:block}
+
+/* Production info footer */
+.prod-foot{background:var(--s1);border:1px solid var(--b1);border-radius:12px;box-shadow:var(--sh);padding:14px 22px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink3);max-width:1680px;margin:40px auto 28px;width:calc(100% - 56px)}
+.prod-foot .pf-l{display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+.prod-foot .pf-i{display:flex;flex-direction:column;gap:2px}
+.prod-foot .pf-i .pfk{color:var(--ink4);font-size:8px}
+.prod-foot .pf-i .pfv{color:var(--ink2);font-size:9px}
+.prod-foot .pf-i .pfv.acc{color:var(--a)}
+.prod-foot a{color:var(--ink2);text-decoration:none;border-bottom:1px dotted var(--b3)}
+.prod-foot a:hover{color:var(--a);border-color:var(--a)}
+
+/* Responsive */
+@media (max-width:960px){
+  .b4,.b5{grid-template-columns:repeat(2,1fr)}
+  .r2,.r3{grid-template-columns:1fr}
+  .wrap{padding:16px 16px 60px}
+  .top{padding:0 16px}
+  .tabs{padding:0 16px}
+  .ranger{padding:14px 16px 0}
+  .kval{font-size:24px}
+}
+</style>
+</head>
+<body>
+
+<!-- ============ TOP BAR ============ -->
+<div class="top">
+  <div class="brand">
+    <div class="brand-mark">W</div>
+    <div>
+      <div class="brand-name">STS <em>WIW</em></div>
+      <div class="brand-meta">What Is It Worth · Operations Dashboard</div>
+    </div>
+  </div>
+  <div class="top-r">
+    <input type="file" id="csv" accept=".csv" style="display:none" onchange="ld(event)">
+    <button class="ubtn ghost" onclick="document.getElementById('csv').click()">Load CSV</button>
+    <button class="thm" id="thmBtn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">☾</button>
+  </div>
+</div>
+
+<!-- ============ REFRESH BAR ============ -->
+<div class="rbar" id="rbar" style="display:none">
+  <div class="rbar-l">
+    <button class="rbtn" id="rbT" onclick="refreshTier('today')" title="Pull today's rows from master">
+      <span class="rbtn-i">↻</span><span class="rbtn-t">Today</span>
+      <span class="rbtn-s" id="rbTs">never</span>
+    </button>
+    <button class="rbtn" id="rbW" onclick="refreshTier('weekly')" title="Pull last 7 days from master">
+      <span class="rbtn-i">↻</span><span class="rbtn-t">Weekly</span>
+      <span class="rbtn-s" id="rbWs">never</span>
+    </button>
+    <button class="rbtn" id="rbM" onclick="refreshTier('monthly')" title="Pull last 30 days from master">
+      <span class="rbtn-i">↻</span><span class="rbtn-t">Monthly</span>
+      <span class="rbtn-s" id="rbMs">never</span>
+    </button>
+  </div>
+  <div class="rbar-r">
+    <span class="rbar-tier-lbl">Viewing</span>
+    <select id="tierSel" class="rfi" onchange="switchTier(this.value)">
+      <option value="today">Today</option>
+      <option value="weekly">Last 7 days</option>
+      <option value="monthly">Last 30 days</option>
+    </select>
+    <span class="rbar-tier-lbl" style="margin-left:14px">Auto</span>
+    <select id="autoSel" class="rfi" onchange="setAutoRefresh(this.value)">
+      <option value="0" selected>Off</option>
+      <option value="3600">Every hour</option>
+      <option value="1800">Every 30m</option>
+      <option value="900">Every 15m</option>
+    </select>
+  </div>
+</div>
+
+<!-- ============ TABS ============ -->
+<div class="tabs" id="tabs">
+  <button class="tab active" data-v="home" onclick="sv('home')">Home<span class="dot"></span></button>
+  <button class="tab" data-v="money" onclick="sv('money')">Money<span class="dot"></span></button>
+  <button class="tab" data-v="ops" onclick="sv('ops')">Operations<span class="dot"></span></button>
+  <button class="tab" data-v="thresh" onclick="sv('thresh')">Thresholds<span class="dot"></span></button>
+  <button class="tab stub" data-v="market" onclick="sv('market')">Market<span class="dot"></span></button>
+  <button class="tab stub" data-v="inventory" onclick="sv('inventory')">Inventory<span class="dot"></span></button>
+  <button class="tab stub" data-v="compliance" onclick="sv('compliance')">Compliance<span class="dot"></span></button>
+  <button class="tab stub" data-v="ai" onclick="sv('ai')">AI Insights<span class="dot"></span></button>
+  <button class="tab stub" data-v="alerts" onclick="sv('alerts')">Alerts<span class="dot"></span></button>
+</div>
+
+<!-- ============ EMPTY STATE ============ -->
+<div id="empty-view" class="view active">
+  <div class="empty">
+    <div class="empty-mark">W</div>
+    <h2>Operations Pulse</h2>
+    <p>Load the PRICE_PULL CSV export from the master sheet to see today's check-in activity, routing flow, profit pulse, red flags, and wins across the floor.</p>
+    <button class="ubtn" onclick="document.getElementById('csv').click()">Load CSV</button>
+    <div class="hint">Sheet ID ends in rUY8 · columns required: 34</div>
+  </div>
+</div>
+
+<!-- ============ HOME VIEW ============ -->
+<div id="home-view" class="view">
+  <div class="ranger">
+    <div class="rng">
+      <button class="rng-b on" data-r="today" onclick="sr('today')">Today</button>
+      <button class="rng-b" data-r="week" onclick="sr('week')">Week</button>
+      <button class="rng-b" data-r="month" onclick="sr('month')">Month</button>
+      <button class="rng-b" data-r="ytd" onclick="sr('ytd')">YTD</button>
+      <button class="rng-b" data-r="all" onclick="sr('all')">All</button>
+    </div>
+    <span class="rng-lbl" id="rlbl">—</span>
+  </div>
+
+  <div class="wrap">
+
+    <!-- PULSE -->
+    <div class="sec"><span class="acc">◆</span> Today's Pulse <span class="sec-meta" id="pulse-d"></span></div>
+    <div class="bento b4" id="pulse"></div>
+
+    <!-- MONEY -->
+    <div class="sec"><span class="acc">◆</span> Profit Pulse</div>
+    <div class="bento b4" id="money"></div>
+
+    <!-- FLAGS + WINS -->
+    <div class="sec"><span class="acc">◆</span> What Needs Attention · What's Winning</div>
+    <div class="r2">
+      <div class="panel">
+        <div class="pt">Red Flags <span class="dm" id="flags-c">0 total</span></div>
+        <div id="flags"></div>
+      </div>
+      <div class="panel">
+        <div class="pt">Major Wins <span class="dm acc-amber" id="wins-c">0 total</span></div>
+        <div id="wins"></div>
+      </div>
+    </div>
+
+    <!-- CUSP ANALYSIS -->
+    <div class="sec"><span class="acc">◆</span> On The Cusp <span class="sec-meta">items one small move from flipping routing</span></div>
+    <div class="r3">
+      <div class="panel">
+        <div class="pt">Just Missed GREEN <span class="dm" id="cuspG-c">0</span></div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;margin:-10px 0 14px">YELLOW within $5 of retail threshold</div>
+        <div class="sp" style="max-height:340px"><table class="dt"><thead><tr><th>Item</th><th>Cat</th><th>Retail $</th><th>Gap</th></tr></thead><tbody id="tCuspG"></tbody></table></div>
+      </div>
+      <div class="panel">
+        <div class="pt">Just Missed YELLOW <span class="dm" id="cuspY-c">0</span></div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;margin:-10px 0 14px">RED within $5 of wholesale floor</div>
+        <div class="sp" style="max-height:340px"><table class="dt"><thead><tr><th>Item</th><th>Cat</th><th>WS $</th><th>Gap</th></tr></thead><tbody id="tCuspY"></tbody></table></div>
+      </div>
+      <div class="panel">
+        <div class="pt">Barely Made GREEN <span class="dm" id="cuspBG-c">0</span></div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.08em;text-transform:uppercase;margin:-10px 0 14px">GREEN within $5 above retail threshold</div>
+        <div class="sp" style="max-height:340px"><table class="dt"><thead><tr><th>Item</th><th>Cat</th><th>Retail $</th><th>Margin</th></tr></thead><tbody id="tCuspBG"></tbody></table></div>
+      </div>
+    </div>
+
+    <!-- ROUTING DRIFT -->
+    <div class="sec"><span class="acc">◆</span> Routing Drift <span class="sec-meta">how items moved between runs</span></div>
+    <div class="panel">
+      <div class="pt">
+        <span>Movement Across Batches <span class="dm" id="drift-status">No comparison loaded</span></span>
+        <button class="ubtn ghost" onclick="toggleCompareMode()" id="cmpToggle" style="padding:5px 12px">Compare</button>
+      </div>
+
+      <div id="drift-uploader" style="display:none;padding:18px 20px;background:var(--s2);border:1px solid var(--b1);margin-bottom:16px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--ink2);letter-spacing:.08em;text-transform:uppercase;margin-bottom:10px">Load a prior PRICE_PULL CSV to compare against current data</div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <input type="file" id="cmpCsv" accept=".csv" style="display:none" onchange="loadCompare(event)">
+          <button class="ubtn ghost" onclick="document.getElementById('cmpCsv').click()">Load Prior CSV</button>
+          <span id="cmpStatus" style="font-family:var(--mono);font-size:10px;color:var(--ink3);letter-spacing:.08em">Nothing loaded</span>
+          <button class="ubtn ghost" onclick="clearCompare()" id="cmpClear" style="display:none;padding:5px 12px;border-color:var(--b2);color:var(--ink3)">Clear</button>
+        </div>
+        <div style="font-family:var(--mono);font-size:9px;color:var(--ink4);letter-spacing:.05em;margin-top:10px;line-height:1.5">Comparison uses Search_Key to match rows. Drift panel shows movement between prior CSV's routing and current CSV's routing for items present in both.</div>
+      </div>
+
+      <div id="drift-empty" style="padding:40px 20px;text-align:center">
+        <div style="font-family:var(--sans);font-weight:600;font-size:18px;color:var(--ink2);margin-bottom:8px">Drift tracking awaits comparison data</div>
+        <p style="font-size:12px;color:var(--ink3);line-height:1.6;max-width:520px;margin:0 auto">Click <span style="color:var(--a)">Compare</span> to load a prior PRICE_PULL export. When the price_history tab is built on the master sheet, drift will populate automatically without manual upload.</p>
+      </div>
+
+      <div id="drift-grid" class="bento" style="grid-template-columns:repeat(4,1fr);display:none">
+        <div class="cell" onclick="drillDrift('g2y')"><div class="cell-a" style="background:var(--w)"></div><div class="klbl">GREEN → YELLOW <span class="expand">▸</span></div><div class="kval" id="dG2Y" style="color:var(--w)">0</div><div class="kd">downgraded items</div></div>
+        <div class="cell" onclick="drillDrift('y2r')"><div class="cell-a" style="background:var(--r)"></div><div class="klbl">YELLOW → RED <span class="expand">▸</span></div><div class="kval" id="dY2R" style="color:var(--r)">0</div><div class="kd">now scrap</div></div>
+        <div class="cell" onclick="drillDrift('r2y')"><div class="cell-a" style="background:var(--w)"></div><div class="klbl">RED → YELLOW <span class="expand">▸</span></div><div class="kval" id="dR2Y" style="color:var(--w)">0</div><div class="kd">recovered items</div></div>
+        <div class="cell" onclick="drillDrift('y2g')"><div class="cell-a" style="background:var(--g)"></div><div class="klbl">YELLOW → GREEN <span class="expand">▸</span></div><div class="kval" id="dY2G" style="color:var(--g)">0</div><div class="kd">upgraded to retail</div></div>
+      </div>
+    </div>
+
+    <!-- TREND -->
+    <div class="sec"><span class="acc">◆</span> Routing Trend</div>
+    <div class="panel">
+      <div class="pt">Routing By Day <span class="dm" id="trend-range"></span></div>
+      <div class="cw" style="height:220px"><canvas id="cTrend"></canvas></div>
+    </div>
+
+    <!-- CATEGORY PULSE -->
+    <div class="sec"><span class="acc">◆</span> Category Pulse</div>
+    <div class="r2">
+      <div class="panel">
+        <div class="pt">Top Categories · Volume <span class="dm">item count</span></div>
+        <div class="cw" style="height:260px"><canvas id="cCatVol"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="pt">Top Categories · Value <span class="dm">total $ eBay</span></div>
+        <div class="cw" style="height:260px"><canvas id="cCatVal"></canvas></div>
+      </div>
+    </div>
+
+    <!-- AI BRIEFING -->
+    <div class="sec"><span class="acc">◆</span> Weekly Intelligence</div>
+    <div class="ai-card" id="aiCard">
+      <div class="ai-tag" id="aiTag">AI Briefing · Awaiting first run</div>
+      <h3 id="aiHeadline">Weekly intelligence hasn't run yet</h3>
+      <p id="aiSummary">When n8n's weekly analysis workflow runs Mondays at 6 AM Central, this card will show threshold adjustments worth considering, notable category trends, and any anomalies detected.</p>
+      <div id="aiBlocks" style="display:none;margin-top:14px;"></div>
+      <div class="ai-meta">
+        <span id="aiLastRun">Last run · Never</span>
+        <span id="aiNext">Next scheduled · Mondays 6 AM CT</span>
+        <span id="aiModel">Model · claude-sonnet-4</span>
+      </div>
+    </div>
+
+    <!-- DETAILS -->
+    <div class="sec"><span class="acc">◆</span> Recent Activity <span class="sec-meta" id="recent-c"></span></div>
+    <div class="panel">
+      <div class="pt">Most Recent Check-Ins <span class="dm">scroll for more</span></div>
+      <div class="sp"><table class="dt"><thead><tr><th>Manufacturer</th><th>Model</th><th>Category</th><th>Routing</th><th>Source</th><th>Price</th><th>Profit</th><th>Flag</th></tr></thead><tbody id="tRecent"></tbody></table></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ============ MONEY VIEW ============ -->
+<div id="money-view" class="view">
+  <div class="wrap">
+    <div class="sec"><span class="acc">◆</span> Profit Breakdown</div>
+    <div class="bento b4" id="money-kpi"></div>
+
+    <div class="sec"><span class="acc">◆</span> Channel Mix</div>
+    <div class="r2">
+      <div class="panel">
+        <div class="pt">Retail vs Wholesale vs Scrap <span class="dm">routing value share</span></div>
+        <div class="cw" style="height:260px"><canvas id="cChannel"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="pt">Profit By Category <span class="dm">gross retail $</span></div>
+        <div class="cw" style="height:260px"><canvas id="cProfitCat"></canvas></div>
+      </div>
+    </div>
+
+    <div class="sec"><span class="acc">◆</span> Cost Structure</div>
+    <div class="r2">
+      <div class="panel">
+        <div class="pt">Labor Cost Distribution <span class="dm">by category</span></div>
+        <div class="cw" style="height:240px"><canvas id="cLabor"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="pt">Shipping Cost Distribution <span class="dm">by category</span></div>
+        <div class="cw" style="height:240px"><canvas id="cShip"></canvas></div>
+      </div>
+    </div>
+
+    <div class="sec"><span class="acc">◆</span> Top Profit Items <span class="sec-meta">retail route, sorted by gross profit</span></div>
+    <div class="panel">
+      <div class="sp" style="max-height:520px"><table class="dt"><thead><tr><th>Manufacturer</th><th>Model</th><th>Category</th><th>eBay $</th><th>Labor</th><th>Ship</th><th>Floor</th><th>Profit</th></tr></thead><tbody id="tMoney"></tbody></table></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ OPERATIONS VIEW ============ -->
+<div id="ops-view" class="view">
+  <div class="wrap">
+    <div class="sec"><span class="acc">◆</span> Throughput</div>
+    <div class="bento b4" id="ops-kpi"></div>
+
+    <div class="sec"><span class="acc">◆</span> Source Mix · Cache Health</div>
+    <div class="r2">
+      <div class="panel">
+        <div class="pt">WIW Source Distribution <span class="dm">where prices came from</span></div>
+        <div class="cw" style="height:240px"><canvas id="cSrc"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="pt">Response Time Distribution <span class="dm">daily_response_ms</span></div>
+        <div class="cw" style="height:240px"><canvas id="cResp"></canvas></div>
+      </div>
+    </div>
+
+    <div class="sec"><span class="acc">◆</span> Hard Rule Trips <span class="sec-meta">automatic routing decisions</span></div>
+    <div class="r2">
+      <div class="panel">
+        <div class="pt">Hard Rules Triggered <span class="dm">total count</span></div>
+        <div id="opsHard"></div>
+      </div>
+      <div class="panel">
+        <div class="pt">Tyler Flags <span class="dm">post-routing downgrades</span></div>
+        <div id="opsTyler"></div>
+      </div>
+    </div>
+
+    <div class="sec"><span class="acc">◆</span> Database Actions <span class="sec-meta">INSERT vs UPDATE this period</span></div>
+    <div class="panel">
+      <div class="pt">Data Lifecycle <span class="dm">new discoveries + refreshes</span></div>
+      <div class="cw" style="height:220px"><canvas id="cAction"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ THRESHOLDS VIEW ============ -->
+<div id="thresh-view" class="view">
+  <div class="wrap">
+    <div class="sec"><span class="acc">◆</span> Wholesale Floors By Category <span class="sec-meta">from live data</span></div>
+    <div class="panel">
+      <div class="pt">Floor vs Avg Profit <span class="dm">is the floor tuned right?</span></div>
+      <div class="cw" style="height:320px"><canvas id="cFloor"></canvas></div>
+    </div>
+
+    <div class="sec"><span class="acc">◆</span> Sensitivity Zone <span class="sec-meta">items within $5 of floor</span></div>
+    <div class="panel">
+      <div class="pt">Near-Floor Items <span class="dm">small threshold changes flip these</span></div>
+      <div class="sp" style="max-height:540px"><table class="dt"><thead><tr><th>Manufacturer</th><th>Model</th><th>Category</th><th>WS Profit</th><th>Floor</th><th>Gap</th><th>Action</th></tr></thead><tbody id="tNearFloor"></tbody></table></div>
+    </div>
+
+    <div class="sec"><span class="acc">◆</span> Floor Tuning Simulator <span class="sec-meta">coming in v2</span></div>
+    <div class="stub-wrap" style="padding:40px 40px">
+      <div class="stub-tag">Pending Write-Back Auth</div>
+      <h2>Lower floor by $5 → see impact</h2>
+      <p>This simulator will let Brad adjust floors from the dashboard, preview the routing impact across every item, and push the change to the Shared Contract with one click. Currently requires contract change through Mark.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ STUB VIEWS ============ -->
+<div id="market-view" class="view">
+  <div class="stub-wrap">
+    <div class="stub-tag">Awaiting Data Source</div>
+    <h2>Market Intelligence</h2>
+    <p>Commodity price overlay for gold, copper, and aluminum spot prices. Category price trend heatmap showing what's appreciating vs depreciating. eBay sold volume health. Seasonality patterns.</p>
+    <p>When commodity prices move, scrap economics move with them. A 10% copper drop eats the RED bucket. A gold rally makes borderline scrap items viable retail.</p>
+    <div class="blocked">
+      <div class="blocked-t">Requires</div>
+      <ul>
+        <li>Free commodities API (metalpriceapi.com or goldapi.io) · cheap n8n daily pull</li>
+        <li>eBay sold listings volume endpoint (already have SerpAPI key)</li>
+        <li>Historical price_history tab with 30+ days of data</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div id="inventory-view" class="view">
+  <div class="stub-wrap">
+    <div class="stub-tag">Awaiting Data Source</div>
+    <h2>Inventory Aging</h2>
+    <p>What's in the building right now. Aging buckets (&lt;7d, 7-30d, 30-60d, 60+d). Carrying cost by category. Sell-through velocity. Stale items that need to be repriced or scrapped.</p>
+    <p>WIW knows what came in. This tab needs the other half of the equation: what's still sitting on the floor.</p>
+    <div class="blocked">
+      <div class="blocked-t">Requires</div>
+      <ul>
+        <li>Inventory management system feed (does STS have one, or is this greenfield?)</li>
+        <li>Item-level "date received" and "date sold" timestamps</li>
+        <li>Location/bin assignments per item</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div id="compliance-view" class="view">
+  <div class="stub-wrap">
+    <div class="stub-tag">Awaiting Data Source</div>
+    <h2>Compliance &amp; ESG</h2>
+    <p>Tons diverted from landfill. Certificates of data destruction issued. Chain of custody tracking. R2 and e-Stewards audit metrics.</p>
+    <p>This is what STS sells to enterprise buyers. It's the difference between a price quote and a seven-figure contract. Matt's board will want this front and center.</p>
+    <div class="blocked">
+      <div class="blocked-t">Requires</div>
+      <ul>
+        <li>Certificate generation system feed</li>
+        <li>Weight capture at intake (scales or estimate-by-category)</li>
+        <li>Downstream vendor audit trail (where material actually goes)</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div id="ai-view" class="view">
+  <div class="stub-wrap">
+    <div class="stub-tag">Awaiting Deployment</div>
+    <h2>AI Insights</h2>
+    <p>Natural language query against the data. "What happened to AV prices this month?" returns a chart + plain-English answer. Weekly intelligence briefing. Threshold sensitivity analyzer. Anomaly detection feed.</p>
+    <p>The data foundation exists. The Claude integration pattern is proven on the SOP generator. This is n8n work, not engineering work.</p>
+    <div class="blocked">
+      <div class="blocked-t">Requires</div>
+      <ul>
+        <li>n8n workflow: weekly scheduled call to claude-sonnet-4 with price_history + daily_summary</li>
+        <li>ai_insights tab in analytics sheet (single JSON blob per run)</li>
+        <li>Dashboard read-endpoint to pull latest insight</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<div id="alerts-view" class="view">
+  <div class="hdr">
+    <div>
+      <h1>Alerts Feed</h1>
+      <div class="sub">Anomaly detection runs nightly at 1:30 AM CT. Critical alerts can be pushed to Slack.</div>
+    </div>
+    <div class="rng" id="alertsCount" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:0.1em;color:var(--ink2);">0 alerts</div>
+  </div>
+  <div id="alertsEmpty" class="stub-wrap">
+    <div class="stub-tag">No alerts yet</div>
+    <h2>Nothing to report</h2>
+    <p>Either yesterday was clean or workflow 05 (Alerts Engine) hasn't run yet. The first nightly cycle will populate this feed.</p>
+  </div>
+  <div id="alertsList" style="display:none;"></div>
+</div>
+
+<!-- ============ PRODUCTION INFO FOOTER ============ -->
+<div class="prod-foot">
+  <div class="pf-l">
+    <div class="pf-i"><span class="pfk">Contract</span><span class="pfv acc" id="pfContract">v5.2</span></div>
+    <div class="pf-i"><span class="pfk">WIW Workflow</span><span class="pfv" id="pfWIW">v6.2</span></div>
+    <div class="pf-i"><span class="pfk">PP Workflow</span><span class="pfv" id="pfPP">v9</span></div>
+    <div class="pf-i"><span class="pfk">Master Sheet</span><span class="pfv" id="pfSheet">MASTER PRICE PULL (NEW)</span></div>
+  </div>
+  <div class="pf-l">
+    <div class="pf-i"><span class="pfk">Webhook</span><a id="pfHook" target="_blank" rel="noopener">stsrecycling.app.n8n.cloud · 73831feb…</a></div>
+  </div>
+</div>
+
+<!-- ============ DRAWER ============ -->
+<div class="drawer-overlay" id="dover" onclick="dclose()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-top">
+    <div>
+      <div class="drawer-title" id="dTitle">Detail</div>
+      <div class="drawer-sub" id="dSub">—</div>
+    </div>
+    <button class="drawer-close" onclick="dclose()">Close ✕</button>
+  </div>
+  <div class="drawer-body" id="dBody"></div>
+</div>
+
+<script>
+/* ============================================
+   THEME — light by default, persists in localStorage
+============================================ */
+(function initTheme(){
+  try {
+    const saved = localStorage.getItem('sts_theme');
+    if (saved === 'dark') document.body.setAttribute('data-t', 'dark');
+  } catch (e){}
+})();
+function toggleTheme(){
+  const b = document.body;
+  const isDark = b.getAttribute('data-t') === 'dark';
+  if (isDark){ b.removeAttribute('data-t'); try { localStorage.setItem('sts_theme', 'light'); } catch(e){} }
+  else { b.setAttribute('data-t', 'dark'); try { localStorage.setItem('sts_theme', 'dark'); } catch(e){} }
+  const btn = document.getElementById('thmBtn');
+  if (btn) btn.textContent = b.getAttribute('data-t') === 'dark' ? '☀' : '☾';
+  // Re-render so charts/tooltips pick up new theme colors
+  try { if (typeof D !== 'undefined' && Array.isArray(D) && D.length && typeof render === 'function') render(); } catch (e){}
+}
+// Sync icon on initial load
+document.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('thmBtn');
+  if (btn) btn.textContent = document.body.getAttribute('data-t') === 'dark' ? '☀' : '☾';
+});
+
+/* ============================================
+   CONFIG — LIVE DATA ENDPOINT
+   ============================================
+   Paste your n8n webhook URL or Apps Script web app URL here.
+   When set, the dashboard fetches on load and on the refresh interval.
+   Leave empty to use CSV upload only.
+
+   Expected response from endpoint (GET request):
+   - JSON array of row objects: [{ "Manufacturer": "...", "Model": "...", ... }]
+   - OR JSON object with items/rows/data key: { "items": [...] }
+   - OR raw CSV with PRICE_PULL column headers
+
+   The endpoint must include CORS headers (Access-Control-Allow-Origin)
+   if served from a different origin than the dashboard HTML.
+============================================ */
+const CONFIG = {
+  // Reader endpoint — single GET with ?view=today|weekly|monthly|insights|alerts
+  DATA_ENDPOINT: '',
+  // Writer endpoints — POST to refresh each tier's cache tab from master
+  REFRESH_TODAY_URL: '',
+  REFRESH_WEEKLY_URL: '',
+  REFRESH_MONTHLY_URL: '',
+  // Default tier on load
+  DEFAULT_TIER: 'today',  // 'today' | 'weekly' | 'monthly'
+  // Auto-refresh: 0 = off, otherwise seconds
+  AUTO_REFRESH_SEC: 0,
+  // Debounce: ignore refresh-now clicks if last refresh was within this many seconds
+  REFRESH_DEBOUNCE_SEC: 30
+};
+
+/* ============================================
+   CATEGORY_CONFIG — extracted from WIW v6.2 workflow JSON (Final Routing Decision node)
+   Mirrors the same constant in PP "Final Routing + Tyler" node per Rule W.6.
+   When this changes upstream (CATEGORY_CONFIG edit + contract version bump),
+   update this block to match.
+   Source: contract v5.2, WIW workflow v6.2, verified 2026-04-28
+============================================ */
+const CATEGORY_CONFIG = {
+  "Laptop":           { floor: 20,  labor: 4, retailMin: 50  },
+  "PC":               { floor: 25,  labor: 4, retailMin: 50  },
+  "Chromebook":       { floor: 10,  labor: 4, retailMin: 30  },
+  "All-In-One":       { floor: 35,  labor: 4, retailMin: 60  },
+  "Network":          { floor: 20,  labor: 2, retailMin: 60  },
+  "Telecomm":         { floor: 10,  labor: 3, retailMin: 40  },
+  "Flat Panel / LCD": { floor: 5,   labor: 3, retailMin: 40  },
+  "TV":               { floor: 50,  labor: 4, retailMin: 80  },
+  "Printer":          { floor: 30,  labor: 2, retailMin: 60  },
+  "Copier":           { floor: 25,  labor: 2, retailMin: 60  },
+  "Scanner":          { floor: 10,  labor: 2, retailMin: 30  },
+  "Plotter":          { floor: 50,  labor: 2, retailMin: 80  },
+  "Cell Phone":       { floor: 15,  labor: 4, retailMin: 50  },
+  "Tablet/iPad":      { floor: 10,  labor: 4, retailMin: 50  },
+  "Wearable":         { floor: 25,  labor: 2, retailMin: 50  },
+  "AV":               { floor: 15,  labor: 2, retailMin: 40  },
+  "Industrial":       { floor: 10,  labor: 2, retailMin: 30  },
+  "Server":           { floor: 5,   labor: 4, retailMin: 60  },
+  "UPS":              { floor: 100, labor: 2, retailMin: 120 },
+  "Storage":          { floor: 50,  labor: 2, retailMin: 70  },
+  "KVM":              { floor: 100, labor: 2, retailMin: 120 },
+  "Docking Station":  { floor: 10,  labor: 2, retailMin: 25  },
+  "UNMAPPED":         { floor: 15,  labor: 3, retailMin: 40  }
+};
+
+const PROD_INFO = {
+  contractVersion: 'v5.2',
+  wiwVersion: 'v6.2',
+  ppVersion: 'v9',
+  sheetId: '1CMG8mIt5T1RHP9m9DLHsOw1MK8anUvaFeL4ndQybspE',
+  sheetName: 'MASTER PRICE PULL (NEW)',
+  webhookUrl: 'https://stsrecycling.app.n8n.cloud/webhook/73831feb-e093-4510-9995-dfa484c37b00'
+};
+
+/* ============================================
+   STATE
+============================================ */
+let D = [];                  // raw rows
+let filtered = [];           // filtered by current time range
+let range = 'today';
+let maxDate = null;          // max pull date in data (fallback for "today")
+let charts = {};
+let autoRefreshTimer = null;
+let lastFetchTime = null;
+let lastFetchStatus = 'idle'; // idle | fetching | success | error
+let sourceLabel = '';         // 'Live · today' / 'CSV · filename'
+let currentTier = (CONFIG.DEFAULT_TIER || 'today');
+// Per-tier last-refresh timestamps (writer side)
+let tierLastRefresh = { today: null, weekly: null, monthly: null };
+
+// Compare mode state
+let compareData = [];         // prior CSV rows
+let compareFilename = '';
+let compareVisible = false;
+let driftCache = null;        // computed drift buckets
+
+const C = {};
+const _cssv = k => getComputedStyle(document.body).getPropertyValue(k).trim() || '';
+Object.defineProperties(C, {
+  ink:   { get(){ return _cssv('--ink'); }},
+  ink2:  { get(){ return _cssv('--ink2'); }},
+  ink3:  { get(){ return _cssv('--ink3'); }},
+  ink4:  { get(){ return _cssv('--ink4'); }},
+  amber: { get(){ return _cssv('--a'); }},
+  green: { get(){ return _cssv('--g'); }},
+  red:   { get(){ return _cssv('--r'); }},
+  warn:  { get(){ return _cssv('--w'); }},
+  blue:  { get(){ return _cssv('--bl'); }},
+  grid:  { get(){ return _cssv('--b1'); }}
+});
+const mf = {family:"'IBM Plex Mono',monospace",size:10};
+const tip = new Proxy({}, {
+  get(_, k){
+    const map = {
+      backgroundColor: _cssv('--s1'),
+      titleColor: _cssv('--ink'),
+      bodyColor: _cssv('--ink2'),
+      borderColor: _cssv('--b1'),
+      borderWidth: 1, padding: 10,
+      titleFont: {family:"'IBM Plex Mono',monospace",size:10,weight:500},
+      bodyFont: {family:"'IBM Plex Mono',monospace",size:10}
+    };
+    return map[k];
+  },
+  ownKeys(){ return ['backgroundColor','titleColor','bodyColor','borderColor','borderWidth','padding','titleFont','bodyFont']; },
+  getOwnPropertyDescriptor(){ return { enumerable: true, configurable: true }; }
+});
+
+/* ============================================
+   HELPERS
+============================================ */
+function sf(v){
+  if (v === undefined || v === null || v === '') return 0;
+  try { return parseFloat(String(v).replace(/[,$]/g,'').trim()) || 0; }
+  catch(e){ return 0; }
+}
+function $(id){ return document.getElementById(id); }
+function fmt$(n){ return '$' + Math.round(n).toLocaleString(); }
+function fmtK(n){
+  if (Math.abs(n) >= 1000) return '$' + (n/1000).toFixed(1) + 'k';
+  return '$' + Math.round(n);
+}
+function dateLte(a,b){ return a && b && a <= b; }
+function dateGte(a,b){ return a && b && a >= b; }
+
+function csv(text){
+  const lines = text.split('\n');
+  const h = lines[0].replace(/^\uFEFF/,'').split(',').map(x => x.trim().replace(/^"|"$/g,''));
+  const out = [];
+  for (let i = 1; i < lines.length; i++){
+    if (!lines[i].trim()) continue;
+    const vals = [];
+    let q = false, c = '';
+    for (const ch of lines[i]){
+      if (ch === '"'){ q = !q; continue; }
+      if (ch === ',' && !q){ vals.push(c.trim().replace(/\r$/,'')); c = ''; continue; }
+      c += ch;
+    }
+    vals.push(c.trim().replace(/\r$/,''));
+    const r = {};
+    h.forEach((k,j) => { r[k] = vals[j] || ''; });
+    out.push(r);
+  }
+  return out;
+}
+
+/* Get the "activity date" for a row — max of daily or monthly pull date */
+function activityDate(r){
+  const d = r.daily_pull_date || '';
+  const m = r.monthly_pull_date || '';
+  return (d > m ? d : m) || '';
+}
+
+/* ============================================
+   LIVE FETCH (READER) + TIER REFRESH (WRITERS)
+============================================ */
+
+// fetchTier: pulls from the reader endpoint for the given tier and renders.
+// Does NOT trigger a writer; the cache tab must already exist (writer has run).
+async function fetchTier(tier){
+  if (!CONFIG.DATA_ENDPOINT) return;
+  if (!tier) tier = currentTier;
+  try {
+    const sep = CONFIG.DATA_ENDPOINT.includes('?') ? '&' : '?';
+    const url = CONFIG.DATA_ENDPOINT + sep + 'view=' + encodeURIComponent(tier);
+    const res = await fetch(url, { cache:'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const ct = (res.headers.get('content-type') || '').toLowerCase();
+    let rows;
+    if (ct.includes('application/json')){
+      const data = await res.json();
+      rows = Array.isArray(data) ? data : (data.items || data.rows || data.data || []);
+    } else {
+      rows = csv(await res.text());
+    }
+    if (!Array.isArray(rows)) throw new Error('Bad response shape');
+    D = rows;
+    let mx = '';
+    for (const r of D){ const d = activityDate(r); if (d > mx) mx = d; }
+    maxDate = mx || new Date().toISOString().split('T')[0];
+    $('empty-view').classList.remove('active');
+    const anyActive = document.querySelector('.view.active');
+    if (!anyActive || anyActive.id === 'empty-view') $('home-view').classList.add('active');
+    lastFetchTime = new Date();
+    sourceLabel = 'Live · ' + tier;
+    render();
+    fetchAIInsights();
+    fetchAlerts();
+    return true;
+  } catch (err){
+    console.error('fetchTier(' + tier + ') failed:', err);
+    return false;
+  }
+}
+
+// switchTier: user picked a different tier from the dropdown.
+// Just re-fetches the reader at that tier; does not call the writer.
+function switchTier(tier){
+  if (!tier) return;
+  currentTier = tier;
+  try { localStorage.setItem('sts_tier', tier); } catch(e){}
+  fetchTier(tier);
+}
+
+// refreshTier: clicked one of the [↻ Today/Weekly/Monthly] buttons.
+// Calls the writer webhook to rebuild that tier's cache from master,
+// then re-fetches the reader if that tier is the one currently displayed.
+async function refreshTier(tier){
+  const writerUrl = ({
+    today: CONFIG.REFRESH_TODAY_URL,
+    weekly: CONFIG.REFRESH_WEEKLY_URL,
+    monthly: CONFIG.REFRESH_MONTHLY_URL
+  })[tier];
+  const btn = ({ today: $('rbT'), weekly: $('rbW'), monthly: $('rbM') })[tier];
+  if (!writerUrl){
+    setRbtnState(btn, 'error', 'no endpoint');
+    return;
+  }
+  // Debounce
+  const last = tierLastRefresh[tier];
+  if (last){
+    const ageSec = (new Date() - new Date(last)) / 1000;
+    if (ageSec < CONFIG.REFRESH_DEBOUNCE_SEC){
+      const remaining = Math.ceil(CONFIG.REFRESH_DEBOUNCE_SEC - ageSec);
+      setRbtnState(btn, 'idle', 'wait ' + remaining + 's');
+      setTimeout(() => updateRbtnLabels(), 2000);
+      return;
+    }
+  }
+  setRbtnState(btn, 'spin', 'refreshing...');
+  if (btn) btn.disabled = true;
+  try {
+    const res = await fetch(writerUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: 'dashboard' })
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    const rowsWritten = (data && (data.rows_written ?? 0));
+    tierLastRefresh[tier] = new Date().toISOString();
+    try { localStorage.setItem('sts_lastRefresh_' + tier, tierLastRefresh[tier]); } catch(e){}
+    setRbtnState(btn, 'success', rowsWritten + ' rows');
+    // If user is currently viewing this tier, re-fetch it
+    if (currentTier === tier){
+      await fetchTier(tier);
+    }
+  } catch (err){
+    console.error('refreshTier(' + tier + ') failed:', err);
+    setRbtnState(btn, 'error', 'failed');
+  } finally {
+    if (btn) btn.disabled = false;
+    setTimeout(() => { setRbtnState(btn, 'idle'); updateRbtnLabels(); }, 2500);
+  }
+}
+
+function setRbtnState(btn, state, subtext){
+  if (!btn) return;
+  btn.classList.remove('spin', 'success', 'error');
+  if (state === 'spin') btn.classList.add('spin');
+  else if (state === 'success') btn.classList.add('success');
+  else if (state === 'error') btn.classList.add('error');
+  if (subtext != null){
+    const s = btn.querySelector('.rbtn-s');
+    if (s) s.textContent = subtext;
+  }
+}
+
+function updateRbtnLabels(){
+  ['today','weekly','monthly'].forEach(tier => {
+    const sub = ({ today: $('rbTs'), weekly: $('rbWs'), monthly: $('rbMs') })[tier];
+    if (!sub) return;
+    const ts = tierLastRefresh[tier];
+    sub.textContent = ts ? relativeTime(new Date(ts)) : 'never';
+  });
+}
+
+function relativeTime(t){
+  if (!t) return '—';
+  const diff = Math.round((new Date() - t) / 1000);
+  if (diff < 5) return 'just now';
+  if (diff < 60) return diff + 's ago';
+  if (diff < 3600) return Math.floor(diff/60) + 'm ago';
+  if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
+  return Math.floor(diff/86400) + 'd ago';
+}
+
+function setAutoRefresh(sec){
+  const s = parseInt(sec) || 0;
+  CONFIG.AUTO_REFRESH_SEC = s;
+  try { localStorage.setItem('sts_autoRefresh', String(s)); } catch(e){}
+  if (autoRefreshTimer){ clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+  if (s > 0){
+    autoRefreshTimer = setInterval(() => {
+      // Auto-refresh refreshes only the currently-viewed tier
+      refreshTier(currentTier);
+    }, s * 1000);
+  }
+}
+
+// Restore saved tier choice + last-refresh timestamps from localStorage
+function restoreTierState(){
+  try {
+    const t = localStorage.getItem('sts_tier');
+    if (t && ['today','weekly','monthly'].includes(t)){
+      currentTier = t;
+      const sel = $('tierSel');
+      if (sel) sel.value = t;
+    }
+    ['today','weekly','monthly'].forEach(tier => {
+      const ts = localStorage.getItem('sts_lastRefresh_' + tier);
+      if (ts) tierLastRefresh[tier] = ts;
+    });
+    const ar = localStorage.getItem('sts_autoRefresh');
+    if (ar){
+      CONFIG.AUTO_REFRESH_SEC = parseInt(ar) || 0;
+      const sel = $('autoSel');
+      if (sel) sel.value = ar;
+      setAutoRefresh(ar);
+    }
+  } catch(e){}
+}
+
+// Update relative-time labels every 30 seconds
+setInterval(updateRbtnLabels, 30000);
+
+
+/* ============================================
+   AI INSIGHTS FETCH
+============================================ */
+async function fetchAIInsights(){
+  if (!CONFIG.DATA_ENDPOINT) return;
+  try {
+    const sep = CONFIG.DATA_ENDPOINT.includes('?') ? '&' : '?';
+    const res = await fetch(CONFIG.DATA_ENDPOINT + sep + 'view=insights', { cache:'no-store' });
+    if (!res.ok) return;
+    const data = await res.json();
+    const items = Array.isArray(data) ? data : (data.items || []);
+    if (!items.length) return; // Leave the "awaiting first run" placeholder
+    const r = items[0];
+    if (!r || !r.summary) return;
+    // Tag
+    const tag = $('aiTag');
+    const wkOf = (r.week_of || '').substring(0, 10);
+    if (tag) tag.textContent = 'AI Briefing · Week of ' + wkOf;
+    // Headline + summary
+    const head = $('aiHeadline');
+    const summ = $('aiSummary');
+    if (head) head.textContent = 'Weekly briefing from Claude';
+    if (summ) summ.textContent = r.summary;
+    // Recommendations + anomalies + wins blocks
+    const blocks = $('aiBlocks');
+    if (blocks){
+      let html = '';
+      const recs = safeJSON(r.recommendations);
+      if (recs && recs.length){
+        html += '<div style="margin-bottom:12px;"><div style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;letter-spacing:0.15em;color:var(--ink2);text-transform:uppercase;margin-bottom:6px;">Recommendations</div>';
+        recs.forEach(rec => {
+          html += '<div style="padding:8px 0;border-top:1px solid var(--b1);"><div style="color:var(--ink);font-size:13px;">' + esc(rec.category || '') + ' · ' + esc(rec.recommended || '') + '</div><div style="color:var(--ink2);font-size:11px;margin-top:2px;">' + esc(rec.rationale || '') + '</div></div>';
+        });
+        html += '</div>';
+      }
+      const anoms = safeJSON(r.anomalies);
+      if (anoms && anoms.length){
+        html += '<div style="margin-bottom:12px;"><div style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;letter-spacing:0.15em;color:var(--ink2);text-transform:uppercase;margin-bottom:6px;">Anomalies</div>';
+        anoms.forEach(a => {
+          html += '<div style="padding:8px 0;border-top:1px solid var(--b1);"><div style="color:var(--ink);font-size:13px;">' + esc(a.type || '') + '</div><div style="color:var(--ink2);font-size:11px;margin-top:2px;">' + esc(a.description || '') + '</div></div>';
+        });
+        html += '</div>';
+      }
+      const wins = safeJSON(r.wins);
+      if (wins && wins.length){
+        html += '<div><div style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;letter-spacing:0.15em;color:var(--ink2);text-transform:uppercase;margin-bottom:6px;">Wins</div>';
+        wins.forEach(w => {
+          html += '<div style="padding:8px 0;border-top:1px solid var(--b1);"><div style="color:var(--g);font-size:13px;">' + esc(w.title || '') + '</div><div style="color:var(--ink2);font-size:11px;margin-top:2px;">' + esc(w.detail || '') + '</div></div>';
+        });
+        html += '</div>';
+      }
+      blocks.innerHTML = html;
+      blocks.style.display = html ? 'block' : 'none';
+    }
+    // Meta
+    const last = $('aiLastRun');
+    if (last && r.generated_at){
+      const dt = new Date(r.generated_at);
+      last.textContent = 'Last run · ' + dt.toLocaleString();
+    }
+    const model = $('aiModel');
+    if (model && r.model) model.textContent = 'Model · ' + r.model;
+  } catch (err){
+    console.warn('AI insights fetch failed:', err);
+  }
+}
+
+function safeJSON(s){
+  if (!s) return null;
+  if (typeof s === 'object') return s;
+  try { return JSON.parse(s); } catch (e){ return null; }
+}
+
+function esc(s){
+  return String(s || '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+}
+
+/* ============================================
+   ALERTS FETCH
+============================================ */
+async function fetchAlerts(){
+  if (!CONFIG.DATA_ENDPOINT) return;
+  try {
+    const sep = CONFIG.DATA_ENDPOINT.includes('?') ? '&' : '?';
+    const res = await fetch(CONFIG.DATA_ENDPOINT + sep + 'view=alerts', { cache:'no-store' });
+    if (!res.ok) return;
+    const data = await res.json();
+    const items = Array.isArray(data) ? data : (data.items || []);
+    const empty = $('alertsEmpty');
+    const list = $('alertsList');
+    const count = $('alertsCount');
+    if (count) count.textContent = items.length + (items.length === 1 ? ' alert' : ' alerts');
+    if (!items.length){
+      if (empty) empty.style.display = 'block';
+      if (list) list.style.display = 'none';
+      return;
+    }
+    if (empty) empty.style.display = 'none';
+    if (list){
+      list.style.display = 'block';
+      const sevColor = { critical:'var(--r)', warn:'var(--w)', info:'var(--ink2)' };
+      const sevBg = { critical:'rgba(192,57,43,0.08)', warn:'rgba(160,120,40,0.08)', info:'rgba(120,108,90,0.05)' };
+      let html = '';
+      items.forEach(a => {
+        const sev = (a.severity || 'info').toLowerCase();
+        const c = sevColor[sev] || 'var(--ink2)';
+        const bg = sevBg[sev] || 'transparent';
+        html += '<div class="panel" style="margin-bottom:10px;background:' + bg + ';border-left:3px solid ' + c + ';">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px;">';
+        html += '<div style="flex:1;">';
+        html += '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;letter-spacing:0.15em;text-transform:uppercase;color:' + c + ';">' + esc(sev) + ' · ' + esc(a.alert_type || '') + '</div>';
+        html += '<div style="color:var(--ink);font-size:15px;margin-top:4px;font-weight:600;">' + esc(a.title || '') + '</div>';
+        html += '<div style="color:var(--ink2);font-size:12px;margin-top:6px;">' + esc(a.detail || '') + '</div>';
+        if (a.affected_count && a.affected_count > 0){
+          html += '<div style="color:var(--ink2);font-size:11px;margin-top:6px;font-family:\'IBM Plex Mono\',monospace;">Affected: ' + a.affected_count + '</div>';
+        }
+        html += '</div>';
+        const ts = a.timestamp ? new Date(a.timestamp).toLocaleString() : '';
+        html += '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:10px;color:var(--ink2);white-space:nowrap;">' + esc(ts) + '</div>';
+        html += '</div></div>';
+      });
+      list.innerHTML = html;
+    }
+  } catch (err){
+    console.warn('Alerts fetch failed:', err);
+  }
+}
+function ld(e){
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = v => {
+    D = csv(v.target.result);
+    let mx = '';
+    for (const row of D){
+      const d = activityDate(row);
+      if (d > mx) mx = d;
+    }
+    maxDate = mx || new Date().toISOString().split('T')[0];
+    $('empty-view').classList.remove('active');
+    const anyActive = document.querySelector('.view.active');
+    if (!anyActive || anyActive.id === 'empty-view') $('home-view').classList.add('active');
+    lastFetchTime = new Date();
+    sourceLabel = 'CSV · ' + f.name;
+    render();
+  };
+  r.readAsText(f);
+}
+
+/* ============================================
+   TIME RANGE
+============================================ */
+function sr(r){
+  range = r;
+  document.querySelectorAll('.rng-b').forEach(b => {
+    b.classList.toggle('on', b.dataset.r === r);
+  });
+  render();
+}
+
+function applyRange(){
+  if (!maxDate){ filtered = []; return; }
+  const m = new Date(maxDate + 'T00:00:00');
+  const rangeStart = new Date(m);
+  if (range === 'today'){
+    filtered = D.filter(r => activityDate(r) === maxDate);
+  } else if (range === 'week'){
+    rangeStart.setDate(m.getDate() - 6);
+    const s = rangeStart.toISOString().split('T')[0];
+    filtered = D.filter(r => { const d = activityDate(r); return d >= s && d <= maxDate; });
+  } else if (range === 'month'){
+    rangeStart.setDate(m.getDate() - 29);
+    const s = rangeStart.toISOString().split('T')[0];
+    filtered = D.filter(r => { const d = activityDate(r); return d >= s && d <= maxDate; });
+  } else if (range === 'ytd'){
+    const y = maxDate.substring(0,4);
+    filtered = D.filter(r => activityDate(r).startsWith(y));
+  } else {
+    filtered = D.slice();
+  }
+  const lbl = {today:'Today', week:'Last 7 days', month:'Last 30 days', ytd:'Year to date', all:'All time'}[range];
+  $('rlbl').textContent = lbl + ' · ' + filtered.length.toLocaleString() + ' items · latest ' + maxDate;
+  $('pulse-d').textContent = lbl;
+}
+
+/* ============================================
+   VIEW SWITCH
+============================================ */
+function sv(v){
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.v === v));
+  document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+  if (D.length === 0){
+    $('empty-view').classList.add('active');
+    return;
+  }
+  $(v + '-view').classList.add('active');
+  // render view-specific charts
+  if (v === 'money') renderMoney();
+  else if (v === 'ops') renderOps();
+  else if (v === 'thresh') renderThresh();
+}
+
+/* ============================================
+   DRAWER
+============================================ */
+function dopen(title, sub, htmlBody){
+  $('dTitle').textContent = title;
+  $('dSub').textContent = sub;
+  $('dBody').innerHTML = htmlBody;
+  $('drawer').classList.add('open');
+  $('dover').classList.add('open');
+}
+function dclose(){
+  $('drawer').classList.remove('open');
+  $('dover').classList.remove('open');
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') dclose(); });
+
+/* ============================================
+   DESTROY CHARTS
+============================================ */
+function dc(keys){
+  (keys || Object.keys(charts)).forEach(k => {
+    if (charts[k] && charts[k].destroy){ charts[k].destroy(); delete charts[k]; }
+  });
+}
+
+/* ============================================
+   HOME RENDER
+============================================ */
+function render(){
+  applyRange();
+  dc(['trend','catvol','catval']);
+  renderPulse();
+  renderMoneyStrip();
+  renderFlags();
+  renderWins();
+  renderCusp();
+  renderDrift();
+  renderTrend();
+  renderCategoryPulse();
+  renderRecent();
+}
+
+function renderPulse(){
+  const routed = filtered.filter(r => r.monthly_routing || r.daily_routing);
+  const G = routed.filter(r => (r.monthly_routing || r.daily_routing) === 'GREEN').length;
+  const Y = routed.filter(r => (r.monthly_routing || r.daily_routing) === 'YELLOW').length;
+  const R = routed.filter(r => (r.monthly_routing || r.daily_routing) === 'RED').length;
+  const priced = filtered.filter(r => sf(r.monthly_price_ebay) > 0 || sf(r.daily_price) > 0);
+  const tot = priced.reduce((s,r) => s + Math.max(sf(r.monthly_price_ebay), sf(r.daily_price)), 0);
+  const process = G + Y;
+  const scrap = R;
+  const routedTot = process + scrap;
+  const pctProcess = routedTot ? Math.round(process / routedTot * 100) : 0;
+
+  // cache hit rate (today only)
+  const cacheHits = filtered.filter(r => (r.daily_source || '').includes('CACHE')).length;
+  const daily = filtered.filter(r => r.daily_source).length;
+  const cacheRate = daily ? Math.round(cacheHits / daily * 100) : 0;
+
+  // avg response (today only)
+  const respTimes = filtered.map(r => sf(r.daily_response_ms)).filter(n => n > 0);
+  const avgResp = respTimes.length ? Math.round(respTimes.reduce((a,b) => a+b, 0) / respTimes.length) : 0;
+
+  const pulse = [
+    {
+      id:'scans',
+      l:'Items In Scope',
+      v: filtered.length.toLocaleString(),
+      d: routed.length.toLocaleString() + ' routed · ' + (filtered.length - routed.length).toLocaleString() + ' pending',
+      c:'var(--ink)',
+      ac:''
+    },
+    {
+      id:'value',
+      l:'Estimated Value',
+      v: fmtK(tot),
+      d: priced.length.toLocaleString() + ' priced · avg ' + fmt$(tot / (priced.length || 1)),
+      c:'var(--a)',
+      ac:'var(--a)'
+    },
+    {
+      id:'split',
+      l:'Process vs Scrap',
+      html: `<div class="kval" style="color:var(--g)">${pctProcess}%</div>
+             <div class="prop"><span class="pg" style="width:${routedTot ? G/routedTot*100 : 0}%"></span><span class="py" style="width:${routedTot ? Y/routedTot*100 : 0}%"></span><span class="pr" style="width:${routedTot ? R/routedTot*100 : 0}%"></span></div>
+             <div class="prop-lgd"><span><i style="background:var(--g)"></i>${G}</span><span><i style="background:var(--w)"></i>${Y}</span><span><i style="background:var(--r)"></i>${R}</span></div>`,
+      ac:'var(--g)'
+    },
+    {
+      id:'health',
+      l:'System Health',
+      v: cacheRate + '%',
+      d: 'cache hit · ' + (avgResp || '—') + 'ms avg',
+      c:'var(--bl)',
+      ac:'var(--bl)'
+    }
+  ];
+
+  $('pulse').innerHTML = pulse.map(p => `
+    <div class="cell" onclick="drillPulse('${p.id}')">
+      <div class="cell-a" style="background:${p.ac}"></div>
+      <div class="klbl">${p.l} <span class="expand">▸</span></div>
+      ${p.html || `<div class="kval" style="color:${p.c}">${p.v}</div><div class="kd">${p.d}</div>`}
+    </div>
+  `).join('');
+}
+
+function renderMoneyStrip(){
+  // profit = gross_profit_retail if available, otherwise wholesale
+  const priced = filtered.filter(r => sf(r.monthly_price_ebay) > 0);
+  const gp = priced.reduce((s,r) => s + sf(r.gross_profit_retail), 0);
+  const wp = priced.reduce((s,r) => s + sf(r.gross_profit_wholesale), 0);
+  const avgMargin = priced.length ? gp / priced.length : 0;
+
+  // count by routing
+  const G = priced.filter(r => r.monthly_routing === 'GREEN');
+  const greenProfit = G.reduce((s,r) => s + sf(r.gross_profit_retail), 0);
+  const Y = priced.filter(r => r.monthly_routing === 'YELLOW');
+  const yellowProfit = Y.reduce((s,r) => s + sf(r.gross_profit_wholesale), 0);
+
+  const money = [
+    { l:'Retail Profit (GREEN)', v: fmtK(greenProfit), d: G.length + ' items · avg ' + fmt$(greenProfit/(G.length||1)), c:'var(--g)', ac:'var(--g)', id:'retail' },
+    { l:'Wholesale Profit (YELLOW)', v: fmtK(yellowProfit), d: Y.length + ' items · avg ' + fmt$(yellowProfit/(Y.length||1)), c:'var(--w)', ac:'var(--w)', id:'wholesale' },
+    { l:'Avg Profit / Item', v: fmt$(avgMargin), d: priced.length + ' priced items in scope', c:'var(--a)', ac:'var(--a)', id:'avg' },
+    { l:'Total Retail Potential', v: fmtK(gp), d: 'if everything GREEN-routed sold', c:'var(--ink)', ac:'', id:'potential' }
+  ];
+
+  $('money').innerHTML = money.map(m => `
+    <div class="cell" onclick="drillMoney('${m.id}')">
+      <div class="cell-a" style="background:${m.ac}"></div>
+      <div class="klbl">${m.l} <span class="expand">▸</span></div>
+      <div class="kval" style="color:${m.c}">${m.v}</div>
+      <div class="kd">${m.d}</div>
+    </div>
+  `).join('');
+}
+
+function renderFlags(){
+  const noData = filtered.filter(r => (r.monthly_routing_reason || '').toLowerCase().includes('no market data'));
+  const nearFloor = filtered.filter(r => {
+    const wp = sf(r.gross_profit_wholesale);
+    const f = sf(r.wholesale_floor);
+    return r.monthly_routing === 'RED' && f > 0 && wp > 0 && Math.abs(f - wp) <= 5;
+  });
+  const hardRules = filtered.filter(r => r.hard_rule_triggered);
+  const slowAPI = filtered.filter(r => sf(r.monthly_api_time_ms) > 5000 || sf(r.daily_response_ms) > 5000);
+  const tylerFlags = filtered.filter(r => r.tyler_flag);
+  const apiFails = filtered.filter(r => r.monthly_pull_status === 'FAILED');
+  const unrouted = filtered.filter(r => !r.monthly_routing && !r.daily_routing);
+
+  const flags = [
+    { t:'No market data — routed YELLOW for manual review', s:'items where SerpAPI returned nothing', v: noData.length, cl:'vw', c:'var(--w)', id:'nodata', data:noData },
+    { t:'Near floor — small threshold shift flips routing', s:'items within $5 of wholesale floor', v: nearFloor.length, cl:'vr', c:'var(--r)', id:'nearfloor', data:nearFloor },
+    { t:'Hard rules triggered', s:'CRT, BROKEN_*, other auto-scrap', v: hardRules.length, cl:'vr', c:'var(--r)', id:'hardrules', data:hardRules },
+    { t:'API failures', s:'pull_status = FAILED', v: apiFails.length, cl:'vr', c:'var(--r)', id:'apifails', data:apiFails },
+    { t:'Slow API calls', s:'response > 5 seconds', v: slowAPI.length, cl:'vw', c:'var(--w)', id:'slowapi', data:slowAPI },
+    { t:'Tyler flag downgrades', s:'WIN10, PRINTER_RISKY, AIO_RISKY', v: tylerFlags.length, cl:'va', c:'var(--a)', id:'tyler', data:tylerFlags },
+    { t:'Items awaiting routing', s:'no PP run yet', v: unrouted.length, cl:'vw', c:'var(--w)', id:'unrouted', data:unrouted }
+  ].filter(f => f.v > 0).sort((a,b) => b.v - a.v);
+
+  const tot = flags.reduce((s,f) => s + f.v, 0);
+  $('flags-c').textContent = tot.toLocaleString() + ' total';
+
+  if (flags.length === 0){
+    $('flags').innerHTML = '<div style="padding:30px 0;text-align:center;color:var(--ink3);font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase">All clear · no flags in this range</div>';
+    return;
+  }
+
+  $('flags').innerHTML = flags.map(f => `
+    <div class="li" onclick="drillFlag('${f.id}')">
+      <div class="li-l">
+        <span class="li-i" style="background:${f.c}"></span>
+        <div style="flex:1;min-width:0"><div class="li-t">${f.t}</div><div class="li-s">${f.s}</div></div>
+      </div>
+      <div class="li-v ${f.cl}">${f.v.toLocaleString()}</div>
+    </div>
+  `).join('');
+}
+
+function renderWins(){
+  const priced = filtered.filter(r => sf(r.monthly_price_ebay) > 0);
+  const G = priced.filter(r => r.monthly_routing === 'GREEN');
+
+  const topItem = [...G].sort((a,b) => sf(b.gross_profit_retail) - sf(a.gross_profit_retail))[0];
+  const inserts = filtered.filter(r => r.action === 'INSERT').length;
+  const categories = {};
+  G.forEach(r => {
+    const c = r.normalized_category || r.Category_Audited || '—';
+    categories[c] = (categories[c] || 0) + sf(r.gross_profit_retail);
+  });
+  const topCat = Object.entries(categories).sort((a,b) => b[1] - a[1])[0];
+
+  const routedTot = filtered.filter(r => r.monthly_routing).length;
+  const processCount = filtered.filter(r => r.monthly_routing === 'GREEN' || r.monthly_routing === 'YELLOW').length;
+  const efficiency = routedTot ? Math.round(processCount / routedTot * 100) : 0;
+
+  const bigTickets = G.filter(r => sf(r.monthly_price_ebay) >= 500).length;
+  const freshHits = filtered.filter(r => r.daily_source === 'FRESH_SERPAPI').length;
+  const updates = filtered.filter(r => r.action === 'UPDATE').length;
+
+  const wins = [
+    topItem ? {
+      t: 'Top profit item',
+      s: `${topItem.Manufacturer || ''} ${topItem.Model || ''}`.trim().substring(0,60),
+      v: fmt$(sf(topItem.gross_profit_retail)),
+      cl:'vg', c:'var(--g)',
+      id:'topitem'
+    } : null,
+    topCat ? {
+      t: 'Highest-value category',
+      s: topCat[0] + ' · GREEN routing',
+      v: fmtK(topCat[1]),
+      cl:'va', c:'var(--a)',
+      id:'topcat'
+    } : null,
+    {
+      t: 'Routing efficiency',
+      s: `${processCount.toLocaleString()} of ${routedTot.toLocaleString()} routed items are processable`,
+      v: efficiency + '%',
+      cl: efficiency >= 75 ? 'vg' : 'vw',
+      c: efficiency >= 75 ? 'var(--g)' : 'var(--w)',
+      id:'efficiency'
+    },
+    {
+      t: 'New items discovered',
+      s: 'INSERT actions — added to master catalog',
+      v: inserts.toLocaleString(),
+      cl:'vg', c:'var(--g)',
+      id:'inserts'
+    },
+    {
+      t: 'Big-ticket items ($500+)',
+      s: 'high-value GREEN-routed inventory',
+      v: bigTickets.toLocaleString(),
+      cl:'va', c:'var(--a)',
+      id:'bigticket'
+    },
+    {
+      t: 'Fresh API pulls',
+      s: 'SerpAPI hits this range · cache miss coverage',
+      v: freshHits.toLocaleString(),
+      cl:'vg', c:'var(--g)',
+      id:'fresh'
+    }
+  ].filter(Boolean);
+
+  $('wins-c').textContent = wins.length + ' total';
+  $('wins').innerHTML = wins.map(w => `
+    <div class="li" onclick="drillWin('${w.id}')">
+      <div class="li-l">
+        <span class="li-i" style="background:${w.c}"></span>
+        <div style="flex:1;min-width:0"><div class="li-t">${w.t}</div><div class="li-s">${w.s}</div></div>
+      </div>
+      <div class="li-v ${w.cl}">${w.v}</div>
+    </div>
+  `).join('');
+}
+
+/* ============================================
+   CUSP ANALYSIS
+   ============================================
+   Uses real retailMin and floor values from CATEGORY_CONFIG (extracted from
+   WIW v6.2 workflow per Rule W.6). When CATEGORY_CONFIG changes upstream,
+   update the constant at the top of this script to match.
+============================================ */
+function renderCusp(){
+  // Just Missed GREEN: YELLOW items within $5 below retail threshold
+  const cuspG = filtered.filter(r => r.monthly_routing === 'YELLOW' && sf(r.gross_profit_retail) > 0)
+    .map(r => {
+      const c = r.normalized_category || r.Category_Audited || '—';
+      const cfg = CATEGORY_CONFIG[c];
+      if (!cfg) return null;
+      const gap = cfg.retailMin - sf(r.gross_profit_retail);
+      if (gap < 0 || gap > 5) return null;
+      return { r, gap, thresh: cfg.retailMin };
+    }).filter(Boolean).sort((a,b) => a.gap - b.gap).slice(0, 30);
+
+  $('cuspG-c').textContent = cuspG.length + ' items';
+  $('tCuspG').innerHTML = cuspG.length ? cuspG.map(({r, gap}) => `
+    <tr onclick="drillCuspItem('${(r.Search_Key || '').replace(/'/g,'&apos;')}')">
+      <td style="color:var(--ink)">${(r.Manufacturer || '') + ' ' + (r.Model || '').substring(0, 18)}</td>
+      <td>${r.normalized_category || '—'}</td>
+      <td style="color:var(--g)">${fmt$(sf(r.gross_profit_retail))}</td>
+      <td style="color:var(--w)">-${fmt$(gap)}</td>
+    </tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--ink3);padding:30px 0;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase">No YELLOW items close to retail threshold</td></tr>';
+
+  // Just Missed YELLOW: RED items within $5 below wholesale floor
+  // Use CATEGORY_CONFIG floor (canonical) — falls back to row's wholesale_floor only if category unknown
+  const cuspY = filtered.map(r => {
+    const wp = sf(r.gross_profit_wholesale);
+    const c = r.normalized_category || r.Category_Audited || '—';
+    const cfg = CATEGORY_CONFIG[c];
+    const f = cfg ? cfg.floor : sf(r.wholesale_floor);
+    if (r.monthly_routing !== 'RED' || f <= 0) return null;
+    const gap = f - wp;
+    if (gap < 0 || gap > 5) return null;
+    return { r, gap, wp, f };
+  }).filter(Boolean).sort((a,b) => a.gap - b.gap).slice(0, 30);
+
+  $('cuspY-c').textContent = cuspY.length + ' items';
+  $('tCuspY').innerHTML = cuspY.length ? cuspY.map(({r, gap, wp}) => `
+    <tr onclick="drillCuspItem('${(r.Search_Key || '').replace(/'/g,'&apos;')}')">
+      <td style="color:var(--ink)">${(r.Manufacturer || '') + ' ' + (r.Model || '').substring(0, 18)}</td>
+      <td>${r.normalized_category || '—'}</td>
+      <td>${fmt$(wp)}</td>
+      <td style="color:var(--r)">-${fmt$(gap)}</td>
+    </tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--ink3);padding:30px 0;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase">No RED items close to wholesale floor</td></tr>';
+
+  // Barely Made GREEN: GREEN items within $5 above retail threshold
+  const cuspBG = filtered.filter(r => r.monthly_routing === 'GREEN' && sf(r.gross_profit_retail) > 0)
+    .map(r => {
+      const c = r.normalized_category || r.Category_Audited || '—';
+      const cfg = CATEGORY_CONFIG[c];
+      if (!cfg) return null;
+      const margin = sf(r.gross_profit_retail) - cfg.retailMin;
+      if (margin < 0 || margin > 5) return null;
+      return { r, margin };
+    }).filter(Boolean).sort((a,b) => a.margin - b.margin).slice(0, 30);
+
+  $('cuspBG-c').textContent = cuspBG.length + ' items';
+  $('tCuspBG').innerHTML = cuspBG.length ? cuspBG.map(({r, margin}) => `
+    <tr onclick="drillCuspItem('${(r.Search_Key || '').replace(/'/g,'&apos;')}')">
+      <td style="color:var(--ink)">${(r.Manufacturer || '') + ' ' + (r.Model || '').substring(0, 18)}</td>
+      <td>${r.normalized_category || '—'}</td>
+      <td style="color:var(--g)">${fmt$(sf(r.gross_profit_retail))}</td>
+      <td style="color:var(--a)">+${fmt$(margin)}</td>
+    </tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--ink3);padding:30px 0;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase">No GREEN items close to retail threshold</td></tr>';
+}
+
+function drillCuspItem(searchKey){
+  if (!searchKey) return;
+  const r = D.find(x => x.Search_Key === searchKey);
+  if (!r) return;
+  dopen(`${r.Manufacturer || ''} ${r.Model || ''}`.trim(), r.Search_Key, `
+    <div class="drawer-section">
+      <div class="stats">
+        <div class="s"><div class="s-l">Category</div><div class="s-v">${r.normalized_category || r.Category_Audited || '—'}</div></div>
+        <div class="s"><div class="s-l">Routing</div><div class="s-v"><span class="b ${r.monthly_routing === 'GREEN' ? 'b-g' : r.monthly_routing === 'YELLOW' ? 'b-y' : r.monthly_routing === 'RED' ? 'b-r' : 'b-b'}">${r.monthly_routing || '—'}</span></div></div>
+        <div class="s"><div class="s-l">eBay Price</div><div class="s-v" style="color:var(--a)">${fmt$(sf(r.monthly_price_ebay))}</div></div>
+        <div class="s"><div class="s-l">Wholesale Floor</div><div class="s-v">${fmt$(sf(r.wholesale_floor))}</div></div>
+        <div class="s"><div class="s-l">Retail Profit</div><div class="s-v" style="color:${sf(r.gross_profit_retail) > 0 ? 'var(--g)' : 'var(--r)'}">${fmt$(sf(r.gross_profit_retail))}</div></div>
+        <div class="s"><div class="s-l">Wholesale Profit</div><div class="s-v">${fmt$(sf(r.gross_profit_wholesale))}</div></div>
+        <div class="s"><div class="s-l">Labor Cost</div><div class="s-v">${fmt$(sf(r.labor_cost))}</div></div>
+        <div class="s"><div class="s-l">Shipping Cost</div><div class="s-v">${fmt$(sf(r.shipping_cost))}</div></div>
+      </div>
+    </div>
+    ${r.monthly_routing_reason ? `<div class="drawer-section"><div class="drawer-section-t">Routing reason</div><p style="color:var(--ink2);font-size:12px;line-height:1.6">${r.monthly_routing_reason}</p></div>` : ''}
+    ${r.tyler_flag ? `<div class="drawer-section"><div class="drawer-section-t">Tyler flag</div><span class="b b-a">${r.tyler_flag}</span></div>` : ''}
+    ${r.hard_rule_triggered ? `<div class="drawer-section"><div class="drawer-section-t">Hard rule</div><span class="b b-r">${r.hard_rule_triggered}</span></div>` : ''}
+    <div class="drawer-section">
+      <div class="drawer-section-t">Last pulled</div>
+      <p style="color:var(--ink2);font-size:12px;font-family:var(--mono)">${r.monthly_pull_date || '—'} · status: ${r.monthly_pull_status || '—'}</p>
+    </div>
+  `);
+}
+
+/* ============================================
+   COMPARE MODE + ROUTING DRIFT
+============================================ */
+function toggleCompareMode(){
+  compareVisible = !compareVisible;
+  $('drift-uploader').style.display = compareVisible ? 'block' : 'none';
+  $('cmpToggle').textContent = compareVisible ? 'Hide' : 'Compare';
+}
+
+function loadCompare(e){
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = v => {
+    compareData = csv(v.target.result);
+    compareFilename = f.name;
+    $('cmpStatus').textContent = compareData.length.toLocaleString() + ' items · ' + f.name;
+    $('cmpStatus').style.color = 'var(--g)';
+    $('cmpClear').style.display = 'inline-block';
+    computeDrift();
+    renderDrift();
+  };
+  r.readAsText(f);
+}
+
+function clearCompare(){
+  compareData = [];
+  compareFilename = '';
+  driftCache = null;
+  document.getElementById('cmpCsv').value = '';
+  $('cmpStatus').textContent = 'Nothing loaded';
+  $('cmpStatus').style.color = 'var(--ink3)';
+  $('cmpClear').style.display = 'none';
+  renderDrift();
+}
+
+function computeDrift(){
+  if (!compareData.length){ driftCache = null; return; }
+  // index compareData by Search_Key
+  const prior = {};
+  compareData.forEach(r => {
+    if (r.Search_Key) prior[r.Search_Key] = r;
+  });
+  const buckets = { g2y:[], g2r:[], y2r:[], y2g:[], r2y:[], r2g:[] };
+  let matched = 0;
+  D.forEach(curr => {
+    const p = prior[curr.Search_Key];
+    if (!p) return;
+    matched++;
+    const pr = p.monthly_routing || p.daily_routing;
+    const cr = curr.monthly_routing || curr.daily_routing;
+    if (!pr || !cr || pr === cr) return;
+    const key = (pr === 'GREEN' ? 'g' : pr === 'YELLOW' ? 'y' : 'r') + '2' + (cr === 'GREEN' ? 'g' : cr === 'YELLOW' ? 'y' : 'r');
+    if (buckets[key]) buckets[key].push({ curr, prior:p, pr, cr });
+  });
+  driftCache = { buckets, matched, priorTotal: compareData.length };
+}
+
+function renderDrift(){
+  const uploader = compareVisible;
+  if (!driftCache){
+    $('drift-empty').style.display = 'block';
+    $('drift-grid').style.display = 'none';
+    $('drift-status').textContent = uploader ? 'Awaiting prior CSV upload' : 'No comparison loaded';
+    return;
+  }
+  $('drift-empty').style.display = 'none';
+  $('drift-grid').style.display = 'grid';
+  const { buckets, matched, priorTotal } = driftCache;
+  $('drift-status').textContent = `${matched.toLocaleString()} items matched · ${compareFilename}`;
+  $('dG2Y').textContent = buckets.g2y.length.toLocaleString();
+  $('dY2R').textContent = buckets.y2r.length.toLocaleString();
+  $('dR2Y').textContent = buckets.r2y.length.toLocaleString();
+  $('dY2G').textContent = buckets.y2g.length.toLocaleString();
+}
+
+function drillDrift(id){
+  if (!driftCache) return;
+  const map = {
+    g2y: { t:'GREEN → YELLOW', s:'Items that were GREEN in the prior pull and are now YELLOW' },
+    y2r: { t:'YELLOW → RED', s:'Items that were YELLOW in the prior pull and are now RED' },
+    r2y: { t:'RED → YELLOW', s:'Items that were RED in the prior pull and recovered to YELLOW' },
+    y2g: { t:'YELLOW → GREEN', s:'Items that were YELLOW in the prior pull and are now GREEN' }
+  };
+  const { t, s } = map[id];
+  const items = driftCache.buckets[id] || [];
+  dopen(t, `${items.length.toLocaleString()} items · prior: ${compareFilename}`, `
+    <div class="drawer-section">
+      <p style="color:var(--ink2);font-size:12px;line-height:1.6;margin-bottom:14px">${s}</p>
+      <table class="dt"><thead><tr><th>Item</th><th>Category</th><th>Prior $</th><th>Now $</th><th>Delta</th></tr></thead>
+      <tbody>${items.slice(0, 100).map(({ curr, prior }) => {
+        const pp = sf(prior.monthly_price_ebay);
+        const cp = sf(curr.monthly_price_ebay);
+        const delta = cp - pp;
+        return `<tr onclick="drillCuspItem('${(curr.Search_Key || '').replace(/'/g,'&apos;')}')">
+          <td>${(curr.Manufacturer || '') + ' ' + (curr.Model || '').substring(0, 22)}</td>
+          <td>${curr.normalized_category || '—'}</td>
+          <td>${fmt$(pp)}</td>
+          <td>${fmt$(cp)}</td>
+          <td style="color:${delta > 0 ? 'var(--g)' : delta < 0 ? 'var(--r)' : 'var(--ink3)'}">${delta > 0 ? '+' : ''}${fmt$(delta)}</td>
+        </tr>`;
+      }).join('')}</tbody></table>
+      ${items.length > 100 ? `<p style="color:var(--ink3);font-size:11px;margin-top:12px;font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase">Showing first 100 of ${items.length}</p>` : ''}
+    </div>
+  `);
+}
+
+function renderTrend(){
+  // build per-day stacked counts
+  const byDay = {};
+  D.forEach(r => {
+    const d = activityDate(r);
+    if (!d) return;
+    if (!byDay[d]) byDay[d] = { G:0, Y:0, R:0 };
+    const rt = r.monthly_routing || r.daily_routing;
+    if (rt === 'GREEN') byDay[d].G++;
+    else if (rt === 'YELLOW') byDay[d].Y++;
+    else if (rt === 'RED') byDay[d].R++;
+  });
+  const days = Object.keys(byDay).sort();
+  const last30 = days.slice(-30);
+  $('trend-range').textContent = last30.length ? `${last30[0]} → ${last30[last30.length-1]}` : '—';
+
+  charts.trend = new Chart($('cTrend'), {
+    type:'bar',
+    data:{
+      labels: last30,
+      datasets:[
+        { label:'GREEN', data: last30.map(d => byDay[d].G), backgroundColor: C.green, borderWidth:0 },
+        { label:'YELLOW', data: last30.map(d => byDay[d].Y), backgroundColor: C.warn, borderWidth:0 },
+        { label:'RED', data: last30.map(d => byDay[d].R), backgroundColor: C.red, borderWidth:0 }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{ labels:{ color:C.ink, font:mf, boxWidth:8, padding:10 }}, tooltip:tip },
+      scales:{
+        x:{ stacked:true, grid:{display:false}, ticks:{ color:C.ink2, font:mf }},
+        y:{ stacked:true, grid:{color:C.grid}, ticks:{ color:C.ink2, font:mf }}
+      }
+    }
+  });
+}
+
+function renderCategoryPulse(){
+  const priced = filtered.filter(r => sf(r.monthly_price_ebay) > 0);
+
+  // volume
+  const vol = {};
+  filtered.forEach(r => {
+    const c = r.normalized_category || r.Category_Audited || '—';
+    vol[c] = (vol[c] || 0) + 1;
+  });
+  const vs = Object.entries(vol).sort((a,b) => b[1]-a[1]).slice(0,10);
+
+  charts.catvol = new Chart($('cCatVol'), {
+    type:'bar',
+    data:{
+      labels: vs.map(x => x[0]),
+      datasets:[{ data: vs.map(x => x[1]), backgroundColor: C.amber, borderWidth:0, borderRadius:2 }]
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{...tip, callbacks:{ label:c => ' ' + c.parsed.x + ' items' }}},
+      scales:{
+        x:{ grid:{color:C.grid}, ticks:{color:C.ink2, font:mf}},
+        y:{ grid:{display:false}, ticks:{color:C.ink, font:{family:"'IBM Plex Mono',monospace",size:9}}}
+      }
+    }
+  });
+
+  // value
+  const val = {};
+  priced.forEach(r => {
+    const c = r.normalized_category || r.Category_Audited || '—';
+    val[c] = (val[c] || 0) + sf(r.monthly_price_ebay);
+  });
+  const vv = Object.entries(val).sort((a,b) => b[1]-a[1]).slice(0,10);
+
+  charts.catval = new Chart($('cCatVal'), {
+    type:'bar',
+    data:{
+      labels: vv.map(x => x[0]),
+      datasets:[{ data: vv.map(x => Math.round(x[1])), backgroundColor: C.green, borderWidth:0, borderRadius:2 }]
+    },
+    options:{
+      indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{...tip, callbacks:{ label:c => ' ' + fmt$(c.parsed.x) }}},
+      scales:{
+        x:{ grid:{color:C.grid}, ticks:{color:C.ink2, font:mf, callback: v => v >= 1000 ? '$' + (v/1000).toFixed(0) + 'k' : '$' + v }},
+        y:{ grid:{display:false}, ticks:{color:C.ink, font:{family:"'IBM Plex Mono',monospace",size:9}}}
+      }
+    }
+  });
+}
+
+function renderRecent(){
+  // sort by activity date desc, then show top 30
+  const sorted = [...filtered].sort((a,b) => {
+    const ad = activityDate(a), bd = activityDate(b);
+    return bd.localeCompare(ad);
+  }).slice(0, 30);
+
+  $('recent-c').textContent = Math.min(filtered.length, 30) + ' of ' + filtered.length.toLocaleString();
+  $('tRecent').innerHTML = sorted.map(r => {
+    const rt = r.monthly_routing || r.daily_routing || '';
+    const badge = rt === 'GREEN' ? 'b-g' : rt === 'YELLOW' ? 'b-y' : rt === 'RED' ? 'b-r' : 'b-b';
+    const price = Math.max(sf(r.monthly_price_ebay), sf(r.daily_price));
+    const profit = sf(r.gross_profit_retail);
+    const profitClass = profit > 0 ? 'var(--g)' : profit < 0 ? 'var(--r)' : 'var(--ink3)';
+    const src = r.daily_source || r.monthly_pull_status || '—';
+    const flag = r.tyler_flag || r.hard_rule_triggered || '';
+    const flagBadge = flag ? `<span class="b b-a">${flag}</span>` : '';
+    return `<tr>
+      <td style="color:var(--ink)">${r.Manufacturer || ''}</td>
+      <td>${(r.Model || '').substring(0, 28)}</td>
+      <td>${r.normalized_category || r.Category_Audited || '—'}</td>
+      <td>${rt ? `<span class="b ${badge}">${rt}</span>` : '—'}</td>
+      <td style="color:var(--ink3)">${src}</td>
+      <td style="color:var(--a)">${price > 0 ? fmt$(price) : '—'}</td>
+      <td style="color:${profitClass}">${profit !== 0 ? fmt$(profit) : '—'}</td>
+      <td>${flagBadge}</td>
+    </tr>`;
+  }).join('');
+}
+
+/* ============================================
+   MONEY VIEW
+============================================ */
+function renderMoney(){
+  dc(['channel','profitcat','labor','ship']);
+  const priced = filtered.filter(r => sf(r.monthly_price_ebay) > 0);
+  const G = priced.filter(r => r.monthly_routing === 'GREEN');
+  const Y = priced.filter(r => r.monthly_routing === 'YELLOW');
+  const R = priced.filter(r => r.monthly_routing === 'RED');
+
+  const gSum = G.reduce((s,r) => s + sf(r.gross_profit_retail), 0);
+  const ySum = Y.reduce((s,r) => s + sf(r.gross_profit_wholesale), 0);
+  const rSum = R.reduce((s,r) => s + Math.max(sf(r.gross_profit_wholesale), 0), 0);
+  const laborSum = priced.reduce((s,r) => s + sf(r.labor_cost), 0);
+
+  $('money-kpi').innerHTML = [
+    { l:'Retail Gross Profit', v:fmtK(gSum), d:G.length + ' GREEN items · avg ' + fmt$(gSum/(G.length||1)), c:'var(--g)', ac:'var(--g)' },
+    { l:'Wholesale Gross Profit', v:fmtK(ySum), d:Y.length + ' YELLOW items · avg ' + fmt$(ySum/(Y.length||1)), c:'var(--w)', ac:'var(--w)' },
+    { l:'Scrap Residual', v:fmtK(rSum), d:R.length + ' RED items · mostly zeroed', c:'var(--r)', ac:'var(--r)' },
+    { l:'Labor Cost Burden', v:fmtK(laborSum), d:priced.length + ' items · testing time', c:'var(--ink)', ac:'' }
+  ].map(m => `<div class="cell static"><div class="cell-a" style="background:${m.ac}"></div><div class="klbl">${m.l}</div><div class="kval" style="color:${m.c}">${m.v}</div><div class="kd">${m.d}</div></div>`).join('');
+
+  // Channel donut
+  charts.channel = new Chart($('cChannel'), {
+    type:'doughnut',
+    data:{
+      labels:[`Retail · ${fmtK(gSum)}`, `Wholesale · ${fmtK(ySum)}`, `Scrap · ${fmtK(rSum)}`],
+      datasets:[{ data:[Math.max(gSum,0), Math.max(ySum,0), Math.max(rSum,0)], backgroundColor:[C.green, C.warn, C.red], borderWidth:0, hoverOffset:6 }]
+    },
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{ legend:{ position:'right', labels:{ color:C.ink, font:mf, boxWidth:8, padding:10 }}, tooltip:tip }}
+  });
+
+  // Profit by category
+  const catProfit = {};
+  G.forEach(r => {
+    const c = r.normalized_category || '—';
+    catProfit[c] = (catProfit[c] || 0) + sf(r.gross_profit_retail);
+  });
+  const cp = Object.entries(catProfit).filter(x => x[1] > 0).sort((a,b) => b[1]-a[1]).slice(0,12);
+
+  charts.profitcat = new Chart($('cProfitCat'), {
+    type:'bar',
+    data:{ labels:cp.map(x => x[0]), datasets:[{ data:cp.map(x => Math.round(x[1])), backgroundColor:C.green, borderWidth:0, borderRadius:2 }]},
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{...tip, callbacks:{ label:c => ' ' + fmt$(c.parsed.x) }}}, scales:{ x:{ grid:{color:C.grid}, ticks:{color:C.ink2, font:mf, callback:v => v>=1000 ? '$'+(v/1000).toFixed(0)+'k' : '$'+v }}, y:{ grid:{display:false}, ticks:{color:C.ink, font:{family:"'IBM Plex Mono',monospace",size:9}}}}}
+  });
+
+  // Labor by category
+  const laborCat = {};
+  priced.forEach(r => {
+    const c = r.normalized_category || '—';
+    if (!laborCat[c]) laborCat[c] = { tot:0, n:0 };
+    laborCat[c].tot += sf(r.labor_cost);
+    laborCat[c].n++;
+  });
+  const lc = Object.entries(laborCat).sort((a,b) => b[1].tot - a[1].tot).slice(0,10);
+
+  charts.labor = new Chart($('cLabor'), {
+    type:'bar',
+    data:{ labels:lc.map(x => x[0]), datasets:[{ data:lc.map(x => Math.round(x[1].tot)), backgroundColor:C.warn, borderWidth:0, borderRadius:2 }]},
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{...tip, callbacks:{ label:c => ' ' + fmt$(c.parsed.x) + ' total labor' }}}, scales:{ x:{ grid:{color:C.grid}, ticks:{color:C.ink2, font:mf, callback:v => '$'+v}}, y:{ grid:{display:false}, ticks:{color:C.ink, font:{family:"'IBM Plex Mono',monospace",size:9}}}}}
+  });
+
+  // Shipping by category
+  const shipCat = {};
+  priced.forEach(r => {
+    const c = r.normalized_category || '—';
+    shipCat[c] = (shipCat[c] || 0) + sf(r.shipping_cost);
+  });
+  const sc = Object.entries(shipCat).sort((a,b) => b[1]-a[1]).slice(0,10);
+
+  charts.ship = new Chart($('cShip'), {
+    type:'bar',
+    data:{ labels:sc.map(x => x[0]), datasets:[{ data:sc.map(x => Math.round(x[1])), backgroundColor:C.blue, borderWidth:0, borderRadius:2 }]},
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{...tip, callbacks:{ label:c => ' ' + fmt$(c.parsed.x) }}}, scales:{ x:{ grid:{color:C.grid}, ticks:{color:C.ink2, font:mf, callback:v => '$'+v}}, y:{ grid:{display:false}, ticks:{color:C.ink, font:{family:"'IBM Plex Mono',monospace",size:9}}}}}
+  });
+
+  // Top profit table
+  const topG = [...G].sort((a,b) => sf(b.gross_profit_retail) - sf(a.gross_profit_retail)).slice(0,30);
+  $('tMoney').innerHTML = topG.map(r => `
+    <tr>
+      <td style="color:var(--ink)">${r.Manufacturer || ''}</td>
+      <td>${(r.Model || '').substring(0,30)}</td>
+      <td>${r.normalized_category || '—'}</td>
+      <td style="color:var(--a)">${fmt$(sf(r.monthly_price_ebay))}</td>
+      <td>${fmt$(sf(r.labor_cost))}</td>
+      <td>${fmt$(sf(r.shipping_cost))}</td>
+      <td>${fmt$(sf(r.wholesale_floor))}</td>
+      <td style="color:var(--g);font-weight:600">${fmt$(sf(r.gross_profit_retail))}</td>
+    </tr>
+  `).join('');
+}
+
+/* ============================================
+   OPERATIONS VIEW
+============================================ */
+function renderOps(){
+  dc(['src','resp','action']);
+  const withDaily = filtered.filter(r => r.daily_source);
+  const cacheHits = withDaily.filter(r => (r.daily_source || '').includes('CACHE')).length;
+  const freshAPI = withDaily.filter(r => (r.daily_source || '').includes('SERPAPI')).length;
+  const hardCount = filtered.filter(r => r.hard_rule_triggered).length;
+  const respTimes = filtered.map(r => sf(r.daily_response_ms)).filter(n => n > 0);
+  const avgResp = respTimes.length ? Math.round(respTimes.reduce((a,b)=>a+b,0)/respTimes.length) : 0;
+
+  $('ops-kpi').innerHTML = [
+    { l:'Items Routed', v: filtered.filter(r => r.monthly_routing).length.toLocaleString(), d:'this period', c:'var(--ink)', ac:'' },
+    { l:'Cache Hit Rate', v: withDaily.length ? Math.round(cacheHits/withDaily.length*100) + '%' : '—', d:`${cacheHits}/${withDaily.length} daily pulls`, c:'var(--bl)', ac:'var(--bl)' },
+    { l:'Fresh API Calls', v: freshAPI.toLocaleString(), d:'SerpAPI hits · cost-bearing', c:'var(--a)', ac:'var(--a)' },
+    { l:'Avg Response Time', v: avgResp ? avgResp + 'ms' : '—', d:'daily_response_ms', c: avgResp > 3000 ? 'var(--r)' : 'var(--g)', ac: avgResp > 3000 ? 'var(--r)' : 'var(--g)' }
+  ].map(m => `<div class="cell static"><div class="cell-a" style="background:${m.ac}"></div><div class="klbl">${m.l}</div><div class="kval" style="color:${m.c}">${m.v}</div><div class="kd">${m.d}</div></div>`).join('');
+
+  // Source distribution
+  const sr = {};
+  withDaily.forEach(r => {
+    const s = r.daily_source;
+    sr[s] = (sr[s] || 0) + 1;
+  });
+  const ss = Object.entries(sr).sort((a,b) => b[1]-a[1]);
+  const sC = ss.map(([n]) => n.includes('CACHE') ? C.blue : n.includes('SERPAPI') ? C.amber : n.includes('HARD') ? C.red : C.ink2);
+
+  charts.src = new Chart($('cSrc'), {
+    type:'bar',
+    data:{ labels: ss.map(x=>x[0]), datasets:[{ data: ss.map(x=>x[1]), backgroundColor:sC, borderWidth:0, borderRadius:2 }]},
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{...tip, callbacks:{ label:c => ' ' + c.parsed.x + ' items' }}}, scales:{ x:{grid:{color:C.grid}, ticks:{color:C.ink2, font:mf}}, y:{grid:{display:false}, ticks:{color:C.ink, font:mf}}}}
+  });
+
+  // Response time buckets
+  const buckets = [
+    { l:'<500ms', min:0, max:500 },
+    { l:'500ms-1s', min:500, max:1000 },
+    { l:'1-2s', min:1000, max:2000 },
+    { l:'2-5s', min:2000, max:5000 },
+    { l:'5-10s', min:5000, max:10000 },
+    { l:'>10s', min:10000, max:Infinity }
+  ];
+  const bc = buckets.map(b => respTimes.filter(t => t >= b.min && t < b.max).length);
+
+  charts.resp = new Chart($('cResp'), {
+    type:'bar',
+    data:{ labels: buckets.map(b => b.l), datasets:[{ data:bc, backgroundColor: buckets.map((b,i) => i < 3 ? C.green : i < 5 ? C.warn : C.red), borderWidth:0, borderRadius:2 }]},
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{display:false}, tooltip:{...tip, callbacks:{ label:c => ' ' + c.parsed.y + ' calls' }}}, scales:{ x:{grid:{display:false}, ticks:{color:C.ink2, font:mf}}, y:{grid:{color:C.grid}, ticks:{color:C.ink2, font:mf}}}}
+  });
+
+  // Hard rules
+  const hrs = {};
+  filtered.filter(r => r.hard_rule_triggered).forEach(r => {
+    const k = r.hard_rule_triggered;
+    hrs[k] = (hrs[k] || 0) + 1;
+  });
+  const hrList = Object.entries(hrs).sort((a,b) => b[1]-a[1]);
+  $('opsHard').innerHTML = hrList.length ? hrList.map(([k,v]) => `
+    <div class="li static" style="cursor:default">
+      <div class="li-l"><span class="li-i" style="background:var(--r)"></span><div><div class="li-t">${k}</div><div class="li-s">auto-scrap or flag</div></div></div>
+      <div class="li-v vr">${v}</div>
+    </div>
+  `).join('') : '<div style="padding:24px 0;color:var(--ink3);text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase">No hard rules triggered in this range</div>';
+
+  // Tyler flags
+  const tf = {};
+  filtered.filter(r => r.tyler_flag).forEach(r => {
+    const k = r.tyler_flag;
+    tf[k] = (tf[k] || 0) + 1;
+  });
+  const tfList = Object.entries(tf).sort((a,b) => b[1]-a[1]);
+  $('opsTyler').innerHTML = tfList.length ? tfList.map(([k,v]) => `
+    <div class="li static" style="cursor:default">
+      <div class="li-l"><span class="li-i" style="background:var(--a)"></span><div><div class="li-t">${k}</div><div class="li-s">post-routing downgrade</div></div></div>
+      <div class="li-v va">${v}</div>
+    </div>
+  `).join('') : '<div style="padding:24px 0;color:var(--ink3);text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase">No Tyler flags in this range</div>';
+
+  // Action mix
+  const ins = filtered.filter(r => r.action === 'INSERT').length;
+  const upd = filtered.filter(r => r.action === 'UPDATE').length;
+  charts.action = new Chart($('cAction'), {
+    type:'doughnut',
+    data:{ labels:[`INSERT · ${ins} new items`, `UPDATE · ${upd} refreshes`], datasets:[{ data:[ins, upd], backgroundColor:[C.green, C.blue], borderWidth:0 }]},
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'62%', plugins:{ legend:{ position:'right', labels:{ color:C.ink, font:mf, boxWidth:8, padding:10 }}, tooltip:tip }}
+  });
+}
+
+/* ============================================
+   THRESHOLDS VIEW
+============================================ */
+function renderThresh(){
+  dc(['floor']);
+  const priced = filtered.filter(r => sf(r.monthly_price_ebay) > 0);
+
+  // floor by category (take median of wholesale_floor within each cat)
+  const byCat = {};
+  priced.forEach(r => {
+    const c = r.normalized_category || '—';
+    if (!byCat[c]) byCat[c] = { floors:[], profits:[] };
+    byCat[c].floors.push(sf(r.wholesale_floor));
+    byCat[c].profits.push(sf(r.gross_profit_wholesale));
+  });
+  const median = arr => {
+    const s = arr.filter(n => n > 0).sort((a,b) => a-b);
+    return s.length ? s[Math.floor(s.length/2)] : 0;
+  };
+  const avg = arr => arr.length ? arr.reduce((a,b) => a+b, 0) / arr.length : 0;
+  const cats = Object.keys(byCat).map(c => ({
+    c,
+    floor: median(byCat[c].floors),
+    avgProfit: avg(byCat[c].profits),
+    count: byCat[c].floors.length
+  })).filter(x => x.floor > 0).sort((a,b) => b.count - a.count).slice(0, 14);
+
+  charts.floor = new Chart($('cFloor'), {
+    type:'bar',
+    data:{
+      labels: cats.map(x => x.c),
+      datasets:[
+        { label:'Wholesale Floor', data: cats.map(x => x.floor), backgroundColor: C.red, borderWidth:0, borderRadius:2 },
+        { label:'Avg Wholesale Profit', data: cats.map(x => Math.round(x.avgProfit)), backgroundColor: C.green, borderWidth:0, borderRadius:2 }
+      ]
+    },
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{labels:{color:C.ink, font:mf, boxWidth:8, padding:10}}, tooltip:{...tip, callbacks:{ label:c => ' ' + c.dataset.label + ' · ' + fmt$(c.parsed.y) }}},
+      scales:{ x:{grid:{display:false}, ticks:{color:C.ink2, font:mf}}, y:{grid:{color:C.grid}, ticks:{color:C.ink2, font:mf, callback:v => '$'+v}}}
+    }
+  });
+
+  // Near floor items
+  const nf = filtered.map(r => {
+    const wp = sf(r.gross_profit_wholesale);
+    const f = sf(r.wholesale_floor);
+    return { r, wp, f, gap: f - wp };
+  }).filter(x => x.f > 0 && x.wp > -100 && Math.abs(x.gap) <= 10)
+    .sort((a,b) => Math.abs(a.gap) - Math.abs(b.gap))
+    .slice(0, 40);
+
+  $('tNearFloor').innerHTML = nf.map(({r, wp, f, gap}) => `
+    <tr>
+      <td style="color:var(--ink)">${r.Manufacturer || ''}</td>
+      <td>${(r.Model || '').substring(0,30)}</td>
+      <td>${r.normalized_category || '—'}</td>
+      <td>${fmt$(wp)}</td>
+      <td>${fmt$(f)}</td>
+      <td style="color:${Math.abs(gap) <= 5 ? 'var(--w)' : 'var(--ink3)'}">${gap > 0 ? '+' : ''}${fmt$(gap)}</td>
+      <td><span class="b ${r.monthly_routing === 'RED' ? 'b-r' : r.monthly_routing === 'YELLOW' ? 'b-y' : 'b-g'}">${r.monthly_routing || '—'}</span></td>
+    </tr>
+  `).join('');
+}
+
+/* ============================================
+   DRILL-DOWN HANDLERS
+============================================ */
+function drillPulse(id){
+  if (id === 'scans'){
+    const routed = filtered.filter(r => r.monthly_routing);
+    const unrouted = filtered.filter(r => !r.monthly_routing);
+    const sample = filtered.slice(0, 20);
+    dopen('Items In Scope', `${filtered.length.toLocaleString()} total in range`, `
+      <div class="drawer-section">
+        <div class="stats">
+          <div class="s"><div class="s-l">Routed</div><div class="s-v">${routed.length.toLocaleString()}</div></div>
+          <div class="s"><div class="s-l">Unrouted</div><div class="s-v">${unrouted.length.toLocaleString()}</div></div>
+        </div>
+      </div>
+      <div class="drawer-section">
+        <div class="drawer-section-t">Sample of items</div>
+        <table class="dt"><thead><tr><th>Item</th><th>Category</th><th>Routing</th></tr></thead>
+        <tbody>${sample.map(r => `<tr><td>${(r.Manufacturer||'') + ' ' + (r.Model||'').substring(0,22)}</td><td>${r.normalized_category||'—'}</td><td>${r.monthly_routing||'—'}</td></tr>`).join('')}</tbody></table>
+      </div>
+    `);
+  } else if (id === 'value'){
+    const priced = filtered.filter(r => sf(r.monthly_price_ebay) > 0);
+    const top = [...priced].sort((a,b) => sf(b.monthly_price_ebay) - sf(a.monthly_price_ebay)).slice(0, 15);
+    const tot = priced.reduce((s,r) => s + sf(r.monthly_price_ebay), 0);
+    dopen('Estimated Value', fmt$(tot) + ' across ' + priced.length.toLocaleString() + ' priced items', `
+      <div class="drawer-section">
+        <div class="drawer-section-t">Top 15 by price</div>
+        <table class="dt"><thead><tr><th>Item</th><th>Category</th><th>eBay $</th></tr></thead>
+        <tbody>${top.map(r => `<tr><td>${(r.Manufacturer||'') + ' ' + (r.Model||'').substring(0,22)}</td><td>${r.normalized_category||'—'}</td><td style="color:var(--a)">${fmt$(sf(r.monthly_price_ebay))}</td></tr>`).join('')}</tbody></table>
+      </div>
+    `);
+  } else if (id === 'split'){
+    const routed = filtered.filter(r => r.monthly_routing);
+    const G = routed.filter(r => r.monthly_routing === 'GREEN').length;
+    const Y = routed.filter(r => r.monthly_routing === 'YELLOW').length;
+    const R = routed.filter(r => r.monthly_routing === 'RED').length;
+    const reasons = {};
+    routed.forEach(r => {
+      const rsn = r.monthly_routing_reason || '—';
+      reasons[rsn] = (reasons[rsn] || 0) + 1;
+    });
+    const rsList = Object.entries(reasons).sort((a,b) => b[1]-a[1]).slice(0, 12);
+    dopen('Process vs Scrap', `${routed.length.toLocaleString()} routed items`, `
+      <div class="drawer-section">
+        <div class="stats">
+          <div class="s"><div class="s-l">GREEN (Retail)</div><div class="s-v" style="color:var(--g)">${G}</div></div>
+          <div class="s"><div class="s-l">YELLOW (Wholesale)</div><div class="s-v" style="color:var(--w)">${Y}</div></div>
+          <div class="s"><div class="s-l">RED (Scrap)</div><div class="s-v" style="color:var(--r)">${R}</div></div>
+          <div class="s"><div class="s-l">Operator-visible (Process)</div><div class="s-v">${G+Y}</div></div>
+        </div>
+      </div>
+      <div class="drawer-section">
+        <div class="drawer-section-t">Routing reasons</div>
+        <table class="dt"><thead><tr><th>Reason</th><th>Count</th></tr></thead>
+        <tbody>${rsList.map(([k,v]) => `<tr><td>${k}</td><td style="color:var(--a)">${v}</td></tr>`).join('')}</tbody></table>
+      </div>
+    `);
+  } else if (id === 'health'){
+    const cacheHits = filtered.filter(r => (r.daily_source||'').includes('CACHE')).length;
+    const fresh = filtered.filter(r => (r.daily_source||'').includes('SERPAPI')).length;
+    const failed = filtered.filter(r => r.monthly_pull_status === 'FAILED').length;
+    const resp = filtered.map(r => sf(r.daily_response_ms)).filter(n => n > 0);
+    const sorted = resp.slice().sort((a,b) => a-b);
+    const p50 = sorted[Math.floor(sorted.length/2)] || 0;
+    const p95 = sorted[Math.floor(sorted.length*.95)] || 0;
+    dopen('System Health', 'performance and reliability', `
+      <div class="drawer-section">
+        <div class="stats">
+          <div class="s"><div class="s-l">Cache Hits</div><div class="s-v" style="color:var(--bl)">${cacheHits}</div></div>
+          <div class="s"><div class="s-l">Fresh API Calls</div><div class="s-v" style="color:var(--a)">${fresh}</div></div>
+          <div class="s"><div class="s-l">Response p50</div><div class="s-v">${p50}ms</div></div>
+          <div class="s"><div class="s-l">Response p95</div><div class="s-v">${p95}ms</div></div>
+          <div class="s"><div class="s-l">API Failures</div><div class="s-v" style="color:${failed > 0 ? 'var(--r)' : 'var(--g)'}">${failed}</div></div>
+          <div class="s"><div class="s-l">Cache Hit Ratio</div><div class="s-v" style="color:var(--bl)">${cacheHits+fresh ? Math.round(cacheHits/(cacheHits+fresh)*100) : 0}%</div></div>
+        </div>
+      </div>
+    `);
+  }
+}
+
+function drillMoney(id){
+  if (id === 'retail'){
+    const G = filtered.filter(r => r.monthly_routing === 'GREEN' && sf(r.gross_profit_retail) > 0);
+    const top = [...G].sort((a,b) => sf(b.gross_profit_retail) - sf(a.gross_profit_retail)).slice(0, 20);
+    const tot = G.reduce((s,r) => s + sf(r.gross_profit_retail), 0);
+    dopen('Retail Profit', fmt$(tot) + ' · ' + G.length.toLocaleString() + ' GREEN items', `
+      <div class="drawer-section">
+        <div class="drawer-section-t">Top 20 retail profit contributors</div>
+        <table class="dt"><thead><tr><th>Item</th><th>Category</th><th>eBay $</th><th>Profit</th></tr></thead>
+        <tbody>${top.map(r => `<tr><td>${(r.Manufacturer||'') + ' ' + (r.Model||'').substring(0,22)}</td><td>${r.normalized_category||'—'}</td><td>${fmt$(sf(r.monthly_price_ebay))}</td><td style="color:var(--g);font-weight:600">${fmt$(sf(r.gross_profit_retail))}</td></tr>`).join('')}</tbody></table>
+      </div>
+    `);
+  } else if (id === 'wholesale'){
+    const Y = filtered.filter(r => r.monthly_routing === 'YELLOW' && sf(r.gross_profit_wholesale) > 0);
+    const top = [...Y].sort((a,b) => sf(b.gross_profit_wholesale) - sf(a.gross_profit_wholesale)).slice(0, 20);
+    const tot = Y.reduce((s,r) => s + sf(r.gross_profit_wholesale), 0);
+    dopen('Wholesale Profit', fmt$(tot) + ' · ' + Y.length.toLocaleString() + ' YELLOW items', `
+      <div class="drawer-section">
+        <div class="drawer-section-t">Top 20 wholesale profit contributors</div>
+        <table class="dt"><thead><tr><th>Item</th><th>Category</th><th>eBay $</th><th>WS Profit</th></tr></thead>
+        <tbody>${top.map(r => `<tr><td>${(r.Manufacturer||'') + ' ' + (r.Model||'').substring(0,22)}</td><td>${r.normalized_category||'—'}</td><td>${fmt$(sf(r.monthly_price_ebay))}</td><td style="color:var(--w);font-weight:600">${fmt$(sf(r.gross_profit_wholesale))}</td></tr>`).join('')}</tbody></table>
+      </div>
+    `);
+  } else if (id === 'avg'){
+    const priced = filtered.filter(r => sf(r.monthly_price_ebay) > 0);
+    const byCat = {};
+    priced.forEach(r => {
+      const c = r.normalized_category || '—';
+      if (!byCat[c]) byCat[c] = { sum:0, n:0 };
+      byCat[c].sum += sf(r.gross_profit_retail);
+      byCat[c].n++;
+    });
+    const list = Object.entries(byCat).map(([c,v]) => ({ c, avg:v.sum/v.n, n:v.n })).sort((a,b) => b.avg - a.avg);
+    dopen('Avg Profit Per Item', 'category breakdown', `
+      <div class="drawer-section">
+        <div class="drawer-section-t">Avg retail profit per category</div>
+        <table class="dt"><thead><tr><th>Category</th><th>Items</th><th>Avg Profit</th></tr></thead>
+        <tbody>${list.map(x => `<tr><td>${x.c}</td><td>${x.n}</td><td style="color:${x.avg > 0 ? 'var(--g)' : 'var(--r)'}">${fmt$(x.avg)}</td></tr>`).join('')}</tbody></table>
+      </div>
+    `);
+  } else if (id === 'potential'){
+    const priced = filtered.filter(r => sf(r.monthly_price_ebay) > 0);
+    const tot = priced.reduce((s,r) => s + sf(r.gross_profit_retail), 0);
+    const posProfit = priced.filter(r => sf(r.gross_profit_retail) > 0);
+    const negProfit = priced.filter(r => sf(r.gross_profit_retail) < 0);
+    dopen('Total Retail Potential', fmt$(tot) + ' if every item sold retail', `
+      <div class="drawer-section">
+        <div class="stats">
+          <div class="s"><div class="s-l">Profitable at Retail</div><div class="s-v" style="color:var(--g)">${posProfit.length}</div></div>
+          <div class="s"><div class="s-l">Unprofitable at Retail</div><div class="s-v" style="color:var(--r)">${negProfit.length}</div></div>
+        </div>
+        <p style="color:var(--ink2);font-size:12px;line-height:1.6;margin-top:14px">This is the theoretical ceiling if every priced item were routed GREEN and sold at the forecast eBay price. Actual captured profit will be lower because most items route YELLOW or RED.</p>
+      </div>
+    `);
+  }
+}
+
+function drillFlag(id){
+  const buckets = {
+    nodata: {
+      t: 'No Market Data',
+      fn: r => (r.monthly_routing_reason || '').toLowerCase().includes('no market data'),
+      cols: ['Manufacturer','Model','Category','Confidence']
+    },
+    nearfloor: {
+      t: 'Near Wholesale Floor',
+      fn: r => {
+        const wp = sf(r.gross_profit_wholesale);
+        const f = sf(r.wholesale_floor);
+        return r.monthly_routing === 'RED' && f > 0 && wp > 0 && Math.abs(f - wp) <= 5;
+      },
+      cols: ['Manufacturer','Model','Category','WS Profit','Floor','Gap']
+    },
+    hardrules: {
+      t: 'Hard Rules Triggered',
+      fn: r => r.hard_rule_triggered,
+      cols: ['Manufacturer','Model','Category','Rule']
+    },
+    apifails: {
+      t: 'API Failures',
+      fn: r => r.monthly_pull_status === 'FAILED',
+      cols: ['Manufacturer','Model','Category','Reason']
+    },
+    slowapi: {
+      t: 'Slow API Calls',
+      fn: r => sf(r.monthly_api_time_ms) > 5000 || sf(r.daily_response_ms) > 5000,
+      cols: ['Manufacturer','Model','Category','Time']
+    },
+    tyler: {
+      t: 'Tyler Flag Downgrades',
+      fn: r => r.tyler_flag,
+      cols: ['Manufacturer','Model','Category','Flag']
+    },
+    unrouted: {
+      t: 'Items Awaiting Routing',
+      fn: r => !r.monthly_routing && !r.daily_routing,
+      cols: ['Manufacturer','Model','Category','Confidence']
+    }
+  };
+  const b = buckets[id];
+  if (!b) return;
+  const items = filtered.filter(b.fn).slice(0, 100);
+
+  const getCell = (r, col) => {
+    switch(col){
+      case 'Manufacturer': return r.Manufacturer || '';
+      case 'Model': return (r.Model || '').substring(0,30);
+      case 'Category': return r.normalized_category || r.Category_Audited || '—';
+      case 'Confidence': return r.Confidence_Score || '0';
+      case 'WS Profit': return fmt$(sf(r.gross_profit_wholesale));
+      case 'Floor': return fmt$(sf(r.wholesale_floor));
+      case 'Gap': return fmt$(sf(r.wholesale_floor) - sf(r.gross_profit_wholesale));
+      case 'Rule': return `<span class="b b-r">${r.hard_rule_triggered}</span>`;
+      case 'Reason': return r.monthly_routing_reason || r.monthly_pull_status || '—';
+      case 'Time': return Math.max(sf(r.monthly_api_time_ms), sf(r.daily_response_ms)) + 'ms';
+      case 'Flag': return `<span class="b b-a">${r.tyler_flag}</span>`;
+      default: return '—';
+    }
+  };
+
+  dopen(b.t, items.length.toLocaleString() + ' items (showing first 100)', `
+    <div class="drawer-section">
+      <table class="dt"><thead><tr>${b.cols.map(c => `<th>${c}</th>`).join('')}</tr></thead>
+      <tbody>${items.map(r => `<tr>${b.cols.map(c => `<td>${getCell(r, c)}</td>`).join('')}</tr>`).join('')}</tbody></table>
+    </div>
+  `);
+}
+
+function drillWin(id){
+  if (id === 'topitem'){
+    const G = filtered.filter(r => r.monthly_routing === 'GREEN' && sf(r.gross_profit_retail) > 0);
+    const top10 = [...G].sort((a,b) => sf(b.gross_profit_retail) - sf(a.gross_profit_retail)).slice(0, 10);
+    dopen('Top Profit Items', 'GREEN-routed, sorted by retail profit', `
+      <div class="drawer-section">
+        <table class="dt"><thead><tr><th>Item</th><th>Category</th><th>eBay $</th><th>Profit</th></tr></thead>
+        <tbody>${top10.map(r => `<tr><td>${(r.Manufacturer||'') + ' ' + (r.Model||'').substring(0,22)}</td><td>${r.normalized_category||'—'}</td><td>${fmt$(sf(r.monthly_price_ebay))}</td><td style="color:var(--g);font-weight:600">${fmt$(sf(r.gross_profit_retail))}</td></tr>`).join('')}</tbody></table>
+      </div>
+    `);
+  } else if (id === 'topcat'){
+    const G = filtered.filter(r => r.monthly_routing === 'GREEN');
+    const byCat = {};
+    G.forEach(r => {
+      const c = r.normalized_category || '—';
+      if (!byCat[c]) byCat[c] = { sum:0, n:0 };
+      byCat[c].sum += sf(r.gross_profit_retail);
+      byCat[c].n++;
+    });
+    const list = Object.entries(byCat).map(([c,v]) => ({c, sum:v.sum, n:v.n, avg:v.sum/v.n})).sort((a,b) => b.sum - a.sum);
+    dopen('Categories By Value', 'GREEN-routed retail profit sum', `
+      <div class="drawer-section">
+        <table class="dt"><thead><tr><th>Category</th><th>Items</th><th>Total</th><th>Avg</th></tr></thead>
+        <tbody>${list.map(x => `<tr><td>${x.c}</td><td>${x.n}</td><td style="color:var(--a)">${fmt$(x.sum)}</td><td style="color:var(--g)">${fmt$(x.avg)}</td></tr>`).join('')}</tbody></table>
+      </div>
+    `);
+  } else if (id === 'efficiency'){
+    const routed = filtered.filter(r => r.monthly_routing);
+    const G = routed.filter(r => r.monthly_routing === 'GREEN').length;
+    const Y = routed.filter(r => r.monthly_routing === 'YELLOW').length;
+    const R = routed.filter(r => r.monthly_routing === 'RED').length;
+    dopen('Routing Efficiency', 'process vs scrap ratio', `
+      <div class="drawer-section">
+        <div class="stats">
+          <div class="s"><div class="s-l">Processable</div><div class="s-v" style="color:var(--g)">${G+Y}</div></div>
+          <div class="s"><div class="s-l">Scrap</div><div class="s-v" style="color:var(--r)">${R}</div></div>
+          <div class="s"><div class="s-l">GREEN (Retail)</div><div class="s-v" style="color:var(--g)">${G}</div></div>
+          <div class="s"><div class="s-l">YELLOW (Wholesale)</div><div class="s-v" style="color:var(--w)">${Y}</div></div>
+        </div>
+        <p style="color:var(--ink2);font-size:12px;line-height:1.6;margin-top:14px">Operators see GREEN + YELLOW as "process" and RED as "scrap" — the YELLOW distinction is internal analytics only. Higher processable ratio means more of what walks in the door earns money.</p>
+      </div>
+    `);
+  } else if (id === 'inserts'){
+    const ins = filtered.filter(r => r.action === 'INSERT');
+    const byCat = {};
+    ins.forEach(r => {
+      const c = r.normalized_category || r.Category_Audited || '—';
+      byCat[c] = (byCat[c] || 0) + 1;
+    });
+    const list = Object.entries(byCat).sort((a,b) => b[1]-a[1]);
+    dopen('New Items Discovered', ins.length.toLocaleString() + ' INSERT actions', `
+      <div class="drawer-section">
+        <div class="drawer-section-t">By category</div>
+        <table class="dt"><thead><tr><th>Category</th><th>New items</th></tr></thead>
+        <tbody>${list.map(([c,v]) => `<tr><td>${c}</td><td style="color:var(--g)">${v}</td></tr>`).join('')}</tbody></table>
+      </div>
+    `);
+  } else if (id === 'bigticket'){
+    const big = filtered.filter(r => r.monthly_routing === 'GREEN' && sf(r.monthly_price_ebay) >= 500).sort((a,b) => sf(b.monthly_price_ebay) - sf(a.monthly_price_ebay)).slice(0, 30);
+    dopen('Big Ticket Items', '$500+ GREEN-routed items', `
+      <div class="drawer-section">
+        <table class="dt"><thead><tr><th>Item</th><th>Category</th><th>eBay $</th><th>Profit</th></tr></thead>
+        <tbody>${big.map(r => `<tr><td>${(r.Manufacturer||'') + ' ' + (r.Model||'').substring(0,22)}</td><td>${r.normalized_category||'—'}</td><td style="color:var(--a)">${fmt$(sf(r.monthly_price_ebay))}</td><td style="color:var(--g)">${fmt$(sf(r.gross_profit_retail))}</td></tr>`).join('')}</tbody></table>
+      </div>
+    `);
+  } else if (id === 'fresh'){
+    const fresh = filtered.filter(r => r.daily_source === 'FRESH_SERPAPI').slice(0, 30);
+    dopen('Fresh API Pulls', fresh.length.toLocaleString() + ' SerpAPI hits · cache miss coverage', `
+      <div class="drawer-section">
+        <table class="dt"><thead><tr><th>Item</th><th>Category</th><th>Response</th><th>Price</th></tr></thead>
+        <tbody>${fresh.map(r => `<tr><td>${(r.Manufacturer||'') + ' ' + (r.Model||'').substring(0,22)}</td><td>${r.normalized_category||'—'}</td><td>${sf(r.daily_response_ms)}ms</td><td style="color:var(--a)">${fmt$(sf(r.daily_price) || sf(r.monthly_price_ebay))}</td></tr>`).join('')}</tbody></table>
+      </div>
+    `);
+  }
+}
+</script>
+<script>
+/* ============================================
+   INIT — auto-fetch if endpoint configured
+============================================ */
+window.addEventListener('load', () => {
+  // Populate production footer from PROD_INFO
+  $('pfContract').textContent = PROD_INFO.contractVersion;
+  $('pfWIW').textContent = PROD_INFO.wiwVersion;
+  $('pfPP').textContent = PROD_INFO.ppVersion;
+  $('pfSheet').textContent = PROD_INFO.sheetName;
+  const hookLink = $('pfHook');
+  hookLink.href = PROD_INFO.webhookUrl;
+  const shortId = PROD_INFO.webhookUrl.split('/').pop().substring(0, 8);
+  hookLink.textContent = 'stsrecycling.app.n8n.cloud · ' + shortId + '…';
+
+  // If no endpoint is configured, hide the refresh bar entirely.
+  // CSV upload still works.
+  if (!CONFIG.DATA_ENDPOINT){
+    const rbar = document.getElementById('rbar');
+    if (rbar) rbar.style.display = 'none';
+    return;
+  }
+  // Show the refresh bar
+  const rbar = document.getElementById('rbar');
+  if (rbar) rbar.style.display = 'flex';
+  // Restore tier choice + last-refresh times from localStorage
+  restoreTierState();
+  updateRbtnLabels();
+  // Initial fetch of currently-selected tier
+  fetchTier(currentTier);
+});
+</script>
+</body>
+</html>
