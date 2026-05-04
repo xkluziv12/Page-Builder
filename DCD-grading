@@ -1,0 +1,2426 @@
+<!DOCTYPE html>
+<html lang="en" data-t="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DCD Call Intelligence · Mike's Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f4f6f9;--cd:#ffffff;--bd:#e2e8f0;--bd2:#cbd5e1;--tx:#0f172a;--tx2:#475569;--tx3:#94a3b8;--ac:#2563eb;--ac2:#3b82f6;--gn:#059669;--gn2:#10b981;--am:#d97706;--am2:#f59e0b;--rd:#dc2626;--rd2:#ef4444;--pu:#7c3aed;--tl:#0d9488;--cy:#0891b2;--shd:0 1px 3px rgba(15,23,42,.04);--shd2:0 4px 12px rgba(15,23,42,.08);--r:10px;}
+[data-t="dark"]{--bg:#0a0f1d;--cd:#111827;--bd:#1f2937;--bd2:#374151;--tx:#f1f5f9;--tx2:#cbd5e1;--tx3:#64748b;--shd:0 1px 3px rgba(0,0,0,.3);--shd2:0 8px 24px rgba(0,0,0,.4);}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.mono{font-family:'IBM Plex Mono',monospace;font-feature-settings:"tnum"}
+button{font-family:inherit}
+a{color:inherit;text-decoration:none}
+
+/* HEADER */
+header{background:var(--cd);border-bottom:1px solid var(--bd);padding:12px 24px;display:flex;align-items:center;gap:18px;position:sticky;top:0;z-index:50}
+.logo{font-weight:700;font-size:16px;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
+.logo-mk{width:24px;height:24px;background:linear-gradient(135deg,var(--tl),var(--ac));border-radius:6px;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:700}
+.logo-sub{font-size:11px;color:var(--tx3);font-weight:500;border-left:1px solid var(--bd);padding-left:10px;margin-left:2px}
+.spacer{flex:1}
+.ts{font-size:11px;color:var(--tx3);font-family:'IBM Plex Mono',monospace}
+.range{display:flex;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:2px}
+.range button{background:none;border:none;padding:5px 11px;font-size:11.5px;font-weight:500;color:var(--tx2);cursor:pointer;border-radius:6px}
+.range button.on{background:var(--cd);color:var(--tx);box-shadow:var(--shd)}
+.icon-btn{background:none;border:1px solid var(--bd);border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--tx2);font-size:11.5px;display:inline-flex;align-items:center;gap:5px}
+.icon-btn:hover{background:var(--bg);color:var(--tx)}
+.icon-btn.spin svg,.icon-btn.spin span{animation:spin .9s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* REFRESH BAR */
+.rfsh{display:inline-flex;align-items:center;gap:8px;padding:3px 4px 3px 10px;background:var(--bg);border:1px solid var(--bd);border-radius:8px}
+.rfsh-st{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace}
+.rfsh-st::before{content:'';width:7px;height:7px;border-radius:50%;display:inline-block}
+.rfsh-st.rfsh-sample{color:#92400e}.rfsh-st.rfsh-sample::before{background:#f59e0b}
+.rfsh-st.rfsh-ok{color:var(--gn)}.rfsh-st.rfsh-ok::before{background:var(--gn);box-shadow:0 0 0 3px rgba(5,150,105,.18)}
+.rfsh-st.rfsh-loading{color:var(--ac)}.rfsh-st.rfsh-loading::before{background:var(--ac);animation:pulse 1s ease-in-out infinite}
+.rfsh-st.rfsh-err{color:var(--rd)}.rfsh-st.rfsh-err::before{background:var(--rd)}
+.rfsh-sel{font-family:inherit;font-size:11px;padding:3px 6px;border:1px solid var(--bd);border-radius:6px;background:var(--cd);color:var(--tx2);cursor:pointer}
+.rfsh-btn{background:var(--cd);border:1px solid var(--bd);border-radius:6px;padding:4px 8px;cursor:pointer;color:var(--tx2);font-size:13px;line-height:1}
+.rfsh-btn:hover{background:var(--ac);color:#fff;border-color:var(--ac)}
+.rfsh-btn.spin{pointer-events:none;opacity:.7}
+.rfsh-btn.spin span{animation:spin .9s linear infinite;display:inline-block}
+
+/* BANNERS */
+.sample-bn{background:linear-gradient(90deg,#fef3c7,#fde68a);border-bottom:1px solid #f59e0b;padding:7px 24px;font-size:11.5px;color:#78350f;text-align:center;font-weight:500}
+.sample-bn .mono{color:#92400e}
+.alert-bn{background:linear-gradient(90deg,#fef2f2,#fee2e2);border-bottom:1px solid #fca5a5;padding:11px 24px;display:flex;align-items:center;gap:14px;font-size:13px;color:#7f1d1d}
+.alert-bn.hide{display:none}
+.alert-ic{font-size:16px}
+.alert-tx{flex:1}
+.alert-tx strong{color:#991b1b;font-weight:600}
+.alert-cnt{display:inline-block;background:#991b1b;color:#fff;padding:1px 7px;border-radius:9px;font-size:10px;font-weight:700;margin-left:6px;font-family:'IBM Plex Mono',monospace}
+.alert-list{margin-top:3px;font-size:11.5px;color:#991b1b;opacity:.85}
+.alert-cls{background:#fff;border:1px solid #fca5a5;border-radius:6px;padding:5px 11px;cursor:pointer;font-size:11px;color:#991b1b;font-weight:500}
+.alert-cls:hover{background:#fee2e2}
+
+/* TAB NAV */
+nav.tabs{background:var(--cd);border-bottom:1px solid var(--bd);padding:0 24px;display:flex;gap:2px;position:sticky;top:53px;z-index:49;overflow-x:auto}
+nav.tabs button{background:none;border:none;padding:13px 16px;font-size:13px;font-weight:500;color:var(--tx2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+nav.tabs button.on{color:var(--ac);border-bottom-color:var(--ac);font-weight:600}
+nav.tabs button:not(.on):hover{color:var(--tx)}
+nav.tabs .pill{background:var(--bg);color:var(--tx2);font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;font-family:'IBM Plex Mono',monospace}
+nav.tabs .pill-rd{background:#fee2e2;color:#991b1b}
+
+/* MAIN */
+main{max-width:1440px;margin:0 auto;padding:22px}
+.tab{display:none}
+.tab.on{display:block}
+
+/* GENERIC CARD */
+.cd{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);padding:18px;box-shadow:var(--shd)}
+.cd-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.cd-t{font-size:13px;font-weight:600;color:var(--tx);letter-spacing:-.1px}
+.cd-st{font-size:11px;color:var(--tx3)}
+.cd-link{font-size:11.5px;color:var(--ac);font-weight:500;cursor:pointer}
+.cd-link:hover{text-decoration:underline}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:18px}
+.kpi{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);padding:16px;position:relative;box-shadow:var(--shd);overflow:hidden}
+.kpi::before{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--ac)}
+.kpi-blue::before{background:var(--ac)}
+.kpi-teal::before{background:var(--tl)}
+.kpi-green::before{background:var(--gn)}
+.kpi-amber::before{background:var(--am)}
+.kpi-red::before{background:var(--rd)}
+.kpi-purple::before{background:var(--pu)}
+.kpi-l{font-size:10.5px;color:var(--tx2);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.kpi-v{font-size:30px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:var(--tx);letter-spacing:-.5px;line-height:1.05}
+.kpi-d{font-size:11px;color:var(--tx3);margin-top:5px;display:flex;align-items:center;gap:5px}
+.kpi-d .delta{font-family:'IBM Plex Mono',monospace;font-weight:500}
+
+/* CHART ROWS */
+.row{display:grid;gap:14px;margin-bottom:18px}
+.r-2-1{grid-template-columns:2fr 1fr}
+.r-1-1{grid-template-columns:1fr 1fr}
+.r-1-1-1{grid-template-columns:1fr 1fr 1fr}
+.r-3-2{grid-template-columns:3fr 2fr}
+.chart-wrap{position:relative;height:260px}
+.chart-wrap-tall{position:relative;height:340px}
+
+/* CATEGORY DRILLDOWN */
+.cat-drill{margin-top:14px;padding:13px 16px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border:1px solid #bfdbfe;border-radius:8px;font-size:13px;display:none}
+.cat-drill.on{display:block}
+.cat-drill-h{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-weight:600;color:#1e40af}
+.cat-drill-cls{font-size:11px;color:var(--ac);cursor:pointer;font-weight:500}
+.cat-drill-row{display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid #bfdbfe;font-size:12px}
+.cat-drill-row:first-of-type{border-top:none}
+.cat-drill-l{color:#1e3a8a}
+.cat-drill-v{font-family:'IBM Plex Mono',monospace;font-weight:600;color:#1e40af}
+
+/* HERO CARDS */
+.hero{border-radius:var(--r);padding:20px;color:#fff;cursor:pointer;position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s;min-height:160px}
+.hero:hover{transform:translateY(-2px);box-shadow:var(--shd2)}
+.hero::after{content:'';position:absolute;top:-30px;right:-30px;width:130px;height:130px;background:rgba(255,255,255,.08);border-radius:50%}
+.hero-am{background:linear-gradient(135deg,#d97706,#f59e0b 70%,#fbbf24)}
+.hero-rd{background:linear-gradient(135deg,#b91c1c,#dc2626 70%,#ef4444)}
+.hero-tl{background:linear-gradient(135deg,#0d9488,#14b8a6 70%,#2dd4bf)}
+.hero-pu{background:linear-gradient(135deg,#6d28d9,#7c3aed 70%,#8b5cf6)}
+.hero-l{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;opacity:.9;display:flex;align-items:center;gap:6px;position:relative;z-index:1}
+.hero-p{font-size:18px;font-weight:600;margin-top:8px;letter-spacing:-.3px;position:relative;z-index:1;line-height:1.25}
+.hero-r{font-size:11.5px;opacity:.85;margin-top:3px;position:relative;z-index:1}
+.hero-co{font-size:12.5px;margin-top:11px;line-height:1.5;opacity:.95;position:relative;z-index:1}
+.hero-pct{position:absolute;top:18px;right:20px;font-size:22px;font-weight:600;font-family:'IBM Plex Mono',monospace;z-index:1}
+
+/* PROGRESS / METRIC BARS */
+.mbar{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
+.mbar:last-child{margin-bottom:0}
+.mbar-h{display:flex;justify-content:space-between;font-size:12px}
+.mbar-h-l{color:var(--tx2);font-weight:500}
+.mbar-h-v{font-family:'IBM Plex Mono',monospace;font-weight:600}
+.mbar-tk{height:7px;background:var(--bg);border-radius:4px;overflow:hidden;position:relative}
+.mbar-fl{height:100%;border-radius:4px;transition:width .3s}
+
+/* COMPLIANCE / FOLLOWUP ROWS */
+.fu-row{display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--bd);font-size:13px}
+.fu-row:last-child{border-bottom:none}
+.fu-p{font-weight:600;color:var(--tx)}
+.fu-p-sub{font-size:11.5px;color:var(--tx3);font-weight:400;margin-top:1px}
+.fu-due{font-size:11.5px;color:var(--tx2);white-space:nowrap}
+.fu-tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.4px;font-family:'IBM Plex Mono',monospace}
+.fu-tag-od{background:#fee2e2;color:#991b1b}
+.fu-tag-st{background:#fef3c7;color:#92400e}
+.fu-tag-pn{background:#dbeafe;color:#1e40af}
+.fu-tag-ok{background:#d1fae5;color:#065f46}
+.fu-act{font-size:11.5px;color:var(--ac);cursor:pointer;font-weight:500}
+.fu-act:hover{text-decoration:underline}
+.fu-empty{padding:24px;text-align:center;color:var(--tx3);font-size:13px}
+
+/* LEADERBOARD */
+.lb{width:100%;border-collapse:collapse;font-size:13px}
+.lb th{text-align:left;padding:10px 12px;font-size:10.5px;color:var(--tx2);font-weight:600;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--bd);background:var(--bg)}
+.lb th:first-child,.lb td:first-child{padding-left:18px}
+.lb th:last-child,.lb td:last-child{padding-right:18px}
+.lb td{padding:11px 12px;border-bottom:1px solid var(--bd);vertical-align:middle}
+.lb tr{cursor:pointer}
+.lb tr:hover td{background:var(--bg)}
+.lb tr:last-child td{border-bottom:none}
+.lb-rk{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--tx3);font-size:12px;width:30px}
+.lb-nm{font-weight:600}
+.lb-nm-sub{font-size:11px;color:var(--tx3);font-weight:400}
+.lb-num{font-family:'IBM Plex Mono',monospace;font-weight:500}
+.lb-pct{display:flex;align-items:center;gap:8px}
+.lb-pct-bar{width:50px;height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
+.lb-pct-fl{height:100%;border-radius:3px}
+
+/* CALL LOG */
+.filter-bar{display:flex;align-items:center;gap:14px;margin-bottom:14px;padding:12px 16px;background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--shd);flex-wrap:wrap}
+.filter-bar select,.filter-bar input{font-family:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--bd);border-radius:7px;background:var(--bg);color:var(--tx);cursor:pointer}
+.filter-bar input{cursor:text;min-width:200px}
+.filter-bar .hint{font-size:11.5px;color:var(--tx3);margin-left:auto}
+.filter-bar .count{font-size:12px;color:var(--tx2);font-family:'IBM Plex Mono',monospace}
+
+.call{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:10px;overflow:hidden;box-shadow:var(--shd)}
+.call-flag{border-color:#fca5a5;background:linear-gradient(to right,#fef2f2 0%,var(--cd) 6%)}
+.call-comp{border-color:#dc2626;border-width:1.5px;background:linear-gradient(to right,#fee2e2 0%,var(--cd) 8%)}
+.call-dead{border-style:dashed;opacity:.78}
+.call-hd{padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;flex-wrap:wrap}
+.call-hd:hover{background:var(--bg)}
+.call-p{font-weight:600;font-size:13.5px}
+.call-p-sub{font-size:11.5px;color:var(--tx3);font-weight:400;margin-top:1px}
+.cat-badge{display:inline-block;font-size:9.5px;font-weight:700;padding:3px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.5px;font-family:'IBM Plex Mono',monospace;white-space:nowrap}
+.cat-tech{background:#dbeafe;color:#1e40af}
+.cat-refund{background:#fef3c7;color:#92400e}
+.cat-warranty{background:#ede9fe;color:#5b21b6}
+.cat-shipping{background:#cffafe;color:#155e75}
+.cat-order{background:#e0e7ff;color:#3730a3}
+.cat-sales{background:#d1fae5;color:#065f46}
+.cat-comp{background:#fee2e2;color:#991b1b}
+.cat-fulfill{background:#fce7f3;color:#9d174d}
+.cat-other{background:var(--bg);color:var(--tx2);border:1px dashed var(--bd2)}
+.fl-tag{font-size:10px;font-weight:600;color:#991b1b;background:#fee2e2;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.4px;font-family:'IBM Plex Mono',monospace}
+.cf-tag{font-size:10px;font-weight:600;color:#92400e;background:#fef3c7;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.4px;font-family:'IBM Plex Mono',monospace}
+.ma-tag{font-size:10px;font-weight:700;color:#fff;background:#dc2626;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.4px;font-family:'IBM Plex Mono',monospace;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+.ngr-tag{font-size:9.5px;font-weight:600;color:var(--tx3);background:var(--bg);padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.5px;font-family:'IBM Plex Mono',monospace;border:1px solid var(--bd2)}
+.dots{display:flex;gap:4px;margin-left:auto}
+.dot{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:9px;font-weight:700;color:#fff}
+.dot-ok{background:var(--gn)}
+.dot-no{background:var(--rd);opacity:.55}
+.dot-tv{background:var(--tl)}
+.dot-comp{background:var(--rd)}
+.call-dur{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--tx3);min-width:42px;text-align:right}
+.call-sent{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;min-width:90px;text-align:right;letter-spacing:-.2px}
+.sent-ok{color:var(--gn)}
+.sent-mid{color:var(--am)}
+.sent-bad{color:var(--rd)}
+
+.call-bd{display:none;padding:0 16px 16px 16px;border-top:1px solid var(--bd);background:linear-gradient(to bottom,var(--bg),transparent 30%)}
+.call-bd.open{display:block}
+.call-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding-top:14px}
+.cb{padding:12px 14px;background:var(--cd);border:1px solid var(--bd);border-radius:8px;border-left-width:3px}
+.cb-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.cb-tx{font-size:12.5px;line-height:1.55;color:var(--tx2)}
+.cb-issue{border-left-color:var(--ac)}.cb-issue .cb-l{color:var(--ac)}
+.cb-prod{border-left-color:var(--tl)}.cb-prod .cb-l{color:var(--tl)}
+.cb-out{border-left-color:var(--gn)}.cb-out .cb-l{color:var(--gn)}
+.cb-flag{border-left-color:var(--rd)}.cb-flag .cb-l{color:var(--rd)}
+.cb-quote{border-left-color:var(--am)}.cb-quote .cb-l{color:var(--am)}
+.cb-comp{border-left-color:var(--rd);background:#fef2f2}.cb-comp .cb-l{color:#991b1b}.cb-comp .cb-tx{color:#7f1d1d}
+.cb-tx pre{white-space:pre-wrap;font-family:inherit;font-size:12px;line-height:1.55;color:var(--tx2);max-height:200px;overflow-y:auto;background:var(--bg);padding:8px 10px;border-radius:6px;margin-top:6px}
+.call-act{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.act-btn{font-size:11.5px;padding:7px 13px;background:var(--cd);border:1px solid var(--bd);border-radius:7px;cursor:pointer;color:var(--tx2);font-family:inherit;font-weight:500}
+.act-btn:hover{background:var(--bg);color:var(--tx);border-color:var(--bd2)}
+
+/* Manager action bar */
+.mgr-actions{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.mgr-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;border:1px solid var(--bd);background:var(--cd);color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.mgr-btn:hover:not(:disabled){background:var(--bg);border-color:var(--bd2)}
+.mgr-btn-primary{background:linear-gradient(135deg,#0d9488 0%,#0f766e 100%);color:#fff;border-color:transparent}
+.mgr-btn-primary:hover:not(:disabled){filter:brightness(1.12)}
+.mgr-btn:disabled{opacity:.6;cursor:not-allowed}
+.mgr-actions-hint{font-size:11.5px;color:var(--tx3);margin-left:4px}
+
+/* REP CARDS */
+.rep-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rep-cd{cursor:pointer;transition:transform .15s,box-shadow .15s}
+.rep-cd:hover{transform:translateY(-1px);box-shadow:var(--shd2)}
+.rep-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.rep-nm{font-size:16px;font-weight:600;letter-spacing:-.2px}
+.rep-em{font-size:11.5px;color:var(--tx3);margin-top:1px}
+.rep-cnt{font-size:11px;color:var(--tx2);margin-top:4px}
+.rep-big{font-size:38px;font-weight:600;font-family:'IBM Plex Mono',monospace;letter-spacing:-1px;line-height:1}
+.rep-big-sub{font-size:11px;color:var(--tx3);text-align:right;margin-top:2px}
+.rep-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+.rep-st{background:var(--bg);border-radius:7px;padding:9px 10px;text-align:center}
+.rep-st-v{font-size:17px;font-weight:600;font-family:'IBM Plex Mono',monospace;line-height:1.1}
+.rep-st-l{font-size:9.5px;color:var(--tx3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-top:3px}
+.rep-flags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.rep-fl{font-size:10.5px;font-family:'IBM Plex Mono',monospace;padding:3px 8px;border-radius:5px;font-weight:600}
+.rep-fl-good{background:#d1fae5;color:#065f46}
+.rep-fl-bad{background:#fee2e2;color:#991b1b}
+.rep-fl-warn{background:#fef3c7;color:#92400e}
+
+/* PRODUCTS TAB */
+.prod-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px}
+.prod-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--bd);font-size:13px}
+.prod-row:last-child{border-bottom:none}
+.prod-nm{flex:1;font-weight:500}
+.prod-nm-sub{font-size:11px;color:var(--tx3);margin-top:1px;font-weight:400}
+.prod-bar{flex:0 0 120px;height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.prod-bar-fl{height:100%;background:linear-gradient(90deg,var(--ac),var(--ac2));border-radius:3px}
+.prod-cnt{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;min-width:24px;text-align:right}
+.prod-rep-tag{display:inline-block;font-size:9.5px;font-weight:700;color:#fff;background:var(--rd);padding:2px 6px;border-radius:4px;font-family:'IBM Plex Mono',monospace;margin-left:6px;text-transform:uppercase;letter-spacing:.3px}
+
+/* COMPLIANCE TAB */
+.comp-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:18px}
+.comp-kpi{background:linear-gradient(135deg,#fef2f2,#fee2e2);border:1px solid #fca5a5;border-radius:var(--r);padding:18px;position:relative}
+.comp-kpi-l{font-size:11px;font-weight:700;color:#991b1b;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.comp-kpi-v{font-size:36px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:#7f1d1d;letter-spacing:-.5px;line-height:1}
+.comp-kpi-d{font-size:11px;color:#991b1b;margin-top:5px;opacity:.85}
+.comp-kpi.ok{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-color:#86efac}
+.comp-kpi.ok .comp-kpi-l{color:#166534}
+.comp-kpi.ok .comp-kpi-v{color:#14532d}
+.comp-kpi.ok .comp-kpi-d{color:#166534}
+.comp-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;font-family:'IBM Plex Mono',monospace;text-transform:uppercase;letter-spacing:.3px;margin-right:5px}
+.comp-tag-school{background:#fee2e2;color:#991b1b}
+.comp-tag-bios{background:#fef3c7;color:#92400e}
+.comp-tag-data{background:#ede9fe;color:#5b21b6}
+
+/* FOOTER */
+footer{padding:18px 24px;text-align:center;font-size:11px;color:var(--tx3);border-top:1px solid var(--bd);margin-top:24px}
+footer .mono{color:var(--tx2)}
+
+/* RESPONSIVE */
+@media(max-width:1100px){
+  .kpis{grid-template-columns:repeat(3,1fr)}
+  .r-2-1,.r-3-2,.r-1-1-1,.r-1-1{grid-template-columns:1fr}
+  .rep-grid,.prod-grid{grid-template-columns:1fr}
+  .comp-grid{grid-template-columns:1fr}
+  .call-grid{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  header{flex-wrap:wrap;gap:10px;padding:10px 14px}
+  .logo-sub{display:none}
+  main{padding:14px}
+  .kpis{grid-template-columns:repeat(2,1fr);gap:10px}
+  nav.tabs{padding:0 10px}
+  nav.tabs button{padding:11px 12px;font-size:12px}
+  .call-hd{font-size:12px}
+  .dots{order:99;width:100%;margin-left:0;margin-top:6px}
+}
+
+@media print{
+  header,nav.tabs,.range,.icon-btn,.call-act,.cd-link,.no-print{display:none!important}
+  .tab{display:block!important}
+  body{background:#fff}
+  .cd,.kpi,.call{box-shadow:none;border-color:#ccc}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span class="logo-mk">D</span><span>DCD Call Intel</span><span class="logo-sub">Mike's Workspace</span></div>
+  <div class="spacer"></div>
+  <span class="ts" id="ts">Loading…</span>
+  <div class="rfsh">
+    <span class="rfsh-st rfsh-sample" id="rfshStatus">Sample</span>
+    <select class="rfsh-sel" id="rfshInterval" title="Auto-refresh interval">
+      <option value="0">Auto: Off</option>
+      <option value="5">Auto: 5 min</option>
+      <option value="15">Auto: 15 min</option>
+      <option value="30">Auto: 30 min</option>
+    </select>
+    <button class="rfsh-btn" id="rfshBtn" onclick="loadData(true)" title="Refresh now"><span>↻</span></button>
+  </div>
+  <div class="range" id="rangeCtl">
+    <button data-r="today">Today</button>
+    <button data-r="week">7d</button>
+    <button data-r="month">30d</button>
+    <button data-r="all" class="on">All</button>
+  </div>
+  <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">🌓</button>
+  <button class="icon-btn" onclick="window.print()" title="Print">⎙ Print</button>
+</header>
+
+<div class="sample-bn">📊 Sample data shown for layout review. Production data will populate from <span class="mono">Call_Log</span> via the DCD A3 webhook once wired.</div>
+
+<div class="alert-bn hide" id="alertBanner">
+  <span class="alert-ic">🚨</span>
+  <div class="alert-tx">
+    <strong>Manager Alerts</strong><span class="alert-cnt" id="alertCnt">0</span>
+    <div class="alert-list" id="alertList"></div>
+  </div>
+  <button class="alert-cls" onclick="dismissAlerts()">Dismiss</button>
+</div>
+
+<nav class="tabs">
+  <button class="on" onclick="st('home',this)">📊 Overview</button>
+  <button onclick="st('calls',this)">📞 Call Log <span class="pill" id="callsBadge">0</span></button>
+  <button onclick="st('reps',this)">👥 Agents</button>
+  <button onclick="st('products',this)">💻 Products</button>
+  <button onclick="st('compliance',this)">🛡️ Compliance <span class="pill pill-rd" id="compBadge">0</span></button>
+  <button onclick="st('followups',this)">📋 Follow-Ups <span class="pill" id="fuBadge">0</span></button>
+</nav>
+
+<main>
+  <section id="home" class="tab on"></section>
+  <section id="calls" class="tab"></section>
+  <section id="reps" class="tab"></section>
+  <section id="products" class="tab"></section>
+  <section id="compliance" class="tab"></section>
+  <section id="followups" class="tab"></section>
+</main>
+
+<footer>
+  DCD Call Intelligence · v1 · <span class="mono">Generated <span id="genTs">…</span></span> · Range: <span id="cov" class="mono">All</span>
+</footer>
+
+<script>
+// ════════════════════════════════════════════════════════════════════
+// EMBEDDED SAMPLE DATA
+// Real production payload comes from CONFIG.dataUrl below.
+// Schema mirrors what Automation 3 (DCD Data Feed) will return.
+// ════════════════════════════════════════════════════════════════════
+let D = {
+"meta": {
+"last_updated": "2026-05-04T20:02:50",
+"sample": true,
+"period_days": 11,
+"date_range": "2026-04-24 to 2026-05-04"
+},
+"kpis": {
+"total_calls": 18,
+"dead_calls": 2,
+"compliance_flags": 2,
+"replacements_shipped": 8,
+"fcr_count": 17,
+"fcr_rate_pct": 94,
+"teamviewer_sessions": 2,
+"escalated": 0,
+"retention_attempts": 2,
+"retention_success": 2,
+"upsell_attempts": 1,
+"upsell_success": 1,
+"avg_duration_min": 8.8,
+"satisfied_count": 14,
+"satisfied_pct": 78,
+"frustrated_count": 1
+},
+"alerts": [
+{
+"call_id": "019df3c6c6ad75b9b151c8587c1ef68e",
+"rep_name": "michael.mobley",
+"customer_name": "Adrian Stewart",
+"date": "2026-05-04",
+"reasons": [
+"Customer frustrated",
+"No retention attempt"
+]
+},
+{
+"call_id": "dcd-sheetfix-test",
+"rep_name": "Jason Rivera",
+"customer_name": NaN,
+"date": "2026-05-04",
+"reasons": [
+"School lock detected"
+]
+},
+{
+"call_id": "dcd-suite-07",
+"rep_name": "Maria Gomez",
+"customer_name": NaN,
+"date": "2026-05-04",
+"reasons": [
+"School lock detected"
+]
+},
+{
+"call_id": "019df47d2c7175af985c10c483ae3f58",
+"rep_name": "michael.mobley",
+"customer_name": NaN,
+"date": "2026-05-04",
+"reasons": [
+"No retention attempt"
+]
+}
+],
+"categories": {
+"TECH_SUPPORT_HARDWARE": {
+"count": 3,
+"issues": {
+"BATTERY": 2,
+"SPEAKERS": 1
+},
+"calls": [
+"dcd-test-100",
+"dcd-suite-01",
+"019df416071d77cc8e196ed77c054793"
+]
+},
+"REFUND_RETURN": {
+"count": 3,
+"issues": {
+"NaN": 3
+},
+"calls": [
+"019df3c6c6ad75b9b151c8587c1ef68e",
+"dcd-suite-04",
+"019df47d2c7175af985c10c483ae3f58"
+]
+},
+"SALES_TRANSFER": {
+"count": 3,
+"issues": {
+"NaN": 3
+},
+"calls": [
+"019df3d35163778aa7727802865f0789",
+"019df3efd60a73ce8015b1c7bf4516cc",
+"dcd-suite-09"
+]
+},
+"COMPLIANCE_QC": {
+"count": 2,
+"issues": {
+"SCHOOL_LOCK": 2
+},
+"calls": [
+"dcd-sheetfix-test",
+"dcd-suite-07"
+]
+},
+"TECH_SUPPORT_SOFTWARE": {
+"count": 1,
+"issues": {
+"BOOT_FAILURE": 1
+},
+"calls": [
+"dcd-suite-02"
+]
+},
+"TECH_SUPPORT_SETUP": {
+"count": 2,
+"issues": {
+"DUAL_MONITOR": 1,
+"NETWORK": 1
+},
+"calls": [
+"dcd-suite-03",
+"019df45df42d7399b96dc689a1356103"
+]
+},
+"FULFILLMENT_ERROR": {
+"count": 1,
+"issues": {
+"WRONG_MODEL": 1
+},
+"calls": [
+"dcd-suite-05"
+]
+},
+"SHIPPING": {
+"count": 1,
+"issues": {
+"DAMAGE_IN_TRANSIT": 1
+},
+"calls": [
+"dcd-suite-06"
+]
+},
+"WARRANTY": {
+"count": 1,
+"issues": {
+"DISPLAY": 1
+},
+"calls": [
+"dcd-suite-08"
+]
+},
+"ORDER_INQUIRY": {
+"count": 1,
+"issues": {
+"STATUS_CHECK": 1
+},
+"calls": [
+"019df496927474f6b526416fc6b3d84c"
+]
+}
+},
+"resolutions": {
+"REPLACEMENT_SHIPPED": 8,
+"REPLACEMENT_PENDING_APPROVAL": 1,
+"TRANSFERRED_TO_SALES": 2,
+"INFO_PROVIDED": 2,
+"RESOLVED_ON_PHONE": 2,
+"RESOLVED_TEAMVIEWER": 1,
+"PAID_UPGRADE_PROCESSED": 1,
+"RETURN_INITIATED": 1
+},
+"sentiments": {
+"SATISFIED": 14,
+"FRUSTRATED": 1,
+"NEUTRAL": 3
+},
+"daily": [
+{
+"date": "2026-04-24",
+"count": 1,
+"resolved": 0,
+"replaced": 1,
+"transferred": 0
+},
+{
+"date": "2026-05-04",
+"count": 17,
+"resolved": 3,
+"replaced": 8,
+"transferred": 2
+}
+],
+"reps": [
+{
+"name": "Jason Rivera",
+"email": "agent1@stsrecycle.com",
+"calls": 7,
+"duration_total_min": 49.2,
+"fcr": 7,
+"escalations": 0,
+"compliance_flags": 1,
+"satisfied": 7,
+"neutral": 0,
+"frustrated": 0,
+"replacements": 4,
+"resolved_on_phone": 1,
+"agent_flags": {
+"REFUSED_TROUBLESHOOT": 1,
+"EXCEPTIONAL_JOB": 6
+},
+"avg_duration_min": 7.0
+},
+{
+"name": "michael.mobley",
+"email": "michael.mobley@stsrecycle.com",
+"calls": 4,
+"duration_total_min": 80.2,
+"fcr": 3,
+"escalations": 0,
+"compliance_flags": 0,
+"satisfied": 2,
+"neutral": 1,
+"frustrated": 1,
+"replacements": 2,
+"resolved_on_phone": 1,
+"agent_flags": {
+"NO_RETENTION_ATTEMPT": 2,
+"EXCEPTIONAL_JOB": 1,
+"RETURN_SHIPPING_NOT_CHARGED": 1
+},
+"avg_duration_min": 20.1
+},
+{
+"name": "Maria Gomez",
+"email": "agent2@stsrecycle.com",
+"calls": 4,
+"duration_total_min": 24.8,
+"fcr": 4,
+"escalations": 0,
+"compliance_flags": 1,
+"satisfied": 4,
+"neutral": 0,
+"frustrated": 0,
+"replacements": 3,
+"resolved_on_phone": 0,
+"agent_flags": {
+"EXCEPTIONAL_JOB": 3
+},
+"avg_duration_min": 6.2
+},
+{
+"name": "jennifer.rosales",
+"email": "jennifer.rosales@stsrecycle.com",
+"calls": 3,
+"duration_total_min": 4.8999999999999995,
+"fcr": 3,
+"escalations": 0,
+"compliance_flags": 0,
+"satisfied": 1,
+"neutral": 2,
+"frustrated": 0,
+"replacements": 0,
+"resolved_on_phone": 0,
+"agent_flags": {},
+"avg_duration_min": 1.6
+}
+],
+"products": {
+"by_brand": {
+"Dell": 8,
+"HP": 3,
+"Lenovo": 4
+},
+"by_model": [
+{
+"model": "nan nan",
+"count": 3
+},
+{
+"model": "Dell Latitude 5540",
+"count": 2
+},
+{
+"model": "HP nan",
+"count": 2
+},
+{
+"model": "Dell Chromebook",
+"count": 2
+},
+{
+"model": "HP EliteBook 840 G5",
+"count": 1
+},
+{
+"model": "Dell OptiPlex 7070",
+"count": 1
+},
+{
+"model": "Lenovo ThinkPad T450",
+"count": 1
+},
+{
+"model": "Dell Latitude 7490 (ordered) / 5490 (received)",
+"count": 1
+},
+{
+"model": "Lenovo ThinkPad T490",
+"count": 1
+},
+{
+"model": "Dell Latitude 7400",
+"count": 1
+},
+{
+"model": "Lenovo ThinkPad T480/T490",
+"count": 1
+},
+{
+"model": "Lenovo ThinkPad T14 Gen 1",
+"count": 1
+},
+{
+"model": "Dell Optiplex 5080",
+"count": 1
+}
+],
+"repeat_models": [
+{
+"model": "nan nan",
+"count": 3
+},
+{
+"model": "Dell Latitude 5540",
+"count": 2
+},
+{
+"model": "HP nan",
+"count": 2
+},
+{
+"model": "Dell Chromebook",
+"count": 2
+}
+]
+},
+"compliance_calls": [
+{
+"call_id": "dcd-sheetfix-test",
+"date": "2026-05-04",
+"rep_name": "Jason Rivera",
+"product": "Dell Chromebook",
+"platform": "eBay",
+"school_lock": true,
+"bios_lock": false,
+"data_not_wiped": false,
+"order_number": "12-04730-EB",
+"summary": "Dell Chromebook still managed by Springfield Unified School District, customer cannot use device"
+},
+{
+"call_id": "dcd-suite-07",
+"date": "2026-05-04",
+"rep_name": "Maria Gomez",
+"product": "Dell Chromebook",
+"platform": "eBay",
+"school_lock": true,
+"bios_lock": false,
+"data_not_wiped": false,
+"order_number": "12-04730-EB",
+"summary": "Dell Chromebook locked to Springfield Unified School District management, cannot create new account or use device"
+}
+],
+"followups": [],
+"calls": [
+{
+"call_id": "dcd-test-100",
+"call_date": "2026-04-24",
+"call_time": "14:22:00",
+"timestamp": "2026-04-24T14:22:00Z",
+"rep_name": "Jason Rivera",
+"rep_email": "agent1@stsrecycle.com",
+"duration_seconds": 340,
+"duration_minutes": 5.7,
+"call_category": "TECH_SUPPORT_HARDWARE",
+"issue_type": "BATTERY",
+"issue_detail": "Battery drains in 20 minutes, was fine initially but degraded quickly",
+"return_type": NaN,
+"product_type": "laptop",
+"product_brand": "Dell",
+"product_model": "Latitude 5540",
+"product_specs": NaN,
+"order_number": "12-04587-EB",
+"platform": "eBay",
+"customer_name": NaN,
+"customer_email": NaN,
+"customer_callback": false,
+"outcome": "REPLACEMENT_SHIPPED",
+"outcome_detail": "Agent arranged replacement unit with prepaid return label",
+"resolution_type": "REPLACEMENT_SHIPPED",
+"retention_attempted": false,
+"retention_success": false,
+"upsell_attempted": false,
+"upsell_success": false,
+"partial_refund": false,
+"warranty_claim": false,
+"teamviewer_session": false,
+"sentiment": "SATISFIED",
+"sentiment_evidence": "Customer said 'Okay great' and 'Thanks Jason' at end of call",
+"agent_behavior_flags": "[\"REFUSED_TROUBLESHOOT\"]",
+"customer_behavior_flags": "[]",
+"policy_flags": "[]",
+"first_call_resolution": true,
+"repeat_caller_flag": false,
+"escalated": false,
+"school_lock": false,
+"bios_lock": false,
+"data_not_wiped": false,
+"call_quality_notes": "Agent immediately offered replacement without attempting any troubleshooting for battery issue",
+"call_summary": "Customer reported Dell Latitude 5540 battery draining in 20 minutes after working fine initially. Agent verified order within 30-day window and arranged replacement with prepaid return label without troubleshooting.",
+"transcript_formatted": "Speaker 0: Thank you for calling DCD, this is Jason, how can I help you today?\nSpeaker 1: Yeah hi, I bought a Dell Latitude 5540 from your eBay store about two weeks ago and the battery is basically dead. It won't hold a charge for more than like 20 minutes.\nSpeaker 0: I'm sorry to hear that. Can I get your order number?\nSpeaker 1: Yeah it's 12-04587-EB.\nSpeaker 0: Got it, let me pull that up. Okay I see the order here, Dell Latitude 5540, shipped on March 25th. And you're saying the battery drains in about 20 minutes?\nSpeaker 1: Yeah, I mean it was fine the first couple days but now it just d \u2026[truncated for sample]",
+"meeting_url": NaN,
+"talk_ratio": "40% agent / 60% customer"
+},
+{
+"call_id": "019df3c6c6ad75b9b151c8587c1ef68e",
+"call_date": "2026-05-04",
+"call_time": "16:16:27",
+"timestamp": "2026-05-04T16:16:27.296Z",
+"rep_name": "michael.mobley",
+"rep_email": "michael.mobley@stsrecycle.com",
+"duration_seconds": 223,
+"duration_minutes": 3.7,
+"call_category": "REFUND_RETURN",
+"issue_type": NaN,
+"issue_detail": "Multiple hardware issues with HP laptop - keyboard not working properly, no display picture, cannot update Windows",
+"return_type": "REPLACEMENT",
+"product_type": "laptop",
+"product_brand": "HP",
+"product_model": NaN,
+"product_specs": NaN,
+"order_number": null,
+"platform": "unknown",
+"customer_name": "Adrian Stewart",
+"customer_email": NaN,
+"customer_callback": false,
+"outcome": "REPLACEMENT_PENDING_APPROVAL",
+"outcome_detail": "Customer already shipped HP back, agent agreed to send Lenovo replacement",
+"resolution_type": "REPLACEMENT_PENDING_APPROVAL",
+"retention_attempted": false,
+"retention_success": false,
+"upsell_attempted": false,
+"upsell_success": false,
+"partial_refund": false,
+"warranty_claim": false,
+"teamviewer_session": false,
+"sentiment": "FRUSTRATED",
+"sentiment_evidence": "Customer expressed frustration with multiple hardware issues and said 'Lord knows. Send me a Noble. I hope this will work together.'",
+"agent_behavior_flags": "[\"NO_RETENTION_ATTEMPT\"]",
+"customer_behavior_flags": "[]",
+"policy_flags": "[\"30_DAY_NOT_CHECKED\",\"NO_RETENTION_ATTEMPT\"]",
+"first_call_resolution": false,
+"repeat_caller_flag": true,
+"escalated": false,
+"school_lock": false,
+"bios_lock": false,
+"data_not_wiped": false,
+"call_quality_notes": "Agent did not verify return window, attempt troubleshooting, or try retention strategies. Simply agreed to replacement without investigation.",
+"call_summary": "Adrian Stewart called to confirm she shipped back a defective HP laptop with keyboard and display issues and requested a Lenovo replacement. Agent agreed to send replacement without troubleshooting or verifying return eligibility.",
+"transcript_formatted": "michael.mobley: Hello, this is Michael. How can I assist you today?\nSpeaker 2: Hey, Michael, how are you doing?\nmichael.mobley: I'm doing all right. How can I help?\nSpeaker 2: Yes, I just called to leave you a message. You didn't get it.\nmichael.mobley: I have not yet... I apologize. Monday morning has been quite busy trying to get caught up with everything over the weekend, so I haven't had a chance to check any of the voicemails.\nSpeaker 2: Weekend. Okay? I was calling let you know that I said the thing that today. And I gave you the tracking number and I would ask you to call back, but ca.  \u2026[truncated for sample]",
+"meeting_url": "https://app.krisp.ai/n/019df3c6c6ad75b9b151c8587c1ef68e",
+"talk_ratio": "28% agent / 72% customer"
+},
+{
+"call_id": "019df3d35163778aa7727802865f0789",
+"call_date": "2026-05-04",
+"call_time": "16:29:34",
+"timestamp": "2026-05-04T16:29:34.725Z",
+"rep_name": "jennifer.rosales",
+"rep_email": "jennifer.rosales@stsrecycle.com",
+"duration_seconds": 43,
+"duration_minutes": 0.7,
+"call_category": "SALES_TRANSFER",
+"issue_type": NaN,
+"issue_detail": NaN,
+"return_type": NaN,
+"product_type": "SODIMM modules",
+"product_brand": NaN,
+"product_model": NaN,
+"product_specs": "1,300 pieces mentioned",
+"order_number": null,
+"platform": "unknown",
+"customer_name": NaN,
+"customer_email": NaN,
+"customer_callback": false,
+"outcome": "TRANSFERRED_TO_SALES",
+"outcome_detail": "Customer transferred to inside sales group for bulk SODIMM purchase inquiry",
+"resolution_type": "TRANSFERRED_TO_SALES",
+"retention_attempted": false,
+"retention_success": false,
+"upsell_attempted": false,
+"upsell_success": false,
+"partial_refund": false,
+"warranty_claim": false,
+"teamviewer_session": false,
+"sentiment": "NEUTRAL",
+"sentiment_evidence": "Professional inquiry, customer cooperative with transfer",
+"agent_behavior_flags": "[]",
+"customer_behavior_flags": "[]",
+"policy_flags": "[]",
+"first_call_resolution": true,
+"repeat_caller_flag": false,
+"escalated": false,
+"school_lock": false,
+"bios_lock": false,
+"data_not_wiped": false,
+"call_quality_notes": "Agent handled appropriately by confirming intent and transferring to correct department",
+"call_summary": "Customer called wanting to sell 1,300 SODIMM modules to DCD. Agent confirmed the selling intent and transferred to inside sales group for bulk purchase inquiry.",
+"transcript_formatted": "jennifer.rosales: Computer TPO, how can I help you?\nSpeaker 2: Yes, hi, I was calling in. I wanted to know if there's an email or a person I could reach out to in terms of selling Sodom modules.\njennifer.rosales: Let me have you transferred over. So you're wanting to sell to us, correct?\nSpeaker 2: Correct. We have about 1,300 pieces. We're looking...\njennifer.rosales: Okay, let me get you transferred over to our inside sales group and see if they can help you out with that.",
+"meeting_url": "https://app.krisp.ai/n/019df3d35163778aa7727802865f0789",
+"talk_ratio": "50% agent / 50% customer"
+},
+{
+"call_id": "019df3efd60a73ce8015b1c7bf4516cc",
+"call_date": "2026-05-04",
+"call_time": "17:00:43",
+"timestamp": "2026-05-04T17:00:43.854Z",
+"rep_name": "jennifer.rosales",
+"rep_email": "jennifer.rosales@stsrecycle.com",
+"duration_seconds": 142,
+"duration_minutes": 2.4,
+"call_category": "SALES_TRANSFER",
+"issue_type": NaN,
+"issue_detail": NaN,
+"return_type": NaN,
+"product_type": "computer",
+"product_brand": "HP",
+"product_model": NaN,
+"product_specs": NaN,
+"order_number": null,
+"platform": "website",
+"customer_name": "Tamara Bolton",
+"customer_email": NaN,
+"customer_callback": false,
+"outcome": "INFO_PROVIDED",
+"outcome_detail": "Agent explained DCD services and limitations, customer got information needed",
+"resolution_type": "INFO_PROVIDED",
+"retention_attempted": false,
+"retention_success": false,
+"upsell_attempted": false,
+"upsell_success": false,
+"partial_refund": false,
+"warranty_claim": false,
+"teamviewer_session": false,
+"sentiment": "NEUTRAL",
+"sentiment_evidence": "Customer was polite and thanked agent at end",
+"agent_behavior_flags": "[]",
+"customer_behavior_flags": "[]",
+"policy_flags": "[]",
+"first_call_resolution": true,
+"repeat_caller_flag": false,
+"escalated": false,
+"school_lock": false,
+"bios_lock": false,
+"data_not_wiped": false,
+"call_quality_notes": "Agent clearly explained company limitations and available services",
+"call_summary": "Customer Tamara Bolton called asking about data transfer services when purchasing a new computer. Agent explained DCD doesn't do data recovery/transfer, only hardware troubleshooting and phone support. Customer received the information she needed.",
+"transcript_formatted": "jennifer.rosales: Don't... Computer Depot. How can I help you?\nSpeaker 2: Yes, ma'am. My name is Tamara Bolton, and I have got an HP that is on its last leg. I've had my computer looked at, and he said, \"Well, you're going to have to break down to get a new one.\" So, I picked one out on your website.\nBut what I was wondering is I live here, just outside of Jacksonville. I was wondering if I get the computer, can I bring my old one up and have you all transfer the stuff to the new computer? Because I have no idea how to do the...\njennifer.rosales: Okay, unfortunately, we don't deal in data reco \u2026[truncated for sample]",
+"meeting_url": "https://app.krisp.ai/n/019df3efd60a73ce8015b1c7bf4516cc",
+"talk_ratio": "43% agent / 57% customer"
+},
+{
+"call_id": "dcd-sheetfix-test",
+"call_date": "2026-05-04",
+"call_time": "12:00:00",
+"timestamp": "2026-05-04T12:00:00Z",
+"rep_name": "Jason Rivera",
+"rep_email": "agent1@stsrecycle.com",
+"duration_seconds": 180,
+"duration_minutes": 3.0,
+"call_category": "COMPLIANCE_QC",
+"issue_type": "SCHOOL_LOCK",
+"issue_detail": "Dell Chromebook still managed by Springfield Unified School District, customer cannot use device",
+"return_type": NaN,
+"product_type": "Chromebook",
+"product_brand": "Dell",
+"product_model": "Chromebook",
+"product_specs": NaN,
+"order_number": "12-04730-EB",
+"platform": "eBay",
+"customer_name": NaN,
+"customer_email": NaN,
+"customer_callback": false,
+"outcome": "REPLACEMENT_SHIPPED",
+"outcome_detail": "Agent immediately acknowledged processing error and arranged replacement with prepaid return label",
+"resolution_type": "REPLACEMENT_SHIPPED",
+"retention_attempted": false,
+"retention_success": false,
+"upsell_attempted": false,
+"upsell_success": false,
+"partial_refund": false,
+"warranty_claim": false,
+"teamviewer_session": false,
+"sentiment": "SATISFIED",
+"sentiment_evidence": "Customer simply said 'Thank you' after agent provided immediate solution",
+"agent_behavior_flags": "[\"EXCEPTIONAL_JOB\"]",
+"customer_behavior_flags": "[]",
+"policy_flags": "[]",
+"first_call_resolution": true,
+"repeat_caller_flag": false,
+"escalated": false,
+"school_lock": true,
+"bios_lock": false,
+"data_not_wiped": false,
+"call_quality_notes": "Agent immediately acknowledged the processing error, took responsibility, and provided swift resolution without making customer jump through hoops",
+"call_summary": "Customer received Dell Chromebook still managed by Springfield Unified School District. Agent immediately acknowledged processing failure and arranged replacement with prepaid return label.",
+"transcript_formatted": "Speaker 0: DCD support Jason speaking.\nSpeaker 1: Hi I bought a Dell Chromebook from eBay for my kid order 12-04730-EB and it says managed by Springfield Unified School District. I cannot do anything with it.\nSpeaker 0: That should not have happened. The device was not de-enrolled before we sold it. I will send a replacement that is properly wiped. Prepaid return label included. Two business days.\nSpeaker 1: Thank you.\nSpeaker 0: Sorry about that.",
+"meeting_url": NaN,
+"talk_ratio": "40% agent / 60% customer"
+},
+{
+"call_id": "dcd-suite-01",
+"call_date": "2026-05-04",
+"call_time": "09:00:00",
+"timestamp": "2026-05-04T09:00:00Z",
+"rep_name": "Jason Rivera",
+"rep_email": "agent1@stsrecycle.com",
+"duration_seconds": 340,
+"duration_minutes": 5.7,
+"call_category": "TECH_SUPPORT_HARDWARE",
+"issue_type": "BATTERY",
+"issue_detail": "Battery dies in 20 minutes, health at 18% (well below 80% threshold)",
+"return_type": NaN,
+"product_type": "laptop",
+"product_brand": "Dell",
+"product_model": "Latitude 5540",
+"product_specs": NaN,
+"order_number": "12-04587-EB",
+"platform": "eBay",
+"customer_name": NaN,
+"customer_email": NaN,
+"customer_callback": false,
+"outcome": "REPLACEMENT_SHIPPED",
+"outcome_detail": "Replacement laptop with tested battery being shipped, prepaid return label provided",
+"resolution_type": "REPLACEMENT_SHIPPED",
+"retention_attempted": false,
+"retention_success": false,
+"upsell_attempted": false,
+"upsell_success": false,
+"partial_refund": false,
+"warranty_claim": false,
+"teamviewer_session": false,
+"sentiment": "SATISFIED",
+"sentiment_evidence": "Customer said 'Great, thanks Jason' indicating satisfaction with resolution",
+"agent_behavior_flags": "[\"EXCEPTIONAL_JOB\"]",
+"customer_behavior_flags": "[\"HAPPY\"]",
+"policy_flags": "[]",
+"first_call_resolution": true,
+"repeat_caller_flag": false,
+"escalated": false,
+"school_lock": false,
+"bios_lock": false,
+"data_not_wiped": false,
+"call_quality_notes": "Agent efficiently diagnosed battery issue using technical command, quickly identified defective unit below company standards, and provided immediate resolution",
+"call_summary": "Customer reported Dell Latitude 5540 battery dying in 20 minutes after 2 weeks. Agent had customer run battery report showing 18% health, immediately approved replacement with tested battery since within 30-day window.",
+"transcript_formatted": "Speaker 0: DCD support, Jason speaking.\nSpeaker 1: Hi, I bought a Dell Latitude 5540 from your eBay store about two weeks ago and the battery dies in 20 minutes. Order 12-04587-EB.\nSpeaker 0: Let me check. Can you run powercfg batteryreport and tell me the Full Charge Capacity vs Design Capacity?\nSpeaker 1: Design 68000 and Full Charge 12400.\nSpeaker 0: That is 18 percent health, way below what we ship. You are within 30 days so I am sending a replacement with a tested battery and a prepaid return label. Ships tomorrow, you should have it by Friday.\nSpeaker 1: Great, thanks Jason.\nSpeaker 0: Y \u2026[truncated for sample]",
+"meeting_url": NaN,
+"talk_ratio": "40% agent / 60% customer"
+},
+{
+"call_id": "dcd-suite-02",
+"call_date": "2026-05-04",
+"call_time": "09:15:00",
+"timestamp": "2026-05-04T09:15:00Z",
+"rep_name": "Jason Rivera",
+"rep_email": "agent1@stsrecycle.com",
+"duration_seconds": 620,
+"duration_minutes": 10.3,
+"call_category": "TECH_SUPPORT_SOFTWARE",
+"issue_type": "BOOT_FAILURE",
+"issue_detail": "Blue screen with INACCESSIBLE BOOT DEVICE stop code, boot record corrupted",
+"return_type": NaN,
+"product_type": "laptop",
+"product_brand": "HP",
+"product_model": "EliteBook 840 G5",
+"product_specs": NaN,
+"order_number": "12-04701-EB",
+"platform": "eBay",
+"customer_name": NaN,
+"customer_email": NaN,
+"customer_callback": false,
+"outcome": "RESOLVED_ON_PHONE",
+"outcome_detail": "Agent walked customer through startup repair which fixed the boot issue",
+"resolution_type": "RESOLVED_ON_PHONE",
+"retention_attempted": true,
+"retention_success": true,
+"upsell_attempted": false,
+"upsell_success": false,
+"partial_refund": false,
+"warranty_claim": false,
+"teamviewer_session": false,
+"sentiment": "SATISFIED",
+"sentiment_evidence": "That is awesome. I was about to return this thing. Thanks Jason.",
+"agent_behavior_flags": "[\"EXCEPTIONAL_JOB\"]",
+"customer_behavior_flags": "[\"HAPPY\"]",
+"policy_flags": "[]",
+"first_call_resolution": true,
+"repeat_caller_flag": false,
+"escalated": false,
+"school_lock": false,
+"bios_lock": false,
+"data_not_wiped": false,
+"call_quality_notes": "Agent provided excellent technical support, diagnosed the issue correctly, and walked customer through effective troubleshooting steps",
+"call_summary": "Customer called with HP EliteBook blue screen boot failure. Agent diagnosed corrupted boot record and successfully guided customer through startup repair process, resolving the issue and preventing a return.",
+"transcript_formatted": "Speaker 0: DCD support, Jason speaking.\nSpeaker 1: Hi, my laptop from your eBay store will not start. Blue screen every time. HP EliteBook 840 G5, order 12-04701-EB.\nSpeaker 0: What does the stop code say?\nSpeaker 1: INACCESSIBLE BOOT DEVICE.\nSpeaker 0: That is fixable. Power off completely, hold power 10 seconds. Turn on and tap F12 to get the boot menu. Select Windows Boot Manager.\nSpeaker 1: Okay I see Choose an option.\nSpeaker 0: Click Troubleshoot, then Advanced options, then Startup Repair.\nSpeaker 1: It says diagnosing your PC. Still going. Okay it restarted. I see the login screen. It  \u2026[truncated for sample]",
+"meeting_url": NaN,
+"talk_ratio": "40% agent / 60% customer"
+},
+{
+"call_id": "dcd-suite-03",
+"call_date": "2026-05-04",
+"call_time": "09:40:00",
+"timestamp": "2026-05-04T09:40:00Z",
+"rep_name": "Jason Rivera",
+"rep_email": "agent1@stsrecycle.com",
+"duration_seconds": 780,
+"duration_minutes": 13.0,
+"call_category": "TECH_SUPPORT_SETUP",
+"issue_type": "DUAL_MONITOR",
+"issue_detail": "Second monitor not being detected, tried both DisplayPorts and HDMI",
+"return_type": NaN,
+"product_type": "desktop",
+"product_brand": "Dell",
+"product_model": "OptiPlex 7070",
+"product_specs": "Intel UHD Graphics 630",
+"order_number": null,
+"platform": "eBay",
+"customer_name": NaN,
+"customer_email": NaN,
+"customer_callback": false,
+"outcome": "RESOLVED_TEAMVIEWER",
+"outcome_detail": "Updated Intel display driver via TeamViewer, both monitors now working",
+"resolution_type": "RESOLVED_TEAMVIEWER",
+"retention_attempted": false,
+"retention_success": false,
+"upsell_attempted": false,
+"upsell_success": false,
+"partial_refund": false,
+"warranty_claim": false,
+"teamviewer_session": true,
+"sentiment": "SATISFIED",
+"sentiment_evidence": "Jason you are a lifesaver. Thank you so much.",
+"agent_behavior_flags": "[\"EXCEPTIONAL_JOB\"]",
+"customer_behavior_flags": "[\"HAPPY\"]",
+"policy_flags": "[]",
+"first_call_resolution": true,
+"repeat_caller_flag": false,
+"escalated": false,
+"school_lock": false,
+"bios_lock": false,
+"data_not_wiped": false,
+"call_quality_notes": "Agent immediately offered TeamViewer remote support and efficiently diagnosed and fixed outdated driver issue, preventing a return",
+"call_summary": "Customer's Dell OptiPlex 7070 second monitor wasn't being detected. Agent Jason used TeamViewer to update outdated Intel display driver from 2019, resolving the dual monitor issue completely. Customer was very satisfied and avoided returning the product.",
+"transcript_formatted": "Speaker 0: DCD support, Jason speaking.\nSpeaker 1: Hi, I bought a Dell OptiPlex 7070 from eBay and my second monitor is not being detected at all. Tried both DisplayPorts and HDMI. One works but the second says no signal.\nSpeaker 0: That sounds like a driver issue. Would you be comfortable with me remoting in via TeamViewer?\nSpeaker 1: Sure, what do I do?\nSpeaker 0: Go to teamviewer dot com and download the free version. Once it is open give me the ID and password.\nSpeaker 1: ID is 1458772310. Password is 8Rx4m.\nSpeaker 0: Connecting now. I can see your desktop. Let me open Device Manager. I s \u2026[truncated for sample]",
+"meeting_url": NaN,
+"talk_ratio": "40% agent / 60% customer"
+},
+{
+"call_id": "dcd-suite-04",
+"call_date": "2026-05-04",
+"call_time": "10:00:00",
+"timestamp": "2026-05-04T10:00:00Z",
+"rep_name": "Maria Gomez",
+"rep_email": "agent2@stsrecycle.com",
+"duration_seconds": 420,
+"duration_minutes": 7.0,
+"call_category": "REFUND_RETURN",
+"issue_type": NaN,
+"issue_detail": "Laptop too slow for QuickBooks and Chrome business use",
+"return_type": "PAID_UPGRADE",
+"product_type": "laptop",
+"product_brand": "Lenovo",
+"product_model": "ThinkPad T450",
+"product_specs": "8GB RAM, upgrading to T480 with 16GB RAM and SSD",
+"order_number": "WM-90401",
+"platform": "Walmart",
+"customer_name": NaN,
+"customer_email": NaN,
+"customer_callback": false,
+"outcome": "PAID_UPGRADE_PROCESSED",
+"outcome_detail": "Customer upgraded to T480 with 16GB RAM for $45 more",
+"resolution_type": "PAID_UPGRADE_PROCESSED",
+"retention_attempted": true,
+"retention_success": true,
+"upsell_attempted": true,
+"upsell_success": true,
+"partial_refund": false,
+"warranty_claim": false,
+"teamviewer_session": false,
+"sentiment": "SATISFIED",
+"sentiment_evidence": "Customer agreed to upgrade and thanked agent",
+"agent_behavior_flags": "[\"EXCEPTIONAL_JOB\"]",
+"customer_behavior_flags": "[\"HAPPY\"]",
+"policy_flags": "[]",
+"first_call_resolution": true,
+"repeat_caller_flag": false,
+"escalated": false,
+"school_lock": false,
+"bios_lock": false,
+"data_not_wiped": false,
+"call_quality_notes": "Excellent retention work - agent identified root cause and offered perfect solution",
+"call_summary": "Customer wanted refund for slow T450 laptop. Agent successfully retained customer by identifying RAM limitation and offering T480 upgrade for $45. Customer accepted paid upgrade.",
+"transcript_formatted": "Speaker 0: DCD support, this is Maria.\nSpeaker 1: Hi Maria. I want to return a laptop I bought from your Walmart store. Full refund. Order WM-90401.\nSpeaker 0: I am sorry to hear that. What is the issue?\nSpeaker 1: It is just too slow. I run QuickBooks and Chrome for my small business and it can barely handle both at the same time.\nSpeaker 0: I understand. That is a Lenovo ThinkPad T450 with 8 gigs of RAM purchased April 5th. You are within our 30 day window. Before we do the refund, the slowness is almost certainly because 8 gigs is not enough for QuickBooks and Chrome together. We have a Thi \u2026[truncated for sample]",
+"meeting_url": NaN,
+"talk_ratio": "40% agent / 60% customer"
+},
+{
+"call_id": "dcd-suite-05",
+"call_date": "2026-05-04",
+"call_time": "10:30:00",
+"timestamp": "2026-05-04T10:30:00Z",
+"rep_name": "Jason Rivera",
+"rep_email": "agent1@stsrecycle.com",
+"duration_seconds": 380,
+"duration_minutes": 6.3,
+"call_category": "FULFILLMENT_ERROR",
+"issue_type": "WRONG_MODEL",
+"issue_detail": "Customer ordered Dell Latitude 7490 but received 5490 instead",
+"return_type": NaN,
+"product_type": "laptop",
+"product_brand": "Dell",
+"product_model": "Latitude 7490 (ordered) / 5490 (received)",
+"product_specs": "16GB RAM, 512GB SSD, Thunderbolt port",
+"order_number": "12-04723-EB",
+"platform": "eBay",
+"customer_name": NaN,
+"customer_email": NaN,
+"customer_callback": false,
+"outcome": "REPLACEMENT_SHIPPED",
+"outcome_detail": "Correct Dell Latitude 7490 shipped with priority shipping, customer keeps 5490 until replacement arrives",
+"resolution_type": "REPLACEMENT_SHIPPED",
+"retention_attempted": false,
+"retention_success": false,
+"upsell_attempted": false,
+"upsell_success": false,
+"partial_refund": false,
+"warranty_claim": false,
+"teamviewer_session": false,
+"sentiment": "SATISFIED",
+"sentiment_evidence": "Customer said 'Okay appreciate it Jason' and accepted resolution",
+"agent_behavior_flags": "[\"EXCEPTIONAL_JOB\"]",
+"customer_behavior_flags": "[]",
+"policy_flags": "[]",
+"first_call_resolution": true,
+"repeat_caller_flag": false,
+"escalated": false,
+"school_lock": false,
+"bios_lock": false,
+"data_not_wiped": false,
+"call_quality_notes": "Agent took immediate ownership, provided priority shipping, and personally committed to verify the replacement",
+"call_summary": "Customer received wrong Dell Latitude model (5490 instead of 7490). Agent immediately acknowledged the fulfillment error and shipped correct replacement with priority shipping, allowing customer to keep wrong unit until replacement arrives.",
+"transcript_formatted": "Speaker 0: DCD support, Jason speaking.\nSpeaker 1: Hi, I ordered a Dell Latitude 7490 from your eBay store and I received a 5490 instead. Order 12-04723-EB.\nSpeaker 0: Let me pull that up. You are right, it should have been a Latitude 7490 with 16 gig RAM and 512 SSD. The 5490 is a completely different machine.\nSpeaker 1: Yeah the 7490 has the thunderbolt port and better build quality which is why I bought that specific model.\nSpeaker 0: This is a fulfillment error on our end. I am shipping the correct 7490 today with priority shipping. You can keep using the 5490 until the right one arrives.  \u2026[truncated for sample]",
+"meeting_url": NaN,
+"talk_ratio": "40% agent / 60% customer"
+},
+{
+"call_id": "dcd-suite-06",
+"call_date": "2026-05-04",
+"call_time": "11:00:00",
+"timestamp": "2026-05-04T11:00:00Z",
+"rep_name": "Maria Gomez",
+"rep_email": "agent2@stsrecycle.com",
+"duration_seconds": 290,
+"duration_minutes": 4.8,
+"call_category": "SHIPPING",
+"issue_type": "DAMAGE_IN_TRANSIT",
+"issue_detail": "Laptop screen cracked diagonally, box dented on corner indicating carrier damage",
+"return_type": NaN,
+"product_type": "laptop",
+"product_brand": "Lenovo",
+"product_model": "ThinkPad T490",
+"product_specs": NaN,
+"order_number": "12-04735-EB",
+"platform": "eBay",
+"customer_name": NaN,
+"customer_email": NaN,
+"customer_callback": false,
+"outcome": "REPLACEMENT_SHIPPED",
+"outcome_detail": "Agent immediately approved replacement, will personally inspect before shipping",
+"resolution_type": "REPLACEMENT_SHIPPED",
+"retention_attempted": false,
+"retention_success": false,
+"upsell_attempted": false,
+"upsell_success": false,
+"partial_refund": false,
+"warranty_claim": false,
+"teamviewer_session": false,
+"sentiment": "SATISFIED",
+"sentiment_evidence": "Customer thanked Maria, agent was apologetic and proactive",
+"agent_behavior_flags": "[\"EXCEPTIONAL_JOB\"]",
+"customer_behavior_flags": "[]",
+"policy_flags": "[]",
+"first_call_resolution": true,
+"repeat_caller_flag": false,
+"escalated": false,
+"school_lock": false,
+"bios_lock": false,
+"data_not_wiped": false,
+"call_quality_notes": "Agent handled shipping damage excellently - immediate replacement approval, personal quality check promise, carrier claim filing",
+"call_summary": "Customer received Lenovo ThinkPad T490 with cracked screen due to shipping damage (dented box). Agent Maria immediately approved replacement with personal quality inspection and arranged carrier claim filing.",
+"transcript_formatted": "Speaker 0: DCD support, this is Maria.\nSpeaker 1: I just received a laptop from your eBay store and the screen is cracked. Big crack going diagonally across the whole display. The box had a dent on one corner so it obviously got dropped during shipping. Order 12-04735-EB, Lenovo ThinkPad T490.\nSpeaker 0: I am really sorry about that. That is clearly shipping damage. Did you take photos?\nSpeaker 1: Yeah I took pictures of everything before I even opened it.\nSpeaker 0: Perfect, hang onto those. I am sending a replacement right away. Same model same specs. You do not need to wait for us to receiv \u2026[truncated for sample]",
+"meeting_url": NaN,
+"talk_ratio": "40% agent / 60% customer"
+},
+{
+"call_id": "dcd-suite-07",
+"call_date": "2026-05-04",
+"call_time": "11:30:00",
+"timestamp": "2026-05-04T11:30:00Z",
+"rep_name": "Maria Gomez",
+"rep_email": "agent2@stsrecycle.com",
+"duration_seconds": 350,
+"duration_minutes": 5.8,
+"call_category": "COMPLIANCE_QC",
+"issue_type": "SCHOOL_LOCK",
+"issue_detail": "Dell Chromebook locked to Springfield Unified School District management, cannot create new account or use device",
+"return_type": NaN,
+"product_type": "Chromebook",
+"product_brand": "Dell",
+"product_model": "Chromebook",
+"product_specs": NaN,
+"order_number": "12-04730-EB",
+"platform": "eBay",
+"customer_name": NaN,
+"customer_email": NaN,
+"customer_callback": false,
+"outcome": "REPLACEMENT_SHIPPED",
+"outcome_detail": "Agent sending replacement Chromebook that has been properly wiped and de-enrolled, with prepaid return label for locked device",
+"resolution_type": "REPLACEMENT_SHIPPED",
+"retention_attempted": false,
+"retention_success": false,
+"upsell_attempted": false,
+"upsell_success": false,
+"partial_refund": false,
+"warranty_claim": false,
+"teamviewer_session": false,
+"sentiment": "SATISFIED",
+"sentiment_evidence": "Customer thanked Maria and accepted the resolution",
+"agent_behavior_flags": "[\"EXCEPTIONAL_JOB\"]",
+"customer_behavior_flags": "[]",
+"policy_flags": "[]",
+"first_call_resolution": true,
+"repeat_caller_flag": false,
+"escalated": false,
+"school_lock": true,
+"bios_lock": false,
+"data_not_wiped": false,
+"call_quality_notes": "Agent immediately acknowledged the processing error, took ownership, and provided clear resolution with personal verification commitment",
+"call_summary": "Customer received Dell Chromebook locked to Springfield Unified School District management system. Agent acknowledged processing error and arranged replacement with personal verification of proper de-enrollment. Customer satisfied with resolution.",
+"transcript_formatted": "Speaker 0: DCD support, this is Maria.\nSpeaker 1: Hi, I bought a Dell Chromebook from your eBay store for my daughter, order 12-04730-EB. When I try to set it up it says it is managed by Springfield Unified School District. I cannot create a new account or do anything with it. It is basically a brick.\nSpeaker 0: Oh no, that should not happen. The device was not properly de-enrolled from the school management system before we sold it. I apologize, that is a mistake on our processing end.\nSpeaker 1: I spent an hour trying to figure it out before I realized it was locked to a school.\nSpeaker 0: I \u2026[truncated for sample]",
+"meeting_url": NaN,
+"talk_ratio": "40% agent / 60% customer"
+},
+{
+"call_id": "dcd-suite-08",
+"call_date": "2026-05-04",
+"call_time": "12:00:00",
+"timestamp": "2026-05-04T12:00:00Z",
+"rep_name": "Maria Gomez",
+"rep_email": "agent2@stsrecycle.com",
+"duration_seconds": 430,
+"duration_minutes": 7.2,
+"call_category": "WARRANTY",
+"issue_type": "DISPLAY",
+"issue_detail": "Screen completely black, no display output, external monitor works fine",
+"return_type": NaN,
+"product_type": "laptop",
+"product_brand": "Dell",
+"product_model": "Latitude 7400",
+"product_specs": NaN,
+"order_number": "12-03750-EB",
+"platform": "eBay",
+"customer_name": "David Park",
+"customer_email": NaN,
+"customer_callback": false,
+"outcome": "REPLACEMENT_SHIPPED",
+"outcome_detail": "Warranty replacement approved and being shipped, customer keeps laptop until replacement arrives",
+"resolution_type": "REPLACEMENT_SHIPPED",
+"retention_attempted": false,
+"retention_success": false,
+"upsell_attempted": false,
+"upsell_success": false,
+"partial_refund": false,
+"warranty_claim": true,
+"teamviewer_session": false,
+"sentiment": "SATISFIED",
+"sentiment_evidence": "Customer said 'Perfect. Thank you Maria' at end of call",
+"agent_behavior_flags": "[]",
+"customer_behavior_flags": "[\"HAPPY\"]",
+"policy_flags": "[]",
+"first_call_resolution": true,
+"repeat_caller_flag": false,
+"escalated": false,
+"school_lock": false,
+"bios_lock": false,
+"data_not_wiped": false,
+"call_quality_notes": "Agent handled warranty claim efficiently, verified coverage, explained process clearly",
+"call_summary": "Customer David Park reported black screen on Dell Latitude 7400 purchased in February with 90-day warranty. Agent verified warranty coverage and processed replacement shipment with advance exchange policy.",
+"transcript_formatted": "Speaker 0: DCD support, this is Maria.\nSpeaker 1: Hi Maria. My name is David Park. I bought a Dell Latitude 7400 from your eBay store back in February, order 12-03750-EB. The screen stopped working yesterday. It was fine the night before and this morning I opened it and the screen is completely black. I can hear it boot up but nothing on the display.\nSpeaker 0: I am sorry about that David. Let me look at your order. February 18th, so you are outside the 30 day return window. Do you know if you purchased the extended warranty?\nSpeaker 1: I did. I bought the 90 day warranty option.\nSpeaker 0: Le \u2026[truncated for sample]",
+"meeting_url": NaN,
+"talk_ratio": "40% agent / 60% customer"
+},
+{
+"call_id": "dcd-suite-09",
+"call_date": "2026-05-04",
+"call_time": "13:00:00",
+"timestamp": "2026-05-04T13:00:00Z",
+"rep_name": "Jason Rivera",
+"rep_email": "agent1@stsrecycle.com",
+"duration_seconds": 310,
+"duration_minutes": 5.2,
+"call_category": "SALES_TRANSFER",
+"issue_type": NaN,
+"issue_detail": NaN,
+"return_type": NaN,
+"product_type": "laptop",
+"product_brand": "Lenovo",
+"product_model": "ThinkPad T480/T490",
+"product_specs": "16GB RAM, 256GB SSD",
+"order_number": null,
+"platform": "eBay",
+"customer_name": "Kevin Marsh",
+"customer_email": NaN,
+"customer_callback": false,
+"outcome": "TRANSFERRED_TO_SALES",
+"outcome_detail": "Customer transferred to sales team for business account setup and volume pricing",
+"resolution_type": "TRANSFERRED_TO_SALES",
+"retention_attempted": false,
+"retention_success": false,
+"upsell_attempted": false,
+"upsell_success": false,
+"partial_refund": false,
+"warranty_claim": false,
+"teamviewer_session": false,
+"sentiment": "SATISFIED",
+"sentiment_evidence": "Customer expressed satisfaction with previous purchases and agent provided helpful solution",
+"agent_behavior_flags": "[\"EXCEPTIONAL_JOB\"]",
+"customer_behavior_flags": "[\"HAPPY\"]",
+"policy_flags": "[]",
+"first_call_resolution": true,
+"repeat_caller_flag": false,
+"escalated": false,
+"school_lock": false,
+"bios_lock": false,
+"data_not_wiped": false,
+"call_quality_notes": "Agent handled the call professionally, quickly identified the need for sales transfer, and provided clear handoff information",
+"call_summary": "Kevin Marsh from BrightPath Staffing called seeking to establish a business account for quarterly bulk laptop purchases (10-15 ThinkPads per quarter). Agent efficiently transferred to sales team with complete customer requirements and contact information.",
+"transcript_formatted": "Speaker 0: DCD support, Jason speaking.\nSpeaker 1: Hi Jason. My name is Kevin Marsh, I am the operations manager at BrightPath Staffing in Phoenix. We have bought about a dozen laptops from your eBay store over the last six months for our temp employees and we have been happy with them.\nSpeaker 0: That is great to hear Kevin.\nSpeaker 1: So we are growing and we are going to need 10 to 15 laptops a quarter going forward. I am wondering if there is a way to set up a business account where we do not have to go through eBay every time. Better pricing, consistent specs.\nSpeaker 0: Absolutely. For t \u2026[truncated for sample]",
+"meeting_url": NaN,
+"talk_ratio": "40% agent / 60% customer"
+},
+{
+"call_id": "019df416071d77cc8e196ed77c054793",
+"call_date": "2026-05-04",
+"call_time": "17:43:01",
+"timestamp": "2026-05-04T17:43:01.044Z",
+"rep_name": "michael.mobley",
+"rep_email": "michael.mobley@stsrecycle.com",
+"duration_seconds": 4008,
+"duration_minutes": 66.8,
+"call_category": "TECH_SUPPORT_HARDWARE",
+"issue_type": "SPEAKERS",
+"issue_detail": "No sound from internal speakers, audio works fine with headphones/external audio",
+"return_type": NaN,
+"product_type": "laptop",
+"product_brand": "Lenovo",
+"product_model": "ThinkPad T14 Gen 1",
+"product_specs": NaN,
+"order_number": 178150,
+"platform": "Home Depot",
+"customer_name": NaN,
+"customer_email": "tholberters@gmail.com",
+"customer_callback": false,
+"outcome": "REPLACEMENT_SHIPPED",
+"outcome_detail": "After extensive troubleshooting including driver updates, TeamViewer session, and testing, determined internal speakers are defective. Replacement unit approved and return label sent.",
+"resolution_type": "REPLACEMENT_SHIPPED",
+"retention_attempted": false,
+"retention_success": false,
+"upsell_attempted": false,
+"upsell_success": false,
+"partial_refund": false,
+"warranty_claim": false,
+"teamviewer_session": true,
+"sentiment": "SATISFIED",
+"sentiment_evidence": "Customer said 'Awesome' when told about replacement and thanked agent at end",
+"agent_behavior_flags": "[\"EXCEPTIONAL_JOB\"]",
+"customer_behavior_flags": "[]",
+"policy_flags": "[]",
+"first_call_resolution": true,
+"repeat_caller_flag": false,
+"escalated": false,
+"school_lock": false,
+"bios_lock": false,
+"data_not_wiped": false,
+"call_quality_notes": "Agent did exceptional troubleshooting - tried multiple driver solutions, Windows updates, used TeamViewer to verify issue remotely, and properly diagnosed hardware failure",
+"call_summary": "Customer had no audio from internal speakers on Lenovo T14 Gen 1. Agent performed comprehensive troubleshooting including driver reinstalls, Windows updates, and TeamViewer session. Confirmed speakers defective as audio works with headphones. Replacement approved with return label sent.",
+"transcript_formatted": "michael.mobley: Prettypl. This is Michael. How can I ass you today?\nSpeaker 2: Yeah. Hi, Michael. I'm calling because I got this computer through the Home Depot through the depot. And I'm having trouble with just getting the volume on my computer, and I don't know why, but I've had that problem since I bought it. \nAnd I want to be able to have output. So that's what I'm calling to get help with.\nmichael.mobley: Okay. Do you happen to have the order number.\nSpeaker 2: Yeah. Let me get that real quick. Order number. Stay here. It says 178150.\nmichael.mobley: So you're not able to get any audio f \u2026[truncated for sample]",
+"meeting_url": "https://app.krisp.ai/n/019df416071d77cc8e196ed77c054793",
+"talk_ratio": "61% agent / 39% customer"
+},
+{
+"call_id": "019df45df42d7399b96dc689a1356103",
+"call_date": "2026-05-04",
+"call_time": "19:01:33",
+"timestamp": "2026-05-04T19:01:33.863Z",
+"rep_name": "michael.mobley",
+"rep_email": "michael.mobley@stsrecycle.com",
+"duration_seconds": 447,
+"duration_minutes": 7.5,
+"call_category": "TECH_SUPPORT_SETUP",
+"issue_type": "NETWORK",
+"issue_detail": "Customer couldn't find WiFi settings on desktop, needed help with USB WiFi adapter setup",
+"return_type": NaN,
+"product_type": "desktop",
+"product_brand": NaN,
+"product_model": NaN,
+"product_specs": "Windows 11",
+"order_number": null,
+"platform": "unknown",
+"customer_name": NaN,
+"customer_email": NaN,
+"customer_callback": false,
+"outcome": "RESOLVED_ON_PHONE",
+"outcome_detail": "Customer successfully connected to WiFi after agent guided them through USB adapter setup and restart",
+"resolution_type": "RESOLVED_ON_PHONE",
+"retention_attempted": false,
+"retention_success": false,
+"upsell_attempted": false,
+"upsell_success": false,
+"partial_refund": false,
+"warranty_claim": false,
+"teamviewer_session": false,
+"sentiment": "SATISFIED",
+"sentiment_evidence": "Customer thanked Michael and had friendly conversation about weather, said previous purchase lasted 3 years",
+"agent_behavior_flags": "[]",
+"customer_behavior_flags": "[\"HAPPY\"]",
+"policy_flags": "[]",
+"first_call_resolution": true,
+"repeat_caller_flag": true,
+"escalated": false,
+"school_lock": false,
+"bios_lock": false,
+"data_not_wiped": false,
+"call_quality_notes": "Agent provided clear step-by-step guidance for WiFi setup, customer was satisfied with resolution",
+"call_summary": "Customer needed help connecting desktop to WiFi. Agent guided them through locating and using the USB WiFi adapter, troubleshooting with restart when needed. Issue resolved successfully with customer connecting to network.",
+"transcript_formatted": "michael.mobley: Computer Depot, this is Michael. How can I assist you today?\nSpeaker 2: Good afternoon, Michael. I just received a computer, and I'm trying to hook it up to the WiFi. I'm going through settings, and I don't see anything for WiFi Desktop.\nmichael.mobley: Is it a desktop or a laptop? Okay, so when it comes to our desktop PCs, there should be a small black USB that came in the bag with a mouse and power cable that needs to be plugged in. Typically, any of the USB ports on the unit act as the wireless network adapter for the unit.\nSpeaker 2: So with the cable in the mouse and the b \u2026[truncated for sample]",
+"meeting_url": "https://app.krisp.ai/n/019df45df42d7399b96dc689a1356103",
+"talk_ratio": "49% agent / 51% customer"
+},
+{
+"call_id": "019df47d2c7175af985c10c483ae3f58",
+"call_date": "2026-05-04",
+"call_time": "19:35:40",
+"timestamp": "2026-05-04T19:35:40.894Z",
+"rep_name": "michael.mobley",
+"rep_email": "michael.mobley@stsrecycle.com",
+"duration_seconds": 133,
+"duration_minutes": 2.2,
+"call_category": "REFUND_RETURN",
+"issue_type": NaN,
+"issue_detail": "Customer reports hardware failure - mentions something broke and components were damaged",
+"return_type": "REFUND",
+"product_type": "desktop",
+"product_brand": "Dell",
+"product_model": "Optiplex 5080",
+"product_specs": "small form factor PC",
+"order_number": 8178846,
+"platform": "unknown",
+"customer_name": NaN,
+"customer_email": NaN,
+"customer_callback": false,
+"outcome": "RETURN_INITIATED",
+"outcome_detail": "Agent provided prepaid FedEx return label via email for customer to return the defective unit",
+"resolution_type": "RETURN_INITIATED",
+"retention_attempted": false,
+"retention_success": false,
+"upsell_attempted": false,
+"upsell_success": false,
+"partial_refund": false,
+"warranty_claim": false,
+"teamviewer_session": false,
+"sentiment": "NEUTRAL",
+"sentiment_evidence": "Customer was polite and thanked agent at end of call",
+"agent_behavior_flags": "[\"NO_RETENTION_ATTEMPT\",\"RETURN_SHIPPING_NOT_CHARGED\"]",
+"customer_behavior_flags": "[]",
+"policy_flags": "[\"RETURN_SHIPPING_NOT_CHARGED\",\"NO_RETENTION_ATTEMPT\"]",
+"first_call_resolution": true,
+"repeat_caller_flag": false,
+"escalated": false,
+"school_lock": false,
+"bios_lock": false,
+"data_not_wiped": false,
+"call_quality_notes": "Agent processed return quickly but didn't attempt troubleshooting or retention, and provided free return shipping despite being outside 30-day window",
+"call_summary": "Customer called to return a Dell Optiplex 5080 purchased 2 months ago due to hardware failure. Agent immediately processed return with free shipping label without attempting troubleshooting or checking return policy timeframe.",
+"transcript_formatted": "michael.mobley: Hello. This is Michael. How can I assist you today?\nWhat's the order number?\nSpeaker 2: It is two months ago. I had it. I'm holding it up for now.\n8178846.\nmichael.mobley: 817846 looks like a Dell Optiplex 5080 small form factor PC, is that correct?\nSpeaker 2: Yeah, yes.\nmichael.mobley: Okay, not showing a return on this particular order, so...\nSpeaker 2: Yeah, I wanted to start one, that's what I meant.\nmichael.mobley: Okay. Just a moment. What's going on with the unit?\nSpeaker 2: A can broke, so both TED were broken and the mouth was wiped out. I just got to make a list of qu \u2026[truncated for sample]",
+"meeting_url": "https://app.krisp.ai/n/019df47d2c7175af985c10c483ae3f58",
+"talk_ratio": "60% agent / 40% customer"
+},
+{
+"call_id": "019df496927474f6b526416fc6b3d84c",
+"call_date": "2026-05-04",
+"call_time": "20:02:50",
+"timestamp": "2026-05-04T20:02:50.846Z",
+"rep_name": "jennifer.rosales",
+"rep_email": "jennifer.rosales@stsrecycle.com",
+"duration_seconds": 109,
+"duration_minutes": 1.8,
+"call_category": "ORDER_INQUIRY",
+"issue_type": "STATUS_CHECK",
+"issue_detail": "Customer wants to know delivery timeline to coordinate with travel plans",
+"return_type": NaN,
+"product_type": NaN,
+"product_brand": NaN,
+"product_model": NaN,
+"product_specs": NaN,
+"order_number": 179519,
+"platform": "unknown",
+"customer_name": NaN,
+"customer_email": NaN,
+"customer_callback": false,
+"outcome": "INFO_PROVIDED",
+"outcome_detail": "Agent provided shipping timeline and carrier information",
+"resolution_type": "INFO_PROVIDED",
+"retention_attempted": false,
+"retention_success": false,
+"upsell_attempted": false,
+"upsell_success": false,
+"partial_refund": false,
+"warranty_claim": false,
+"teamviewer_session": false,
+"sentiment": "SATISFIED",
+"sentiment_evidence": "Customer thanked agent and call ended cordially",
+"agent_behavior_flags": "[]",
+"customer_behavior_flags": "[]",
+"policy_flags": "[]",
+"first_call_resolution": true,
+"repeat_caller_flag": false,
+"escalated": false,
+"school_lock": false,
+"bios_lock": false,
+"data_not_wiped": false,
+"call_quality_notes": "Agent handled audio issues professionally and provided clear shipping timeline information",
+"call_summary": "Customer called to check status of order 179519 placed Friday to coordinate delivery with travel plans. Agent provided 1-3 business day processing timeline with FedEx delivery in about a week total.",
+"transcript_formatted": "jennifer.rosales: Pretty good, how can I help you?\nSpeaker 2: I think this last Friday, and I was...\njennifer.rosales: Sorry, it's very difficult to hear what you're saying. Can you hear me? Okay, if you have me on speaker, you may need to take me off...\nSpeaker 3: Can you hear me now? It's not an unspeaker. Do you hear me now?\njennifer.rosales: Okay. That's. That's a little bit better. Go ahead. What could I hope be out with?\nSpeaker 3: Okay, so I ordered and I have the order ID. This Friday, and I'm supposed to be going out of town, and I just wanted to time my trip so that when the product  \u2026[truncated for sample]",
+"meeting_url": "https://app.krisp.ai/n/019df496927474f6b526416fc6b3d84c",
+"talk_ratio": "57% agent / 43% customer"
+}
+],
+"dead_calls": [
+{
+"call_id": "dcd-suite-10",
+"call_date": "2026-05-04",
+"call_time": "08:30:00",
+"rep_name": null,
+"rep_email": "agent1@stsrecycle.com",
+"duration_seconds": 52,
+"is_voicemail": true,
+"dead_reason": "Voicemail detected",
+"transcript_snippet": "Speaker 1: Hi this is Karen Mitchell calling about order 12-04630-EB. I bought a Dell OptiPlex from your eBay store and it has someone else data all over it. Call me back today please."
+},
+{
+"call_id": "019df46c4b6b71bfb30ecbf7fb14d34d",
+"call_date": "2026-05-04",
+"call_time": "19:16:40",
+"rep_name": "jennifer.rosales",
+"rep_email": "jennifer.rosales@stsrecycle.com",
+"duration_seconds": 35,
+"is_voicemail": false,
+"dead_reason": "< 90s AND < 75 words",
+"transcript_snippet": "Speaker 2: Hi. I was calling about the account that I just set up with you guys. I need to see where I send my tax-exempt form. jennifer.rosales: That will be with our sales team. Let me transfer you over."
+}
+]
+};
+
+// ════════════════════════════════════════════════════════════════════
+// DATA SOURCE CONFIG
+// Set CONFIG.dataUrl to the DCD A3 n8n webhook once that workflow is built.
+// Set CONFIG.triggerUrl if a manual report send is wired into A2 (DCD Daily Report).
+// Endpoint must return JSON matching the shape of the embedded D object above.
+// ════════════════════════════════════════════════════════════════════
+const CONFIG = {
+  dataUrl: null,        // e.g. "https://stsrecycling.app.n8n.cloud/webhook/dcd-dashboard"
+  triggerUrl: null,     // e.g. "https://stsrecycling.app.n8n.cloud/webhook/dcd-report"
+  defaultIntervalMin: 0
+};
+let refreshTimer = null;
+
+async function loadData(manual = false) {
+  if (!CONFIG.dataUrl) {
+    setStatus("sample", "Sample");
+    if (manual) {
+      const btn = document.getElementById("rfshBtn");
+      btn.classList.add("spin");
+      setTimeout(() => btn.classList.remove("spin"), 600);
+      console.warn("loadData: CONFIG.dataUrl not set. Wire to DCD A3 webhook to go live.");
+    }
+    return;
+  }
+  setStatus("loading", "Refreshing");
+  document.getElementById("rfshBtn").classList.add("spin");
+  try {
+    const r = await fetch(CONFIG.dataUrl, { cache: "no-store" });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const fresh = await r.json();
+    if (!fresh || !fresh.meta) throw new Error("Response missing meta block");
+    D = fresh;
+    document.getElementById("ts").textContent = "Last updated " + fmtTs(D.meta.last_updated);
+    document.getElementById("genTs").textContent = fmtTs(D.meta.last_updated);
+    rebuildAll();
+    setStatus("ok", "Live, just now");
+  } catch (e) {
+    setStatus("err", "Refresh failed");
+    console.error("loadData error:", e);
+  } finally {
+    document.getElementById("rfshBtn").classList.remove("spin");
+  }
+}
+
+function setStatus(state, text) {
+  const el = document.getElementById("rfshStatus");
+  el.className = "rfsh-st rfsh-" + state;
+  el.textContent = text;
+}
+
+function setRefreshInterval(min) {
+  if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+  if (min > 0 && CONFIG.dataUrl) {
+    refreshTimer = setInterval(() => loadData(false), min * 60 * 1000);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// MANUAL REPORT TRIGGER (POSTs to CONFIG.triggerUrl)
+// ════════════════════════════════════════════════════════════════════
+async function sendReport(mode, payload = {}, btn = null) {
+  if (!CONFIG.triggerUrl) {
+    alert("Manual trigger not configured.\n\nSet CONFIG.triggerUrl to the DCD A2 report webhook.");
+    return false;
+  }
+  const label = mode === "manager" ? "manager report to Mike" : `report for ${payload.rep_name}`;
+  if (!confirm(`Send the ${label} now?\n\nThis triggers the DCD daily report immediately instead of waiting for the 6:30pm scheduled run.`)) return false;
+
+  const origText = btn ? btn.textContent : null;
+  if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
+
+  try {
+    const r = await fetch(CONFIG.triggerUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mode, ...payload, triggered_by: "dashboard", triggered_at: new Date().toISOString() })
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    if (btn) { btn.textContent = "✓ Sent"; setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 2500); }
+    else { alert(`Sent. The ${label} should arrive within a couple of minutes.`); }
+    return true;
+  } catch (e) {
+    if (btn) { btn.textContent = "✗ Failed"; setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 3000); }
+    alert(`Send failed: ${e.message}\n\nCheck the n8n workflow and CORS on the webhook.`);
+    return false;
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// UTILITIES
+// ════════════════════════════════════════════════════════════════════
+function fmtTs(s){ if(!s) return "…"; try{ const d=new Date(s); return d.toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});}catch(e){return s;}}
+function fmtDate(s){ if(!s) return ""; try{ const d=new Date(s); return d.toLocaleDateString("en-US",{month:"short",day:"numeric"});}catch(e){return s;}}
+function fmtMin(m){ if(m==null) return "—"; return Number(m).toFixed(1) + "m"; }
+function pct(n,d){ if(!d) return 0; return Math.round(100*n/d); }
+function safe(s){ if(s==null) return ""; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function isTrue(v){ return v===true || v==="TRUE" || v==="true" || v===1; }
+function parseFlags(v){ if(!v) return []; if(Array.isArray(v)) return v; try{ const p=JSON.parse(v); return Array.isArray(p)?p:[]; }catch(e){ return []; } }
+
+const CAT_LABELS = {
+  TECH_SUPPORT_HARDWARE: {label:"Tech · Hardware", cls:"cat-tech"},
+  TECH_SUPPORT_SOFTWARE: {label:"Tech · Software", cls:"cat-tech"},
+  TECH_SUPPORT_SETUP:    {label:"Tech · Setup",    cls:"cat-tech"},
+  REFUND_RETURN:         {label:"Refund/Return",   cls:"cat-refund"},
+  WARRANTY:              {label:"Warranty",        cls:"cat-warranty"},
+  SHIPPING:              {label:"Shipping",        cls:"cat-shipping"},
+  ORDER_INQUIRY:         {label:"Order Inquiry",   cls:"cat-order"},
+  FULFILLMENT_ERROR:     {label:"Fulfillment Err", cls:"cat-fulfill"},
+  SALES_TRANSFER:        {label:"Sales Transfer",  cls:"cat-sales"},
+  COMPLIANCE_QC:         {label:"Compliance/QC",   cls:"cat-comp"},
+  OTHER:                 {label:"Other",           cls:"cat-other"}
+};
+function catLabel(k){ return (CAT_LABELS[k]||{label:k,cls:"cat-other"}); }
+
+const RES_LABELS = {
+  RESOLVED_ON_PHONE:           "Resolved on phone",
+  RESOLVED_TEAMVIEWER:         "Resolved · TeamViewer",
+  REPLACEMENT_SHIPPED:         "Replacement shipped",
+  REPLACEMENT_PENDING_APPROVAL:"Replacement pending",
+  PAID_UPGRADE_PROCESSED:      "Paid upgrade",
+  REFUND_PROCESSED:            "Refund processed",
+  RETURN_INITIATED:            "Return initiated",
+  TRANSFERRED_TO_SALES:        "Transferred to sales",
+  ESCALATED:                   "Escalated",
+  INFO_PROVIDED:               "Info provided"
+};
+function resLabel(k){ return RES_LABELS[k] || (k||"Unknown").replace(/_/g," "); }
+
+const SENT_CLS = { SATISFIED:"sent-ok", NEUTRAL:"sent-mid", FRUSTRATED:"sent-bad", ANGRY:"sent-bad", DISSATISFIED:"sent-bad" };
+function sentCls(s){ return SENT_CLS[(s||"").toUpperCase()] || "sent-mid"; }
+
+// ════════════════════════════════════════════════════════════════════
+// THEME / TAB SWITCH
+// ════════════════════════════════════════════════════════════════════
+function toggleTheme(){ const el=document.documentElement; el.dataset.t = el.dataset.t==="dark"?"light":"dark"; rebuildAll(); }
+const B = {};
+function st(id, btn){
+  document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.remove("on"));
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("on"));
+  btn.classList.add("on");
+  document.getElementById(id).classList.add("on");
+  if(!B[id]){
+    if(id==="home") buildHome();
+    if(id==="calls") buildCalls();
+    if(id==="reps") buildReps();
+    if(id==="products") buildProducts();
+    if(id==="compliance") buildCompliance();
+    if(id==="followups") buildFollowups();
+    B[id] = true;
+  }
+}
+
+function rebuildAll(){
+  Object.keys(B).forEach(k=>{ B[k]=false; });
+  document.getElementById("home").innerHTML = "";
+  document.getElementById("calls").innerHTML = "";
+  document.getElementById("reps").innerHTML = "";
+  document.getElementById("products").innerHTML = "";
+  document.getElementById("compliance").innerHTML = "";
+  document.getElementById("followups").innerHTML = "";
+  buildHome(); B.home = true;
+  updateBadges();
+}
+
+function updateBadges(){
+  document.getElementById("callsBadge").textContent = (D.calls||[]).length;
+  document.getElementById("compBadge").textContent = (D.compliance_calls||[]).length;
+  document.getElementById("fuBadge").textContent = (D.followups||[]).length;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// OVERVIEW (home)
+// ════════════════════════════════════════════════════════════════════
+function buildHome(){
+  const k = D.kpis||{};
+  const home = document.getElementById("home");
+  home.innerHTML = `
+    <div class="mgr-actions">
+      <button class="mgr-btn mgr-btn-primary" onclick="sendReport('manager',{},this)">📤 Send Report to Mike Now</button>
+      <span class="mgr-actions-hint">POSTs to A2 webhook · scheduled run is 6:30 PM ET</span>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi kpi-blue"><div class="kpi-l">Total Calls</div><div class="kpi-v">${k.total_calls||0}</div><div class="kpi-d">${D.meta?.period_days||"—"} day window · ${k.dead_calls||0} dead</div></div>
+      <div class="kpi kpi-teal"><div class="kpi-l">Replacements</div><div class="kpi-v">${k.replacements_shipped||0}</div><div class="kpi-d">shipped or pending</div></div>
+      <div class="kpi kpi-${(k.compliance_flags||0)>0?"red":"green"}"><div class="kpi-l">Compliance Flags</div><div class="kpi-v">${k.compliance_flags||0}</div><div class="kpi-d">school + BIOS + data</div></div>
+      <div class="kpi kpi-amber"><div class="kpi-l">FCR Rate</div><div class="kpi-v">${k.fcr_rate_pct||0}%</div><div class="kpi-d">${k.fcr_count||0}/${k.total_calls||0} resolved first call</div></div>
+      <div class="kpi kpi-purple"><div class="kpi-l">Avg Duration</div><div class="kpi-v">${k.avg_duration_min||0}<span style="font-size:18px;color:var(--tx3)">m</span></div><div class="kpi-d">${k.satisfied_pct||0}% satisfied</div></div>
+    </div>
+
+    <div class="row r-2-1">
+      <div class="cd">
+        <div class="cd-h">
+          <div class="cd-t">Problem Code Distribution</div>
+          <div class="cd-st">click a bar to drill into issue types</div>
+        </div>
+        <div class="chart-wrap"><canvas id="catChart"></canvas></div>
+        <div class="cat-drill" id="catDrill">
+          <div class="cat-drill-h">
+            <span id="catDrillTitle">—</span>
+            <span class="cat-drill-cls" onclick="closeCatDrill()">close ✕</span>
+          </div>
+          <div id="catDrillBody"></div>
+        </div>
+      </div>
+      <div class="cd">
+        <div class="cd-h"><div class="cd-t">Resolution Mix</div><div class="cd-st">how calls ended</div></div>
+        <div class="chart-wrap"><canvas id="resChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="row r-1-1">
+      <div class="cd">
+        <div class="cd-h"><div class="cd-t">Daily Trend</div><div class="cd-st">calls per day, by resolution path</div></div>
+        <div class="chart-wrap"><canvas id="dailyChart"></canvas></div>
+      </div>
+      <div class="cd">
+        <div class="cd-h"><div class="cd-t">Customer Sentiment</div><div class="cd-st">tone at end of call</div></div>
+        <div class="chart-wrap"><canvas id="sentChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="row r-1-1-1" id="alertHero"></div>
+
+    <div class="cd">
+      <div class="cd-h"><div class="cd-t">Recently Flagged Calls</div><div class="cd-link" onclick="document.querySelector('nav.tabs button:nth-child(2)').click()">View all calls →</div></div>
+      <div id="alertList2"></div>
+    </div>
+  `;
+
+  renderHero();
+  renderCatChart();
+  renderResChart();
+  renderDailyChart();
+  renderSentChart();
+  renderAlertsList();
+  document.getElementById("ts").textContent = "Last updated " + fmtTs(D.meta?.last_updated);
+  document.getElementById("genTs").textContent = fmtTs(D.meta?.last_updated);
+  updateBadges();
+}
+
+function renderHero(){
+  const el = document.getElementById("alertHero");
+  const k = D.kpis||{};
+  const cards = [];
+  if((k.compliance_flags||0) > 0){
+    cards.push(`<div class="hero hero-rd" onclick="document.querySelector('nav.tabs button:nth-child(5)').click()">
+      <div class="hero-pct">${k.compliance_flags}</div>
+      <div class="hero-l">🛡️ Compliance Flags Detected</div>
+      <div class="hero-p">School / BIOS locks or data not wiped</div>
+      <div class="hero-r">click to view details</div>
+      <div class="hero-co">Compliance issues require immediate review. These calls indicate processing or QC failures upstream.</div>
+    </div>`);
+  }
+  if((k.frustrated_count||0) > 0){
+    cards.push(`<div class="hero hero-am" onclick="document.querySelector('nav.tabs button:nth-child(2)').click()">
+      <div class="hero-pct">${k.frustrated_count}</div>
+      <div class="hero-l">😠 Frustrated Customers</div>
+      <div class="hero-p">Call ended with negative sentiment</div>
+      <div class="hero-r">click to filter call log</div>
+      <div class="hero-co">Recovery opportunities. Review transcripts to identify pattern: product, agent, or process.</div>
+    </div>`);
+  }
+  if((k.teamviewer_sessions||0) > 0){
+    cards.push(`<div class="hero hero-tl" onclick="document.querySelector('nav.tabs button:nth-child(2)').click()">
+      <div class="hero-pct">${k.teamviewer_sessions}</div>
+      <div class="hero-l">🖥️ TeamViewer Sessions</div>
+      <div class="hero-p">Remote support resolved on call</div>
+      <div class="hero-r">click for details</div>
+      <div class="hero-co">High-effort resolutions. Worth tracking which products and issue types most often need remote intervention.</div>
+    </div>`);
+  }
+  if(cards.length === 0){
+    cards.push(`<div class="hero hero-tl"><div class="hero-l">✓ All Clear</div><div class="hero-p">No flags in current window</div><div class="hero-co">No compliance issues, frustrated customers, or escalations detected. Continue monitoring.</div></div>`);
+  }
+  el.innerHTML = cards.join("");
+  el.style.gridTemplateColumns = `repeat(${Math.min(cards.length,3)}, 1fr)`;
+}
+
+let catChart = null, resChart = null, dailyChart = null, sentChart = null;
+
+function renderCatChart(){
+  const ctx = document.getElementById("catChart");
+  if(!ctx) return;
+  const cats = D.categories || {};
+  const entries = Object.entries(cats).sort((a,b)=>b[1].count-a[1].count);
+  const labels = entries.map(([k])=>catLabel(k).label);
+  const counts = entries.map(([,v])=>v.count);
+  const keys   = entries.map(([k])=>k);
+  if(catChart) catChart.destroy();
+  catChart = new Chart(ctx, {
+    type: "bar",
+    data: { labels, datasets: [{ data: counts, backgroundColor: "#2563eb", borderRadius: 6 }] },
+    options: {
+      indexAxis: "y",
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => `${c.parsed.x} call${c.parsed.x===1?"":"s"}` } } },
+      scales: { x: { beginAtZero: true, ticks: { stepSize: 1, font:{family:"IBM Plex Mono"} } }, y: { ticks: { font:{size:11.5} } } },
+      onClick: (e, els) => { if(els.length) openCatDrill(keys[els[0].index]); }
+    }
+  });
+}
+
+function openCatDrill(key){
+  const cat = (D.categories||{})[key];
+  if(!cat) return;
+  document.getElementById("catDrillTitle").textContent = catLabel(key).label + " · " + cat.count + " call" + (cat.count===1?"":"s");
+  const body = document.getElementById("catDrillBody");
+  const issues = Object.entries(cat.issues||{}).sort((a,b)=>b[1]-a[1]);
+  body.innerHTML = issues.length
+    ? issues.map(([k,v])=>`<div class="cat-drill-row"><span class="cat-drill-l">${safe(k)}</span><span class="cat-drill-v">${v}</span></div>`).join("")
+    : `<div class="cat-drill-row"><span class="cat-drill-l">No subcategories recorded</span></div>`;
+  document.getElementById("catDrill").classList.add("on");
+}
+function closeCatDrill(){ document.getElementById("catDrill").classList.remove("on"); }
+
+function renderResChart(){
+  const ctx = document.getElementById("resChart"); if(!ctx) return;
+  const res = D.resolutions || {};
+  const entries = Object.entries(res).sort((a,b)=>b[1]-a[1]);
+  const labels = entries.map(([k])=>resLabel(k));
+  const data = entries.map(([,v])=>v);
+  const colors = ["#2563eb","#0d9488","#059669","#d97706","#7c3aed","#dc2626","#0891b2","#3b82f6","#10b981","#f59e0b"];
+  if(resChart) resChart.destroy();
+  resChart = new Chart(ctx, {
+    type: "doughnut",
+    data: { labels, datasets: [{ data, backgroundColor: colors.slice(0,labels.length), borderWidth: 0 }] },
+    options: { maintainAspectRatio: false, plugins: { legend: { position: "right", labels: { boxWidth: 10, font: { size: 11 } } } } }
+  });
+}
+
+function renderDailyChart(){
+  const ctx = document.getElementById("dailyChart"); if(!ctx) return;
+  const daily = D.daily || [];
+  const labels = daily.map(d=>fmtDate(d.date));
+  if(dailyChart) dailyChart.destroy();
+  dailyChart = new Chart(ctx, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        { label: "Total", data: daily.map(d=>d.count),       borderColor: "#2563eb", backgroundColor: "rgba(37,99,235,.1)", tension: .35, fill: true },
+        { label: "Replaced",  data: daily.map(d=>d.replaced),    borderColor: "#0d9488", tension: .35 },
+        { label: "Resolved",  data: daily.map(d=>d.resolved),    borderColor: "#059669", tension: .35 },
+        { label: "Transferred", data: daily.map(d=>d.transferred), borderColor: "#7c3aed", tension: .35 }
+      ]
+    },
+    options: {
+      maintainAspectRatio: false,
+      plugins: { legend: { position: "bottom", labels: { boxWidth: 10, font: { size: 11 } } } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font:{family:"IBM Plex Mono"} } } }
+    }
+  });
+}
+
+function renderSentChart(){
+  const ctx = document.getElementById("sentChart"); if(!ctx) return;
+  const s = D.sentiments || {};
+  const labels = Object.keys(s);
+  const data = Object.values(s);
+  const colorMap = { SATISFIED:"#059669", NEUTRAL:"#94a3b8", FRUSTRATED:"#dc2626", ANGRY:"#b91c1c", DISSATISFIED:"#dc2626" };
+  const colors = labels.map(l=>colorMap[l]||"#94a3b8");
+  if(sentChart) sentChart.destroy();
+  sentChart = new Chart(ctx, {
+    type: "doughnut",
+    data: { labels, datasets: [{ data, backgroundColor: colors, borderWidth: 0 }] },
+    options: { maintainAspectRatio: false, plugins: { legend: { position: "right", labels: { boxWidth: 10, font: { size: 11 } } } } }
+  });
+}
+
+function renderAlertsList(){
+  const list = document.getElementById("alertList2");
+  const alerts = D.alerts || [];
+  if(!alerts.length){ list.innerHTML = `<div class="fu-empty">No flagged calls in current window</div>`; return; }
+  list.innerHTML = alerts.slice(0,8).map(a => `
+    <div class="fu-row">
+      <div>
+        <div class="fu-p">${safe(a.customer_name||"Unknown customer")} <span class="fu-p-sub">· ${safe(a.rep_name||"")}</span></div>
+        <div class="fu-p-sub" style="margin-top:3px">${(a.reasons||[]).map(r=>`<span class="fl-tag" style="margin-right:4px">${safe(r)}</span>`).join("")}</div>
+      </div>
+      <div class="fu-due">${fmtDate(a.date)}</div>
+      <div class="fu-act" onclick="goToCall('${safe(a.call_id)}')">view ↗</div>
+    </div>
+  `).join("");
+}
+
+// ════════════════════════════════════════════════════════════════════
+// CALL LOG
+// ════════════════════════════════════════════════════════════════════
+let callFilters = { search: "", category: "all", rep: "all", flag: "all" };
+
+function buildCalls(){
+  const calls = [...(D.calls||[]), ...(D.dead_calls||[]).map(d=>({...d, _dead:true}))];
+  const reps = [...new Set(calls.map(c=>c.rep_name).filter(Boolean))].sort();
+  const cats = [...new Set(calls.map(c=>c.call_category).filter(Boolean))].sort();
+  const el = document.getElementById("calls");
+  el.innerHTML = `
+    <div class="filter-bar">
+      <input type="search" id="callSearch" placeholder="Search customer, order #, product, transcript…" oninput="onFilter()">
+      <select id="catFilter" onchange="onFilter()">
+        <option value="all">All categories</option>
+        ${cats.map(c=>`<option value="${safe(c)}">${catLabel(c).label}</option>`).join("")}
+      </select>
+      <select id="repFilter" onchange="onFilter()">
+        <option value="all">All agents</option>
+        ${reps.map(r=>`<option value="${safe(r)}">${safe(r)}</option>`).join("")}
+      </select>
+      <select id="flagFilter" onchange="onFilter()">
+        <option value="all">All calls</option>
+        <option value="compliance">Compliance flagged</option>
+        <option value="frustrated">Frustrated customer</option>
+        <option value="teamviewer">TeamViewer used</option>
+        <option value="dead">Dead / voicemail</option>
+      </select>
+      <span class="hint"><span class="count" id="callCount">${calls.length}</span> calls</span>
+    </div>
+    <div id="callList"></div>
+  `;
+  renderCallList();
+}
+
+function onFilter(){
+  callFilters.search   = (document.getElementById("callSearch")||{}).value || "";
+  callFilters.category = (document.getElementById("catFilter")||{}).value || "all";
+  callFilters.rep      = (document.getElementById("repFilter")||{}).value || "all";
+  callFilters.flag     = (document.getElementById("flagFilter")||{}).value || "all";
+  renderCallList();
+}
+
+function callMatchesFilters(c){
+  const f = callFilters;
+  if(f.category !== "all" && c.call_category !== f.category) return false;
+  if(f.rep !== "all" && c.rep_name !== f.rep) return false;
+  if(f.flag === "compliance" && !(isTrue(c.school_lock)||isTrue(c.bios_lock)||isTrue(c.data_not_wiped))) return false;
+  if(f.flag === "frustrated" && (c.sentiment||"").toUpperCase()!=="FRUSTRATED") return false;
+  if(f.flag === "teamviewer" && !isTrue(c.teamviewer_session)) return false;
+  if(f.flag === "dead" && !c._dead) return false;
+  if(f.search){
+    const q = f.search.toLowerCase();
+    const blob = [c.customer_name,c.customer_email,c.order_number,c.product_brand,c.product_model,
+                  c.product_specs,c.issue_detail,c.outcome_detail,c.call_summary,c.transcript_formatted,
+                  c.transcript_snippet,c.rep_name].filter(Boolean).join(" ").toLowerCase();
+    if(!blob.includes(q)) return false;
+  }
+  return true;
+}
+
+function renderCallList(){
+  const all = [...(D.calls||[]), ...(D.dead_calls||[]).map(d=>({...d, _dead:true}))];
+  const filtered = all.filter(callMatchesFilters);
+  document.getElementById("callCount").textContent = filtered.length;
+  const list = document.getElementById("callList");
+  if(!filtered.length){ list.innerHTML = `<div class="cd"><div class="fu-empty">No calls match current filters</div></div>`; return; }
+  list.innerHTML = filtered.map(c=>renderCallCard(c)).join("");
+}
+
+function renderCallCard(c){
+  const dead = c._dead;
+  const compFlag = isTrue(c.school_lock)||isTrue(c.bios_lock)||isTrue(c.data_not_wiped);
+  const frustrated = (c.sentiment||"").toUpperCase()==="FRUSTRATED";
+  const cls = compFlag ? "call call-comp" : (frustrated || isTrue(c.escalated)) ? "call call-flag" : (dead ? "call call-dead" : "call");
+  const cat = catLabel(c.call_category||"OTHER");
+  const tags = [];
+  if(compFlag) tags.push(`<span class="ma-tag">⚠ Compliance</span>`);
+  if(frustrated) tags.push(`<span class="fl-tag">Frustrated</span>`);
+  if(isTrue(c.escalated)) tags.push(`<span class="fl-tag">Escalated</span>`);
+  if(isTrue(c.teamviewer_session)) tags.push(`<span class="cf-tag">TeamViewer</span>`);
+  if(dead) tags.push(`<span class="ngr-tag">${c.is_voicemail?"Voicemail":"Dead"}</span>`);
+  const cust = c.customer_name || (dead?"unknown":"unidentified customer");
+  const prod = [c.product_brand, c.product_model].filter(Boolean).join(" ") || c.product_type || "";
+  const dur = c.duration_minutes!=null ? fmtMin(c.duration_minutes) : (c.duration_seconds!=null ? Math.round(c.duration_seconds/60*10)/10+"m" : "—");
+
+  const headerLine = `
+    <div class="call-hd" onclick="this.parentElement.querySelector('.call-bd').classList.toggle('open')">
+      <span class="cat-badge ${cat.cls}">${cat.label}</span>
+      <div>
+        <div class="call-p">${safe(cust)}</div>
+        <div class="call-p-sub">${safe(c.rep_name||"unassigned")} · ${fmtDate(c.call_date)}${prod?` · ${safe(prod)}`:""}${c.order_number?` · order ${safe(c.order_number)}`:""}</div>
+      </div>
+      <div class="dots">${tags.join("")}</div>
+      <div class="call-dur">${dur}</div>
+      <div class="call-sent ${sentCls(c.sentiment)}">${safe(c.sentiment||"—")}</div>
+    </div>
+  `;
+  return `<div class="${cls}">${headerLine}${renderCallBody(c, dead)}</div>`;
+}
+
+function renderCallBody(c, dead){
+  if(dead){
+    return `<div class="call-bd">
+      <div class="call-grid">
+        <div class="cb cb-issue"><div class="cb-l">Reason</div><div class="cb-tx">${safe(c.dead_reason||"—")}</div></div>
+        <div class="cb cb-prod"><div class="cb-l">Outcome</div><div class="cb-tx">${c.is_voicemail?"Voicemail received. Customer expects callback.":"Short call · likely transfer or hangup."}</div></div>
+      </div>
+      ${c.transcript_snippet?`<div class="cb cb-quote" style="margin-top:14px"><div class="cb-l">Transcript Snippet</div><div class="cb-tx"><pre>${safe(c.transcript_snippet)}</pre></div></div>`:""}
+    </div>`;
+  }
+  const compFlags = [];
+  if(isTrue(c.school_lock)) compFlags.push(`<span class="comp-tag comp-tag-school">School Lock</span>`);
+  if(isTrue(c.bios_lock)) compFlags.push(`<span class="comp-tag comp-tag-bios">BIOS Lock</span>`);
+  if(isTrue(c.data_not_wiped)) compFlags.push(`<span class="comp-tag comp-tag-data">Data Not Wiped</span>`);
+  const agentFlags = parseFlags(c.agent_behavior_flags);
+  const custFlags = parseFlags(c.customer_behavior_flags);
+  const policyFlags = parseFlags(c.policy_flags);
+
+  return `<div class="call-bd">
+    <div class="call-grid">
+      <div class="cb cb-issue">
+        <div class="cb-l">Issue</div>
+        <div class="cb-tx"><strong>${safe(c.issue_type||"—")}</strong>${c.issue_detail?` · ${safe(c.issue_detail)}`:""}</div>
+      </div>
+      <div class="cb cb-prod">
+        <div class="cb-l">Product</div>
+        <div class="cb-tx">${safe([c.product_brand,c.product_model].filter(Boolean).join(" ")||c.product_type||"—")}${c.product_specs?` · ${safe(c.product_specs)}`:""}${c.platform?`<br><span style="color:var(--tx3);font-size:11px">platform: ${safe(c.platform)}</span>`:""}${c.order_number?`<br><span style="color:var(--tx3);font-size:11px">order: ${safe(c.order_number)}</span>`:""}</div>
+      </div>
+      <div class="cb cb-out">
+        <div class="cb-l">Outcome</div>
+        <div class="cb-tx"><strong>${safe(resLabel(c.resolution_type))}</strong>${c.outcome_detail?`<br>${safe(c.outcome_detail)}`:""}</div>
+      </div>
+      ${compFlags.length||agentFlags.length||policyFlags.length?`
+      <div class="cb cb-flag">
+        <div class="cb-l">Flags</div>
+        <div class="cb-tx">${compFlags.join(" ")} ${agentFlags.map(f=>`<span class="fl-tag" style="margin-right:4px">${safe(f)}</span>`).join("")} ${policyFlags.map(f=>`<span class="cf-tag" style="margin-right:4px">${safe(f)}</span>`).join("")}</div>
+      </div>`:`
+      <div class="cb cb-quote">
+        <div class="cb-l">Sentiment Evidence</div>
+        <div class="cb-tx">${safe(c.sentiment_evidence||"—")}</div>
+      </div>`}
+    </div>
+    ${c.call_summary?`<div class="cb cb-quote" style="margin-top:14px"><div class="cb-l">Summary</div><div class="cb-tx">${safe(c.call_summary)}</div></div>`:""}
+    ${c.transcript_formatted?`<div class="cb cb-quote" style="margin-top:10px"><div class="cb-l">Transcript</div><div class="cb-tx"><pre>${safe(c.transcript_formatted)}</pre></div></div>`:""}
+    <div class="call-act">
+      ${c.meeting_url?`<a href="${safe(c.meeting_url)}" target="_blank" class="act-btn">🔗 Open Krisp recording</a>`:""}
+      ${c.order_number?`<button class="act-btn" onclick="navigator.clipboard.writeText('${safe(c.order_number)}')">📋 Copy order #</button>`:""}
+      <button class="act-btn" onclick="navigator.clipboard.writeText('${safe(c.call_id)}')">📋 Copy call ID</button>
+    </div>
+  </div>`;
+}
+
+function goToCall(callId){
+  document.querySelector('nav.tabs button:nth-child(2)').click();
+  setTimeout(()=>{
+    document.getElementById("callSearch").value = callId;
+    onFilter();
+    const first = document.querySelector("#callList .call");
+    if(first) first.querySelector(".call-bd").classList.add("open");
+  }, 100);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// AGENTS (reps)
+// ════════════════════════════════════════════════════════════════════
+function buildReps(){
+  const el = document.getElementById("reps");
+  const reps = D.reps || [];
+  if(!reps.length){ el.innerHTML = `<div class="cd"><div class="fu-empty">No agent data available</div></div>`; return; }
+  el.innerHTML = `<div class="rep-grid">${reps.map(renderRepCard).join("")}</div>`;
+}
+
+function renderRepCard(r){
+  const total = r.calls || 1;
+  const fcrPct = pct(r.fcr, total);
+  const satPct = pct(r.satisfied, total);
+  const flags = [];
+  if(r.compliance_flags) flags.push(`<span class="rep-fl rep-fl-bad">${r.compliance_flags} compliance</span>`);
+  if(r.escalations) flags.push(`<span class="rep-fl rep-fl-warn">${r.escalations} escalated</span>`);
+  if(r.replacements) flags.push(`<span class="rep-fl rep-fl-good">${r.replacements} replaced</span>`);
+  if(r.resolved_on_phone) flags.push(`<span class="rep-fl rep-fl-good">${r.resolved_on_phone} resolved on phone</span>`);
+  Object.entries(r.agent_flags||{}).forEach(([k,v])=>{
+    const cls = k.includes("EXCEPTIONAL") ? "rep-fl-good" : (k.includes("NO_RETENTION")||k.includes("REFUSED")||k.includes("RUDE")) ? "rep-fl-bad" : "rep-fl-warn";
+    flags.push(`<span class="rep-fl ${cls}">${safe(k)} ×${v}</span>`);
+  });
+  return `<div class="cd rep-cd">
+    <div class="rep-hd">
+      <div>
+        <div class="rep-nm">${safe(r.name||"Unknown")}</div>
+        <div class="rep-em">${safe(r.email||"")}</div>
+        <div class="rep-cnt">${r.calls} call${r.calls===1?"":"s"} in window</div>
+      </div>
+      <div>
+        <div class="rep-big">${r.avg_duration_min||0}<span style="font-size:18px;color:var(--tx3)">m</span></div>
+        <div class="rep-big-sub">avg duration</div>
+      </div>
+    </div>
+    <div class="rep-stats">
+      <div class="rep-st"><div class="rep-st-v">${r.calls}</div><div class="rep-st-l">Calls</div></div>
+      <div class="rep-st"><div class="rep-st-v">${fcrPct}%</div><div class="rep-st-l">FCR</div></div>
+      <div class="rep-st"><div class="rep-st-v">${satPct}%</div><div class="rep-st-l">Satisfied</div></div>
+      <div class="rep-st"><div class="rep-st-v">${r.frustrated||0}</div><div class="rep-st-l">Frustrated</div></div>
+    </div>
+    <div class="mbar">
+      <div class="mbar-h"><span class="mbar-h-l">Sentiment mix</span><span class="mbar-h-v">${r.satisfied}/${r.neutral}/${r.frustrated}</span></div>
+      <div class="mbar-tk" style="display:flex">
+        <div style="background:var(--gn);height:100%;width:${pct(r.satisfied,total)}%"></div>
+        <div style="background:var(--am2);height:100%;width:${pct(r.neutral,total)}%"></div>
+        <div style="background:var(--rd);height:100%;width:${pct(r.frustrated,total)}%"></div>
+      </div>
+    </div>
+    <div class="rep-flags">${flags.join("") || `<span class="rep-fl rep-fl-good">no flags</span>`}</div>
+    <div style="margin-top:14px;text-align:right">
+      <button class="act-btn" onclick="filterByRep('${safe(r.name)}')">view this agent's calls →</button>
+    </div>
+  </div>`;
+}
+
+function filterByRep(name){
+  document.querySelector('nav.tabs button:nth-child(2)').click();
+  setTimeout(()=>{
+    document.getElementById("repFilter").value = name;
+    onFilter();
+  }, 100);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// PRODUCTS
+// ════════════════════════════════════════════════════════════════════
+function buildProducts(){
+  const el = document.getElementById("products");
+  const p = D.products || {};
+  const brands = p.by_brand || {};
+  const models = p.by_model || [];
+  const repeats = p.repeat_models || [];
+  const maxBrand = Math.max(...Object.values(brands), 1);
+  const maxModel = Math.max(...models.map(m=>m.count), 1);
+
+  el.innerHTML = `
+    <div class="prod-grid">
+      <div class="cd">
+        <div class="cd-h"><div class="cd-t">Calls by Brand</div><div class="cd-st">${Object.keys(brands).length} brand${Object.keys(brands).length===1?"":"s"}</div></div>
+        ${Object.entries(brands).sort((a,b)=>b[1]-a[1]).map(([b,c])=>`
+          <div class="prod-row">
+            <div class="prod-nm">${safe(b)}</div>
+            <div class="prod-bar"><div class="prod-bar-fl" style="width:${100*c/maxBrand}%"></div></div>
+            <div class="prod-cnt">${c}</div>
+          </div>
+        `).join("") || `<div class="fu-empty">No brand data</div>`}
+      </div>
+      <div class="cd">
+        <div class="cd-h"><div class="cd-t">Repeat Models</div><div class="cd-st">${repeats.length} model${repeats.length===1?"":"s"} appearing 2+ times</div></div>
+        ${repeats.length ? repeats.map(m=>`
+          <div class="prod-row">
+            <div>
+              <div class="prod-nm">${safe(m.model)} <span class="prod-rep-tag">×${m.count}</span></div>
+              <div class="prod-nm-sub">recurring issue · investigate root cause</div>
+            </div>
+            <div class="prod-cnt">${m.count}</div>
+          </div>
+        `).join("") : `<div class="fu-empty">No repeat models in current window</div>`}
+      </div>
+    </div>
+
+    <div class="cd">
+      <div class="cd-h"><div class="cd-t">All Models</div><div class="cd-st">click to filter call log</div></div>
+      ${models.length ? models.map(m=>`
+        <div class="prod-row" style="cursor:pointer" onclick="filterBySearch('${safe(m.model)}')">
+          <div class="prod-nm">${safe(m.model)}</div>
+          <div class="prod-bar"><div class="prod-bar-fl" style="width:${100*m.count/maxModel}%"></div></div>
+          <div class="prod-cnt">${m.count}</div>
+        </div>
+      `).join("") : `<div class="fu-empty">No model data</div>`}
+    </div>
+  `;
+}
+
+function filterBySearch(q){
+  document.querySelector('nav.tabs button:nth-child(2)').click();
+  setTimeout(()=>{ document.getElementById("callSearch").value = q; onFilter(); }, 100);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// COMPLIANCE
+// ════════════════════════════════════════════════════════════════════
+function buildCompliance(){
+  const el = document.getElementById("compliance");
+  const items = D.compliance_calls || [];
+  const sl = items.filter(i=>isTrue(i.school_lock)).length;
+  const bl = items.filter(i=>isTrue(i.bios_lock)).length;
+  const dn = items.filter(i=>isTrue(i.data_not_wiped)).length;
+
+  el.innerHTML = `
+    <div class="comp-grid">
+      <div class="comp-kpi ${sl===0?"ok":""}"><div class="comp-kpi-l">School Locks</div><div class="comp-kpi-v">${sl}</div><div class="comp-kpi-d">device managed by school district</div></div>
+      <div class="comp-kpi ${bl===0?"ok":""}"><div class="comp-kpi-l">BIOS Locks</div><div class="comp-kpi-v">${bl}</div><div class="comp-kpi-d">end user cannot access device</div></div>
+      <div class="comp-kpi ${dn===0?"ok":""}"><div class="comp-kpi-l">Data Not Wiped</div><div class="comp-kpi-v">${dn}</div><div class="comp-kpi-d">previous owner data exposed</div></div>
+    </div>
+
+    <div class="cd">
+      <div class="cd-h"><div class="cd-t">Compliance-Flagged Calls</div><div class="cd-st">${items.length} flagged · sorted newest first</div></div>
+      ${items.length ? items.map(i=>`
+        <div class="fu-row">
+          <div>
+            <div class="fu-p">
+              ${isTrue(i.school_lock)?`<span class="comp-tag comp-tag-school">School</span>`:""}
+              ${isTrue(i.bios_lock)?`<span class="comp-tag comp-tag-bios">BIOS</span>`:""}
+              ${isTrue(i.data_not_wiped)?`<span class="comp-tag comp-tag-data">Data</span>`:""}
+              ${safe(i.product||"unknown product")}
+            </div>
+            <div class="fu-p-sub">${safe(i.rep_name||"unassigned")} · ${safe(i.platform||"unknown platform")}${i.order_number?` · order ${safe(i.order_number)}`:""}</div>
+            ${i.summary?`<div class="fu-p-sub" style="margin-top:4px">${safe(i.summary)}</div>`:""}
+          </div>
+          <div class="fu-due">${fmtDate(i.date)}</div>
+          <div class="fu-act" onclick="goToCall('${safe(i.call_id)}')">view ↗</div>
+        </div>
+      `).join("") : `<div class="fu-empty">No compliance flags in current window. ✓</div>`}
+    </div>
+  `;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// FOLLOW-UPS
+// ════════════════════════════════════════════════════════════════════
+function buildFollowups(){
+  const el = document.getElementById("followups");
+  const items = D.followups || [];
+  el.innerHTML = `
+    <div class="cd">
+      <div class="cd-h"><div class="cd-t">Promised Callbacks & Open Items</div><div class="cd-st">${items.length} open</div></div>
+      ${items.length ? items.map(i=>`
+        <div class="fu-row">
+          <div>
+            <div class="fu-p">${safe(i.customer_name||"unknown customer")}<span class="fu-p-sub"> · ${safe(i.rep_name||"")}${i.order_number?` · order ${safe(i.order_number)}`:""}</span></div>
+            <div class="fu-p-sub" style="margin-top:3px">${safe(i.callback||i.summary||"—")}</div>
+          </div>
+          <div class="fu-due">${fmtDate(i.date)}</div>
+          <span class="fu-tag fu-tag-pn">Open</span>
+          <div class="fu-act" onclick="goToCall('${safe(i.call_id)}')">view ↗</div>
+        </div>
+      `).join("") : `<div class="fu-empty">No open follow-ups in current window.<br><span style="font-size:11px">A2 will populate this from <span class="mono">customer_callback</span> field and Claude-extracted promises in <span class="mono">call_summary</span> once those are wired in.</span></div>`}
+    </div>
+  `;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════════
+document.querySelectorAll("#rangeCtl button").forEach(b=>{
+  b.onclick = () => {
+    document.querySelectorAll("#rangeCtl button").forEach(x=>x.classList.remove("on"));
+    b.classList.add("on");
+    document.getElementById("cov").textContent = b.textContent;
+    // NOTE: client-side time filtering is a v1.1 feature. Range buttons currently visual-only.
+    // A3 webhook should accept ?range=today|week|month|all when wired.
+  };
+});
+
+document.getElementById("rfshInterval").addEventListener("change", e => setRefreshInterval(parseInt(e.target.value, 10)));
+document.getElementById("rfshInterval").value = String(CONFIG.defaultIntervalMin);
+setRefreshInterval(CONFIG.defaultIntervalMin);
+
+buildHome();
+B.home = true;
+updateBadges();
+
+if(CONFIG.dataUrl) loadData(false);
+</script>
+</body>
+</html>
