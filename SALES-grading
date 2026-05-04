@@ -1,0 +1,1801 @@
+<!DOCTYPE html>
+<html lang="en" data-t="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STS Sales Intelligence · Sam's Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f4f6f9;--cd:#ffffff;--bd:#e2e8f0;--bd2:#cbd5e1;--tx:#0f172a;--tx2:#475569;--tx3:#94a3b8;--ac:#2563eb;--ac2:#3b82f6;--gn:#059669;--gn2:#10b981;--am:#d97706;--am2:#f59e0b;--rd:#dc2626;--rd2:#ef4444;--pu:#7c3aed;--tl:#0d9488;--cy:#0891b2;--shd:0 1px 3px rgba(15,23,42,.04);--shd2:0 4px 12px rgba(15,23,42,.08);--r:10px;}
+[data-t="dark"]{--bg:#0a0f1d;--cd:#111827;--bd:#1f2937;--bd2:#374151;--tx:#f1f5f9;--tx2:#cbd5e1;--tx3:#64748b;--shd:0 1px 3px rgba(0,0,0,.3);--shd2:0 8px 24px rgba(0,0,0,.4);}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+.mono{font-family:'IBM Plex Mono',monospace;font-feature-settings:"tnum"}
+button{font-family:inherit}
+a{color:inherit;text-decoration:none}
+
+/* HEADER */
+header{background:var(--cd);border-bottom:1px solid var(--bd);padding:12px 24px;display:flex;align-items:center;gap:18px;position:sticky;top:0;z-index:50}
+.logo{font-weight:700;font-size:16px;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
+.logo-mk{width:24px;height:24px;background:linear-gradient(135deg,var(--ac),var(--pu));border-radius:6px;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:700}
+.logo-sub{font-size:11px;color:var(--tx3);font-weight:500;border-left:1px solid var(--bd);padding-left:10px;margin-left:2px}
+.spacer{flex:1}
+.ts{font-size:11px;color:var(--tx3);font-family:'IBM Plex Mono',monospace}
+.range{display:flex;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:2px}
+.range button{background:none;border:none;padding:5px 11px;font-size:11.5px;font-weight:500;color:var(--tx2);cursor:pointer;border-radius:6px}
+.range button.on{background:var(--cd);color:var(--tx);box-shadow:var(--shd)}
+.icon-btn{background:none;border:1px solid var(--bd);border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--tx2);font-size:11.5px;display:inline-flex;align-items:center;gap:5px}
+.icon-btn:hover{background:var(--bg);color:var(--tx)}
+.icon-btn.spin svg,.icon-btn.spin span{animation:spin .9s linear infinite;display:inline-block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* REFRESH BAR */
+.rfsh{display:inline-flex;align-items:center;gap:8px;padding:3px 4px 3px 10px;background:var(--bg);border:1px solid var(--bd);border-radius:8px}
+.rfsh-st{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace}
+.rfsh-st::before{content:'';width:7px;height:7px;border-radius:50%;display:inline-block}
+.rfsh-st.rfsh-sample{color:#92400e}.rfsh-st.rfsh-sample::before{background:#f59e0b}
+.rfsh-st.rfsh-ok{color:var(--gn)}.rfsh-st.rfsh-ok::before{background:var(--gn);box-shadow:0 0 0 3px rgba(5,150,105,.18)}
+.rfsh-st.rfsh-loading{color:var(--ac)}.rfsh-st.rfsh-loading::before{background:var(--ac);animation:pulse 1s ease-in-out infinite}
+.rfsh-st.rfsh-err{color:var(--rd)}.rfsh-st.rfsh-err::before{background:var(--rd)}
+.rfsh-sel{font-family:inherit;font-size:11px;padding:3px 6px;border:1px solid var(--bd);border-radius:6px;background:var(--cd);color:var(--tx2);cursor:pointer}
+.rfsh-btn{background:var(--cd);border:1px solid var(--bd);border-radius:6px;padding:4px 8px;cursor:pointer;color:var(--tx2);font-size:13px;line-height:1}
+.rfsh-btn:hover{background:var(--ac);color:#fff;border-color:var(--ac)}
+.rfsh-btn.spin{pointer-events:none;opacity:.7}
+.rfsh-btn.spin span{animation:spin .9s linear infinite;display:inline-block}
+
+/* BANNERS */
+.sample-bn{background:linear-gradient(90deg,#fef3c7,#fde68a);border-bottom:1px solid #f59e0b;padding:7px 24px;font-size:11.5px;color:#78350f;text-align:center;font-weight:500}
+.sample-bn .mono{color:#92400e}
+.alert-bn{background:linear-gradient(90deg,#fef2f2,#fee2e2);border-bottom:1px solid #fca5a5;padding:11px 24px;display:flex;align-items:center;gap:14px;font-size:13px;color:#7f1d1d}
+.alert-bn.hide{display:none}
+.alert-ic{font-size:16px}
+.alert-tx{flex:1}
+.alert-tx strong{color:#991b1b;font-weight:600}
+.alert-cnt{display:inline-block;background:#991b1b;color:#fff;padding:1px 7px;border-radius:9px;font-size:10px;font-weight:700;margin-left:6px;font-family:'IBM Plex Mono',monospace}
+.alert-list{margin-top:3px;font-size:11.5px;color:#991b1b;opacity:.85}
+.alert-cls{background:#fff;border:1px solid #fca5a5;border-radius:6px;padding:5px 11px;cursor:pointer;font-size:11px;color:#991b1b;font-weight:500}
+.alert-cls:hover{background:#fee2e2}
+
+/* TAB NAV */
+nav.tabs{background:var(--cd);border-bottom:1px solid var(--bd);padding:0 24px;display:flex;gap:2px;position:sticky;top:53px;z-index:49}
+nav.tabs button{background:none;border:none;padding:13px 16px;font-size:13px;font-weight:500;color:var(--tx2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;display:inline-flex;align-items:center;gap:6px}
+nav.tabs button.on{color:var(--ac);border-bottom-color:var(--ac);font-weight:600}
+nav.tabs button:not(.on):hover{color:var(--tx)}
+nav.tabs .pill{background:var(--bg);color:var(--tx2);font-size:10px;font-weight:600;padding:1px 6px;border-radius:8px;font-family:'IBM Plex Mono',monospace}
+nav.tabs .pill-rd{background:#fee2e2;color:#991b1b}
+
+/* MAIN */
+main{max-width:1440px;margin:0 auto;padding:22px}
+.tab{display:none}
+.tab.on{display:block}
+
+/* GENERIC CARD */
+.cd{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);padding:18px;box-shadow:var(--shd)}
+.cd-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.cd-t{font-size:13px;font-weight:600;color:var(--tx);letter-spacing:-.1px}
+.cd-st{font-size:11px;color:var(--tx3)}
+.cd-link{font-size:11.5px;color:var(--ac);font-weight:500;cursor:pointer}
+.cd-link:hover{text-decoration:underline}
+
+/* KPIs */
+.kpis{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:18px}
+.kpi{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);padding:16px;position:relative;box-shadow:var(--shd);overflow:hidden}
+.kpi::before{content:'';position:absolute;bottom:0;left:0;right:0;height:3px;background:var(--ac)}
+.kpi-blue::before{background:var(--ac)}
+.kpi-green::before{background:var(--gn)}
+.kpi-amber::before{background:var(--am)}
+.kpi-red::before{background:var(--rd)}
+.kpi-purple::before{background:var(--pu)}
+.kpi-l{font-size:10.5px;color:var(--tx2);font-weight:600;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px}
+.kpi-v{font-size:30px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:var(--tx);letter-spacing:-.5px;line-height:1.05}
+.kpi-d{font-size:11px;color:var(--tx3);margin-top:5px;display:flex;align-items:center;gap:5px}
+.kpi-d .delta{font-family:'IBM Plex Mono',monospace;font-weight:500}
+.delta-up{color:var(--gn)}
+.delta-dn{color:var(--rd)}
+
+/* CHART ROWS */
+.row{display:grid;gap:14px;margin-bottom:18px}
+.r-2-1{grid-template-columns:2fr 1fr}
+.r-1-1{grid-template-columns:1fr 1fr}
+.r-1-1-1{grid-template-columns:1fr 1fr 1fr}
+.r-3-2{grid-template-columns:3fr 2fr}
+.chart-wrap{position:relative;height:240px}
+
+/* HERO CARDS */
+.hero{border-radius:var(--r);padding:20px;color:#fff;cursor:pointer;position:relative;overflow:hidden;transition:transform .15s,box-shadow .15s;min-height:170px}
+.hero:hover{transform:translateY(-2px);box-shadow:var(--shd2)}
+.hero::after{content:'';position:absolute;top:-30px;right:-30px;width:130px;height:130px;background:rgba(255,255,255,.08);border-radius:50%}
+.hero-am{background:linear-gradient(135deg,#d97706,#f59e0b 70%,#fbbf24)}
+.hero-rd{background:linear-gradient(135deg,#b91c1c,#dc2626 70%,#ef4444)}
+.hero-tl{background:linear-gradient(135deg,#0d9488,#14b8a6 70%,#2dd4bf)}
+.hero-l{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.6px;opacity:.9;display:flex;align-items:center;gap:6px;position:relative;z-index:1}
+.hero-p{font-size:18px;font-weight:600;margin-top:8px;letter-spacing:-.3px;position:relative;z-index:1;line-height:1.25}
+.hero-r{font-size:11.5px;opacity:.85;margin-top:3px;position:relative;z-index:1}
+.hero-co{font-size:12.5px;margin-top:11px;line-height:1.5;opacity:.95;position:relative;z-index:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hero-pct{position:absolute;top:18px;right:20px;font-size:22px;font-weight:600;font-family:'IBM Plex Mono',monospace;z-index:1}
+.hero-hint{position:absolute;bottom:14px;right:18px;font-size:10.5px;opacity:.7;z-index:1}
+.hero.open .hero-co{-webkit-line-clamp:unset;display:block}
+.hero.open .hero-hint{display:none}
+.hero-ext{display:none;margin-top:13px;padding-top:13px;border-top:1px solid rgba(255,255,255,.2);position:relative;z-index:1}
+.hero.open .hero-ext{display:block}
+.hero-ext-l{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;opacity:.8;margin-bottom:4px}
+.hero-ext-v{font-size:13px;line-height:1.5}
+
+/* PROGRESS / METRIC BARS */
+.mbar{display:flex;flex-direction:column;gap:5px;margin-bottom:13px}
+.mbar:last-child{margin-bottom:0}
+.mbar-h{display:flex;justify-content:space-between;font-size:12px}
+.mbar-h-l{color:var(--tx2);font-weight:500}
+.mbar-h-v{font-family:'IBM Plex Mono',monospace;font-weight:600}
+.mbar-tk{height:7px;background:var(--bg);border-radius:4px;overflow:hidden;position:relative}
+.mbar-fl{height:100%;border-radius:4px;transition:width .3s}
+.mbar-bm{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--tx3)}
+.mbar-bm-l{position:absolute;font-size:9px;color:var(--tx3);font-family:'IBM Plex Mono',monospace}
+
+/* FOLLOW-UP TRACKER */
+.fu-row{display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--bd);font-size:13px}
+.fu-row:last-child{border-bottom:none}
+.fu-p{font-weight:600;color:var(--tx)}
+.fu-p-sub{font-size:11.5px;color:var(--tx3);font-weight:400;margin-top:1px}
+.fu-due{font-size:11.5px;color:var(--tx2);white-space:nowrap}
+.fu-tag{font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;text-transform:uppercase;letter-spacing:.4px;font-family:'IBM Plex Mono',monospace}
+.fu-tag-od{background:#fee2e2;color:#991b1b}
+.fu-tag-st{background:#fef3c7;color:#92400e}
+.fu-tag-pn{background:#dbeafe;color:#1e40af}
+.fu-act{font-size:11.5px;color:var(--ac);cursor:pointer;font-weight:500}
+.fu-act:hover{text-decoration:underline}
+.fu-empty{padding:24px;text-align:center;color:var(--tx3);font-size:13px}
+
+/* ENTERPRISE FUNNEL */
+.fn{display:flex;flex-direction:column;gap:14px;padding:8px 4px}
+.fn-st{display:flex;flex-direction:column;gap:6px}
+.fn-sh{display:flex;justify-content:space-between;align-items:baseline;font-size:12px}
+.fn-sh-l{color:var(--tx2);font-weight:500}
+.fn-sh-v{font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px}
+.fn-sh-pct{color:var(--tx3);font-size:11px;margin-left:6px}
+.fn-bar{height:32px;border-radius:6px;display:flex;align-items:center;padding-left:12px;color:#fff;font-size:11.5px;font-weight:600;font-family:'IBM Plex Mono',monospace;letter-spacing:.3px}
+.fn-bar-1{background:linear-gradient(90deg,#7c3aed,#8b5cf6)}
+.fn-bar-2{background:linear-gradient(90deg,#0d9488,#14b8a6)}
+.fn-bar-3{background:linear-gradient(90deg,#059669,#10b981)}
+.fn-conv{display:flex;justify-content:space-between;font-size:11px;color:var(--tx3);padding-top:8px;border-top:1px solid var(--bd)}
+
+/* LEADERBOARD */
+.lb{width:100%;border-collapse:collapse;font-size:13px}
+.lb th{text-align:left;padding:10px 12px;font-size:10.5px;color:var(--tx2);font-weight:600;text-transform:uppercase;letter-spacing:.4px;border-bottom:1px solid var(--bd);background:var(--bg)}
+.lb th:first-child,.lb td:first-child{padding-left:18px}
+.lb th:last-child,.lb td:last-child{padding-right:18px}
+.lb td{padding:11px 12px;border-bottom:1px solid var(--bd);vertical-align:middle}
+.lb tr{cursor:pointer}
+.lb tr:hover td{background:var(--bg)}
+.lb tr:last-child td{border-bottom:none}
+.lb-rk{font-family:'IBM Plex Mono',monospace;font-weight:600;color:var(--tx3);font-size:12px;width:30px}
+.lb-nm{font-weight:600}
+.lb-nm-sub{font-size:11px;color:var(--tx3);font-weight:400}
+.lb-num{font-family:'IBM Plex Mono',monospace;font-weight:500}
+.lb-pct{display:flex;align-items:center;gap:8px}
+.lb-pct-bar{width:50px;height:5px;background:var(--bg);border-radius:3px;overflow:hidden}
+.lb-pct-fl{height:100%;border-radius:3px}
+.lb-mt{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:500}
+.lb-fl-tag{display:inline-block;background:#fee2e2;color:#991b1b;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;padding:2px 7px;border-radius:5px}
+.lb-fl-tag.ok{background:var(--bg);color:var(--tx3)}
+
+/* CALL LOG */
+.filter-bar{display:flex;align-items:center;gap:14px;margin-bottom:14px;padding:12px 16px;background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);box-shadow:var(--shd);flex-wrap:wrap}
+.filter-bar select{font-family:inherit;font-size:13px;padding:6px 10px;border:1px solid var(--bd);border-radius:7px;background:var(--bg);color:var(--tx);cursor:pointer}
+.filter-bar .hint{font-size:11.5px;color:var(--tx3);margin-left:auto}
+.filter-bar .count{font-size:12px;color:var(--tx2);font-family:'IBM Plex Mono',monospace}
+
+.call{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:10px;overflow:hidden;box-shadow:var(--shd)}
+.call-flag{border-color:#fca5a5;background:linear-gradient(to right,#fef2f2 0%,var(--cd) 6%)}
+.call-admin{border-style:dashed;opacity:.78}
+.call-ma{border-color:#dc2626;border-width:1.5px;background:linear-gradient(to right,#fee2e2 0%,var(--cd) 8%)}
+.call-hd{padding:13px 16px;display:flex;align-items:center;gap:12px;cursor:pointer;flex-wrap:wrap}
+.call-hd:hover{background:var(--bg)}
+.call-p{font-weight:600;font-size:13.5px}
+.call-p-sub{font-size:11.5px;color:var(--tx3);font-weight:400;margin-top:1px}
+.dir-badge{display:inline-block;font-size:9.5px;font-weight:700;padding:3px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.5px;font-family:'IBM Plex Mono',monospace}
+.dir-in{background:#d1fae5;color:#065f46}
+.dir-out{background:#dbeafe;color:#1e40af}
+.dir-admin{background:var(--bg);color:var(--tx2);border:1px dashed var(--bd2)}
+.dir-transfer{background:#ede9fe;color:#5b21b6}
+.dir-hot{background:#fef3c7;color:#92400e}
+.dir-follow{background:#cffafe;color:#155e75}
+.fl-tag{font-size:10px;font-weight:600;color:#991b1b;background:#fee2e2;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.4px;font-family:'IBM Plex Mono',monospace}
+.cf-tag{font-size:10px;font-weight:600;color:#92400e;background:#fef3c7;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.4px;font-family:'IBM Plex Mono',monospace}
+
+/* Negative Reviews tab */
+.dot-new{display:none;width:9px;height:9px;border-radius:50%;background:var(--rd);margin-left:6px;vertical-align:middle;box-shadow:0 0 0 0 rgba(220,38,38,.45)}
+.dot-new.show{display:inline-block;animation:dotPulse 2s infinite}
+@keyframes dotPulse{0%{box-shadow:0 0 0 0 rgba(220,38,38,.45)}70%{box-shadow:0 0 0 6px rgba(220,38,38,0)}100%{box-shadow:0 0 0 0 rgba(220,38,38,0)}}
+.rv-hd{display:flex;align-items:baseline;gap:14px;margin-bottom:14px;flex-wrap:wrap}
+.rv-hd-t{font-size:18px;font-weight:600;color:var(--tx)}
+.rv-hd-st{font-size:12.5px;color:var(--tx2)}
+.rv-stats{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+.rv-stat{padding:10px 14px;background:var(--cd);border:1px solid var(--bd);border-radius:8px;font-size:12px;color:var(--tx2);font-weight:500}
+.rv-stat strong{font-family:'IBM Plex Mono',monospace;color:var(--tx);font-weight:700;margin-right:4px}
+.rv-stat.rv-stat-new strong{color:var(--rd)}
+.rv-card{background:var(--cd);border:1px solid var(--bd);border-radius:9px;padding:16px 18px;margin-bottom:10px;cursor:pointer;transition:all .15s}
+.rv-card:hover{border-color:var(--bd2)}
+.rv-card.rv-new{border-left:3px solid var(--rd)}
+.rv-card.rv-cb{border-left:3px solid var(--am)}
+.rv-card.rv-new.rv-cb{border-left:3px solid var(--rd);box-shadow:inset 3px 0 0 var(--am)}
+.rv-top{display:flex;align-items:flex-start;gap:14px;margin-bottom:8px;flex-wrap:wrap}
+.rv-nm{font-size:14.5px;font-weight:600;color:var(--tx);flex:1;min-width:160px}
+.rv-dt{font-size:11.5px;color:var(--tx3);font-family:'IBM Plex Mono',monospace}
+.rv-cat{display:flex;gap:5px;flex-wrap:wrap;margin:6px 0 10px}
+.rv-cat-p{font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.3px;font-family:'IBM Plex Mono',monospace}
+.rv-cat-comm{background:#dbeafe;color:#1e40af}
+.rv-cat-prof{background:#fee2e2;color:#991b1b}
+.rv-cat-time{background:#fef3c7;color:#92400e}
+.rv-cat-other{background:#f3f4f6;color:#4b5563}
+.rv-cb-tag{font-size:10px;font-weight:700;color:#fff;background:var(--am);padding:2px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.4px;font-family:'IBM Plex Mono',monospace}
+.rv-new-tag{font-size:10px;font-weight:700;color:#fff;background:var(--rd);padding:2px 8px;border-radius:5px;text-transform:uppercase;letter-spacing:.4px;font-family:'IBM Plex Mono',monospace}
+.rv-tx{font-size:13px;color:var(--tx);line-height:1.55;white-space:pre-line}
+.rv-card:not(.open) .rv-tx{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.rv-contact{display:none;margin-top:12px;padding-top:12px;border-top:1px solid var(--bd);font-size:12.5px;color:var(--tx2)}
+.rv-card.open .rv-contact{display:block}
+.rv-contact-row{display:flex;gap:10px;margin-bottom:5px}
+.rv-contact-l{font-weight:600;color:var(--tx3);min-width:60px;font-size:11px;text-transform:uppercase;letter-spacing:.3px}
+.rv-contact-v{font-family:'IBM Plex Mono',monospace;color:var(--tx)}
+.rv-contact-v.masked{color:var(--tx3);font-style:italic}
+.rv-show-btn{font-size:11px;color:var(--ac);cursor:pointer;font-weight:500;margin-left:8px}
+.rv-show-btn:hover{text-decoration:underline}
+.rv-empty{text-align:center;padding:60px 20px;color:var(--tx3);font-size:13px;background:var(--cd);border:1px solid var(--bd);border-radius:9px}
+.ma-tag{font-size:10px;font-weight:700;color:#fff;background:#dc2626;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.4px;font-family:'IBM Plex Mono',monospace;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.7}}
+.ngr-tag{font-size:9.5px;font-weight:600;color:var(--tx3);background:var(--bg);padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.5px;font-family:'IBM Plex Mono',monospace;border:1px solid var(--bd2)}
+.dots{display:flex;gap:4px;margin-left:auto}
+.dot{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:9px;font-weight:700;color:#fff}
+.dot-ok{background:var(--gn)}
+.dot-no{background:var(--rd);opacity:.55}
+.dot-en{background:var(--pu)}
+.dot-en-no{background:var(--bg);color:var(--tx3);border:1px solid var(--bd2);opacity:.7}
+.call-dur{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--tx3);min-width:42px;text-align:right}
+.call-pct{font-family:'IBM Plex Mono',monospace;font-size:18px;font-weight:600;min-width:54px;text-align:right;letter-spacing:-.3px}
+
+.call-bd{display:none;padding:0 16px 16px 16px;border-top:1px solid var(--bd);background:linear-gradient(to bottom,var(--bg),transparent 30%)}
+.call-bd.open{display:block}
+.call-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;padding-top:14px}
+.cb{padding:12px 14px;background:var(--cd);border:1px solid var(--bd);border-radius:8px;border-left-width:3px}
+.cb-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
+.cb-tx{font-size:12.5px;line-height:1.55;color:var(--tx2)}
+.cb-st{border-left-color:var(--gn)}.cb-st .cb-l{color:var(--gn)}
+.cb-fl{border-left-color:var(--rd)}.cb-fl .cb-l{color:var(--rd)}
+.cb-co{border-left-color:var(--am)}.cb-co .cb-l{color:var(--am)}
+.cb-en{border-left-color:var(--pu)}.cb-en .cb-l{color:var(--pu)}
+.cb-na{border-left-color:var(--ac)}.cb-na .cb-l{color:var(--ac)}
+.cb-ma{border-left-color:var(--rd);background:#fef2f2}.cb-ma .cb-l{color:#991b1b}.cb-ma .cb-tx{color:#7f1d1d}
+.cb-rec{margin-top:14px;padding:13px 16px;background:linear-gradient(135deg,#dbeafe,#eff6ff);border:1px solid #bfdbfe;border-radius:8px;border-left:3px solid var(--ac)}
+.cb-rec-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ac);margin-bottom:5px}
+.cb-rec-tx{font-size:13px;line-height:1.5;color:#1e3a8a}
+.call-act{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.act-btn{font-size:11.5px;padding:7px 13px;background:var(--cd);border:1px solid var(--bd);border-radius:7px;cursor:pointer;color:var(--tx2);font-family:inherit;font-weight:500}
+.act-btn:hover{background:var(--bg);color:var(--tx);border-color:var(--bd2)}
+
+/* Manager action bar (top of Overview) */
+.mgr-actions{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
+.mgr-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;border:1px solid var(--bd);background:var(--cd);color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
+.mgr-btn:hover:not(:disabled){background:var(--bg);border-color:var(--bd2)}
+.mgr-btn-primary{background:linear-gradient(135deg,#2563eb 0%,#1e40af 100%);color:#fff;border-color:transparent}
+.mgr-btn-primary:hover:not(:disabled){filter:brightness(1.12)}
+.mgr-btn:disabled{opacity:.6;cursor:not-allowed}
+.mgr-actions-hint{font-size:11.5px;color:var(--tx3);margin-left:4px}
+
+/* Rep card send button */
+.rep-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px}
+.rep-btn{padding:7px 12px;border-radius:7px;border:1px solid var(--bd);background:var(--cd);color:var(--tx);font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.2px;transition:all .15s}
+.rep-btn:hover:not(:disabled){background:var(--ac);color:#fff;border-color:var(--ac)}
+.rep-btn:disabled{opacity:.6;cursor:not-allowed}
+
+/* REP CARDS */
+.rep-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.rep-cd{cursor:pointer;transition:transform .15s,box-shadow .15s}
+.rep-cd:hover{transform:translateY(-1px);box-shadow:var(--shd2)}
+.rep-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px}
+.rep-nm{font-size:16px;font-weight:600;letter-spacing:-.2px}
+.rep-em{font-size:11.5px;color:var(--tx3);margin-top:1px}
+.rep-cnt{font-size:11px;color:var(--tx2);margin-top:4px}
+.rep-od{display:inline-block;background:#fef3c7;color:#92400e;font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;text-transform:uppercase;letter-spacing:.4px;font-family:'IBM Plex Mono',monospace;margin-left:6px}
+.rep-big{font-size:38px;font-weight:600;font-family:'IBM Plex Mono',monospace;letter-spacing:-1px;line-height:1}
+.rep-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+.rep-st{background:var(--bg);border-radius:7px;padding:9px 10px;text-align:center}
+.rep-st-v{font-size:17px;font-weight:600;font-family:'IBM Plex Mono',monospace;line-height:1.1}
+.rep-st-l{font-size:9.5px;color:var(--tx3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-top:3px}
+.rep-vl{font-size:11.5px;color:var(--ac);font-weight:500;margin-top:8px;display:inline-block}
+.rep-vl:hover{text-decoration:underline}
+
+/* TRAINING TAB */
+.train-intro{font-size:13px;color:var(--tx2);margin-bottom:14px;line-height:1.6}
+.bucket{background:var(--cd);border:1px solid var(--bd);border-radius:8px;margin-bottom:8px;overflow:hidden}
+.bucket-hd{padding:10px 14px;background:var(--bg);cursor:pointer;display:flex;align-items:center;gap:10px;border-bottom:1px solid transparent;transition:border-color .15s}
+.bucket.open .bucket-hd{border-bottom-color:var(--bd)}
+.bucket-arrow{font-size:10px;color:var(--tx3);transition:transform .2s;width:10px}
+.bucket.open .bucket-arrow{transform:rotate(90deg)}
+.bucket-nm{font-size:13px;font-weight:600;flex:1}
+.bucket-cnt{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--tx2);background:var(--cd);padding:2px 8px;border-radius:5px;border:1px solid var(--bd)}
+.bucket-bd{display:none;padding:4px 14px 14px}
+.bucket.open .bucket-bd{display:block}
+
+.tr-card{background:var(--bg);border:1px solid var(--bd);border-radius:7px;margin-top:8px;cursor:pointer;overflow:hidden}
+.tr-card:first-child{margin-top:8px}
+.tr-hd{padding:10px 13px;display:flex;align-items:center;gap:10px}
+.tr-hd:hover{background:var(--bd)}
+.tr-pp{font-weight:600;font-size:12.5px;flex:1}
+.tr-pp-sub{font-size:11px;color:var(--tx3);font-weight:400;margin-top:1px}
+.tr-arrow{font-size:10px;color:var(--tx3);transition:transform .2s}
+.tr-card.open .tr-arrow{transform:rotate(90deg)}
+.tr-bd{display:none;padding:0 13px 13px}
+.tr-card.open .tr-bd{display:block}
+.tr-miss{font-size:12px;line-height:1.55;color:var(--tx2);padding:9px 0 11px}
+.tr-rec{padding:11px 13px;background:linear-gradient(135deg,#dbeafe,#eff6ff);border:1px solid #bfdbfe;border-left:3px solid var(--ac);border-radius:6px}
+.tr-rec-l{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--ac);margin-bottom:4px}
+.tr-rec-tx{font-size:12px;line-height:1.5;color:#1e3a8a}
+
+.cheat{display:grid;grid-template-columns:1fr 1fr;gap:18px;padding:6px 4px}
+.cheat-it h4{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:5px;display:flex;align-items:center;gap:8px}
+.cheat-bonus{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--gn);background:#d1fae5;padding:1px 6px;border-radius:4px;font-weight:600}
+.cheat-it p{font-size:12px;color:var(--tx2);line-height:1.55;margin-bottom:5px}
+.cheat-ex{font-style:italic;color:var(--tx3);font-size:11.5px}
+
+/* FOOTER */
+footer{padding:18px 24px;text-align:center;font-size:11px;color:var(--tx3);border-top:1px solid var(--bd);margin-top:24px}
+footer .mono{color:var(--tx2)}
+
+/* RESPONSIVE */
+@media(max-width:1100px){
+  .kpis{grid-template-columns:repeat(3,1fr)}
+  .r-2-1,.r-3-2,.r-1-1-1,.r-1-1{grid-template-columns:1fr}
+  .rep-grid{grid-template-columns:1fr}
+  .cheat{grid-template-columns:1fr}
+  .call-grid{grid-template-columns:1fr}
+}
+@media(max-width:640px){
+  header{flex-wrap:wrap;gap:10px;padding:10px 14px}
+  .logo-sub{display:none}
+  main{padding:14px}
+  .kpis{grid-template-columns:repeat(2,1fr);gap:10px}
+  nav.tabs{padding:0 10px;overflow-x:auto}
+  nav.tabs button{padding:11px 12px;font-size:12px}
+  .call-hd{font-size:12px}
+  .call-pct{font-size:16px;min-width:46px}
+  .dots{order:99;width:100%;margin-left:0;margin-top:6px}
+}
+
+/* PRINT */
+@media print{
+  header,nav.tabs,.range,.icon-btn,.call-act,.cd-link,.no-print{display:none!important}
+  .tab{display:block!important}
+  body{background:#fff}
+  .cd,.kpi,.call{box-shadow:none;border-color:#ccc}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo"><span class="logo-mk">S</span><span>STS Sales Intel</span><span class="logo-sub">Sam's Workspace</span></div>
+  <div class="spacer"></div>
+  <span class="ts" id="ts">Loading…</span>
+  <div class="rfsh">
+    <span class="rfsh-st rfsh-sample" id="rfshStatus">Sample</span>
+    <select class="rfsh-sel" id="rfshInterval" title="Auto-refresh interval">
+      <option value="0">Auto: Off</option>
+      <option value="5">Auto: 5 min</option>
+      <option value="15">Auto: 15 min</option>
+      <option value="30">Auto: 30 min</option>
+    </select>
+    <button class="rfsh-btn" id="rfshBtn" onclick="loadData(true)" title="Refresh now"><span>↻</span></button>
+  </div>
+  <div class="range" id="rangeCtl">
+    <button data-r="today">Today</button>
+    <button data-r="week">7d</button>
+    <button data-r="month">30d</button>
+    <button data-r="all" class="on">All</button>
+  </div>
+  <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">🌓</button>
+  <button class="icon-btn" onclick="window.print()" title="Print">⎙ Print</button>
+</header>
+
+<div class="sample-bn">📊 Sample data shown for layout review. Production data will populate from <span class="mono">Call_Scores</span> via nightly batch.</div>
+
+<div class="alert-bn hide" id="alertBanner">
+  <span class="alert-ic">🚨</span>
+  <div class="alert-tx">
+    <strong>Manager Alerts</strong><span class="alert-cnt" id="alertCnt">0</span>
+    <div class="alert-list" id="alertList"></div>
+  </div>
+  <button class="alert-cls" onclick="dismissAlerts()">Dismiss</button>
+</div>
+
+<nav class="tabs">
+  <button class="on" onclick="st('home',this)">📊 Overview</button>
+  <button onclick="st('calls',this)">📞 Call Log <span class="pill" id="callsBadge">0</span></button>
+  <button onclick="st('reps',this)">👥 Rep Cards</button>
+  <button onclick="st('train',this)">🎯 Training</button>
+  <button onclick="st('reviews',this)">📋 Negative Reviews <span class="pill pill-rd" id="reviewsBadge" style="display:none">0</span><span class="dot-new" id="reviewsDot"></span></button>
+</nav>
+
+<main>
+  <section id="home" class="tab on"></section>
+  <section id="calls" class="tab"></section>
+  <section id="reps" class="tab"></section>
+  <section id="train" class="tab"></section>
+  <section id="reviews" class="tab"></section>
+</main>
+
+<footer>
+  STS Sales Intelligence · v5 · <span class="mono">Generated <span id="genTs">…</span></span> · Coverage: <span id="cov" class="mono">All</span>
+</footer>
+
+<script>
+// ════════════════════════════════════════════════════════════════════
+// DATA · V3 schema. Sample data illustrates structure; real data flows
+// from Call_Scores Google Sheet via nightly n8n workflow.
+// ════════════════════════════════════════════════════════════════════
+let D = {
+  meta: { last_updated: "2026-04-27T23:47:00", sample: true, period_days: 22 },
+
+  alerts: [
+    { alert_id:"ma1", rep_name:"Mary Ramirez", prospect_name:"Heat & Eye Associates", call_id:"c5", call_date:"04-26", manager_alert_reason:"Dismissive language with prospect: 'I don't have time for that' when asked about COI process" },
+    { alert_id:"ma2", rep_name:"Erica Rios", prospect_name:"Ace Pump and Supply", call_id:"c4", call_date:"04-25", manager_alert_reason:"Unprofessional comment at end of call after prospect hung up" }
+  ],
+
+  team: { total_calls:487, score_90_plus_count:64, red_flag_count:42, avg_score:74.3, active_reps:5 },
+
+  daily: [
+    {date:"04-08",total_calls:15,score_90_plus_count:3,red_flag_count:2,avg_score:71},
+    {date:"04-09",total_calls:28,score_90_plus_count:4,red_flag_count:3,avg_score:73},
+    {date:"04-10",total_calls:31,score_90_plus_count:8,red_flag_count:4,avg_score:76},
+    {date:"04-13",total_calls:30,score_90_plus_count:5,red_flag_count:5,avg_score:72},
+    {date:"04-14",total_calls:52,score_90_plus_count:15,red_flag_count:3,avg_score:78},
+    {date:"04-15",total_calls:40,score_90_plus_count:6,red_flag_count:4,avg_score:73},
+    {date:"04-16",total_calls:53,score_90_plus_count:8,red_flag_count:5,avg_score:74},
+    {date:"04-17",total_calls:44,score_90_plus_count:7,red_flag_count:3,avg_score:75},
+    {date:"04-20",total_calls:59,score_90_plus_count:8,red_flag_count:5,avg_score:73},
+    {date:"04-21",total_calls:59,score_90_plus_count:7,red_flag_count:6,avg_score:72},
+    {date:"04-22",total_calls:59,score_90_plus_count:8,red_flag_count:4,avg_score:74},
+    {date:"04-23",total_calls:17,score_90_plus_count:1,red_flag_count:0,avg_score:71}
+  ],
+
+  reps: [
+    { name:"Lee Garner", email:"lee@stsrecycle.com", total_calls:71, score_90_plus_count:24, red_flag_count:9, avg_score:78, overdue_followups:2, metric_hits:{next_step:57,objection:6,decision_maker:8,budget_value:40,enterprise:11} },
+    { name:"Karla Fuentes", email:"carla.fuentes@stsrecycle.com", total_calls:50, score_90_plus_count:14, red_flag_count:9, avg_score:76, overdue_followups:1, metric_hits:{next_step:34,objection:3,decision_maker:6,budget_value:21,enterprise:7} },
+    { name:"Estrella Galan", email:"estrella@stsrecycle.com", total_calls:54, score_90_plus_count:14, red_flag_count:6, avg_score:75, overdue_followups:0, metric_hits:{next_step:35,objection:10,decision_maker:7,budget_value:29,enterprise:6} },
+    { name:"Erica Rios", email:"erica.rios@stsrecycle.com", total_calls:129, score_90_plus_count:22, red_flag_count:32, avg_score:72, overdue_followups:4, metric_hits:{next_step:106,objection:6,decision_maker:22,budget_value:70,enterprise:14} },
+    { name:"Mary Ramirez", email:"mary.ramirez@stsrecycle.com", total_calls:94, score_90_plus_count:10, red_flag_count:22, avg_score:69, overdue_followups:3, metric_hits:{next_step:64,objection:4,decision_maker:20,budget_value:26,enterprise:8} },
+    { name:"Teddi Verhage", email:"tverhage@stsrecycle.com", total_calls:88, score_90_plus_count:11, red_flag_count:32, avg_score:68, overdue_followups:5, metric_hits:{next_step:49,objection:5,decision_maker:7,budget_value:25,enterprise:5} }
+  ],
+
+  metrics: { next_step:71, objection:7, decision_maker:14, budget_value:44, enterprise:11 },
+
+  calls: [
+    {call_id:"c1", rep_name:"Lee Garner", prospect_name:"Wells Fargo Center", contact_name:"Amalia", call_type_inferred:"HOT", call_classification:"admin_logistics", industry_inferred:"Property Management", meeting_duration_minutes:4.0, call_date:"04-22", call_datetime:"2026-04-22T14:14",
+     score_percentage:68, graded:false, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
+     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:false, enterprise_probed:false,
+     strengths:"Excellent logistics coordination, confirmed pickup location, floor access, and certificate of insurance details professionally.",
+     coaching:"Pure logistics execution with zero sales development. On a Hot call with major enterprise signals (Wells Fargo Center, Cushman & Wakefield), you must always probe the parent organization, even briefly.",
+     recommendation:"Amalia, since we're handling this for Cushman & Wakefield, are there other buildings in their portfolio that might need similar service? Even one phone number opens a door.",
+     decision_path_next_action:"Execute Monday pickup as scheduled",
+     enterprise_notes:"Wells Fargo Center + Cushman & Wakefield property management, massive enterprise opportunity completely unexplored.",
+     industry_compliance_met:null, is_short_call:false, deal_priority:"high"},
+
+    {call_id:"c2", rep_name:"Lee Garner", prospect_name:"Plus One Solutions", contact_name:"Jenna", call_type_inferred:"HOT", call_classification:"inbound_sales", industry_inferred:"Corporate", meeting_duration_minutes:10.0, call_date:"04-22", call_datetime:"2026-04-22T11:02",
+     score_percentage:76, graded:true, red_flag_count:0, coaching_flag_count:1, red_flags:"", manager_alert_reason:null,
+     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:true, enterprise_probed:false,
+     strengths:"Excellent process management, clearly outlined multi-step pickup process with specific team members and sequence. Confirmed asset details thoroughly.",
+     coaching:"Left 3 points on the table by not exploring decision-making (who approves this?), potential objections (any concerns about timing?), or enterprise scope (other Plus One offices?). Hot calls without enterprise probing cap at 80%.",
+     recommendation:"Jenna, before we finalize this, are you the person who typically handles these pickups or does someone else need to sign off? And does Plus One Solutions have other offices that go through similar refreshes?",
+     decision_path_next_action:"Await photos, then process through scheduling team",
+     enterprise_notes:"Office relocation, 40+ PCs, server rack, switches, professional IT infrastructure suggests larger footprint.",
+     industry_compliance_met:null, is_short_call:false, deal_priority:"high"},
+
+    {call_id:"c3", rep_name:"Erica Rios", prospect_name:"Conveyors Inc.", contact_name:"Mike", call_type_inferred:"HOT", call_classification:"inbound_sales", industry_inferred:"Corporate", meeting_duration_minutes:4.0, call_date:"04-22", call_datetime:"2026-04-22T09:45",
+     score_percentage:90, graded:true, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
+     next_step_set:true, objection_surfaced:true, decision_maker_identified:true, budget_value_communicated:true, enterprise_probed:false,
+     strengths:"Smooth call across the board, confirmed budget approval, identified Mike as final DM, surfaced and addressed timing objection, established clear pickup window.",
+     coaching:"Zero enterprise exploration cost you the perfect score. Even on smooth Hot calls, ask once: any other locations? It's a 5-second question worth real points.",
+     recommendation:"Mike, before I lock this in, does Conveyors have other facilities that handle equipment replacement, or is this your only location?",
+     decision_path_next_action:"Matt to email pickup scheduling details",
+     enterprise_notes:"Industrial company name suggests potential multi-site footprint, not explored.",
+     industry_compliance_met:null, is_short_call:false, deal_priority:"high"},
+
+    {call_id:"c4", rep_name:"Erica Rios", prospect_name:"Ace Pump and Supply", contact_name:"Kristina", call_type_inferred:"HOT", call_classification:"follow_up", industry_inferred:"Corporate", meeting_duration_minutes:3.5, call_date:"04-25", call_datetime:"2026-04-25T13:20",
+     score_percentage:68, graded:true, red_flag_count:1, coaching_flag_count:0, red_flags:"Unprofessional comment at end of call", manager_alert_reason:"Unprofessional comment at end of call after prospect hung up",
+     next_step_set:false, objection_surfaced:true, decision_maker_identified:false, budget_value_communicated:false, enterprise_probed:false,
+     strengths:"Successfully addressed prospect's timing objection about previous delays and confirmed logistics details.",
+     coaching:"Hot call with existing customer who'd already submitted a form, should have closed cleanly. Missed budget reaffirmation, didn't confirm DM, didn't probe enterprise. The unprofessional sign-off is a real issue, see manager alert.",
+     recommendation:"I'll check with scheduling today and call you back by 3pm tomorrow with your exact pickup date. Will that work for you?",
+     decision_path_next_action:"Schedule pickup within prospect's timeline",
+     enterprise_notes:"No enterprise signals detected.",
+     industry_compliance_met:null, is_short_call:false, deal_priority:"medium"},
+
+    {call_id:"c5", rep_name:"Mary Ramirez", prospect_name:"Heat & Eye Associates", contact_name:"Keith", call_type_inferred:"COLD", call_classification:"outbound_sales", industry_inferred:"Medical", meeting_duration_minutes:2.0, call_date:"04-26", call_datetime:"2026-04-26T15:10",
+     score_percentage:60, graded:true, red_flag_count:1, coaching_flag_count:0, red_flags:"Dismissive language with prospect", manager_alert_reason:"Dismissive language with prospect: 'I don't have time for that' when asked about COI process",
+     next_step_set:false, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:false, enterprise_probed:false,
+     strengths:"Professional phone manner with receptionist. Had specific contact name (Keith Evans) showing preparation.",
+     coaching:"Gatekeeper call where DM wasn't available. Miss was not establishing any next steps beyond a vague callback. Dismissive language when asked about the COI process is unacceptable, see alert.",
+     recommendation:"When would be the best time to reach Keith? I have important compliance information about medical equipment disposal that he'll want to hear directly.",
+     decision_path_next_action:"Callback attempt needed with better timing strategy",
+     enterprise_notes:"Multi-service medical practice (LASIK, cataract surgery), likely multi-location.",
+     industry_compliance_met:false, is_short_call:true, deal_priority:"medium"},
+
+    {call_id:"c6", rep_name:"Karla Fuentes", prospect_name:"Aertron Heating & AC", contact_name:"Matthew", call_type_inferred:"WARM", call_classification:"inbound_sales", industry_inferred:"Corporate", meeting_duration_minutes:4.3, call_date:"04-24", call_datetime:"2026-04-24T10:30",
+     score_percentage:80, graded:true, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
+     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:true, enterprise_probed:false,
+     strengths:"Excellent value communication, clearly explained free pickup and COD multiple times when prospect asked about costs.",
+     coaching:"Lost 2 points by not identifying decision maker or surfacing objections. When prospect said 'reaching out for feelers,' that's an opening, not a close.",
+     recommendation:"Matthew, when you say you're getting feelers, what's most important to you in choosing a recycling partner? And who else weighs in on that decision?",
+     decision_path_next_action:"Prospect will review form and compare options",
+     enterprise_notes:"No enterprise signals detected.",
+     industry_compliance_met:null, is_short_call:false, deal_priority:"medium"},
+
+    {call_id:"c7", rep_name:"Estrella Galan", prospect_name:"University Lake School", contact_name:"Karen", call_type_inferred:"HOT", call_classification:"inbound_sales", industry_inferred:"Education", meeting_duration_minutes:6.2, call_date:"04-21", call_datetime:"2026-04-21T11:00",
+     score_percentage:78, graded:true, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
+     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:true, enterprise_probed:true,
+     strengths:"Strong enterprise probe, asked directly about district structure and got Karen to confirm 4 campuses. Clear next step set.",
+     coaching:"Failed to identify decision maker and surface objections. Even with enterprise locked, Hot calls need DM confirmation.",
+     recommendation:"Karen, before I get this submitted, are you the one who approves this from the district side, or does it need to go through Dr. Patel?",
+     decision_path_next_action:"Submit pickup request and send confirmation email",
+     enterprise_notes:"Confirmed 4-campus district, Estrella probed correctly. Worth real points.",
+     industry_compliance_met:null, is_short_call:false, deal_priority:"high"},
+
+    {call_id:"c8", rep_name:"Teddi Verhage", prospect_name:"Holy Saber Hospice", contact_name:"Sandra", call_type_inferred:"HOT", call_classification:"transfer", industry_inferred:"Medical", meeting_duration_minutes:1.7, call_date:"04-23", call_datetime:"2026-04-23T09:30",
+     score_percentage:null, graded:false, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
+     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:false, enterprise_probed:false,
+     strengths:"Quick courteous handoff to scheduling team.",
+     coaching:"Transfer call, not graded against scorecard. Coaching note: even brief transfers can capture the parent organization name in 10 seconds.",
+     recommendation:"Before I transfer you, quick one: is this for the one Holy Saber location or part of the Saber Health network?",
+     decision_path_next_action:"Transfer to scheduling team for immediate pickup coordination",
+     enterprise_notes:"Hospice chain, Saber Health network has 200+ locations.",
+     industry_compliance_met:null, is_short_call:null, deal_priority:"service"},
+
+    {call_id:"c9", rep_name:"Lee Garner", prospect_name:"Core Construction", contact_name:"Alexis", call_type_inferred:"WARM", call_classification:"inbound_sales", industry_inferred:"Corporate", meeting_duration_minutes:9.3, call_date:"04-22", call_datetime:"2026-04-22T16:00",
+     score_percentage:80, graded:true, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
+     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:true, enterprise_probed:false,
+     strengths:"Excellent logistics coordination, gathered complete address, elevator access, COI requirements, and staging preferences.",
+     coaching:"Failed to qualify decision-making authority and didn't probe for objections. On a warm inbound, you need to lock the DM before anything else.",
+     recommendation:"Alexis, are you the person who would approve moving forward with the pickup, or is there someone else involved in that call?",
+     decision_path_next_action:"Prospect will send photos within days, then scheduling proceeds",
+     enterprise_notes:"Multiple suite numbers (205W and 303W) suggests larger footprint.",
+     industry_compliance_met:null, is_short_call:false, deal_priority:"medium"},
+
+    {call_id:"c10", rep_name:"Erica Rios", prospect_name:"Brand Safeway (Ste 290)", contact_name:"Perry", call_type_inferred:"HOT", call_classification:"admin_logistics", industry_inferred:"Corporate", meeting_duration_minutes:4.4, call_date:"04-21", call_datetime:"2026-04-21T14:20",
+     score_percentage:null, graded:false, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
+     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:true, enterprise_probed:false,
+     strengths:"Efficiently confirmed all logistics details (address, floor, contact info, parking instructions). Clearly communicated process.",
+     coaching:"Purely transactional, missed opportunity to explore enterprise potential and identify decision maker. Brand Safeway name is a clear multi-location signal.",
+     recommendation:"Perry, while I have you, do you handle IT disposal for just this location or are there other Brand Safeway offices that need the same service?",
+     decision_path_next_action:"Matt to schedule pickup within 3-5 business days",
+     enterprise_notes:"Office suite environment + brand name imply corporate structure not explored.",
+     industry_compliance_met:null, is_short_call:null, deal_priority:"medium"},
+
+    {call_id:"c11", rep_name:"Karla Fuentes", prospect_name:"Coolidge ISD", contact_name:"Laurie (VM)", call_type_inferred:"COLD", call_classification:"outbound_sales", industry_inferred:"Education", meeting_duration_minutes:1.6, call_date:"04-21", call_datetime:"2026-04-21T09:15",
+     score_percentage:60, graded:true, red_flag_count:1, coaching_flag_count:0, red_flags:"Scored 0 on all metrics despite 96-second call", manager_alert_reason:null,
+     next_step_set:false, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:false, enterprise_probed:false,
+     strengths:"Professional intro with clear company ID. Specific callback number given twice.",
+     coaching:"Voicemail missed every scoring opportunity. 'Trucks in your area' creates no urgency or value. Districts deserve a district-specific reason to call back.",
+     recommendation:"Hi Laurie, Karla from STS Electronic Recycling. We help school districts like Coolidge ISD safely dispose of old computers, and we just helped two ISDs nearby this month. Worth a 5-minute call?",
+     decision_path_next_action:"Prospect must call back with no compelling reason provided",
+     enterprise_notes:"School district = multi-campus opportunity, not explored.",
+     industry_compliance_met:null, is_short_call:true, deal_priority:"low"},
+
+    {call_id:"c12", rep_name:"Lee Garner", prospect_name:"Prince Capital Partners", contact_name:"Victor", call_type_inferred:"HOT", call_classification:"admin_logistics", industry_inferred:"Corporate", meeting_duration_minutes:1.6, call_date:"04-22", call_datetime:"2026-04-22T10:00",
+     score_percentage:null, graded:false, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
+     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:true, enterprise_probed:false,
+     strengths:"Handled administrative request professionally with specific timeline. Confirmed pricing details.",
+     coaching:"Layup Hot call that should have scored 90+. Missed enterprise exploration despite 'Capital Partners' screaming portfolio company structure.",
+     recommendation:"Victor, while I update this date, quick question: do any of your other portfolio companies need similar services? We can package it.",
+     decision_path_next_action:"Execute quote with corrected date for May 5th",
+     enterprise_notes:"Investment firm, portfolio companies are perfect cross-sell targets.",
+     industry_compliance_met:null, is_short_call:null, deal_priority:"high"},
+
+    {call_id:"c13", rep_name:"Mary Ramirez", prospect_name:"Greater Houston Psych", contact_name:"Tom", call_type_inferred:"WARM", call_classification:"inbound_sales", industry_inferred:"Medical", meeting_duration_minutes:3.7, call_date:"04-21", call_datetime:"2026-04-21T13:30",
+     score_percentage:80, graded:true, red_flag_count:0, coaching_flag_count:1, red_flags:"", manager_alert_reason:null,
+     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:true, enterprise_probed:true,
+     strengths:"Captured the multi-location signal cleanly, Tom confirmed 6 practices across Houston metro. Set firm next step.",
+     coaching:"Strong enterprise capture, but missed DM confirmation and didn't probe pricing concerns. Medical industry: HIPAA wasn't directly addressed though Tom seemed comfortable with the conversation.",
+     recommendation:"Tom, who at the practice handles vendor approvals, is it you, or does it route through someone else for these decisions?",
+     decision_path_next_action:"Send proposal covering all 6 locations",
+     enterprise_notes:"6-location medical group confirmed. Excellent enterprise expansion path.",
+     industry_compliance_met:false, is_short_call:false, deal_priority:"high"},
+
+    {call_id:"c14", rep_name:"Estrella Galan", prospect_name:"Byfire Alarm PA", contact_name:"Tony", call_type_inferred:"HOT", call_classification:"inbound_sales", industry_inferred:"Corporate", meeting_duration_minutes:3.7, call_date:"04-21", call_datetime:"2026-04-21T15:45",
+     score_percentage:72, graded:true, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
+     next_step_set:true, objection_surfaced:true, decision_maker_identified:false, budget_value_communicated:false, enterprise_probed:false,
+     strengths:"Surfaced timing objection and walked through pickup logistics clearly.",
+     coaching:"Hot call lost 2 points on DM and 1 on budget reaffirmation. Commercial warehouse + truck access suggests larger ops.",
+     recommendation:"Tony, are you the one who approves this on your end, or is there a manager who needs to sign off before we lock it in?",
+     decision_path_next_action:"Schedule pickup pending Tony's confirmation",
+     enterprise_notes:"Commercial warehouse with roll-up doors, possible multi-site fire safety company.",
+     industry_compliance_met:null, is_short_call:false, deal_priority:"medium"},
+
+    {call_id:"c15", rep_name:"Teddi Verhage", prospect_name:"East Chambers Tech Dept", contact_name:"Rio", call_type_inferred:"HOT", call_classification:"admin_logistics", industry_inferred:"Education", meeting_duration_minutes:1.6, call_date:"04-22", call_datetime:"2026-04-22T08:30",
+     score_percentage:null, graded:false, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
+     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:false, enterprise_probed:false,
+     strengths:"Professional and clear with proper follow-up protocol. Multiple contact methods provided.",
+     coaching:"Brief scheduling call but even on Hot opportunities, look for micro-moments. East Chambers ISD has multiple campuses worth probing.",
+     recommendation:"Perfect Rio, and just to confirm, are you the main contact I should coordinate with for Monday's pickup, or should I loop someone else in? And does this cover just the high school or other campuses too?",
+     decision_path_next_action:"Matthews to contact with pickup time by EOD Monday",
+     enterprise_notes:"School district, likely 4-6 campuses worth exploring.",
+     industry_compliance_met:null, is_short_call:null, deal_priority:"high"},
+
+    {call_id:"c16", rep_name:"Karla Fuentes", prospect_name:"Pediatric Dental Clarksville", contact_name:"Donna", call_type_inferred:"COLD", call_classification:"outbound_sales", industry_inferred:"Medical", meeting_duration_minutes:1.5, call_date:"04-21", call_datetime:"2026-04-21T11:30",
+     score_percentage:60, graded:true, red_flag_count:1, coaching_flag_count:0, red_flags:"Medical prospect with NO compliance discussion", manager_alert_reason:null,
+     next_step_set:false, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:false, enterprise_probed:false,
+     strengths:"Polite intro and clear company identification.",
+     coaching:"Medical prospect with 13-14 computers, clear HIPAA compliance situation. ZERO compliance language used. That's a credibility miss.",
+     recommendation:"Hi Donna, Karla with STS Electronic Recycling. We're certified for HIPAA-compliant medical equipment disposal, wanted to make sure you knew the protocol options before you had to think about it. Got 2 minutes?",
+     decision_path_next_action:"Re-engage with HIPAA-led pitch",
+     enterprise_notes:"Single practice, but networks of pediatric dental practices are common.",
+     industry_compliance_met:false, is_short_call:true, deal_priority:"low"},
+
+    {call_id:"c17", rep_name:"Erica Rios", prospect_name:"East Central SUD", contact_name:"Arthur", call_type_inferred:"WARM", call_classification:"follow_up", industry_inferred:"Government", meeting_duration_minutes:6.4, call_date:"04-23", call_datetime:"2026-04-23T10:15",
+     score_percentage:80, graded:true, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
+     next_step_set:true, objection_surfaced:false, decision_maker_identified:true, budget_value_communicated:true, enterprise_probed:false,
+     strengths:"Confirmed Arthur as DM and walked through the form process. Budget validated through utility's standard procurement.",
+     coaching:"Government call, should have probed objections (procurement timeline can be a deal killer if not surfaced early).",
+     recommendation:"Arthur, just so we plan this right, what does your procurement process look like? Sometimes utilities have a 30-60 day cycle, and I want to make sure we line up.",
+     decision_path_next_action:"Arthur will complete pickup form and send inventory photos",
+     enterprise_notes:"Utility district often part of regional cooperative, possible expansion.",
+     industry_compliance_met:null, is_short_call:false, deal_priority:"medium"},
+
+    {call_id:"c18", rep_name:"Mary Ramirez", prospect_name:"Executive Office Immigration Rev", contact_name:"Carla", call_type_inferred:"WARM", call_classification:"inbound_sales", industry_inferred:"Government", meeting_duration_minutes:6.1, call_date:"04-21", call_datetime:"2026-04-21T14:00",
+     score_percentage:80, graded:true, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
+     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:true, enterprise_probed:true,
+     strengths:"Captured federal agency multi-office signal, Philadelphia caller asking for Connecticut office. Strong enterprise probe.",
+     coaching:"Failed to identify DM. Government procurement involves multiple stakeholders and you didn't ask once.",
+     recommendation:"Carla, before I send this form over, help me understand, who typically handles the approval process for selecting recycling vendors at EOIR?",
+     decision_path_next_action:"Form submission and assessment",
+     enterprise_notes:"Federal agency, multi-state offices. Worth a strategic deep dive.",
+     industry_compliance_met:null, is_short_call:false, deal_priority:"high"},
+
+    {call_id:"c19", rep_name:"Lee Garner", prospect_name:"Orange Blossom Family Health", contact_name:"Maria", call_type_inferred:"WARM", call_classification:"inbound_sales", industry_inferred:"Medical", meeting_duration_minutes:9.5, call_date:"04-21", call_datetime:"2026-04-21T13:45",
+     score_percentage:88, graded:true, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
+     next_step_set:true, objection_surfaced:true, decision_maker_identified:true, budget_value_communicated:true, enterprise_probed:true,
+     strengths:"Strongest call this week, captured multi-location structure (Central Florida, consolidating to Orlando HQ), confirmed DM, surfaced and resolved timing objection. HIPAA-compliant disposal explicitly addressed.",
+     coaching:"Almost a perfect Hot. The 12 points you missed: didn't dive deep enough on the consolidation timeline, worth knowing exactly when other locations come online.",
+     recommendation:"Maria, when you mentioned consolidating to Orlando, what's the timeline on the other locations coming through? We can plan capacity if it's all in one quarter.",
+     decision_path_next_action:"Quote sent for Orlando HQ + 4 satellite locations",
+     enterprise_notes:"Confirmed multi-location healthcare system, expansion path locked.",
+     industry_compliance_met:true, is_short_call:false, deal_priority:"high"},
+
+    {call_id:"c20", rep_name:"Teddi Verhage", prospect_name:"City of Beverly", contact_name:"Patrick", call_type_inferred:"NOT_SALES", call_classification:"admin_logistics", industry_inferred:"Government", meeting_duration_minutes:20.8, call_date:"04-21", call_datetime:"2026-04-21T10:30",
+     score_percentage:60, graded:true, red_flag_count:1, coaching_flag_count:0, red_flags:"20-minute call with no progression, treated as internal planning session", manager_alert_reason:null,
+     next_step_set:false, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:false, enterprise_probed:false,
+     strengths:"Long detailed conversation, attempted multiple angles.",
+     coaching:"20-minute call that became an internal planning session. Zero metrics earned. Long calls without progression are worse than short ones, they signal a rep who can't close.",
+     recommendation:"Patrick, I want to make sure your time is well spent, can we lock in a specific next step right now? Either a pickup date or a follow-up call with the decision maker. Which works?",
+     decision_path_next_action:"Immediate follow-up to reschedule with specific time options",
+     enterprise_notes:"Municipal government, multiple departments worth exploring.",
+     industry_compliance_met:null, is_short_call:false, deal_priority:"low"}
+  ],
+
+  followups: [
+    { followup_id:"fu1", rep_name:"Teddi Verhage", prospect_name:"Holy Savior Hospice", call_id:"c8b", decision_path_next_action:"Matt to deliver pickup ETA and Teddi to follow up to advance deal", due_date:"04-25", days_overdue:3, status:"overdue" },
+    { followup_id:"fu2", rep_name:"Erica Rios", prospect_name:"East Central SUD", call_id:"c17", decision_path_next_action:"Erica to call Arthur once form returned to confirm pickup window", due_date:"04-26", days_overdue:2, status:"overdue" },
+    { followup_id:"fu3", rep_name:"Mary Ramirez", prospect_name:"Heat & Eye Associates", call_id:"c5", decision_path_next_action:"Mary to retry callback at 9am to reach Keith directly", due_date:"04-27", days_overdue:1, status:"overdue" },
+    { followup_id:"fu4", rep_name:"Lee Garner", prospect_name:"Plus One Solutions", call_id:"c2", decision_path_next_action:"Schedule pickup once photos received from Jenna", due_date:"04-28", days_overdue:0, status:"pending" },
+    { followup_id:"fu5", rep_name:"Karla Fuentes", prospect_name:"Aertron Heating & AC", call_id:"c6", decision_path_next_action:"Follow up on form review with Matthew", due_date:"04-29", days_overdue:0, status:"pending" },
+    { followup_id:"fu6", rep_name:"Teddi Verhage", prospect_name:"University Lake School", call_id:"c7", decision_path_next_action:"Confirm district-wide scope after Karen reviews with Dr. Patel", due_date:"04-30", days_overdue:0, status:"pending" },
+    { followup_id:"fu7", rep_name:"Erica Rios", prospect_name:"Conveyors Inc.", call_id:"c3", decision_path_next_action:"Matt to email scheduling details to Mike", due_date:"04-26", days_overdue:2, status:"stale" },
+    { followup_id:"fu8", rep_name:"Teddi Verhage", prospect_name:"City of Beverly", call_id:"c20", decision_path_next_action:"Reschedule with specific time options", due_date:"04-23", days_overdue:5, status:"stale" }
+  ],
+
+  enterprise_funnel: { signals_identified:142, explored:58, converted:12 },
+
+  obj_lib: {
+    pricing: [
+      { rep_name:"Karla Fuentes", prospect_name:"Aertron Heating & AC", narrative:"Prospect asked about costs multiple times. Karla explained free pickup but never explored what 'expensive' meant to him or what budget he was comparing against.", recommendation:"What does 'too expensive' look like for you, are you comparing against another quote, or is there a number that needs to fit your budget? I can usually work backwards from there." },
+      { rep_name:"Estrella Galan", prospect_name:"Byfire Alarm PA", narrative:"Tony asked if there was 'any cost involved' and Estrella confirmed free, but didn't probe what made him ask, usually a sign of a prior bad experience.", recommendation:"Free pickup is standard for us. Out of curiosity, what made you ask, have you been quoted for this kind of thing before?" },
+      { rep_name:"Lee Garner", prospect_name:"Wells Fargo Center", narrative:"Amalia mentioned the building's strict cost approval process for any vendor work. Lee acknowledged but didn't position COD as a budget advantage.", recommendation:"Since cost approval is tight on your end, worth knowing we pay you on the equipment, not the other way around. Might shortcut the approval cycle." }
+    ],
+    timing: [
+      { rep_name:"Erica Rios", prospect_name:"Ace Pump and Supply", narrative:"Kristina raised previous delays as a concern. Erica acknowledged but didn't reset expectations with a specific commitment.", recommendation:"You're right to flag that, here's what's different this time: I'll personally call you by 3pm tomorrow with a confirmed date. If I miss that, you have my direct line to escalate." },
+      { rep_name:"Estrella Galan", prospect_name:"Byfire Alarm PA", narrative:"Tony said 'maybe next month' when discussing pickup. Estrella didn't probe whether next month was real or stalling.", recommendation:"Next month works on my side, quick check: is there a specific event driving that timing, or is it more of a 'when we get to it' situation? Helps me plan logistics." }
+    ],
+    authority: [
+      { rep_name:"Mary Ramirez", prospect_name:"EOIR (Federal)", narrative:"Government procurement involves multiple stakeholders. Mary didn't ask once who handles vendor approvals.", recommendation:"Before I send this over, help me understand, who typically handles vendor approvals for recycling at EOIR?" },
+      { rep_name:"Lee Garner", prospect_name:"Plus One Solutions", narrative:"Jenna handled all logistics but Lee never confirmed if she was the approver or just the coordinator.", recommendation:"Jenna, before we finalize this, are you the person who typically signs off, or does someone else need to weigh in?" },
+      { rep_name:"Karla Fuentes", prospect_name:"Aertron Heating & AC", narrative:"Matthew was 'getting feelers' but Karla didn't ask who else was involved in choosing.", recommendation:"When you say you're getting feelers, who else is part of that decision on your end?" },
+      { rep_name:"Lee Garner", prospect_name:"Core Construction", narrative:"Alexis handled logistics but Lee didn't lock the DM.", recommendation:"Alexis, are you the person who would approve moving forward, or is there someone else involved in that call?" }
+    ],
+    competition: [
+      { rep_name:"Karla Fuentes", prospect_name:"Aertron Heating & AC", narrative:"Matthew said 'reaching out for feelers' which usually means shopping. Karla didn't probe what else he was looking at.", recommendation:"Totally fair, what's most important to you in choosing a recycling partner? That'll help me understand if we're the right fit or not." },
+      { rep_name:"Mary Ramirez", prospect_name:"Starks Tech Center", narrative:"Prospect said 'we already utilize you all', golden opportunity to probe the existing relationship and expand. Mary didn't.", recommendation:"You already work with us, fantastic. When was your last pickup with STS? And who typically coordinates that on your end? Sometimes there are other parts of the organization we haven't reached." }
+    ],
+    other: [
+      { rep_name:"Teddi Verhage", prospect_name:"City of Beverly", narrative:"20-minute call with no progression. Teddi never asked Patrick to commit to a specific next step.", recommendation:"Patrick, I want to make sure your time is well spent, can we lock in a specific next step right now? Either a pickup date or a follow-up call. Which works?" },
+      { rep_name:"Karla Fuentes", prospect_name:"Pediatric Dental Clarksville", narrative:"Medical prospect with NO compliance discussion. Donna had 13-14 computers and HIPAA wasn't mentioned once.", recommendation:"Hi Donna, we're certified for HIPAA-compliant medical equipment disposal. Wanted to make sure you knew the protocol options before you had to think about it. Got 2 minutes?" }
+    ]
+  },
+
+  obj_trend: [
+    { week:"W1", pricing:18, timing:12, authority:42, competition:8, other:14 },
+    { week:"W2", pricing:16, timing:14, authority:38, competition:11, other:13 },
+    { week:"W3", pricing:14, timing:13, authority:35, competition:9, other:11 },
+    { week:"W4", pricing:13, timing:11, authority:31, competition:8, other:10 }
+  ],
+
+  dm_lib: [
+    { rep_name:"Mary Ramirez", prospect_name:"EOIR (Federal)", narrative:"Government procurement: didn't ask who handles vendor approval at EOIR.", recommendation:"Before I send this form over, help me understand, who typically handles the approval process for selecting recycling vendors at EOIR?" },
+    { rep_name:"Lee Garner", prospect_name:"Unknown (Miss Fay)", narrative:"Hot Hot call, confirmed deal, but never asked if Miss Fay or the IT director signs off.", recommendation:"Miss Fay, before we finalize logistics, are you the person who signs off on this pickup, or does the IT director need to approve?" },
+    { rep_name:"Mary Ramirez", prospect_name:"Heat & Eye Associates", narrative:"Gatekeeper call where DM wasn't available. No next step established to reach Keith directly.", recommendation:"When would be the best time to reach Keith? I have important compliance information about medical equipment disposal that he'll want directly." },
+    { rep_name:"Lee Garner", prospect_name:"Core Construction", narrative:"Alexis handled all logistics but DM was never confirmed.", recommendation:"Alexis, are you the person who would approve moving forward, or is there someone else involved in that call?" }
+  ],
+
+  ent_lib: [
+    { rep_name:"Lee Garner", prospect_name:"Wells Fargo Center", signal:"Wells Fargo Center managed by Cushman & Wakefield, massive enterprise opportunity completely unexplored.", recommendation:"Amalia, since we're handling this for Cushman & Wakefield, are there other buildings in their portfolio that might need similar service?" },
+    { rep_name:"Lee Garner", prospect_name:"Plus One Solutions", signal:"Office relocation, 40+ PCs, server rack, professional IT infrastructure suggests larger footprint.", recommendation:"Jenna, does Plus One Solutions have other offices that go through similar refreshes?" },
+    { rep_name:"Erica Rios", prospect_name:"Brand Safeway (Ste 290)", signal:"Office suite + brand name imply corporate structure not explored.", recommendation:"Perry, do you handle IT disposal for just this location or are there other Brand Safeway offices?" },
+    { rep_name:"Lee Garner", prospect_name:"Prince Capital Partners", signal:"Investment firm, portfolio companies are perfect cross-sell targets.", recommendation:"Victor, do any of your other portfolio companies need similar services? We can package it." },
+    { rep_name:"Mary Ramirez", prospect_name:"Greater Houston Psych", signal:"Multi-location practice (6 confirmed across Houston metro). Captured cleanly.", recommendation:"Tom, who at the practice handles vendor approvals across all 6 sites, is it you, or does it route through someone else?" },
+    { rep_name:"Estrella Galan", prospect_name:"University Lake School", signal:"4-campus district confirmed, Estrella probed correctly.", recommendation:"Karen, are you the one who approves this from the district side, or does it need to go through Dr. Patel?" },
+    { rep_name:"Karla Fuentes", prospect_name:"Coolidge ISD", signal:"School district = multi-campus opportunity, not explored.", recommendation:"Hi Laurie, we just helped two ISDs nearby this month with district-wide pickups. Worth a 5-minute call to see if Coolidge fits the same pattern?" },
+    { rep_name:"Lee Garner", prospect_name:"Orange Blossom Family Health", signal:"Multi-location FL healthcare system, confirmed and locked. Best capture this week.", recommendation:"Maria, when you mentioned consolidating to Orlando, what's the timeline on the other locations? We can plan capacity if it's all in one quarter." }
+  ],
+
+  // Negative reviews. Source: separate Google Sheet (Form_Responses tab),
+  // sheet id 1YF1c5KYSHi6NxhtS5yV5zDK9hlQkUeHIt45gYRhTbBk. A3 reads this
+  // sheet and returns rows here. Email and phone are nulled in sample data
+  // so the redaction toggle UI is exercised in dev; production data flows
+  // through with real contact values.
+  negative_reviews: [
+    { review_id:"r1", timestamp:"2026-05-04T10:28:42", name:"Venessa Mata", categories:["Communication","Timeliness / Scheduling"], narrative:"I was told by two different people that someone would reach out to me for scheduling. I had to reach out because no one ever called me. It wasn't until I called that Teddi had reached out directly to them on my behalf and I only received an email about the date they wished to come by. I sent two different emails trying to confirm the time and then ended up calling him directly in which he said he would get back with me & then sent another email at the end of day. It would be more efficient if one person can take the call and set up pick up with details instead of having 3 different people handle it. I think someone said it would take 3 days to hear from someone and it took longer.", wants_callback:false, email:null, phone:null },
+    { review_id:"r2", timestamp:"2026-04-21T11:14:55", name:"Kate Higgins", categories:["Professionalism"], narrative:"To Tony was great but the other man spoke to me rudely. No customer service skills at all. I'm an older woman; I felt his tone was disrespectful and he raised his voice. He did not apologize.", wants_callback:true, email:null, phone:null },
+    { review_id:"r3", timestamp:"2026-04-10T17:30:31", name:"Chad Swanson", categories:["Communication"], narrative:"Emailed the night before, but no arrival time given. Called 1 minute out.", wants_callback:false, email:null, phone:null },
+    { review_id:"r4", timestamp:"2026-04-09T09:32:04", name:"Dylan Saltarelli", categories:["Communication"], narrative:"We had pickups for 2 locations scheduled, and when emailing back and forth, STS was not specific about which location they were referring to sometimes, and it was also sometimes slow to get an email reply from STS.\n\nOverall pleased with the service otherwise.", wants_callback:false, email:null, phone:null },
+    { review_id:"r5", timestamp:"2026-04-02T15:13:03", name:"Mark Domnenko", categories:["Communication","Other"], narrative:"There are too many people", wants_callback:true, email:null, phone:null }
+  ]
+};
+
+// ════════════════════════════════════════════════════════════════════
+// STATE + HELPERS
+// ════════════════════════════════════════════════════════════════════
+const STATE = { range:"all", rep:"" };
+const CL = { gn:"#059669", rd:"#dc2626", am:"#d97706", pu:"#7c3aed", ac:"#2563eb", ac2:"#3b82f6", tl:"#0d9488", cy:"#0891b2", tx3:"#94a3b8" };
+const B = { home:false, calls:false, reps:false, train:false, reviews:false };
+
+const esc = s => (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const pc = v => v == null ? "var(--tx3)" : v >= 90 ? "var(--gn)" : v >= 70 ? "var(--am)" : "var(--rd)";
+const mc = (v,b) => v >= b ? "var(--gn)" : v >= b*.7 ? "var(--am)" : "var(--rd)";
+const fmtPct = v => v == null ? "n/a" : v + "%";
+// Per contract Section 6: aggregates use one decimal when fractional, no decimal when whole
+const fmtAvg = v => {
+  if (v == null || isNaN(v)) return "n/a";
+  return Number.isInteger(v) ? v + "%" : v.toFixed(1) + "%";
+};
+
+// V3 call_classification → display badge
+const CLS_MAP = {
+  inbound_sales:    { label:"INBOUND",    cls:"dir-in" },
+  outbound_sales:   { label:"OUTBOUND",   cls:"dir-out" },
+  admin_logistics:  { label:"ADMIN",      cls:"dir-admin" },
+  transfer:         { label:"TRANSFER",   cls:"dir-transfer" },
+  follow_up:        { label:"FOLLOW-UP",  cls:"dir-follow" },
+  unknown:          { label:"UNKNOWN",    cls:"dir-admin" }
+};
+const dirBadge = c => {
+  const m = CLS_MAP[c] || CLS_MAP.unknown;
+  return `<span class="dir-badge ${m.cls}">${m.label}</span>`;
+};
+
+// Filter calls by current date range
+function filterByRange(calls) {
+  if (STATE.range === "all") return calls;
+  const days = STATE.range === "today" ? 1 : STATE.range === "week" ? 7 : 30;
+  const cutoff = new Date(D.meta.last_updated);
+  cutoff.setDate(cutoff.getDate() - days);
+  return calls.filter(c => new Date(c.call_datetime) >= cutoff);
+}
+
+function aggCalls(calls) {
+  const graded = calls.filter(c => c.graded && c.score_percentage != null);
+  const t = calls.length;
+  const p90 = graded.filter(c => c.score_percentage >= 90).length;
+  const rf = calls.filter(c => c.red_flag_count > 0).length;
+  const avg = graded.length ? graded.reduce((s,c) => s+c.score_percentage, 0) / graded.length : 0;
+  const reps = new Set(calls.map(c => c.rep_name));
+  return { t, p90, rf, avg, active: reps.size, graded: graded.length };
+}
+
+function repAgg(repName, calls) {
+  const own = calls.filter(c => c.rep_name === repName);
+  const graded = own.filter(c => c.graded && c.score_percentage != null);
+  const avg = graded.length ? graded.reduce((s,c) => s+c.score_percentage, 0) / graded.length : 0;
+  const p90 = graded.filter(c => c.score_percentage >= 90).length;
+  const rf = own.filter(c => c.red_flag_count > 0).length;
+  const hits = { next_step:0, objection:0, decision_maker:0, budget_value:0, enterprise:0 };
+  graded.forEach(c => {
+    if (c.next_step_set) hits.next_step++;
+    if (c.objection_surfaced) hits.objection++;
+    if (c.decision_maker_identified) hits.decision_maker++;
+    if (c.budget_value_communicated) hits.budget_value++;
+    if (c.enterprise_probed) hits.enterprise++;
+  });
+  return { total: own.length, graded: graded.length, p90, rf, avg, metric_hits: hits };
+}
+
+// ════════════════════════════════════════════════════════════════════
+// DATA SOURCE CONFIG
+// ────────────────────────────────────────────────────────────────────
+// Set CONFIG.dataUrl to your n8n webhook (or other JSON endpoint) once
+// the data feed workflow is built. Until then, the dashboard runs on
+// the embedded sample data above.
+//
+// Endpoint must return JSON matching the canonical V3 schema. Per
+// AUTOMATION_2_BUILD_CONTRACT V1.1 Section 22, call rows use:
+//   call_id, rep_name, prospect_name, contact_name,
+//   call_type_inferred (HOT|WARM|COLD|SERVICE|RESIDENTIAL|NOT_SALES),
+//   call_classification (inbound_sales|outbound_sales|admin_logistics|transfer|follow_up),
+//   industry_inferred, meeting_duration_minutes, call_date, call_datetime,
+//   score_percentage (60-100 or null when graded:false), graded,
+//   red_flag_count, coaching_flag_count, red_flags, manager_alert_reason,
+//   next_step_set, objection_surfaced, decision_maker_identified,
+//   budget_value_communicated, enterprise_probed,
+//   strengths, coaching, recommendation, decision_path_next_action,
+//   enterprise_notes, industry_compliance_met, is_short_call, deal_priority
+//
+// Top-level shape: { meta, alerts, team, daily, reps, metrics, calls,
+//   followups, enterprise_funnel, obj_lib, obj_trend, dm_lib, ent_lib,
+//   negative_reviews }
+//
+// Sheets read by A3:
+//   Master sheet (1BxE4s0YlXxQt7c_XGmjHRkgu1hAFWO9CB96mLi4EM_4):
+//     Call_Scores, Dead_Calls, Service_Log
+//   Reviews sheet (1YF1c5KYSHi6NxhtS5yV5zDK9hlQkUeHIt45gYRhTbBk):
+//     Form_Responses (returns negative_reviews top-level key)
+//
+// negative_reviews row shape:
+//   { review_id, timestamp, name, categories[], narrative,
+//     wants_callback, email, phone }
+//
+// CORS note: if hosting the HTML and the endpoint on different origins,
+// the n8n webhook response must include Access-Control-Allow-Origin.
+// ════════════════════════════════════════════════════════════════════
+const CONFIG = {
+  dataUrl: null,            // e.g. "https://stsrecycling.app.n8n.cloud/webhook/dashboard-data"
+  triggerUrl: null,         // e.g. "https://stsrecycling.app.n8n.cloud/webhook/daily-report-now"
+  defaultIntervalMin: 0     // 0 = off
+};
+let refreshTimer = null;
+
+async function loadData(manual = false) {
+  if (!CONFIG.dataUrl) {
+    setStatus("sample", "Sample");
+    if (manual) {
+      // Briefly indicate the click was received even though no fetch happened
+      const btn = document.getElementById("rfshBtn");
+      btn.classList.add("spin");
+      setTimeout(() => btn.classList.remove("spin"), 600);
+      console.warn("loadData: CONFIG.dataUrl not set. Edit the file or wire an n8n webhook URL.");
+    }
+    return;
+  }
+  setStatus("loading", "Refreshing");
+  document.getElementById("rfshBtn").classList.add("spin");
+  try {
+    const r = await fetch(CONFIG.dataUrl, { cache: "no-store" });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const fresh = await r.json();
+    if (!fresh || !fresh.meta) throw new Error("Response missing meta block");
+    D = fresh;
+    document.getElementById("ts").textContent = "Last updated " + fmtTs(D.meta.last_updated);
+    document.getElementById("genTs").textContent = fmtTs(D.meta.last_updated);
+    renderAlerts();
+    rebuildAll();
+    setStatus("ok", "Live, just now");
+  } catch (e) {
+    setStatus("err", "Refresh failed");
+    console.error("loadData error:", e);
+  } finally {
+    document.getElementById("rfshBtn").classList.remove("spin");
+  }
+}
+
+function setStatus(state, text) {
+  const el = document.getElementById("rfshStatus");
+  el.className = "rfsh-st rfsh-" + state;
+  el.textContent = text;
+}
+
+function setRefreshInterval(min) {
+  if (refreshTimer) { clearInterval(refreshTimer); refreshTimer = null; }
+  if (min > 0 && CONFIG.dataUrl) {
+    refreshTimer = setInterval(() => loadData(false), min * 60 * 1000);
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// MANUAL REPORT TRIGGER
+// ────────────────────────────────────────────────────────────────────
+// POSTs to CONFIG.triggerUrl with a mode payload. The n8n workflow
+// reads `mode` and routes:
+//   { mode:"manager" }                   → run + email Sam only
+//   { mode:"rep", rep_name:"Lee Garner" } → run + email that rep only
+// rep_email is intentionally not sent. n8n looks up canonical emails
+// from the directory or Call_Scores to avoid trusting client payloads.
+// ════════════════════════════════════════════════════════════════════
+async function sendReport(mode, payload = {}, btn = null) {
+  if (!CONFIG.triggerUrl) {
+    alert("Manual trigger not configured.\n\nSet CONFIG.triggerUrl in the file to your n8n webhook URL (e.g. https://stsrecycling.app.n8n.cloud/webhook/daily-report-now).");
+    return false;
+  }
+  const label = mode === "manager" ? "manager report to Sam" : `coaching report to ${payload.rep_name}`;
+  if (!confirm(`Send the ${label} now?\n\nThis triggers the daily report workflow immediately instead of waiting for the 5:30pm scheduled run.`)) return false;
+
+  const origText = btn ? btn.textContent : null;
+  if (btn) { btn.disabled = true; btn.textContent = "Sending…"; }
+
+  try {
+    const r = await fetch(CONFIG.triggerUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ mode, ...payload, triggered_by: "dashboard", triggered_at: new Date().toISOString() })
+    });
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    if (btn) { btn.textContent = "✓ Sent"; setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 2500); }
+    else { alert(`Sent. The ${label} should arrive within a couple of minutes.`); }
+    return true;
+  } catch (e) {
+    if (btn) { btn.textContent = "✗ Failed"; setTimeout(() => { btn.textContent = origText; btn.disabled = false; }, 3000); }
+    alert(`Send failed: ${e.message}\n\nCheck the n8n workflow status and CORS headers on the webhook.`);
+    console.error("sendReport error:", e);
+    return false;
+  }
+}
+
+function sendRepReport(repName, btn) {
+  return sendReport("rep", { rep_name: repName }, btn);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// TAB SWITCHING
+// ════════════════════════════════════════════════════════════════════
+function st(id, btn) {
+  document.querySelectorAll("nav.tabs button").forEach(b => b.classList.remove("on"));
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("on"));
+  btn.classList.add("on");
+  document.getElementById(id).classList.add("on");
+  if (!B[id]) {
+    if (id === "home") buildHome();
+    if (id === "calls") buildCalls();
+    if (id === "reps") buildReps();
+    if (id === "train") buildTrain();
+    if (id === "reviews") buildReviews();
+    B[id] = true;
+  }
+  if (id === "reviews") markReviewsViewed();
+}
+
+function rebuildAll() {
+  Object.keys(B).forEach(k => B[k] = false);
+  // Rebuild whatever tab is currently visible so refreshes show immediately
+  const active = document.querySelector(".tab.on");
+  const id = active ? active.id : "home";
+  if (id === "home") buildHome();
+  else if (id === "calls") buildCalls();
+  else if (id === "reps") buildReps();
+  else if (id === "train") buildTrain();
+  else if (id === "reviews") buildReviews();
+  B[id] = true;
+  updateReviewsBadge();
+}
+
+// ════════════════════════════════════════════════════════════════════
+// THEME + RANGE
+// ════════════════════════════════════════════════════════════════════
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute("data-t");
+  document.documentElement.setAttribute("data-t", cur === "dark" ? "light" : "dark");
+  // Re-render charts so they pick up theme colors
+  Object.keys(B).forEach(k => B[k] = false);
+  buildHome();
+  B.home = true;
+}
+
+document.getElementById("rangeCtl").addEventListener("click", e => {
+  const b = e.target.closest("button[data-r]");
+  if (!b) return;
+  document.querySelectorAll("#rangeCtl button").forEach(x => x.classList.remove("on"));
+  b.classList.add("on");
+  STATE.range = b.dataset.r;
+  document.getElementById("cov").textContent = b.textContent.trim();
+  rebuildAll();
+});
+
+// ════════════════════════════════════════════════════════════════════
+// MANAGER ALERT BANNER
+// ════════════════════════════════════════════════════════════════════
+function renderAlerts() {
+  const bn = document.getElementById("alertBanner");
+  if (!D.alerts || D.alerts.length === 0) { bn.classList.add("hide"); return; }
+  document.getElementById("alertCnt").textContent = D.alerts.length;
+  document.getElementById("alertList").innerHTML = D.alerts
+    .map(a => `<span><strong>${esc(a.rep_name)}</strong> · ${esc(a.prospect_name)} · ${esc(a.call_date)}</span>`)
+    .join(" · ");
+  bn.classList.remove("hide");
+}
+function dismissAlerts() {
+  document.getElementById("alertBanner").classList.add("hide");
+}
+
+// ════════════════════════════════════════════════════════════════════
+// HOME (OVERVIEW) TAB
+// ════════════════════════════════════════════════════════════════════
+function buildHome() {
+  const calls = filterByRange(D.calls);
+  const A = aggCalls(calls);
+
+  // Recompute reps for window
+  const repList = D.reps.map(r => {
+    const a = repAgg(r.name, calls);
+    return { ...r, ...a };
+  }).filter(r => r.total > 0).sort((a,b) => b.avg - a.avg);
+
+  const hottest = calls.filter(c => c.call_type_inferred === "HOT" && c.graded && c.score_percentage != null).sort((a,b) => b.score_percentage - a.score_percentage)[0];
+  const biggestMiss = calls.filter(c => c.call_type_inferred === "HOT" && c.graded && c.score_percentage != null && c.score_percentage < 70 && c.meeting_duration_minutes >= 3).sort((a,b) => b.meeting_duration_minutes - a.meeting_duration_minutes)[0];
+  const entSignal = calls.find(c => c.enterprise_probed);
+
+  const fuOverdue = D.followups.filter(f => f.status === "overdue").length;
+  const fuStale = D.followups.filter(f => f.status === "stale").length;
+  const fuTotal = fuOverdue + fuStale;
+
+  document.getElementById("home").innerHTML = `
+    <div class="mgr-actions no-print">
+      <button class="mgr-btn mgr-btn-primary" onclick="sendReport('manager',{},this)">📧 Send Manager Report Now</button>
+      <button class="mgr-btn" onclick="window.print()">🖨 Print Dashboard</button>
+      <span class="mgr-actions-hint">Triggers the workflow immediately instead of waiting for 5:30pm.</span>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi kpi-blue"><div class="kpi-l">Calls Graded</div><div class="kpi-v">${A.graded}</div><div class="kpi-d">${A.t} total · ${A.t - A.graded} not scored</div></div>
+      <div class="kpi">
+        <div class="kpi-l">Avg Score</div>
+        <div class="kpi-v" style="color:${pc(A.avg)}">${fmtAvg(A.avg)}</div>
+        <div class="kpi-d">across ${A.graded} graded calls</div>
+      </div>
+      <div class="kpi kpi-green"><div class="kpi-l">Scored 90%+</div><div class="kpi-v" style="color:var(--gn)">${A.p90}</div><div class="kpi-d">${A.graded ? Math.round(A.p90/A.graded*100) : 0}% of graded</div></div>
+      <div class="kpi kpi-red"><div class="kpi-l">Red Flags</div><div class="kpi-v" style="color:var(--rd)">${A.rf}</div><div class="kpi-d">${fuTotal} stale follow-ups</div></div>
+      <div class="kpi kpi-purple"><div class="kpi-l">Active Reps</div><div class="kpi-v" style="color:var(--pu)">${A.active}</div><div class="kpi-d">in selected window</div></div>
+    </div>
+
+    <div class="row r-2-1">
+      <div class="cd">
+        <div class="cd-h"><div class="cd-t">Score Trend</div><div class="cd-st">Daily average · ${calls.length} calls</div></div>
+        <div class="chart-wrap"><canvas id="chTrend"></canvas></div>
+      </div>
+      <div class="cd">
+        <div class="cd-h"><div class="cd-t">Score Distribution</div><div class="cd-st">${A.graded} calls</div></div>
+        <div class="chart-wrap"><canvas id="chDist"></canvas></div>
+      </div>
+    </div>
+
+    <div class="row r-1-1-1">
+      ${hottest ? heroCard("am","🔥","Hottest Deal",hottest) : ""}
+      ${biggestMiss ? heroCard("rd","⚠️","Biggest Miss",biggestMiss) : ""}
+      ${entSignal ? heroCard("tl","🏢","Enterprise Signal",entSignal) : ""}
+    </div>
+
+    <div class="row r-2-1">
+      <div class="cd">
+        <div class="cd-h">
+          <div class="cd-t">Follow-up Tracker</div>
+          <div class="cd-st">${fuTotal} need attention · ${D.followups.filter(f=>f.status==='pending').length} pending</div>
+        </div>
+        <div id="fuList"></div>
+      </div>
+      <div class="cd">
+        <div class="cd-h">
+          <div class="cd-t">Enterprise Pipeline</div>
+          <div class="cd-st">Signal → Conversion</div>
+        </div>
+        <div class="fn">
+          ${funnelStage(1, "Signals Identified", D.enterprise_funnel.signals_identified, D.enterprise_funnel.signals_identified)}
+          ${funnelStage(2, "Explored", D.enterprise_funnel.explored, D.enterprise_funnel.signals_identified)}
+          ${funnelStage(3, "Converted", D.enterprise_funnel.converted, D.enterprise_funnel.signals_identified)}
+          <div class="fn-conv">
+            <span>Signal → Explore: <span class="mono">${Math.round(D.enterprise_funnel.explored/D.enterprise_funnel.signals_identified*100)}%</span></span>
+            <span>Explore → Convert: <span class="mono">${Math.round(D.enterprise_funnel.converted/D.enterprise_funnel.explored*100)}%</span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row r-3-2">
+      <div class="cd">
+        <div class="cd-h"><div class="cd-t">Metric Hit Rates</div><div class="cd-st">vs benchmark</div></div>
+        ${metricBar("Next Step", D.metrics.next_step, 70)}
+        ${metricBar("Decision Maker", D.metrics.decision_maker, 40)}
+        ${metricBar("Budget / Value", D.metrics.budget_value, 50)}
+        ${metricBar("Objection", D.metrics.objection, 30)}
+        ${metricBar("Enterprise Probe", D.metrics.enterprise, 25)}
+      </div>
+      <div class="cd">
+        <div class="cd-h"><div class="cd-t">Call Type Mix</div><div class="cd-st">${A.t} calls</div></div>
+        <div class="chart-wrap" style="height:220px"><canvas id="chTypes"></canvas></div>
+      </div>
+    </div>
+
+    <div class="cd" style="padding:0;overflow:hidden">
+      <div class="cd-h" style="padding:18px 18px 0"><div class="cd-t">Team Leaderboard</div><div class="cd-st">Click any rep to see their calls</div></div>
+      <table class="lb" style="margin-top:13px">
+        <thead><tr><th>#</th><th>Rep</th><th>Calls</th><th>Avg</th><th>90%+</th><th>NS</th><th>DM</th><th>BU</th><th>OB</th><th>EN</th><th>Flags</th></tr></thead>
+        <tbody>${repList.map((r,i) => leaderboardRow(r,i+1)).join("")}</tbody>
+      </table>
+    </div>
+
+    <div id="fuListAnchor"></div>
+  `;
+
+  // Populate follow-up list
+  const fuHtml = D.followups.length === 0
+    ? `<div class="fu-empty">No follow-ups in queue.</div>`
+    : D.followups.map(fuRow).join("");
+  document.getElementById("fuList").innerHTML = fuHtml;
+
+  // Charts
+  drawTrend(calls);
+  drawDist(calls.filter(c => c.graded && c.score_percentage != null));
+  drawTypes(calls);
+}
+
+function heroCard(kind, icon, label, c) {
+  const main = kind === "tl" ? c.enterprise_notes : c.coaching;
+  const pctDisp = c.score_percentage != null ? c.score_percentage + "%" : "n/g";
+  return `<div class="hero hero-${kind}" onclick="this.classList.toggle('open')">
+    <div class="hero-l">${icon} ${label}</div>
+    <div class="hero-pct">${pctDisp}</div>
+    <div class="hero-p">${esc(c.prospect_name)}</div>
+    <div class="hero-r">${esc(c.rep_name)} · ${esc(c.call_type_inferred)} · ${c.meeting_duration_minutes}min</div>
+    <div class="hero-co">${esc(main)}</div>
+    <div class="hero-hint">↓ click for details</div>
+    <div class="hero-ext">
+      <div class="hero-ext-l">Recommendation</div>
+      <div class="hero-ext-v">${esc(c.recommendation)}</div>
+    </div>
+  </div>`;
+}
+
+function metricBar(label, v, bm) {
+  const w = Math.min(v, 100);
+  const bmPos = Math.min(bm, 100);
+  return `<div class="mbar">
+    <div class="mbar-h"><span class="mbar-h-l">${label}</span><span class="mbar-h-v" style="color:${mc(v,bm)}">${v}%</span></div>
+    <div class="mbar-tk">
+      <div class="mbar-fl" style="width:${w}%;background:${mc(v,bm)}"></div>
+      <div class="mbar-bm" style="left:${bmPos}%"></div>
+    </div>
+    <div style="font-size:10.5px;color:var(--tx3);text-align:right;margin-top:-2px">benchmark ${bm}%</div>
+  </div>`;
+}
+
+function funnelStage(n, label, val, max) {
+  const pct = Math.round(val / max * 100);
+  return `<div class="fn-st">
+    <div class="fn-sh"><span class="fn-sh-l">${label}</span><span class="fn-sh-v">${val}<span class="fn-sh-pct">${pct}%</span></span></div>
+    <div class="fn-bar fn-bar-${n}" style="width:${Math.max(pct,18)}%">${val}</div>
+  </div>`;
+}
+
+function leaderboardRow(r, rank) {
+  const flag = r.rf > 0 ? `<span class="lb-fl-tag">${r.rf}</span>` : `<span class="lb-fl-tag ok">0</span>`;
+  const pctW = Math.max(0, Math.min(r.avg, 100));
+  const hitPct = (n) => Math.round((r.metric_hits[n] / r.graded * 100) || 0);
+  return `<tr onclick="goToRep('${esc(r.name)}')">
+    <td class="lb-rk">${rank}</td>
+    <td><div class="lb-nm">${esc(r.name)}</div><div class="lb-nm-sub">${esc(r.email)}</div></td>
+    <td class="lb-num">${r.total}</td>
+    <td><div class="lb-pct"><div class="lb-pct-bar"><div class="lb-pct-fl" style="width:${pctW}%;background:${pc(r.avg)}"></div></div><span class="mono" style="color:${pc(r.avg)};font-weight:600">${fmtAvg(r.avg)}</span></div></td>
+    <td class="lb-num">${r.p90}</td>
+    <td class="lb-mt" style="color:${mc(hitPct('next_step'),70)}">${hitPct('next_step')}%</td>
+    <td class="lb-mt" style="color:${mc(hitPct('decision_maker'),40)}">${hitPct('decision_maker')}%</td>
+    <td class="lb-mt" style="color:${mc(hitPct('budget_value'),50)}">${hitPct('budget_value')}%</td>
+    <td class="lb-mt" style="color:${mc(hitPct('objection'),30)}">${hitPct('objection')}%</td>
+    <td class="lb-mt" style="color:${mc(hitPct('enterprise'),25)}">${hitPct('enterprise')}%</td>
+    <td>${flag}</td>
+  </tr>`;
+}
+
+function fuRow(f) {
+  const tagCls = f.status === "stale" ? "fu-tag-st" : f.status === "overdue" ? "fu-tag-od" : "fu-tag-pn";
+  const tagLbl = f.status === "stale" ? `STALE ${f.days_overdue}d` : f.status === "overdue" ? `${f.days_overdue}d OVERDUE` : `DUE ${f.due_date}`;
+  return `<div class="fu-row">
+    <div>
+      <div class="fu-p">${esc(f.prospect_name)}</div>
+      <div class="fu-p-sub">${esc(f.rep_name)} · ${esc(f.decision_path_next_action)}</div>
+    </div>
+    <div class="fu-due mono">${f.due_date}</div>
+    <div><span class="fu-tag ${tagCls}">${tagLbl}</span></div>
+    <div class="fu-act" onclick="event.stopPropagation();alert('Open call ${f.call_id} (placeholder: wire to CRM)')">Open →</div>
+  </div>`;
+}
+
+function goToRep(name) {
+  STATE.rep = name;
+  const tabBtn = document.querySelectorAll("nav.tabs button")[1];
+  st("calls", tabBtn);
+}
+
+// ════════════════════════════════════════════════════════════════════
+// CHARTS
+// ════════════════════════════════════════════════════════════════════
+function chartTheme() {
+  const dark = document.documentElement.getAttribute("data-t") === "dark";
+  return {
+    grid: dark ? "rgba(148,163,184,.12)" : "rgba(148,163,184,.12)",
+    text: dark ? "#cbd5e1" : "#475569",
+    bg: dark ? "#1e293b" : "#fff",
+    bd: dark ? "#334155" : "#e2e8f0"
+  };
+}
+
+function drawTrend(calls) {
+  const th = chartTheme();
+  // Group by date
+  const byDate = {};
+  calls.filter(c => c.graded && c.score_percentage != null).forEach(c => {
+    if (!byDate[c.call_date]) byDate[c.call_date] = [];
+    byDate[c.call_date].push(c.score_percentage);
+  });
+  const dates = Object.keys(byDate).sort();
+  const avgs = dates.map(d => Math.round(byDate[d].reduce((a,b) => a+b, 0) / byDate[d].length));
+
+  // Fall back to D.daily if filtered set has too few points
+  const useDaily = dates.length < 4;
+  const labels = useDaily ? D.daily.map(d => d.date) : dates;
+  const values = useDaily ? D.daily.map(d => d.avg_score) : avgs;
+
+  new Chart(document.getElementById("chTrend"), {
+    type: "line",
+    data: {
+      labels,
+      datasets: [{
+        label: "Avg %",
+        data: values,
+        borderColor: CL.ac,
+        backgroundColor: ctx => {
+          const c = ctx.chart.ctx.createLinearGradient(0,0,0,200);
+          c.addColorStop(0, "rgba(37,99,235,.18)");
+          c.addColorStop(1, "rgba(37,99,235,0)");
+          return c;
+        },
+        fill: true,
+        tension: .3,
+        pointRadius: 3,
+        pointBackgroundColor: CL.ac,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: tooltipOpts() },
+      scales: {
+        y: { beginAtZero: false, min: 55, max: 100, grid: { color: th.grid }, ticks: { color: th.text, font: { family: "Outfit", size: 11 }, callback: v => v + "%" } },
+        x: { grid: { display: false }, ticks: { color: th.text, font: { family: "Outfit", size: 11 } } }
+      }
+    }
+  });
+}
+
+function drawDist(graded) {
+  const th = chartTheme();
+  const buckets = [
+    { l: "<70%", min: 0, max: 70, c: CL.rd },
+    { l: "70-79%", min: 70, max: 80, c: CL.am },
+    { l: "80-89%", min: 80, max: 90, c: CL.ac2 },
+    { l: "90%+", min: 90, max: 101, c: CL.gn }
+  ];
+  const counts = buckets.map(b => graded.filter(c => c.score_percentage != null && c.score_percentage >= b.min && c.score_percentage < b.max).length);
+  new Chart(document.getElementById("chDist"), {
+    type: "bar",
+    data: { labels: buckets.map(b => b.l), datasets: [{ data: counts, backgroundColor: buckets.map(b => b.c), borderRadius: 6, borderSkipped: false }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: tooltipOpts() },
+      scales: { y: { beginAtZero: true, grid: { color: th.grid }, ticks: { color: th.text, font: { family: "Outfit", size: 11 } } }, x: { grid: { display: false }, ticks: { color: th.text, font: { family: "Outfit", size: 11, weight: 600 } } } }
+    }
+  });
+}
+
+function drawTypes(calls) {
+  const th = chartTheme();
+  const types = {};
+  calls.forEach(c => { const k = c.call_type_inferred || "UNKNOWN"; types[k] = (types[k] || 0) + 1; });
+  const labels = Object.keys(types);
+  const data = Object.values(types);
+  const palette = [CL.am, CL.ac2, CL.gn, CL.pu, CL.cy, CL.tx3, CL.tl];
+  new Chart(document.getElementById("chTypes"), {
+    type: "doughnut",
+    data: { labels, datasets: [{ data, backgroundColor: palette.slice(0, labels.length), borderWidth: 2, borderColor: th.bg }] },
+    options: {
+      responsive: true, maintainAspectRatio: false, cutout: "62%",
+      plugins: { legend: { position: "right", labels: { color: th.text, font: { family: "Outfit", size: 11 }, padding: 10, boxWidth: 10 } }, tooltip: tooltipOpts() }
+    }
+  });
+}
+
+function tooltipOpts() {
+  return { backgroundColor: "rgba(255,255,255,.98)", titleColor: "#0f172a", bodyColor: "#475569", borderColor: "#e2e8f0", borderWidth: 1, padding: 10, cornerRadius: 8, titleFont: { family: "Outfit", size: 12, weight: 600 }, bodyFont: { family: "Outfit", size: 12 } };
+}
+
+// ════════════════════════════════════════════════════════════════════
+// CALLS TAB
+// ════════════════════════════════════════════════════════════════════
+function buildCalls() {
+  const root = document.getElementById("calls");
+  const allReps = [...new Set(D.calls.map(c => c.rep_name))].sort();
+  root.innerHTML = `
+    <div class="filter-bar">
+      <label style="font-size:12px;color:var(--tx2);font-weight:500">Rep:</label>
+      <select id="repFilter">
+        <option value="">All reps (${D.calls.length})</option>
+        ${allReps.map(r => `<option value="${esc(r)}" ${STATE.rep===r?"selected":""}>${esc(r)}</option>`).join("")}
+      </select>
+      <span class="hint">Click any call to expand full coaching</span>
+      <span class="count" id="callCount">…</span>
+    </div>
+    <div id="callList"></div>
+  `;
+  document.getElementById("repFilter").addEventListener("change", e => {
+    STATE.rep = e.target.value;
+    renderCallList();
+  });
+  renderCallList();
+}
+
+function renderCallList() {
+  let calls = filterByRange(D.calls);
+  if (STATE.rep) calls = calls.filter(c => c.rep_name === STATE.rep);
+
+  // Sort: red flags first, then manager alerts, then by datetime desc
+  calls = [...calls].sort((a,b) => {
+    if (a.red_flag_count !== b.red_flag_count) return b.red_flag_count - a.red_flag_count;
+    const aMa = a.manager_alert_reason ? 1 : 0;
+    const bMa = b.manager_alert_reason ? 1 : 0;
+    if (aMa !== bMa) return bMa - aMa;
+    return new Date(b.call_datetime) - new Date(a.call_datetime);
+  });
+
+  document.getElementById("callCount").textContent = calls.length + " calls";
+  document.getElementById("callsBadge").textContent = calls.length;
+  document.getElementById("callList").innerHTML = calls.length === 0
+    ? `<div class="cd" style="text-align:center;color:var(--tx3);padding:40px">No calls match the current filter.</div>`
+    : calls.map(callCard).join("");
+}
+
+function callCard(c) {
+  const cls = ["call"];
+  if (c.red_flag_count > 0) cls.push("call-flag");
+  if (c.manager_alert_reason) cls.push("call-ma");
+  if (!c.graded && (c.call_classification === "admin_logistics" || c.call_classification === "transfer")) cls.push("call-admin");
+
+  const dots = [
+    metricDot("NS", c.next_step_set),
+    metricDot("DM", c.decision_maker_identified),
+    metricDot("BU", c.budget_value_communicated),
+    metricDot("OB", c.objection_surfaced),
+    `<div class="dot ${c.enterprise_probed?'dot-en':'dot-en-no'}" title="Enterprise">EN</div>`
+  ].join("");
+
+  const ngrTag = !c.graded ? `<span class="ngr-tag">Not Scored</span>` : "";
+  const rfTag = c.red_flag_count > 0 ? `<span class="fl-tag">🚩 ${c.red_flag_count} red</span>` : "";
+  const cfTag = c.coaching_flag_count > 0 ? `<span class="cf-tag">⚑ ${c.coaching_flag_count} coach</span>` : "";
+  const maTag = c.manager_alert_reason ? `<span class="ma-tag">⚠ Manager Alert</span>` : "";
+  const pctDisp = c.graded && c.score_percentage != null ? c.score_percentage + "%" : "n/g";
+
+  return `<div class="${cls.join(" ")}">
+    <div class="call-hd" onclick="document.getElementById('cb-${c.call_id}').classList.toggle('open')">
+      <div>
+        <div class="call-p">${esc(c.prospect_name)}</div>
+        <div class="call-p-sub">${esc(c.rep_name)} → ${esc(c.contact_name)} · ${esc(c.industry_inferred)} · ${esc(c.call_type_inferred)}</div>
+      </div>
+      ${dirBadge(c.call_classification)}
+      ${rfTag}
+      ${cfTag}
+      ${maTag}
+      ${ngrTag}
+      <div class="dots">${dots}</div>
+      <span class="call-dur mono">${c.meeting_duration_minutes}m</span>
+      <span class="call-pct" style="color:${pc(c.score_percentage)}">${pctDisp}</span>
+    </div>
+    <div class="call-bd" id="cb-${c.call_id}">
+      ${c.manager_alert_reason?`<div class="cb cb-ma" style="margin-top:14px"><div class="cb-l">⚠ Manager Alert (Sam-only)</div><div class="cb-tx">${esc(c.manager_alert_reason)}</div></div>`:""}
+      <div class="call-grid">
+        <div>
+          ${c.strengths?`<div class="cb cb-st"><div class="cb-l">Strengths</div><div class="cb-tx">${esc(c.strengths)}</div></div>`:""}
+          ${c.red_flags?`<div class="cb cb-fl" style="margin-top:10px"><div class="cb-l">Red Flag</div><div class="cb-tx">${esc(c.red_flags)}</div></div>`:""}
+          ${c.coaching?`<div class="cb cb-co" style="margin-top:10px"><div class="cb-l">Coaching</div><div class="cb-tx">${esc(c.coaching)}</div></div>`:""}
+        </div>
+        <div>
+          ${c.decision_path_next_action?`<div class="cb cb-na"><div class="cb-l">Next Action</div><div class="cb-tx">${esc(c.decision_path_next_action)}</div></div>`:""}
+          ${c.enterprise_notes?`<div class="cb cb-en" style="margin-top:10px"><div class="cb-l">Enterprise Signal</div><div class="cb-tx">${esc(c.enterprise_notes)}</div></div>`:""}
+        </div>
+      </div>
+      ${c.recommendation?`<div class="cb-rec"><div class="cb-rec-l">Recommendation</div><div class="cb-rec-tx">${esc(c.recommendation)}</div></div>`:""}
+      <div class="call-act">
+        <button class="act-btn" onclick="event.stopPropagation();alert('View transcript ${c.call_id} (wire to Krisp URL)')">📄 View Transcript</button>
+        <button class="act-btn" onclick="event.stopPropagation();alert('Schedule follow-up ${c.call_id} (wire to Calendar)')">📅 Schedule Follow-up</button>
+        <button class="act-btn" onclick="event.stopPropagation();alert('Open ${c.call_id} in CRM (wire to SugarCRM)')">🔗 Open in CRM</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function metricDot(label, ok) {
+  return `<div class="dot ${ok?'dot-ok':'dot-no'}" title="${label}">${ok?'✓':'×'}</div>`;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// REPS TAB
+// ════════════════════════════════════════════════════════════════════
+function buildReps() {
+  const calls = filterByRange(D.calls);
+  const repList = D.reps.map(r => {
+    const a = repAgg(r.name, calls);
+    return { ...r, ...a };
+  }).filter(r => r.total > 0).sort((a,b) => b.avg - a.avg);
+
+  document.getElementById("reps").innerHTML = `<div class="rep-grid">${repList.map(repCard).join("")}</div>`;
+}
+
+function repCard(r) {
+  const odBadge = r.overdue_followups > 0 ? `<span class="rep-od">${r.overdue_followups} OVERDUE</span>` : "";
+  const hitPct = (n) => Math.round((r.metric_hits[n] / r.graded * 100) || 0);
+  return `<div class="cd rep-cd" onclick="goToRep('${esc(r.name)}')">
+    <div class="rep-hd">
+      <div>
+        <div class="rep-nm">${esc(r.name)}</div>
+        <div class="rep-em">${esc(r.email)}</div>
+        <div class="rep-cnt">${r.total} calls · ${r.graded} graded ${odBadge}</div>
+      </div>
+      <div style="text-align:right">
+        <div class="rep-big" style="color:${pc(r.avg)}">${fmtAvg(r.avg).replace('%','<span style="font-size:18px">%</span>')}</div>
+        <div style="font-size:10.5px;color:var(--tx3);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-top:2px">Avg score</div>
+      </div>
+    </div>
+    <div class="rep-stats">
+      <div class="rep-st"><div class="rep-st-v">${r.total}</div><div class="rep-st-l">Total</div></div>
+      <div class="rep-st"><div class="rep-st-v" style="color:var(--gn)">${r.p90}</div><div class="rep-st-l">90%+</div></div>
+      <div class="rep-st"><div class="rep-st-v" style="color:var(--am)">${r.graded - r.p90}</div><div class="rep-st-l">Below</div></div>
+      <div class="rep-st"><div class="rep-st-v" style="color:var(--rd)">${r.rf}</div><div class="rep-st-l">Flags</div></div>
+    </div>
+    ${metricBar("Next Step", hitPct('next_step'), 70)}
+    ${metricBar("Decision Maker", hitPct('decision_maker'), 40)}
+    ${metricBar("Budget / Value", hitPct('budget_value'), 50)}
+    ${metricBar("Objection", hitPct('objection'), 30)}
+    <div class="rep-actions no-print">
+      <button class="rep-btn" onclick="event.stopPropagation();sendRepReport('${esc(r.name)}',this)">📧 Send Report</button>
+      <span class="rep-vl">View calls →</span>
+    </div>
+  </div>`;
+}
+
+// ════════════════════════════════════════════════════════════════════
+// TRAINING TAB
+// ════════════════════════════════════════════════════════════════════
+function buildTrain() {
+  const buckets = [
+    { k:"authority", lbl:"Authority / Decision Maker", desc:"Calls where the decision maker wasn't identified or confirmed" },
+    { k:"pricing", lbl:"Pricing / Budget", desc:"Cost concerns surfaced but not handled with value reframe" },
+    { k:"timing", lbl:"Timing / Urgency", desc:"Stalls and 'next month' deflections without probing" },
+    { k:"competition", lbl:"Competition / Shopping", desc:"Prospect comparing options without rep probing the alternatives" },
+    { k:"other", lbl:"Other Misses", desc:"Compliance gaps, no progression, or scope-specific misses" }
+  ];
+
+  const objHtml = buckets.map(b => {
+    const items = D.obj_lib[b.k] || [];
+    return `<div class="bucket" id="bk-${b.k}">
+      <div class="bucket-hd" onclick="document.getElementById('bk-${b.k}').classList.toggle('open')">
+        <span class="bucket-arrow">▶</span>
+        <span class="bucket-nm">${b.lbl}</span>
+        <span class="bucket-cnt">${items.length}</span>
+      </div>
+      <div class="bucket-bd">
+        <div style="font-size:11.5px;color:var(--tx3);padding:4px 0 6px">${b.desc}</div>
+        ${items.map((it,i) => trainCard(it, `${b.k}-${i}`)).join("")}
+      </div>
+    </div>`;
+  }).join("");
+
+  document.getElementById("train").innerHTML = `
+    <div class="cd" style="margin-bottom:14px">
+      <div class="cd-h"><div class="cd-t">Objection Trend (4-week)</div><div class="cd-st">Misses by category, last 4 weeks</div></div>
+      <div class="chart-wrap" style="height:200px"><canvas id="chObjTrend"></canvas></div>
+    </div>
+
+    <div class="cd" style="margin-bottom:14px">
+      <div class="cd-h"><div class="cd-t">Objection Library</div><div class="cd-st">Real misses, categorized (click bucket to expand)</div></div>
+      <div class="train-intro">Patterns Sam can drill on with reps. Each bucket shows recent calls where reps missed the moment, plus the recommended response.</div>
+      ${objHtml}
+    </div>
+
+    <div class="cd" style="margin-bottom:14px">
+      <div class="cd-h"><div class="cd-t">Decision Maker Identification</div><div class="cd-st">${D.dm_lib.length} examples</div></div>
+      <div>${D.dm_lib.map((it,i) => trainCard(it, "dm-"+i)).join("")}</div>
+    </div>
+
+    <div class="cd" style="margin-bottom:14px">
+      <div class="cd-h"><div class="cd-t">Enterprise Exploration</div><div class="cd-st">${D.ent_lib.length} examples</div></div>
+      <div>${D.ent_lib.map((it,i) => trainCard(it, "en-"+i, true)).join("")}</div>
+    </div>
+
+    <div class="cd">
+      <div class="cd-h"><div class="cd-t">Quick Reference</div><div class="cd-st">What earns each metric</div></div>
+      <div class="cheat">
+        ${cheatItem("Next Step", "+10%", "Did the rep set a specific, time-bound next action?", "I'll call you Tuesday at 2pm to confirm…")}
+        ${cheatItem("Budget / Value", "+10%", "Was free pickup, COD, or value reframe communicated?", "We pay you for the equipment, not the other way around.")}
+        ${cheatItem("Decision Maker", "+10%", "Did the rep confirm who approves the deal?", "Are you the one who signs off, or does someone else weigh in?")}
+        ${cheatItem("Objection", "+5%", "Was at least one concern surfaced and addressed?", "Any concerns about the timing or scope?")}
+        ${cheatItem("Enterprise", "+5% (always available)", "Did the rep probe parent org or multi-location?", "Does your company have other offices that handle this?")}
+        ${cheatItem("Baseline", "60%", "Floor: nobody scores below 60%. Bonuses build to 100%.", "")}
+      </div>
+    </div>
+  `;
+
+  drawObjTrend();
+  // Auto-open the first bucket so it's not a blank slab on tab open
+  const firstKey = buckets[0].k;
+  setTimeout(() => document.getElementById("bk-"+firstKey).classList.add("open"), 50);
+}
+
+function trainCard(it, id, isEnt) {
+  const head = isEnt ? it.signal : it.narrative;
+  return `<div class="tr-card" id="tc-${id}" onclick="document.getElementById('tc-${id}').classList.toggle('open')">
+    <div class="tr-hd">
+      <div style="flex:1">
+        <div class="tr-pp">${esc(it.prospect_name)}</div>
+        <div class="tr-pp-sub">${esc(it.rep_name)} · ${isEnt?"Enterprise signal":"Objection scenario"}</div>
+      </div>
+      <span class="tr-arrow">▶</span>
+    </div>
+    <div class="tr-bd">
+      <div class="tr-miss">${esc(head)}</div>
+      <div class="tr-rec"><div class="tr-rec-l">Recommendation</div><div class="tr-rec-tx">${esc(it.recommendation)}</div></div>
+    </div>
+  </div>`;
+}
+
+function cheatItem(label, bonus, desc, ex) {
+  return `<div class="cheat-it">
+    <h4>${label} <span class="cheat-bonus">${bonus}</span></h4>
+    <p>${desc}</p>
+    ${ex ? `<p class="cheat-ex">e.g., "${esc(ex)}"</p>` : ""}
+  </div>`;
+}
+
+function drawObjTrend() {
+  const th = chartTheme();
+  const cats = [
+    { k:"authority", l:"Authority", c:CL.rd },
+    { k:"pricing", l:"Pricing", c:CL.am },
+    { k:"timing", l:"Timing", c:CL.ac2 },
+    { k:"competition", l:"Competition", c:CL.pu },
+    { k:"other", l:"Other", c:CL.tx3 }
+  ];
+  new Chart(document.getElementById("chObjTrend"), {
+    type: "line",
+    data: {
+      labels: D.obj_trend.map(w => w.week),
+      datasets: cats.map(c => ({
+        label: c.l,
+        data: D.obj_trend.map(w => w[c.k]),
+        borderColor: c.c, backgroundColor: c.c,
+        tension: .3, pointRadius: 3, borderWidth: 2, fill: false
+      }))
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { position: "bottom", labels: { color: th.text, font: { family: "Outfit", size: 11 }, padding: 12, boxWidth: 10, usePointStyle: true } },
+        tooltip: tooltipOpts()
+      },
+      scales: {
+        y: { beginAtZero: true, grid: { color: th.grid }, ticks: { color: th.text, font: { family: "Outfit", size: 11 } } },
+        x: { grid: { display: false }, ticks: { color: th.text, font: { family: "Outfit", size: 11, weight: 600 } } }
+      }
+    }
+  });
+}
+
+// ════════════════════════════════════════════════════════════════════
+// NEGATIVE REVIEWS TAB
+// ────────────────────────────────────────────────────────────────────
+// Local notification state via localStorage. Tracks the latest review
+// timestamp the user has seen. Anything newer triggers the red dot on
+// the tab. Opening the tab clears the dot. State is per-browser, not
+// synced across devices, which is fine for V1.
+// ════════════════════════════════════════════════════════════════════
+const REVIEWS_VIEWED_KEY = "sts_reviews_last_viewed";
+
+function getReviewsLastViewed() {
+  return localStorage.getItem(REVIEWS_VIEWED_KEY) || "1970-01-01T00:00:00";
+}
+
+function markReviewsViewed() {
+  if (!D.negative_reviews || D.negative_reviews.length === 0) return;
+  const latest = D.negative_reviews
+    .map(r => r.timestamp)
+    .sort()
+    .reverse()[0];
+  localStorage.setItem(REVIEWS_VIEWED_KEY, latest);
+  updateReviewsBadge();
+}
+
+function updateReviewsBadge() {
+  const reviews = D.negative_reviews || [];
+  const lastViewed = getReviewsLastViewed();
+  const newCount = reviews.filter(r => r.timestamp > lastViewed).length;
+  const dot = document.getElementById("reviewsDot");
+  const badge = document.getElementById("reviewsBadge");
+  if (newCount > 0) {
+    dot.classList.add("show");
+    badge.textContent = newCount;
+    badge.style.display = "inline-block";
+  } else {
+    dot.classList.remove("show");
+    badge.style.display = "none";
+  }
+}
+
+function buildReviews() {
+  const reviews = (D.negative_reviews || []).slice().sort((a,b) =>
+    new Date(b.timestamp) - new Date(a.timestamp)
+  );
+  const lastViewed = getReviewsLastViewed();
+  const newCount = reviews.filter(r => r.timestamp > lastViewed).length;
+  const cbCount = reviews.filter(r => r.wants_callback).length;
+
+  // Category breakdown
+  const catCounts = {};
+  reviews.forEach(r => (r.categories || []).forEach(c => {
+    catCounts[c] = (catCounts[c] || 0) + 1;
+  }));
+  const catEntries = Object.entries(catCounts).sort((a,b) => b[1] - a[1]);
+
+  const root = document.getElementById("reviews");
+  if (reviews.length === 0) {
+    root.innerHTML = `
+      <div class="rv-hd">
+        <div class="rv-hd-t">Customer Complaints</div>
+        <div class="rv-hd-st">No negative reviews on file</div>
+      </div>
+      <div class="rv-empty">When customers submit a negative review through the feedback form, it shows up here.</div>
+    `;
+    return;
+  }
+
+  root.innerHTML = `
+    <div class="rv-hd">
+      <div class="rv-hd-t">Customer Complaints</div>
+      <div class="rv-hd-st">${reviews.length} on file · sorted newest first</div>
+    </div>
+    <div class="rv-stats">
+      ${newCount > 0 ? `<div class="rv-stat rv-stat-new"><strong>${newCount}</strong> new since last visit</div>` : ""}
+      <div class="rv-stat"><strong>${cbCount}</strong> requesting callback</div>
+      ${catEntries.map(([c,n]) => `<div class="rv-stat"><strong>${n}</strong> ${esc(c)}</div>`).join("")}
+    </div>
+    <div id="rvList">
+      ${reviews.map(r => reviewCard(r, lastViewed)).join("")}
+    </div>
+  `;
+}
+
+function reviewCard(r, lastViewed) {
+  const isNew = r.timestamp > lastViewed;
+  const cls = ["rv-card"];
+  if (isNew) cls.push("rv-new");
+  if (r.wants_callback) cls.push("rv-cb");
+
+  const dt = new Date(r.timestamp);
+  const dtStr = `${dt.getMonth()+1}/${dt.getDate()}/${dt.getFullYear()} ${String(dt.getHours()).padStart(2,'0')}:${String(dt.getMinutes()).padStart(2,'0')}`;
+
+  const catPills = (r.categories || []).map(c => {
+    const lc = c.toLowerCase();
+    let kind = "other";
+    if (lc.includes("comm")) kind = "comm";
+    else if (lc.includes("prof")) kind = "prof";
+    else if (lc.includes("time") || lc.includes("schedul")) kind = "time";
+    return `<span class="rv-cat-p rv-cat-${kind}">${esc(c)}</span>`;
+  }).join("");
+
+  const tags = [
+    isNew ? `<span class="rv-new-tag">NEW</span>` : "",
+    r.wants_callback ? `<span class="rv-cb-tag">⚠ Wants callback</span>` : ""
+  ].filter(Boolean).join(" ");
+
+  return `<div class="${cls.join(" ")}" onclick="this.classList.toggle('open')">
+    <div class="rv-top">
+      <div class="rv-nm">${esc(r.name || "Anonymous")}</div>
+      ${tags}
+      <div class="rv-dt">${dtStr}</div>
+    </div>
+    <div class="rv-cat">${catPills}</div>
+    <div class="rv-tx">${esc(r.narrative || "(no narrative provided)")}</div>
+    <div class="rv-contact">
+      <div class="rv-contact-row">
+        <span class="rv-contact-l">Email</span>
+        ${contactField(r.email, 'email-' + r.review_id)}
+      </div>
+      <div class="rv-contact-row">
+        <span class="rv-contact-l">Phone</span>
+        ${contactField(r.phone, 'phone-' + r.review_id)}
+      </div>
+    </div>
+  </div>`;
+}
+
+function contactField(val, id) {
+  if (val == null || val === "") return `<span class="rv-contact-v masked">not provided</span>`;
+  return `<span class="rv-contact-v masked" id="${id}" data-real="${esc(val)}">${maskContact(val)}</span><span class="rv-show-btn" onclick="event.stopPropagation();revealContact('${id}')">Show</span>`;
+}
+
+function maskContact(s) {
+  if (!s) return "";
+  if (s.includes("@")) {
+    const [u, d] = s.split("@");
+    return (u.length <= 2 ? u[0] : u.slice(0,2)) + "***@" + d;
+  }
+  // phone
+  const digits = s.replace(/\D/g, "");
+  if (digits.length >= 4) return "***-***-" + digits.slice(-4);
+  return "***";
+}
+
+function revealContact(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = el.dataset.real;
+  el.classList.remove("masked");
+  // Remove the Show button next to it
+  if (el.nextElementSibling && el.nextElementSibling.classList.contains("rv-show-btn")) {
+    el.nextElementSibling.remove();
+  }
+}
+
+
+// ════════════════════════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════════════════════════
+function fmtTs(iso) {
+  const d = new Date(iso);
+  const pad = n => String(n).padStart(2, "0");
+  return `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// URL param: ?rep=Lee Garner pre-filters to that rep on load
+function applyUrlParams() {
+  const u = new URL(window.location.href);
+  const rep = u.searchParams.get("rep");
+  if (rep) {
+    STATE.rep = rep;
+  }
+}
+
+document.getElementById("ts").textContent = "Last updated " + fmtTs(D.meta.last_updated);
+document.getElementById("genTs").textContent = fmtTs(D.meta.last_updated);
+
+// Auto-refresh dropdown
+const intervalSel = document.getElementById("rfshInterval");
+intervalSel.value = String(CONFIG.defaultIntervalMin);
+intervalSel.addEventListener("change", e => setRefreshInterval(parseInt(e.target.value, 10)));
+setRefreshInterval(CONFIG.defaultIntervalMin);
+
+applyUrlParams();
+renderAlerts();
+buildHome();
+B.home = true;
+updateReviewsBadge();
+
+// Initial data load attempt (no-op if CONFIG.dataUrl not set)
+if (CONFIG.dataUrl) loadData(false);
+
+// If a rep was passed via URL, jump to call log filtered to them
+if (STATE.rep) {
+  setTimeout(() => st("calls", document.querySelectorAll("nav.tabs button")[1]), 200);
+}
+</script>
+</body>
+</html>
