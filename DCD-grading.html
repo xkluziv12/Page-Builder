@@ -342,7 +342,6 @@ footer .mono{color:var(--tx2)}
     <span class="rfsh-st rfsh-sample" id="rfshStatus">Sample</span>
     <select class="rfsh-sel" id="rfshInterval" title="Auto-refresh interval">
       <option value="0">Auto: Off</option>
-      <option value="5">Auto: 5 min</option>
       <option value="15">Auto: 15 min</option>
       <option value="30">Auto: 30 min</option>
     </select>
@@ -1872,15 +1871,60 @@ async function loadData(manual = false) {
     const fresh = await r.json();
     if (!fresh || !fresh.meta) throw new Error("Response missing meta block");
     D = fresh;
+    saveCache(fresh);
     document.getElementById("genTs").textContent = fmtTs(D.meta.last_updated);
     rebuildAll();
     setStatus("ok", "Live, just now");
   } catch (e) {
-    setStatus("err", "Refresh failed");
+    setStatus("err", "Refresh failed · using cache");
     console.error("loadData error:", e);
   } finally {
     document.getElementById("rfshBtn").classList.remove("spin");
   }
+}
+
+// ════════════════════════════════════════════════════════════════════
+// LOCAL CACHE
+// Persists last successful A3 response in browser localStorage so the
+// dashboard reloads instantly without hitting the webhook. Manual refresh
+// and the auto-refresh interval still hit A3 on demand.
+// CACHE_VERSION: bump when A3's payload shape changes (renamed field, new
+// section, etc) so old caches with incompatible schemas are silently
+// ignored and refetched instead of rendering a broken view.
+// ════════════════════════════════════════════════════════════════════
+const CACHE_VERSION = 1;
+const CACHE_KEY = "dcd_dash_data_v1";
+const CACHE_TS_KEY = "dcd_dash_ts_v1";
+const CACHE_VER_KEY = "dcd_dash_ver_v1";
+
+function saveCache(data) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(data));
+    localStorage.setItem(CACHE_TS_KEY, String(Date.now()));
+    localStorage.setItem(CACHE_VER_KEY, String(CACHE_VERSION));
+  } catch (e) {
+    console.warn("Cache write failed:", e.message);
+  }
+}
+
+function loadCache() {
+  try {
+    const ver = parseInt(localStorage.getItem(CACHE_VER_KEY) || "0", 10);
+    if (ver !== CACHE_VERSION) return null;
+    const raw = localStorage.getItem(CACHE_KEY);
+    const ts = localStorage.getItem(CACHE_TS_KEY);
+    if (!raw || !ts) return null;
+    const data = JSON.parse(raw);
+    if (!data || !data.meta) return null;
+    return { data, ts: parseInt(ts, 10) };
+  } catch (e) {
+    console.warn("Cache read failed:", e.message);
+    return null;
+  }
+}
+
+function ageMin(ts) {
+  return Math.round((Date.now() - ts) / 60000);
 }
 
 function setStatus(state, text) {
@@ -2645,11 +2689,21 @@ document.getElementById("rfshInterval").addEventListener("change", e => setRefre
 document.getElementById("rfshInterval").value = String(CONFIG.defaultIntervalMin);
 setRefreshInterval(CONFIG.defaultIntervalMin);
 
+// Hydrate from cache before first paint so reloads are instant and survive
+// network failures or n8n outages. A3 fetch (manual or scheduled) overwrites cache.
+if (CONFIG.dataUrl) {
+  const cached = loadCache();
+  if (cached) {
+    D = cached.data;
+    setStatus("ok", `Cached · ${ageMin(cached.ts)} min ago`);
+  }
+}
+
 buildHome();
 B.home = true;
 updateBadges();
 
-if(CONFIG.dataUrl) loadData(false);
+if (CONFIG.dataUrl) loadData(false);
 </script>
 </body>
 </html>
