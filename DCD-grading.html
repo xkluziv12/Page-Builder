@@ -21,15 +21,16 @@ a{color:inherit;text-decoration:none}
 header{background:var(--cd);border-bottom:1px solid var(--bd);padding:12px 24px;display:flex;align-items:center;gap:18px;position:sticky;top:0;z-index:50}
 .logo{font-weight:700;font-size:16px;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
 .logo-mk{width:24px;height:24px;background:linear-gradient(135deg,var(--tl),var(--ac));border-radius:6px;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:700}
-.logo-sub{font-size:11px;color:var(--tx3);font-weight:500;border-left:1px solid var(--bd);padding-left:10px;margin-left:2px}
 .spacer{flex:1}
-.ts{font-size:11px;color:var(--tx3);font-family:'IBM Plex Mono',monospace}
 .range{display:flex;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:2px}
 .range button{background:none;border:none;padding:5px 11px;font-size:11.5px;font-weight:500;color:var(--tx2);cursor:pointer;border-radius:6px}
 .range button.on{background:var(--cd);color:var(--tx);box-shadow:var(--shd)}
 .icon-btn{background:none;border:1px solid var(--bd);border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--tx2);font-size:11.5px;display:inline-flex;align-items:center;gap:5px}
 .icon-btn:hover{background:var(--bg);color:var(--tx)}
 .icon-btn.spin svg,.icon-btn.spin span{animation:spin .9s linear infinite;display:inline-block}
+.icon-btn-prim{background:linear-gradient(135deg,#0d9488 0%,#0f766e 100%);color:#fff;border-color:transparent;font-weight:600}
+.icon-btn-prim:hover{filter:brightness(1.12);background:linear-gradient(135deg,#0d9488 0%,#0f766e 100%);color:#fff}
+.icon-btn:disabled{opacity:.6;cursor:not-allowed}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* REFRESH BAR */
@@ -228,15 +229,6 @@ main{max-width:1440px;margin:0 auto;padding:22px}
 .act-btn{font-size:11.5px;padding:7px 13px;background:var(--cd);border:1px solid var(--bd);border-radius:7px;cursor:pointer;color:var(--tx2);font-family:inherit;font-weight:500}
 .act-btn:hover{background:var(--bg);color:var(--tx);border-color:var(--bd2)}
 
-/* Manager action bar */
-.mgr-actions{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
-.mgr-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;border:1px solid var(--bd);background:var(--cd);color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
-.mgr-btn:hover:not(:disabled){background:var(--bg);border-color:var(--bd2)}
-.mgr-btn-primary{background:linear-gradient(135deg,#0d9488 0%,#0f766e 100%);color:#fff;border-color:transparent}
-.mgr-btn-primary:hover:not(:disabled){filter:brightness(1.12)}
-.mgr-btn:disabled{opacity:.6;cursor:not-allowed}
-.mgr-actions-hint{font-size:11.5px;color:var(--tx3);margin-left:4px}
-
 /* REP CARDS */
 .rep-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .rep-cd{cursor:pointer;transition:transform .15s,box-shadow .15s}
@@ -311,6 +303,9 @@ main{max-width:1440px;margin:0 auto;padding:22px}
 /* FOOTER */
 footer{padding:18px 24px;text-align:center;font-size:11px;color:var(--tx3);border-top:1px solid var(--bd);margin-top:24px}
 footer .mono{color:var(--tx2)}
+.mark-attr{margin-top:10px;font-size:10.5px;color:var(--tx3);letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+.mark-name{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--ac2);letter-spacing:1.2px}
+.mark-sub{color:var(--tx3);font-size:10px;font-style:italic;opacity:.85}
 
 /* RESPONSIVE */
 @media(max-width:1100px){
@@ -322,7 +317,6 @@ footer .mono{color:var(--tx2)}
 }
 @media(max-width:640px){
   header{flex-wrap:wrap;gap:10px;padding:10px 14px}
-  .logo-sub{display:none}
   main{padding:14px}
   .kpis{grid-template-columns:repeat(2,1fr);gap:10px}
   nav.tabs{padding:0 10px}
@@ -342,9 +336,8 @@ footer .mono{color:var(--tx2)}
 <body>
 
 <header>
-  <div class="logo"><span class="logo-mk">D</span><span>DCD Call Intel</span><span class="logo-sub">Mike's Workspace</span></div>
+  <div class="logo"><span class="logo-mk">D</span><span>DCD Call Intel</span></div>
   <div class="spacer"></div>
-  <span class="ts" id="ts">Loading…</span>
   <div class="rfsh">
     <span class="rfsh-st rfsh-sample" id="rfshStatus">Sample</span>
     <select class="rfsh-sel" id="rfshInterval" title="Auto-refresh interval">
@@ -362,7 +355,7 @@ footer .mono{color:var(--tx2)}
     <button data-r="all" class="on">All</button>
   </div>
   <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">🌓</button>
-  <button class="icon-btn" onclick="window.print()" title="Print">⎙ Print</button>
+  <button class="icon-btn icon-btn-prim" onclick="sendReport('manager',{},this)" title="Send report to Mike now (skips 6:30pm scheduled run)">📧 Send Report</button>
 </header>
 
 <div class="sample-bn">📊 Sample data shown for layout review. Production data will populate from <span class="mono">Call_Log</span> via the DCD A3 webhook once wired.</div>
@@ -396,6 +389,7 @@ footer .mono{color:var(--tx2)}
 
 <footer>
   DCD Call Intelligence · v1 · <span class="mono">Generated <span id="genTs">…</span></span> · Range: <span id="cov" class="mono">All</span>
+  <div class="mark-attr">Powered by <span class="mark-name">M.A.R.K.</span> <span class="mark-sub">Machine Assisted Routing Kit</span></div>
 </footer>
 
 <script>
@@ -1878,7 +1872,6 @@ async function loadData(manual = false) {
     const fresh = await r.json();
     if (!fresh || !fresh.meta) throw new Error("Response missing meta block");
     D = fresh;
-    document.getElementById("ts").textContent = "Last updated " + fmtTs(D.meta.last_updated);
     document.getElementById("genTs").textContent = fmtTs(D.meta.last_updated);
     rebuildAll();
     setStatus("ok", "Live, just now");
@@ -2026,11 +2019,6 @@ function buildHome(){
   const fin = sc.financials||{};
   const home = document.getElementById("home");
   home.innerHTML = `
-    <div class="mgr-actions">
-      <button class="mgr-btn mgr-btn-primary" onclick="sendReport('manager',{},this)">📤 Send Report to Mike Now</button>
-      <span class="mgr-actions-hint">POSTs to A2 webhook · scheduled run is 6:30 PM ET</span>
-    </div>
-
     <div class="kpis">
       <div class="kpi kpi-blue"><div class="kpi-l">Total Calls</div><div class="kpi-v">${k.total_calls||0}</div><div class="kpi-d">${D.meta?.period_days||"—"} day window · ${k.dead_calls||0} dead</div></div>
       <div class="kpi kpi-teal"><div class="kpi-l">Replacements</div><div class="kpi-v">${k.replacements_shipped||0}</div><div class="kpi-d">shipped or pending</div></div>
@@ -2102,7 +2090,6 @@ function buildHome(){
   renderDailyChart();
   renderSentChart();
   renderAlertsList();
-  document.getElementById("ts").textContent = "Last updated " + fmtTs(D.meta?.last_updated);
   document.getElementById("genTs").textContent = fmtTs(D.meta?.last_updated);
   updateBadges();
 }
