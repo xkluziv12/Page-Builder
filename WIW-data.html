@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>STS WIW — Operations Dashboard</title>
+<title>WIW Pulse — Operations Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
@@ -64,7 +64,12 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:10
 .ubtn.ghost:hover{border-color:var(--a);color:var(--a);background:var(--s1);box-shadow:var(--sh)}
 
 /* ============ HEADER REFRESH CONTROL ============ */
-.refresh-ctl{display:inline-flex;align-items:center;gap:0;background:var(--s1);border:1px solid var(--b1);border-radius:8px;overflow:hidden;height:32px}
+.refresh-ctl{display:inline-flex;align-items:center;gap:0;background:var(--s1);border:1px solid var(--b1);border-radius:8px;overflow:hidden;height:32px;transition:border-color .2s,box-shadow .2s}
+.refresh-ctl.loading{border-color:var(--w);animation:refresh-glow 1.2s ease-in-out infinite}
+@keyframes refresh-glow{
+  0%,100%{box-shadow:0 0 0 0 rgba(217,119,6,0),inset 0 0 0 0 rgba(217,119,6,0);border-color:var(--w)}
+  50%{box-shadow:0 0 0 4px rgba(217,119,6,.18),inset 0 0 8px rgba(217,119,6,.12);border-color:var(--w2)}
+}
 .refresh-sel{font-family:var(--sans);font-size:11.5px;font-weight:500;padding:0 26px 0 10px;border:none;background:transparent;color:var(--ink2);cursor:pointer;height:100%;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath d='M0 0L4 6L8 0' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;border-right:1px solid var(--b1)}
 .refresh-sel:hover,.refresh-sel:focus{color:var(--a);outline:none}
 .refresh-now{height:100%;border:none;border-radius:0;padding:0 12px;background:transparent}
@@ -278,7 +283,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:10
 <header class="top">
   <div class="logo">
     <span class="logo-mk">W</span>
-    <span class="logo-name">STS WIW</span>
+    <span class="logo-name">WIW Pulse</span>
   </div>
   <div class="spacer"></div>
   <div class="refresh-ctl" id="refreshCtl" style="display:none">
@@ -838,7 +843,7 @@ async function emailReport(){
   const url = (typeof CONFIG !== 'undefined' && CONFIG.EMAIL_REPORT_URL) || '';
   if (!url){
     if (!confirm('Email Report endpoint is not configured.\n\nOpen a draft email to manager instead?')) return;
-    const subj = encodeURIComponent('STS WIW · Operations snapshot');
+    const subj = encodeURIComponent('WIW Pulse · Operations snapshot');
     const body = encodeURIComponent(
       'Snapshot from the WIW dashboard.\n\n' +
       'Rows loaded: ' + (D ? D.length : 0).toLocaleString() + '\n' +
@@ -1190,9 +1195,11 @@ function relTime(iso){
 
 function setRefreshState(state, msg){
   const btn = $('refreshNowBtn');
+  const box = $('refreshCtl');
   if (!btn) return;
   btn.classList.remove('spin', 'err', 'ok', 'cached');
-  if (state === 'spin') btn.classList.add('spin');
+  if (box) box.classList.remove('loading');
+  if (state === 'spin'){ btn.classList.add('spin'); if (box) box.classList.add('loading'); }
   else if (state === 'err'){ btn.classList.add('err'); btn.title = 'Refresh failed: ' + (msg || ''); }
   else if (state === 'ok'){ btn.classList.add('ok'); btn.title = (msg || 'Refreshed') + ' · click to refresh again'; }
   else if (state === 'cached'){
