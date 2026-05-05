@@ -21,9 +21,7 @@ a{color:inherit;text-decoration:none}
 header{background:var(--cd);border-bottom:1px solid var(--bd);padding:12px 24px;display:flex;align-items:center;gap:18px;position:sticky;top:0;z-index:50}
 .logo{font-weight:700;font-size:16px;letter-spacing:-.3px;display:flex;align-items:center;gap:8px}
 .logo-mk{width:24px;height:24px;background:linear-gradient(135deg,var(--ac),var(--pu));border-radius:6px;display:grid;place-items:center;color:#fff;font-size:11px;font-weight:700}
-.logo-sub{font-size:11px;color:var(--tx3);font-weight:500;border-left:1px solid var(--bd);padding-left:10px;margin-left:2px}
 .spacer{flex:1}
-.ts{font-size:11px;color:var(--tx3);font-family:'IBM Plex Mono',monospace}
 .range{display:flex;background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:2px}
 .range button{background:none;border:none;padding:5px 11px;font-size:11.5px;font-weight:500;color:var(--tx2);cursor:pointer;border-radius:6px}
 .range button.on{background:var(--cd);color:var(--tx);box-shadow:var(--shd)}
@@ -47,8 +45,6 @@ header{background:var(--cd);border-bottom:1px solid var(--bd);padding:12px 24px;
 .rfsh-btn.spin span{animation:spin .9s linear infinite;display:inline-block}
 
 /* BANNERS */
-.sample-bn{background:linear-gradient(90deg,#fef3c7,#fde68a);border-bottom:1px solid #f59e0b;padding:7px 24px;font-size:11.5px;color:#78350f;text-align:center;font-weight:500}
-.sample-bn .mono{color:#92400e}
 .alert-bn{background:linear-gradient(90deg,#fef2f2,#fee2e2);border-bottom:1px solid #fca5a5;padding:11px 24px;display:flex;align-items:center;gap:14px;font-size:13px;color:#7f1d1d}
 .alert-bn.hide{display:none}
 .alert-ic{font-size:16px}
@@ -116,9 +112,7 @@ main{max-width:1440px;margin:0 auto;padding:22px}
 .hero-r{font-size:11.5px;opacity:.85;margin-top:3px;position:relative;z-index:1}
 .hero-co{font-size:12.5px;margin-top:11px;line-height:1.5;opacity:.95;position:relative;z-index:1;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .hero-pct{position:absolute;top:18px;right:20px;font-size:22px;font-weight:600;font-family:'IBM Plex Mono',monospace;z-index:1}
-.hero-hint{position:absolute;bottom:14px;right:18px;font-size:10.5px;opacity:.7;z-index:1}
 .hero.open .hero-co{-webkit-line-clamp:unset;display:block}
-.hero.open .hero-hint{display:none}
 .hero-ext{display:none;margin-top:13px;padding-top:13px;border-top:1px solid rgba(255,255,255,.2);position:relative;z-index:1}
 .hero.open .hero-ext{display:block}
 .hero-ext-l{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;opacity:.8;margin-bottom:4px}
@@ -275,15 +269,6 @@ main{max-width:1440px;margin:0 auto;padding:22px}
 .act-btn{font-size:11.5px;padding:7px 13px;background:var(--cd);border:1px solid var(--bd);border-radius:7px;cursor:pointer;color:var(--tx2);font-family:inherit;font-weight:500}
 .act-btn:hover{background:var(--bg);color:var(--tx);border-color:var(--bd2)}
 
-/* Manager action bar (top of Overview) */
-.mgr-actions{display:flex;gap:10px;align-items:center;margin-bottom:14px;flex-wrap:wrap}
-.mgr-btn{display:inline-flex;align-items:center;gap:6px;padding:9px 16px;border-radius:8px;border:1px solid var(--bd);background:var(--cd);color:var(--tx);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .15s}
-.mgr-btn:hover:not(:disabled){background:var(--bg);border-color:var(--bd2)}
-.mgr-btn-primary{background:linear-gradient(135deg,#2563eb 0%,#1e40af 100%);color:#fff;border-color:transparent}
-.mgr-btn-primary:hover:not(:disabled){filter:brightness(1.12)}
-.mgr-btn:disabled{opacity:.6;cursor:not-allowed}
-.mgr-actions-hint{font-size:11.5px;color:var(--tx3);margin-left:4px}
-
 /* Rep card send button */
 .rep-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px}
 .rep-btn{padding:7px 12px;border-radius:7px;border:1px solid var(--bd);background:var(--cd);color:var(--tx);font-size:11.5px;font-weight:600;cursor:pointer;font-family:inherit;letter-spacing:.2px;transition:all .15s}
@@ -343,6 +328,9 @@ main{max-width:1440px;margin:0 auto;padding:22px}
 /* FOOTER */
 footer{padding:18px 24px;text-align:center;font-size:11px;color:var(--tx3);border-top:1px solid var(--bd);margin-top:24px}
 footer .mono{color:var(--tx2)}
+.ftr-mark{margin-top:8px;font-size:10.5px;letter-spacing:.3px;color:var(--tx3);opacity:.85}
+.mark-acr{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--tx2);letter-spacing:1px}
+.mark-exp{color:var(--tx3);margin-left:4px;font-style:italic}
 
 /* RESPONSIVE */
 @media(max-width:1100px){
@@ -376,11 +364,10 @@ footer .mono{color:var(--tx2)}
 <body>
 
 <header>
-  <div class="logo"><span class="logo-mk">S</span><span>STS Sales Intel</span><span class="logo-sub">Sam's Workspace</span></div>
+  <div class="logo"><span class="logo-mk">S</span><span>STS Sales Intel</span></div>
   <div class="spacer"></div>
-  <span class="ts" id="ts">Loading…</span>
   <div class="rfsh">
-    <span class="rfsh-st rfsh-sample" id="rfshStatus">Sample</span>
+    <span class="rfsh-st rfsh-sample" id="rfshStatus" title="Loading…">Sample</span>
     <select class="rfsh-sel" id="rfshInterval" title="Auto-refresh interval">
       <option value="0">Auto: Off</option>
       <option value="5">Auto: 5 min</option>
@@ -396,10 +383,8 @@ footer .mono{color:var(--tx2)}
     <button data-r="all" class="on">All</button>
   </div>
   <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">🌓</button>
-  <button class="icon-btn" onclick="window.print()" title="Print">⎙ Print</button>
+  <button class="icon-btn" onclick="sendReport('manager',{},this)" title="Email manager report to Sam">📧</button>
 </header>
-
-<div class="sample-bn">📊 Sample data shown for layout review. Production data will populate from <span class="mono">Call_Scores</span> via nightly batch.</div>
 
 <div class="alert-bn hide" id="alertBanner">
   <span class="alert-ic">🚨</span>
@@ -427,7 +412,8 @@ footer .mono{color:var(--tx2)}
 </main>
 
 <footer>
-  STS Sales Intelligence · v5 · <span class="mono">Generated <span id="genTs">…</span></span> · Coverage: <span id="cov" class="mono">All</span>
+  STS Sales Intelligence v5
+  <div class="ftr-mark">Powered by <span class="mark-acr">M.A.R.K.</span> <span class="mark-exp">Machine Assisted Routing Kit</span></div>
 </footer>
 
 <script>
@@ -882,8 +868,7 @@ async function loadData(manual = false) {
     const fresh = await r.json();
     if (!fresh || !fresh.meta) throw new Error("Response missing meta block");
     D = fresh;
-    document.getElementById("ts").textContent = "Last updated " + fmtTs(D.meta.last_updated);
-    document.getElementById("genTs").textContent = fmtTs(D.meta.last_updated);
+    document.getElementById("rfshStatus").title = "Last updated " + fmtTs(D.meta.last_updated);
     renderAlerts();
     rebuildAll();
     setStatus("ok", "Live, just now");
@@ -1002,7 +987,6 @@ document.getElementById("rangeCtl").addEventListener("click", e => {
   document.querySelectorAll("#rangeCtl button").forEach(x => x.classList.remove("on"));
   b.classList.add("on");
   STATE.range = b.dataset.r;
-  document.getElementById("cov").textContent = b.textContent.trim();
   rebuildAll();
 });
 
@@ -1044,12 +1028,6 @@ function buildHome() {
   const fuTotal = fuOverdue + fuStale;
 
   document.getElementById("home").innerHTML = `
-    <div class="mgr-actions no-print">
-      <button class="mgr-btn mgr-btn-primary" onclick="sendReport('manager',{},this)">📧 Send Manager Report Now</button>
-      <button class="mgr-btn" onclick="window.print()">🖨 Print Dashboard</button>
-      <span class="mgr-actions-hint">Triggers the workflow immediately instead of waiting for 5:30pm.</span>
-    </div>
-
     <div class="kpis">
       <div class="kpi kpi-blue"><div class="kpi-l">Calls Graded</div><div class="kpi-v">${A.graded}</div><div class="kpi-d">${A.t} total · ${A.t - A.graded} not scored</div></div>
       <div class="kpi">
@@ -1151,7 +1129,6 @@ function heroCard(kind, icon, label, c) {
     <div class="hero-p">${esc(c.prospect_name)}</div>
     <div class="hero-r">${esc(c.rep_name)} · ${esc(c.call_type_inferred)} · ${c.meeting_duration_minutes}min</div>
     <div class="hero-co">${esc(main)}</div>
-    <div class="hero-hint">↓ click for details</div>
     <div class="hero-ext">
       <div class="hero-ext-l">Recommendation</div>
       <div class="hero-ext-v">${esc(c.recommendation)}</div>
@@ -1774,8 +1751,7 @@ function applyUrlParams() {
   }
 }
 
-document.getElementById("ts").textContent = "Last updated " + fmtTs(D.meta.last_updated);
-document.getElementById("genTs").textContent = fmtTs(D.meta.last_updated);
+document.getElementById("rfshStatus").title = "Last updated " + fmtTs(D.meta.last_updated);
 
 // Auto-refresh dropdown
 const intervalSel = document.getElementById("rfshInterval");
