@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en" data-t="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IT-Pulse</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6f9; --cd:#ffffff; --bd:#e2e8f0; --bd2:#cbd5e1;
+  --tx:#0f172a; --tx2:#475569; --tx3:#94a3b8;
+  --ac:#3b82f6; --ac2:#60a5fa; --tl:#0d9488; --gn:#059669;
+  --am:#f59e0b; --rd:#dc2626; --pp:#8b5cf6;
+  --r:10px;
+}
+[data-t="dark"]{
+  --bg:#0a0f1d; --cd:#111827; --bd:#1f2937; --bd2:#374151;
+  --tx:#f1f5f9; --tx2:#cbd5e1; --tx3:#64748b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;min-height:100vh}
+.mono{font-family:'IBM Plex Mono',monospace;font-feature-settings:"tnum"}
+
+header{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--cd);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:10}
+.logo{display:inline-flex;align-items:center;gap:10px;font-size:15px;font-weight:700;letter-spacing:-.2px}
+.logo-mk{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:linear-gradient(135deg,#8b5cf6,#a78bfa);color:#fff;font-weight:800;border-radius:8px;font-size:14px;font-family:'IBM Plex Mono',monospace}
+.logo-tag{font-size:11.5px;color:var(--tx3);font-weight:500;border-left:1px solid var(--bd);padding-left:10px;margin-left:2px}
+.spacer{flex:1}
+.icon-btn{background:none;border:1px solid var(--bd);border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--tx2);font-size:13px;line-height:1}
+.icon-btn:hover{background:var(--bg);color:var(--tx)}
+
+nav.tabs{display:flex;gap:0;background:var(--cd);border-bottom:1px solid var(--bd);padding:0 24px;overflow-x:auto}
+nav.tabs .tab-btn{background:none;border:none;padding:13px 18px;font:inherit;font-size:13px;font-weight:600;color:var(--tx3);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;letter-spacing:.2px}
+nav.tabs .tab-btn:hover{color:var(--tx2)}
+nav.tabs .tab-btn.active{color:var(--tx);border-bottom-color:var(--ac)}
+
+main{padding:20px 24px;max-width:1400px;margin:0 auto}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px}
+.kpi{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--ac)}
+.kpi-blue::before{background:var(--ac)}
+.kpi-teal::before{background:var(--tl)}
+.kpi-amber::before{background:var(--am)}
+.kpi-red::before{background:var(--rd)}
+.kpi-green::before{background:var(--gn)}
+.kpi-purple::before{background:var(--pp)}
+.kpi-l{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);margin-bottom:6px}
+.kpi-v{font-size:28px;font-weight:600;font-family:'IBM Plex Mono',monospace;line-height:1.1;margin-bottom:3px}
+.kpi-d{font-size:11.5px;color:var(--tx2)}
+
+.cd{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);padding:18px;margin-bottom:16px}
+.cd-h{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:12px;flex-wrap:wrap}
+.cd-t{font-size:14px;font-weight:600;letter-spacing:-.1px}
+.cd-st{font-size:11.5px;color:var(--tx3);margin-top:2px}
+
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.card-ph{padding:18px 14px;background:var(--bg);border:1px dashed var(--bd2);border-radius:8px;font-size:12.5px;color:var(--tx2);text-align:center}
+.status-card{display:flex;align-items:center;justify-content:flex-start;gap:8px;text-align:left;padding:14px}
+.status-dot{width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0}
+.status-up{background:var(--gn);box-shadow:0 0 0 3px rgba(5,150,105,.18)}
+
+.ph-feed{display:flex;flex-direction:column;gap:8px}
+.ph-row{padding:12px 14px;background:var(--bg);border:1px solid var(--bd);border-radius:8px;font-size:13px;color:var(--tx2)}
+
+.ph-hint{margin-top:14px;padding:10px 14px;background:linear-gradient(90deg,rgba(59,130,246,.08),rgba(59,130,246,.04));border:1px solid rgba(59,130,246,.2);border-radius:8px;font-size:11.5px;color:var(--tx2);font-style:italic}
+
+footer{padding:18px 24px;text-align:center;font-size:11px;color:var(--tx3);border-top:1px solid var(--bd);margin-top:24px}
+footer .mono{color:var(--tx2)}
+.mark-attr{margin-top:10px;font-size:10.5px;color:var(--tx3);letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+.mark-name{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--ac2);letter-spacing:1.2px}
+.mark-sub{color:var(--tx3);font-size:10px;font-style:italic;opacity:.85}
+
+@media(max-width:640px){
+  header{flex-wrap:wrap;gap:10px;padding:10px 14px}
+  main{padding:14px}
+  .kpis{grid-template-columns:repeat(2,1fr);gap:10px}
+  nav.tabs{padding:0 10px}
+  nav.tabs .tab-btn{padding:11px 12px;font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-mk">I</span>
+    <span>IT-Pulse</span>
+    <span class="logo-tag">Help desk, training, and service status</span>
+  </div>
+  <div class="spacer"></div>
+  <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">🌓</button>
+</header>
+
+<nav class="tabs">
+    <button class="tab-btn active" data-tab="tickets" onclick="switchTab('tickets')">Help Desk Tickets</button>
+    <button class="tab-btn" data-tab="status" onclick="switchTab('status')">Service Status</button>
+    <button class="tab-btn" data-tab="training" onclick="switchTab('training')">Training Resources</button>
+    <button class="tab-btn" data-tab="knowledge" onclick="switchTab('knowledge')">Knowledge Base</button>
+</nav>
+
+<main>
+  <div class="kpis">
+        <div class="kpi kpi-red">
+          <div class="kpi-l">Open Tickets</div>
+          <div class="kpi-v">—</div>
+          <div class="kpi-d">needing response</div>
+        </div>
+        <div class="kpi kpi-green">
+          <div class="kpi-l">Systems Up</div>
+          <div class="kpi-v">—</div>
+          <div class="kpi-d">of monitored</div>
+        </div>
+        <div class="kpi kpi-blue">
+          <div class="kpi-l">Avg Resolution</div>
+          <div class="kpi-v">—</div>
+          <div class="kpi-d">hours</div>
+        </div>
+        <div class="kpi kpi-purple">
+          <div class="kpi-l">Training Done</div>
+          <div class="kpi-v">—</div>
+          <div class="kpi-d">% of team</div>
+        </div>
+  </div>
+
+  <section class="tab-panel active" id="tab-tickets">
+
+                <div class="cd">
+                  <div class="cd-h"><div class="cd-t">Open Tickets</div><div class="cd-st">sorted by priority</div></div>
+                  <div class="ph-feed">
+                    <div class="ph-row">🎫 Ticket placeholder · priority: high</div>
+                    <div class="ph-row">🎫 Ticket placeholder · priority: normal</div>
+                    <div class="ph-row">🎫 Ticket placeholder · priority: low</div>
+                  </div>
+                  <div class="ph-hint">Wire to Jira, Freshdesk, ServiceNow, or email-to-ticket flow.</div>
+                </div>
+            
+  </section>
+  <section class="tab-panel" id="tab-status">
+
+                <div class="cd">
+                  <div class="cd-h"><div class="cd-t">Monitored Services</div><div class="cd-st">uptime and health</div></div>
+                  <div class="grid-cards">
+                    <div class="card-ph status-card"><span class="status-dot status-up"></span> n8n cloud</div>
+                    <div class="card-ph status-card"><span class="status-dot status-up"></span> Claude API</div>
+                    <div class="card-ph status-card"><span class="status-dot status-up"></span> Krisp</div>
+                    <div class="card-ph status-card"><span class="status-dot status-up"></span> 8x8</div>
+                    <div class="card-ph status-card"><span class="status-dot status-up"></span> Google Workspace</div>
+                    <div class="card-ph status-card"><span class="status-dot status-up"></span> Solid Commerce</div>
+                  </div>
+                  <div class="ph-hint">Real status would come from health-check pings or status page APIs.</div>
+                </div>
+            
+  </section>
+  <section class="tab-panel" id="tab-training">
+
+                <div class="cd">
+                  <div class="cd-h"><div class="cd-t">Learning Library</div><div class="cd-st">tracks per role and team</div></div>
+                  <div class="grid-cards">
+                    <div class="card-ph">🎓 Onboarding track</div>
+                    <div class="card-ph">🎓 Sales playbook</div>
+                    <div class="card-ph">🎓 Customer service</div>
+                    <div class="card-ph">🎓 IT security</div>
+                  </div>
+                  <div class="ph-hint">Source: LMS, Loom, internal docs.</div>
+                </div>
+            
+  </section>
+  <section class="tab-panel" id="tab-knowledge">
+
+                <div class="cd">
+                  <div class="cd-h"><div class="cd-t">KB Articles</div><div class="cd-st">searchable how-tos and troubleshooting</div></div>
+                  <div class="ph-feed">
+                    <div class="ph-row">📚 Article placeholder · password reset</div>
+                    <div class="ph-row">📚 Article placeholder · VPN setup</div>
+                    <div class="ph-row">📚 Article placeholder · printer troubleshooting</div>
+                  </div>
+                </div>
+            
+  </section>
+</main>
+
+<footer>
+  IT-Pulse · v0 placeholder · <span class="mono">layout preview only</span>
+  <div class="mark-attr">Powered by <span class="mark-name">M.A.R.K.</span> <span class="mark-sub">Machine Assisted Routing Kit</span></div>
+</footer>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + id));
+  try { localStorage.setItem('it.html_tab', id); } catch(e) {}
+}
+
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-t');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-t', next);
+  try { localStorage.setItem('it.html_theme', next); } catch(e) {}
+}
+
+(function() {
+  try {
+    const t = localStorage.getItem('it.html_theme');
+    if (t) document.documentElement.setAttribute('data-t', t);
+    const tab = localStorage.getItem('it.html_tab');
+    if (tab && document.getElementById('tab-' + tab)) switchTab(tab);
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>
