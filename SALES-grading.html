@@ -35,6 +35,7 @@ header{background:var(--cd);border-bottom:1px solid var(--bd);padding:12px 24px;
 .rfsh-st{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;display:inline-flex;align-items:center;gap:5px;font-family:'IBM Plex Mono',monospace}
 .rfsh-st::before{content:'';width:7px;height:7px;border-radius:50%;display:inline-block}
 .rfsh-st.rfsh-sample{color:#92400e}.rfsh-st.rfsh-sample::before{background:#f59e0b}
+.rfsh-st.rfsh-cached{color:#92400e}.rfsh-st.rfsh-cached::before{background:#f59e0b;animation:pulse 2s ease-in-out infinite}
 .rfsh-st.rfsh-ok{color:var(--gn)}.rfsh-st.rfsh-ok::before{background:var(--gn);box-shadow:0 0 0 3px rgba(5,150,105,.18)}
 .rfsh-st.rfsh-loading{color:var(--ac)}.rfsh-st.rfsh-loading::before{background:var(--ac);animation:pulse 1s ease-in-out infinite}
 .rfsh-st.rfsh-err{color:var(--rd)}.rfsh-st.rfsh-err::before{background:var(--rd)}
@@ -54,6 +55,16 @@ header{background:var(--cd);border-bottom:1px solid var(--bd);padding:12px 24px;
 .alert-list{margin-top:3px;font-size:11.5px;color:#991b1b;opacity:.85}
 .alert-cls{background:#fff;border:1px solid #fca5a5;border-radius:6px;padding:5px 11px;cursor:pointer;font-size:11px;color:#991b1b;font-weight:500}
 .alert-cls:hover{background:#fee2e2}
+
+/* No-data banner: shown when CONFIG.dataUrl is null OR fetch failed with no cache */
+.nodata-bn{background:linear-gradient(90deg,#fef3c7,#fde68a);border-bottom:1px solid #f59e0b;padding:14px 24px;display:flex;align-items:center;gap:14px;font-size:13px;color:#78350f}
+.nodata-bn.hide{display:none}
+.nodata-ic{font-size:18px}
+.nodata-tx{flex:1;line-height:1.45}
+.nodata-tx strong{color:#7c2d12;font-weight:600;display:block;margin-bottom:2px}
+.nodata-tx .mono{color:#92400e}
+.nodata-act{background:#fff;border:1px solid #f59e0b;border-radius:6px;padding:6px 13px;cursor:pointer;font-size:12px;color:#78350f;font-weight:600;font-family:inherit}
+.nodata-act:hover{background:#fef3c7}
 
 /* TAB NAV */
 nav.tabs{background:var(--cd);border-bottom:1px solid var(--bd);padding:0 24px;display:flex;gap:2px;position:sticky;top:53px;z-index:49}
@@ -386,6 +397,15 @@ footer .mono{color:var(--tx2)}
   <button class="icon-btn" onclick="sendReport('manager',{},this)" title="Email manager report to Sam">📧</button>
 </header>
 
+<div class="nodata-bn hide" id="nodataBanner">
+  <span class="nodata-ic">⚠️</span>
+  <div class="nodata-tx">
+    <strong id="nodataTitle">Dashboard not connected</strong>
+    <span id="nodataMsg">Configure the data feed URL to start pulling live data.</span>
+  </div>
+  <button class="nodata-act" onclick="loadData(true)">↻ Try now</button>
+</div>
+
 <div class="alert-bn hide" id="alertBanner">
   <span class="alert-ic">🚨</span>
   <div class="alert-tx">
@@ -422,319 +442,23 @@ footer .mono{color:var(--tx2)}
 // from Call_Scores Google Sheet via nightly n8n workflow.
 // ════════════════════════════════════════════════════════════════════
 let D = {
-  meta: { last_updated: "2026-04-27T23:47:00", sample: true, period_days: 22 },
-
-  alerts: [
-    { alert_id:"ma1", rep_name:"Mary Ramirez", prospect_name:"Heat & Eye Associates", call_id:"c5", call_date:"04-26", manager_alert_reason:"Dismissive language with prospect: 'I don't have time for that' when asked about COI process" },
-    { alert_id:"ma2", rep_name:"Erica Rios", prospect_name:"Ace Pump and Supply", call_id:"c4", call_date:"04-25", manager_alert_reason:"Unprofessional comment at end of call after prospect hung up" }
-  ],
-
-  team: { total_calls:487, score_90_plus_count:64, red_flag_count:42, avg_score:74.3, active_reps:5 },
-
-  daily: [
-    {date:"04-08",total_calls:15,score_90_plus_count:3,red_flag_count:2,avg_score:71},
-    {date:"04-09",total_calls:28,score_90_plus_count:4,red_flag_count:3,avg_score:73},
-    {date:"04-10",total_calls:31,score_90_plus_count:8,red_flag_count:4,avg_score:76},
-    {date:"04-13",total_calls:30,score_90_plus_count:5,red_flag_count:5,avg_score:72},
-    {date:"04-14",total_calls:52,score_90_plus_count:15,red_flag_count:3,avg_score:78},
-    {date:"04-15",total_calls:40,score_90_plus_count:6,red_flag_count:4,avg_score:73},
-    {date:"04-16",total_calls:53,score_90_plus_count:8,red_flag_count:5,avg_score:74},
-    {date:"04-17",total_calls:44,score_90_plus_count:7,red_flag_count:3,avg_score:75},
-    {date:"04-20",total_calls:59,score_90_plus_count:8,red_flag_count:5,avg_score:73},
-    {date:"04-21",total_calls:59,score_90_plus_count:7,red_flag_count:6,avg_score:72},
-    {date:"04-22",total_calls:59,score_90_plus_count:8,red_flag_count:4,avg_score:74},
-    {date:"04-23",total_calls:17,score_90_plus_count:1,red_flag_count:0,avg_score:71}
-  ],
-
-  reps: [
-    { name:"Lee Garner", email:"lee@stsrecycle.com", total_calls:71, score_90_plus_count:24, red_flag_count:9, avg_score:78, overdue_followups:2, metric_hits:{next_step:57,objection:6,decision_maker:8,budget_value:40,enterprise:11} },
-    { name:"Karla Fuentes", email:"carla.fuentes@stsrecycle.com", total_calls:50, score_90_plus_count:14, red_flag_count:9, avg_score:76, overdue_followups:1, metric_hits:{next_step:34,objection:3,decision_maker:6,budget_value:21,enterprise:7} },
-    { name:"Estrella Galan", email:"estrella@stsrecycle.com", total_calls:54, score_90_plus_count:14, red_flag_count:6, avg_score:75, overdue_followups:0, metric_hits:{next_step:35,objection:10,decision_maker:7,budget_value:29,enterprise:6} },
-    { name:"Erica Rios", email:"erica.rios@stsrecycle.com", total_calls:129, score_90_plus_count:22, red_flag_count:32, avg_score:72, overdue_followups:4, metric_hits:{next_step:106,objection:6,decision_maker:22,budget_value:70,enterprise:14} },
-    { name:"Mary Ramirez", email:"mary.ramirez@stsrecycle.com", total_calls:94, score_90_plus_count:10, red_flag_count:22, avg_score:69, overdue_followups:3, metric_hits:{next_step:64,objection:4,decision_maker:20,budget_value:26,enterprise:8} },
-    { name:"Teddi Verhage", email:"tverhage@stsrecycle.com", total_calls:88, score_90_plus_count:11, red_flag_count:32, avg_score:68, overdue_followups:5, metric_hits:{next_step:49,objection:5,decision_maker:7,budget_value:25,enterprise:5} }
-  ],
-
-  metrics: { next_step:71, objection:7, decision_maker:14, budget_value:44, enterprise:11 },
-
-  calls: [
-    {call_id:"c1", rep_name:"Lee Garner", prospect_name:"Wells Fargo Center", contact_name:"Amalia", call_type_inferred:"HOT", call_classification:"admin_logistics", industry_inferred:"Property Management", meeting_duration_minutes:4.0, call_date:"04-22", call_datetime:"2026-04-22T14:14",
-     score_percentage:68, graded:false, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
-     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:false, enterprise_probed:false,
-     strengths:"Excellent logistics coordination, confirmed pickup location, floor access, and certificate of insurance details professionally.",
-     coaching:"Pure logistics execution with zero sales development. On a Hot call with major enterprise signals (Wells Fargo Center, Cushman & Wakefield), you must always probe the parent organization, even briefly.",
-     recommendation:"Amalia, since we're handling this for Cushman & Wakefield, are there other buildings in their portfolio that might need similar service? Even one phone number opens a door.",
-     decision_path_next_action:"Execute Monday pickup as scheduled",
-     enterprise_notes:"Wells Fargo Center + Cushman & Wakefield property management, massive enterprise opportunity completely unexplored.",
-     industry_compliance_met:null, is_short_call:false, deal_priority:"high"},
-
-    {call_id:"c2", rep_name:"Lee Garner", prospect_name:"Plus One Solutions", contact_name:"Jenna", call_type_inferred:"HOT", call_classification:"inbound_sales", industry_inferred:"Corporate", meeting_duration_minutes:10.0, call_date:"04-22", call_datetime:"2026-04-22T11:02",
-     score_percentage:76, graded:true, red_flag_count:0, coaching_flag_count:1, red_flags:"", manager_alert_reason:null,
-     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:true, enterprise_probed:false,
-     strengths:"Excellent process management, clearly outlined multi-step pickup process with specific team members and sequence. Confirmed asset details thoroughly.",
-     coaching:"Left 3 points on the table by not exploring decision-making (who approves this?), potential objections (any concerns about timing?), or enterprise scope (other Plus One offices?). Hot calls without enterprise probing cap at 80%.",
-     recommendation:"Jenna, before we finalize this, are you the person who typically handles these pickups or does someone else need to sign off? And does Plus One Solutions have other offices that go through similar refreshes?",
-     decision_path_next_action:"Await photos, then process through scheduling team",
-     enterprise_notes:"Office relocation, 40+ PCs, server rack, switches, professional IT infrastructure suggests larger footprint.",
-     industry_compliance_met:null, is_short_call:false, deal_priority:"high"},
-
-    {call_id:"c3", rep_name:"Erica Rios", prospect_name:"Conveyors Inc.", contact_name:"Mike", call_type_inferred:"HOT", call_classification:"inbound_sales", industry_inferred:"Corporate", meeting_duration_minutes:4.0, call_date:"04-22", call_datetime:"2026-04-22T09:45",
-     score_percentage:90, graded:true, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
-     next_step_set:true, objection_surfaced:true, decision_maker_identified:true, budget_value_communicated:true, enterprise_probed:false,
-     strengths:"Smooth call across the board, confirmed budget approval, identified Mike as final DM, surfaced and addressed timing objection, established clear pickup window.",
-     coaching:"Zero enterprise exploration cost you the perfect score. Even on smooth Hot calls, ask once: any other locations? It's a 5-second question worth real points.",
-     recommendation:"Mike, before I lock this in, does Conveyors have other facilities that handle equipment replacement, or is this your only location?",
-     decision_path_next_action:"Matt to email pickup scheduling details",
-     enterprise_notes:"Industrial company name suggests potential multi-site footprint, not explored.",
-     industry_compliance_met:null, is_short_call:false, deal_priority:"high"},
-
-    {call_id:"c4", rep_name:"Erica Rios", prospect_name:"Ace Pump and Supply", contact_name:"Kristina", call_type_inferred:"HOT", call_classification:"follow_up", industry_inferred:"Corporate", meeting_duration_minutes:3.5, call_date:"04-25", call_datetime:"2026-04-25T13:20",
-     score_percentage:68, graded:true, red_flag_count:1, coaching_flag_count:0, red_flags:"Unprofessional comment at end of call", manager_alert_reason:"Unprofessional comment at end of call after prospect hung up",
-     next_step_set:false, objection_surfaced:true, decision_maker_identified:false, budget_value_communicated:false, enterprise_probed:false,
-     strengths:"Successfully addressed prospect's timing objection about previous delays and confirmed logistics details.",
-     coaching:"Hot call with existing customer who'd already submitted a form, should have closed cleanly. Missed budget reaffirmation, didn't confirm DM, didn't probe enterprise. The unprofessional sign-off is a real issue, see manager alert.",
-     recommendation:"I'll check with scheduling today and call you back by 3pm tomorrow with your exact pickup date. Will that work for you?",
-     decision_path_next_action:"Schedule pickup within prospect's timeline",
-     enterprise_notes:"No enterprise signals detected.",
-     industry_compliance_met:null, is_short_call:false, deal_priority:"medium"},
-
-    {call_id:"c5", rep_name:"Mary Ramirez", prospect_name:"Heat & Eye Associates", contact_name:"Keith", call_type_inferred:"COLD", call_classification:"outbound_sales", industry_inferred:"Medical", meeting_duration_minutes:2.0, call_date:"04-26", call_datetime:"2026-04-26T15:10",
-     score_percentage:60, graded:true, red_flag_count:1, coaching_flag_count:0, red_flags:"Dismissive language with prospect", manager_alert_reason:"Dismissive language with prospect: 'I don't have time for that' when asked about COI process",
-     next_step_set:false, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:false, enterprise_probed:false,
-     strengths:"Professional phone manner with receptionist. Had specific contact name (Keith Evans) showing preparation.",
-     coaching:"Gatekeeper call where DM wasn't available. Miss was not establishing any next steps beyond a vague callback. Dismissive language when asked about the COI process is unacceptable, see alert.",
-     recommendation:"When would be the best time to reach Keith? I have important compliance information about medical equipment disposal that he'll want to hear directly.",
-     decision_path_next_action:"Callback attempt needed with better timing strategy",
-     enterprise_notes:"Multi-service medical practice (LASIK, cataract surgery), likely multi-location.",
-     industry_compliance_met:false, is_short_call:true, deal_priority:"medium"},
-
-    {call_id:"c6", rep_name:"Karla Fuentes", prospect_name:"Aertron Heating & AC", contact_name:"Matthew", call_type_inferred:"WARM", call_classification:"inbound_sales", industry_inferred:"Corporate", meeting_duration_minutes:4.3, call_date:"04-24", call_datetime:"2026-04-24T10:30",
-     score_percentage:80, graded:true, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
-     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:true, enterprise_probed:false,
-     strengths:"Excellent value communication, clearly explained free pickup and COD multiple times when prospect asked about costs.",
-     coaching:"Lost 2 points by not identifying decision maker or surfacing objections. When prospect said 'reaching out for feelers,' that's an opening, not a close.",
-     recommendation:"Matthew, when you say you're getting feelers, what's most important to you in choosing a recycling partner? And who else weighs in on that decision?",
-     decision_path_next_action:"Prospect will review form and compare options",
-     enterprise_notes:"No enterprise signals detected.",
-     industry_compliance_met:null, is_short_call:false, deal_priority:"medium"},
-
-    {call_id:"c7", rep_name:"Estrella Galan", prospect_name:"University Lake School", contact_name:"Karen", call_type_inferred:"HOT", call_classification:"inbound_sales", industry_inferred:"Education", meeting_duration_minutes:6.2, call_date:"04-21", call_datetime:"2026-04-21T11:00",
-     score_percentage:78, graded:true, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
-     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:true, enterprise_probed:true,
-     strengths:"Strong enterprise probe, asked directly about district structure and got Karen to confirm 4 campuses. Clear next step set.",
-     coaching:"Failed to identify decision maker and surface objections. Even with enterprise locked, Hot calls need DM confirmation.",
-     recommendation:"Karen, before I get this submitted, are you the one who approves this from the district side, or does it need to go through Dr. Patel?",
-     decision_path_next_action:"Submit pickup request and send confirmation email",
-     enterprise_notes:"Confirmed 4-campus district, Estrella probed correctly. Worth real points.",
-     industry_compliance_met:null, is_short_call:false, deal_priority:"high"},
-
-    {call_id:"c8", rep_name:"Teddi Verhage", prospect_name:"Holy Saber Hospice", contact_name:"Sandra", call_type_inferred:"HOT", call_classification:"transfer", industry_inferred:"Medical", meeting_duration_minutes:1.7, call_date:"04-23", call_datetime:"2026-04-23T09:30",
-     score_percentage:null, graded:false, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
-     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:false, enterprise_probed:false,
-     strengths:"Quick courteous handoff to scheduling team.",
-     coaching:"Transfer call, not graded against scorecard. Coaching note: even brief transfers can capture the parent organization name in 10 seconds.",
-     recommendation:"Before I transfer you, quick one: is this for the one Holy Saber location or part of the Saber Health network?",
-     decision_path_next_action:"Transfer to scheduling team for immediate pickup coordination",
-     enterprise_notes:"Hospice chain, Saber Health network has 200+ locations.",
-     industry_compliance_met:null, is_short_call:null, deal_priority:"service"},
-
-    {call_id:"c9", rep_name:"Lee Garner", prospect_name:"Core Construction", contact_name:"Alexis", call_type_inferred:"WARM", call_classification:"inbound_sales", industry_inferred:"Corporate", meeting_duration_minutes:9.3, call_date:"04-22", call_datetime:"2026-04-22T16:00",
-     score_percentage:80, graded:true, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
-     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:true, enterprise_probed:false,
-     strengths:"Excellent logistics coordination, gathered complete address, elevator access, COI requirements, and staging preferences.",
-     coaching:"Failed to qualify decision-making authority and didn't probe for objections. On a warm inbound, you need to lock the DM before anything else.",
-     recommendation:"Alexis, are you the person who would approve moving forward with the pickup, or is there someone else involved in that call?",
-     decision_path_next_action:"Prospect will send photos within days, then scheduling proceeds",
-     enterprise_notes:"Multiple suite numbers (205W and 303W) suggests larger footprint.",
-     industry_compliance_met:null, is_short_call:false, deal_priority:"medium"},
-
-    {call_id:"c10", rep_name:"Erica Rios", prospect_name:"Brand Safeway (Ste 290)", contact_name:"Perry", call_type_inferred:"HOT", call_classification:"admin_logistics", industry_inferred:"Corporate", meeting_duration_minutes:4.4, call_date:"04-21", call_datetime:"2026-04-21T14:20",
-     score_percentage:null, graded:false, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
-     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:true, enterprise_probed:false,
-     strengths:"Efficiently confirmed all logistics details (address, floor, contact info, parking instructions). Clearly communicated process.",
-     coaching:"Purely transactional, missed opportunity to explore enterprise potential and identify decision maker. Brand Safeway name is a clear multi-location signal.",
-     recommendation:"Perry, while I have you, do you handle IT disposal for just this location or are there other Brand Safeway offices that need the same service?",
-     decision_path_next_action:"Matt to schedule pickup within 3-5 business days",
-     enterprise_notes:"Office suite environment + brand name imply corporate structure not explored.",
-     industry_compliance_met:null, is_short_call:null, deal_priority:"medium"},
-
-    {call_id:"c11", rep_name:"Karla Fuentes", prospect_name:"Coolidge ISD", contact_name:"Laurie (VM)", call_type_inferred:"COLD", call_classification:"outbound_sales", industry_inferred:"Education", meeting_duration_minutes:1.6, call_date:"04-21", call_datetime:"2026-04-21T09:15",
-     score_percentage:60, graded:true, red_flag_count:1, coaching_flag_count:0, red_flags:"Scored 0 on all metrics despite 96-second call", manager_alert_reason:null,
-     next_step_set:false, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:false, enterprise_probed:false,
-     strengths:"Professional intro with clear company ID. Specific callback number given twice.",
-     coaching:"Voicemail missed every scoring opportunity. 'Trucks in your area' creates no urgency or value. Districts deserve a district-specific reason to call back.",
-     recommendation:"Hi Laurie, Karla from STS Electronic Recycling. We help school districts like Coolidge ISD safely dispose of old computers, and we just helped two ISDs nearby this month. Worth a 5-minute call?",
-     decision_path_next_action:"Prospect must call back with no compelling reason provided",
-     enterprise_notes:"School district = multi-campus opportunity, not explored.",
-     industry_compliance_met:null, is_short_call:true, deal_priority:"low"},
-
-    {call_id:"c12", rep_name:"Lee Garner", prospect_name:"Prince Capital Partners", contact_name:"Victor", call_type_inferred:"HOT", call_classification:"admin_logistics", industry_inferred:"Corporate", meeting_duration_minutes:1.6, call_date:"04-22", call_datetime:"2026-04-22T10:00",
-     score_percentage:null, graded:false, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
-     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:true, enterprise_probed:false,
-     strengths:"Handled administrative request professionally with specific timeline. Confirmed pricing details.",
-     coaching:"Layup Hot call that should have scored 90+. Missed enterprise exploration despite 'Capital Partners' screaming portfolio company structure.",
-     recommendation:"Victor, while I update this date, quick question: do any of your other portfolio companies need similar services? We can package it.",
-     decision_path_next_action:"Execute quote with corrected date for May 5th",
-     enterprise_notes:"Investment firm, portfolio companies are perfect cross-sell targets.",
-     industry_compliance_met:null, is_short_call:null, deal_priority:"high"},
-
-    {call_id:"c13", rep_name:"Mary Ramirez", prospect_name:"Greater Houston Psych", contact_name:"Tom", call_type_inferred:"WARM", call_classification:"inbound_sales", industry_inferred:"Medical", meeting_duration_minutes:3.7, call_date:"04-21", call_datetime:"2026-04-21T13:30",
-     score_percentage:80, graded:true, red_flag_count:0, coaching_flag_count:1, red_flags:"", manager_alert_reason:null,
-     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:true, enterprise_probed:true,
-     strengths:"Captured the multi-location signal cleanly, Tom confirmed 6 practices across Houston metro. Set firm next step.",
-     coaching:"Strong enterprise capture, but missed DM confirmation and didn't probe pricing concerns. Medical industry: HIPAA wasn't directly addressed though Tom seemed comfortable with the conversation.",
-     recommendation:"Tom, who at the practice handles vendor approvals, is it you, or does it route through someone else for these decisions?",
-     decision_path_next_action:"Send proposal covering all 6 locations",
-     enterprise_notes:"6-location medical group confirmed. Excellent enterprise expansion path.",
-     industry_compliance_met:false, is_short_call:false, deal_priority:"high"},
-
-    {call_id:"c14", rep_name:"Estrella Galan", prospect_name:"Byfire Alarm PA", contact_name:"Tony", call_type_inferred:"HOT", call_classification:"inbound_sales", industry_inferred:"Corporate", meeting_duration_minutes:3.7, call_date:"04-21", call_datetime:"2026-04-21T15:45",
-     score_percentage:72, graded:true, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
-     next_step_set:true, objection_surfaced:true, decision_maker_identified:false, budget_value_communicated:false, enterprise_probed:false,
-     strengths:"Surfaced timing objection and walked through pickup logistics clearly.",
-     coaching:"Hot call lost 2 points on DM and 1 on budget reaffirmation. Commercial warehouse + truck access suggests larger ops.",
-     recommendation:"Tony, are you the one who approves this on your end, or is there a manager who needs to sign off before we lock it in?",
-     decision_path_next_action:"Schedule pickup pending Tony's confirmation",
-     enterprise_notes:"Commercial warehouse with roll-up doors, possible multi-site fire safety company.",
-     industry_compliance_met:null, is_short_call:false, deal_priority:"medium"},
-
-    {call_id:"c15", rep_name:"Teddi Verhage", prospect_name:"East Chambers Tech Dept", contact_name:"Rio", call_type_inferred:"HOT", call_classification:"admin_logistics", industry_inferred:"Education", meeting_duration_minutes:1.6, call_date:"04-22", call_datetime:"2026-04-22T08:30",
-     score_percentage:null, graded:false, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
-     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:false, enterprise_probed:false,
-     strengths:"Professional and clear with proper follow-up protocol. Multiple contact methods provided.",
-     coaching:"Brief scheduling call but even on Hot opportunities, look for micro-moments. East Chambers ISD has multiple campuses worth probing.",
-     recommendation:"Perfect Rio, and just to confirm, are you the main contact I should coordinate with for Monday's pickup, or should I loop someone else in? And does this cover just the high school or other campuses too?",
-     decision_path_next_action:"Matthews to contact with pickup time by EOD Monday",
-     enterprise_notes:"School district, likely 4-6 campuses worth exploring.",
-     industry_compliance_met:null, is_short_call:null, deal_priority:"high"},
-
-    {call_id:"c16", rep_name:"Karla Fuentes", prospect_name:"Pediatric Dental Clarksville", contact_name:"Donna", call_type_inferred:"COLD", call_classification:"outbound_sales", industry_inferred:"Medical", meeting_duration_minutes:1.5, call_date:"04-21", call_datetime:"2026-04-21T11:30",
-     score_percentage:60, graded:true, red_flag_count:1, coaching_flag_count:0, red_flags:"Medical prospect with NO compliance discussion", manager_alert_reason:null,
-     next_step_set:false, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:false, enterprise_probed:false,
-     strengths:"Polite intro and clear company identification.",
-     coaching:"Medical prospect with 13-14 computers, clear HIPAA compliance situation. ZERO compliance language used. That's a credibility miss.",
-     recommendation:"Hi Donna, Karla with STS Electronic Recycling. We're certified for HIPAA-compliant medical equipment disposal, wanted to make sure you knew the protocol options before you had to think about it. Got 2 minutes?",
-     decision_path_next_action:"Re-engage with HIPAA-led pitch",
-     enterprise_notes:"Single practice, but networks of pediatric dental practices are common.",
-     industry_compliance_met:false, is_short_call:true, deal_priority:"low"},
-
-    {call_id:"c17", rep_name:"Erica Rios", prospect_name:"East Central SUD", contact_name:"Arthur", call_type_inferred:"WARM", call_classification:"follow_up", industry_inferred:"Government", meeting_duration_minutes:6.4, call_date:"04-23", call_datetime:"2026-04-23T10:15",
-     score_percentage:80, graded:true, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
-     next_step_set:true, objection_surfaced:false, decision_maker_identified:true, budget_value_communicated:true, enterprise_probed:false,
-     strengths:"Confirmed Arthur as DM and walked through the form process. Budget validated through utility's standard procurement.",
-     coaching:"Government call, should have probed objections (procurement timeline can be a deal killer if not surfaced early).",
-     recommendation:"Arthur, just so we plan this right, what does your procurement process look like? Sometimes utilities have a 30-60 day cycle, and I want to make sure we line up.",
-     decision_path_next_action:"Arthur will complete pickup form and send inventory photos",
-     enterprise_notes:"Utility district often part of regional cooperative, possible expansion.",
-     industry_compliance_met:null, is_short_call:false, deal_priority:"medium"},
-
-    {call_id:"c18", rep_name:"Mary Ramirez", prospect_name:"Executive Office Immigration Rev", contact_name:"Carla", call_type_inferred:"WARM", call_classification:"inbound_sales", industry_inferred:"Government", meeting_duration_minutes:6.1, call_date:"04-21", call_datetime:"2026-04-21T14:00",
-     score_percentage:80, graded:true, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
-     next_step_set:true, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:true, enterprise_probed:true,
-     strengths:"Captured federal agency multi-office signal, Philadelphia caller asking for Connecticut office. Strong enterprise probe.",
-     coaching:"Failed to identify DM. Government procurement involves multiple stakeholders and you didn't ask once.",
-     recommendation:"Carla, before I send this form over, help me understand, who typically handles the approval process for selecting recycling vendors at EOIR?",
-     decision_path_next_action:"Form submission and assessment",
-     enterprise_notes:"Federal agency, multi-state offices. Worth a strategic deep dive.",
-     industry_compliance_met:null, is_short_call:false, deal_priority:"high"},
-
-    {call_id:"c19", rep_name:"Lee Garner", prospect_name:"Orange Blossom Family Health", contact_name:"Maria", call_type_inferred:"WARM", call_classification:"inbound_sales", industry_inferred:"Medical", meeting_duration_minutes:9.5, call_date:"04-21", call_datetime:"2026-04-21T13:45",
-     score_percentage:88, graded:true, red_flag_count:0, coaching_flag_count:0, red_flags:"", manager_alert_reason:null,
-     next_step_set:true, objection_surfaced:true, decision_maker_identified:true, budget_value_communicated:true, enterprise_probed:true,
-     strengths:"Strongest call this week, captured multi-location structure (Central Florida, consolidating to Orlando HQ), confirmed DM, surfaced and resolved timing objection. HIPAA-compliant disposal explicitly addressed.",
-     coaching:"Almost a perfect Hot. The 12 points you missed: didn't dive deep enough on the consolidation timeline, worth knowing exactly when other locations come online.",
-     recommendation:"Maria, when you mentioned consolidating to Orlando, what's the timeline on the other locations coming through? We can plan capacity if it's all in one quarter.",
-     decision_path_next_action:"Quote sent for Orlando HQ + 4 satellite locations",
-     enterprise_notes:"Confirmed multi-location healthcare system, expansion path locked.",
-     industry_compliance_met:true, is_short_call:false, deal_priority:"high"},
-
-    {call_id:"c20", rep_name:"Teddi Verhage", prospect_name:"City of Beverly", contact_name:"Patrick", call_type_inferred:"NOT_SALES", call_classification:"admin_logistics", industry_inferred:"Government", meeting_duration_minutes:20.8, call_date:"04-21", call_datetime:"2026-04-21T10:30",
-     score_percentage:60, graded:true, red_flag_count:1, coaching_flag_count:0, red_flags:"20-minute call with no progression, treated as internal planning session", manager_alert_reason:null,
-     next_step_set:false, objection_surfaced:false, decision_maker_identified:false, budget_value_communicated:false, enterprise_probed:false,
-     strengths:"Long detailed conversation, attempted multiple angles.",
-     coaching:"20-minute call that became an internal planning session. Zero metrics earned. Long calls without progression are worse than short ones, they signal a rep who can't close.",
-     recommendation:"Patrick, I want to make sure your time is well spent, can we lock in a specific next step right now? Either a pickup date or a follow-up call with the decision maker. Which works?",
-     decision_path_next_action:"Immediate follow-up to reschedule with specific time options",
-     enterprise_notes:"Municipal government, multiple departments worth exploring.",
-     industry_compliance_met:null, is_short_call:false, deal_priority:"low"}
-  ],
-
-  followups: [
-    { followup_id:"fu1", rep_name:"Teddi Verhage", prospect_name:"Holy Savior Hospice", call_id:"c8b", decision_path_next_action:"Matt to deliver pickup ETA and Teddi to follow up to advance deal", due_date:"04-25", days_overdue:3, status:"overdue" },
-    { followup_id:"fu2", rep_name:"Erica Rios", prospect_name:"East Central SUD", call_id:"c17", decision_path_next_action:"Erica to call Arthur once form returned to confirm pickup window", due_date:"04-26", days_overdue:2, status:"overdue" },
-    { followup_id:"fu3", rep_name:"Mary Ramirez", prospect_name:"Heat & Eye Associates", call_id:"c5", decision_path_next_action:"Mary to retry callback at 9am to reach Keith directly", due_date:"04-27", days_overdue:1, status:"overdue" },
-    { followup_id:"fu4", rep_name:"Lee Garner", prospect_name:"Plus One Solutions", call_id:"c2", decision_path_next_action:"Schedule pickup once photos received from Jenna", due_date:"04-28", days_overdue:0, status:"pending" },
-    { followup_id:"fu5", rep_name:"Karla Fuentes", prospect_name:"Aertron Heating & AC", call_id:"c6", decision_path_next_action:"Follow up on form review with Matthew", due_date:"04-29", days_overdue:0, status:"pending" },
-    { followup_id:"fu6", rep_name:"Teddi Verhage", prospect_name:"University Lake School", call_id:"c7", decision_path_next_action:"Confirm district-wide scope after Karen reviews with Dr. Patel", due_date:"04-30", days_overdue:0, status:"pending" },
-    { followup_id:"fu7", rep_name:"Erica Rios", prospect_name:"Conveyors Inc.", call_id:"c3", decision_path_next_action:"Matt to email scheduling details to Mike", due_date:"04-26", days_overdue:2, status:"stale" },
-    { followup_id:"fu8", rep_name:"Teddi Verhage", prospect_name:"City of Beverly", call_id:"c20", decision_path_next_action:"Reschedule with specific time options", due_date:"04-23", days_overdue:5, status:"stale" }
-  ],
-
-  enterprise_funnel: { signals_identified:142, explored:58, converted:12 },
-
-  obj_lib: {
-    pricing: [
-      { rep_name:"Karla Fuentes", prospect_name:"Aertron Heating & AC", narrative:"Prospect asked about costs multiple times. Karla explained free pickup but never explored what 'expensive' meant to him or what budget he was comparing against.", recommendation:"What does 'too expensive' look like for you, are you comparing against another quote, or is there a number that needs to fit your budget? I can usually work backwards from there." },
-      { rep_name:"Estrella Galan", prospect_name:"Byfire Alarm PA", narrative:"Tony asked if there was 'any cost involved' and Estrella confirmed free, but didn't probe what made him ask, usually a sign of a prior bad experience.", recommendation:"Free pickup is standard for us. Out of curiosity, what made you ask, have you been quoted for this kind of thing before?" },
-      { rep_name:"Lee Garner", prospect_name:"Wells Fargo Center", narrative:"Amalia mentioned the building's strict cost approval process for any vendor work. Lee acknowledged but didn't position COD as a budget advantage.", recommendation:"Since cost approval is tight on your end, worth knowing we pay you on the equipment, not the other way around. Might shortcut the approval cycle." }
-    ],
-    timing: [
-      { rep_name:"Erica Rios", prospect_name:"Ace Pump and Supply", narrative:"Kristina raised previous delays as a concern. Erica acknowledged but didn't reset expectations with a specific commitment.", recommendation:"You're right to flag that, here's what's different this time: I'll personally call you by 3pm tomorrow with a confirmed date. If I miss that, you have my direct line to escalate." },
-      { rep_name:"Estrella Galan", prospect_name:"Byfire Alarm PA", narrative:"Tony said 'maybe next month' when discussing pickup. Estrella didn't probe whether next month was real or stalling.", recommendation:"Next month works on my side, quick check: is there a specific event driving that timing, or is it more of a 'when we get to it' situation? Helps me plan logistics." }
-    ],
-    authority: [
-      { rep_name:"Mary Ramirez", prospect_name:"EOIR (Federal)", narrative:"Government procurement involves multiple stakeholders. Mary didn't ask once who handles vendor approvals.", recommendation:"Before I send this over, help me understand, who typically handles vendor approvals for recycling at EOIR?" },
-      { rep_name:"Lee Garner", prospect_name:"Plus One Solutions", narrative:"Jenna handled all logistics but Lee never confirmed if she was the approver or just the coordinator.", recommendation:"Jenna, before we finalize this, are you the person who typically signs off, or does someone else need to weigh in?" },
-      { rep_name:"Karla Fuentes", prospect_name:"Aertron Heating & AC", narrative:"Matthew was 'getting feelers' but Karla didn't ask who else was involved in choosing.", recommendation:"When you say you're getting feelers, who else is part of that decision on your end?" },
-      { rep_name:"Lee Garner", prospect_name:"Core Construction", narrative:"Alexis handled logistics but Lee didn't lock the DM.", recommendation:"Alexis, are you the person who would approve moving forward, or is there someone else involved in that call?" }
-    ],
-    competition: [
-      { rep_name:"Karla Fuentes", prospect_name:"Aertron Heating & AC", narrative:"Matthew said 'reaching out for feelers' which usually means shopping. Karla didn't probe what else he was looking at.", recommendation:"Totally fair, what's most important to you in choosing a recycling partner? That'll help me understand if we're the right fit or not." },
-      { rep_name:"Mary Ramirez", prospect_name:"Starks Tech Center", narrative:"Prospect said 'we already utilize you all', golden opportunity to probe the existing relationship and expand. Mary didn't.", recommendation:"You already work with us, fantastic. When was your last pickup with STS? And who typically coordinates that on your end? Sometimes there are other parts of the organization we haven't reached." }
-    ],
-    other: [
-      { rep_name:"Teddi Verhage", prospect_name:"City of Beverly", narrative:"20-minute call with no progression. Teddi never asked Patrick to commit to a specific next step.", recommendation:"Patrick, I want to make sure your time is well spent, can we lock in a specific next step right now? Either a pickup date or a follow-up call. Which works?" },
-      { rep_name:"Karla Fuentes", prospect_name:"Pediatric Dental Clarksville", narrative:"Medical prospect with NO compliance discussion. Donna had 13-14 computers and HIPAA wasn't mentioned once.", recommendation:"Hi Donna, we're certified for HIPAA-compliant medical equipment disposal. Wanted to make sure you knew the protocol options before you had to think about it. Got 2 minutes?" }
-    ]
-  },
-
-  obj_trend: [
-    { week:"W1", pricing:18, timing:12, authority:42, competition:8, other:14 },
-    { week:"W2", pricing:16, timing:14, authority:38, competition:11, other:13 },
-    { week:"W3", pricing:14, timing:13, authority:35, competition:9, other:11 },
-    { week:"W4", pricing:13, timing:11, authority:31, competition:8, other:10 }
-  ],
-
-  dm_lib: [
-    { rep_name:"Mary Ramirez", prospect_name:"EOIR (Federal)", narrative:"Government procurement: didn't ask who handles vendor approval at EOIR.", recommendation:"Before I send this form over, help me understand, who typically handles the approval process for selecting recycling vendors at EOIR?" },
-    { rep_name:"Lee Garner", prospect_name:"Unknown (Miss Fay)", narrative:"Hot Hot call, confirmed deal, but never asked if Miss Fay or the IT director signs off.", recommendation:"Miss Fay, before we finalize logistics, are you the person who signs off on this pickup, or does the IT director need to approve?" },
-    { rep_name:"Mary Ramirez", prospect_name:"Heat & Eye Associates", narrative:"Gatekeeper call where DM wasn't available. No next step established to reach Keith directly.", recommendation:"When would be the best time to reach Keith? I have important compliance information about medical equipment disposal that he'll want directly." },
-    { rep_name:"Lee Garner", prospect_name:"Core Construction", narrative:"Alexis handled all logistics but DM was never confirmed.", recommendation:"Alexis, are you the person who would approve moving forward, or is there someone else involved in that call?" }
-  ],
-
-  ent_lib: [
-    { rep_name:"Lee Garner", prospect_name:"Wells Fargo Center", signal:"Wells Fargo Center managed by Cushman & Wakefield, massive enterprise opportunity completely unexplored.", recommendation:"Amalia, since we're handling this for Cushman & Wakefield, are there other buildings in their portfolio that might need similar service?" },
-    { rep_name:"Lee Garner", prospect_name:"Plus One Solutions", signal:"Office relocation, 40+ PCs, server rack, professional IT infrastructure suggests larger footprint.", recommendation:"Jenna, does Plus One Solutions have other offices that go through similar refreshes?" },
-    { rep_name:"Erica Rios", prospect_name:"Brand Safeway (Ste 290)", signal:"Office suite + brand name imply corporate structure not explored.", recommendation:"Perry, do you handle IT disposal for just this location or are there other Brand Safeway offices?" },
-    { rep_name:"Lee Garner", prospect_name:"Prince Capital Partners", signal:"Investment firm, portfolio companies are perfect cross-sell targets.", recommendation:"Victor, do any of your other portfolio companies need similar services? We can package it." },
-    { rep_name:"Mary Ramirez", prospect_name:"Greater Houston Psych", signal:"Multi-location practice (6 confirmed across Houston metro). Captured cleanly.", recommendation:"Tom, who at the practice handles vendor approvals across all 6 sites, is it you, or does it route through someone else?" },
-    { rep_name:"Estrella Galan", prospect_name:"University Lake School", signal:"4-campus district confirmed, Estrella probed correctly.", recommendation:"Karen, are you the one who approves this from the district side, or does it need to go through Dr. Patel?" },
-    { rep_name:"Karla Fuentes", prospect_name:"Coolidge ISD", signal:"School district = multi-campus opportunity, not explored.", recommendation:"Hi Laurie, we just helped two ISDs nearby this month with district-wide pickups. Worth a 5-minute call to see if Coolidge fits the same pattern?" },
-    { rep_name:"Lee Garner", prospect_name:"Orange Blossom Family Health", signal:"Multi-location FL healthcare system, confirmed and locked. Best capture this week.", recommendation:"Maria, when you mentioned consolidating to Orlando, what's the timeline on the other locations? We can plan capacity if it's all in one quarter." }
-  ],
-
-  // Negative reviews. Source: separate Google Sheet (Form_Responses tab),
-  // sheet id 1YF1c5KYSHi6NxhtS5yV5zDK9hlQkUeHIt45gYRhTbBk. A3 reads this
-  // sheet and returns rows here. Email and phone are nulled in sample data
-  // so the redaction toggle UI is exercised in dev; production data flows
-  // through with real contact values.
-  negative_reviews: [
-    { review_id:"r1", timestamp:"2026-05-04T10:28:42", name:"Venessa Mata", categories:["Communication","Timeliness / Scheduling"], narrative:"I was told by two different people that someone would reach out to me for scheduling. I had to reach out because no one ever called me. It wasn't until I called that Teddi had reached out directly to them on my behalf and I only received an email about the date they wished to come by. I sent two different emails trying to confirm the time and then ended up calling him directly in which he said he would get back with me & then sent another email at the end of day. It would be more efficient if one person can take the call and set up pick up with details instead of having 3 different people handle it. I think someone said it would take 3 days to hear from someone and it took longer.", wants_callback:false, email:null, phone:null },
-    { review_id:"r2", timestamp:"2026-04-21T11:14:55", name:"Kate Higgins", categories:["Professionalism"], narrative:"To Tony was great but the other man spoke to me rudely. No customer service skills at all. I'm an older woman; I felt his tone was disrespectful and he raised his voice. He did not apologize.", wants_callback:true, email:null, phone:null },
-    { review_id:"r3", timestamp:"2026-04-10T17:30:31", name:"Chad Swanson", categories:["Communication"], narrative:"Emailed the night before, but no arrival time given. Called 1 minute out.", wants_callback:false, email:null, phone:null },
-    { review_id:"r4", timestamp:"2026-04-09T09:32:04", name:"Dylan Saltarelli", categories:["Communication"], narrative:"We had pickups for 2 locations scheduled, and when emailing back and forth, STS was not specific about which location they were referring to sometimes, and it was also sometimes slow to get an email reply from STS.\n\nOverall pleased with the service otherwise.", wants_callback:false, email:null, phone:null },
-    { review_id:"r5", timestamp:"2026-04-02T15:13:03", name:"Mark Domnenko", categories:["Communication","Other"], narrative:"There are too many people", wants_callback:true, email:null, phone:null }
-  ]
+  // Empty initial state. Populated by A3 fetch (CONFIG.dataUrl) or
+  // by a hydrated localStorage cache. The "no data" banner shows
+  // until real data flows. All keys present so renderers don't break.
+  meta: { last_updated: null, sample: false, period_days: 30 },
+  alerts: [],
+  team: { total_calls:0, score_90_plus_count:0, red_flag_count:0, avg_score:0, active_reps:0 },
+  daily: [],
+  reps: [],
+  metrics: { next_step:0, objection:0, decision_maker:0, budget_value:0, enterprise:0 },
+  calls: [],
+  followups: [],
+  enterprise_funnel: { signals_identified:0, explored:0, converted:0 },
+  obj_lib: { pricing:[], timing:[], authority:[], competition:[], other:[] },
+  obj_trend: [],
+  dm_lib: [],
+  ent_lib: [],
+  negative_reviews: []
 };
 
 // ════════════════════════════════════════════════════════════════════
@@ -848,6 +572,46 @@ const CONFIG = {
 };
 let refreshTimer = null;
 
+// ════════════════════════════════════════════════════════════════════
+// CACHE LAYER
+// ────────────────────────────────────────────────────────────────────
+// Persist the latest A3 response in localStorage so the dashboard
+// renders instantly on next page load and stays useful when A3 is
+// briefly unreachable. Always fetch fresh in background. Cache is
+// per-browser, per-device.
+//
+// Bump CACHE_VERSION whenever the canonical V3 payload shape changes
+// in a way that would break older cached payloads. Mismatched-version
+// caches are silently discarded on read.
+// ════════════════════════════════════════════════════════════════════
+const CACHE_VERSION = 1;
+const CACHE_KEY = 'sts_dashboard_cache_v' + CACHE_VERSION;
+
+function readCache() {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (parsed.version !== CACHE_VERSION) return null;
+    if (!parsed.payload || !parsed.payload.meta) return null;
+    return parsed; // { version, written_at, payload }
+  } catch (e) {
+    return null;
+  }
+}
+
+function writeCache(payload) {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify({
+      version: CACHE_VERSION,
+      written_at: new Date().toISOString(),
+      payload
+    }));
+  } catch (e) {
+    console.warn('Cache write failed:', e);
+  }
+}
+
 async function loadData(manual = false) {
   if (!CONFIG.dataUrl) {
     setStatus("sample", "Sample");
@@ -868,12 +632,23 @@ async function loadData(manual = false) {
     const fresh = await r.json();
     if (!fresh || !fresh.meta) throw new Error("Response missing meta block");
     D = fresh;
+    writeCache(D);
     document.getElementById("rfshStatus").title = "Last updated " + fmtTs(D.meta.last_updated);
     renderAlerts();
     rebuildAll();
     setStatus("ok", "Live, just now");
+    updateNoDataBanner();
   } catch (e) {
-    setStatus("err", "Refresh failed");
+    // Fetch failed. If we have a cached payload, keep showing it and
+    // mark the status pill so the user knows data is stale.
+    const cached = readCache();
+    if (cached) {
+      setStatus("cached", "Cached");
+      document.getElementById("rfshStatus").title = "Fetch failed, showing cached data from " + fmtTs(cached.written_at);
+    } else {
+      setStatus("err", "Refresh failed");
+    }
+    updateNoDataBanner();
     console.error("loadData error:", e);
   } finally {
     document.getElementById("rfshBtn").classList.remove("spin");
@@ -884,6 +659,28 @@ function setStatus(state, text) {
   const el = document.getElementById("rfshStatus");
   el.className = "rfsh-st rfsh-" + state;
   el.textContent = text;
+}
+
+function updateNoDataBanner() {
+  const banner = document.getElementById("nodataBanner");
+  const title = document.getElementById("nodataTitle");
+  const msg = document.getElementById("nodataMsg");
+  const hasLiveData = D && D.meta && D.meta.last_updated;
+  const hasCache = readCache() != null;
+
+  if (!CONFIG.dataUrl) {
+    title.textContent = "Dashboard not connected";
+    msg.innerHTML = 'No data feed URL configured. Set <span class="mono">CONFIG.dataUrl</span> in the file or wait for the feed to be wired.';
+    banner.classList.remove("hide");
+    return;
+  }
+  if (!hasLiveData && !hasCache) {
+    title.textContent = "Cannot reach the data feed";
+    msg.textContent = "No data has been received yet. Check that the n8n workflow is active and the URL is correct, then try again.";
+    banner.classList.remove("hide");
+    return;
+  }
+  banner.classList.add("hide");
 }
 
 function setRefreshInterval(min) {
@@ -1075,8 +872,8 @@ function buildHome() {
           ${funnelStage(2, "Explored", D.enterprise_funnel.explored, D.enterprise_funnel.signals_identified)}
           ${funnelStage(3, "Converted", D.enterprise_funnel.converted, D.enterprise_funnel.signals_identified)}
           <div class="fn-conv">
-            <span>Signal → Explore: <span class="mono">${Math.round(D.enterprise_funnel.explored/D.enterprise_funnel.signals_identified*100)}%</span></span>
-            <span>Explore → Convert: <span class="mono">${Math.round(D.enterprise_funnel.converted/D.enterprise_funnel.explored*100)}%</span></span>
+            <span>Signal → Explore: <span class="mono">${D.enterprise_funnel.signals_identified ? Math.round(D.enterprise_funnel.explored/D.enterprise_funnel.signals_identified*100) : 0}%</span></span>
+            <span>Explore → Convert: <span class="mono">${D.enterprise_funnel.explored ? Math.round(D.enterprise_funnel.converted/D.enterprise_funnel.explored*100) : 0}%</span></span>
           </div>
         </div>
       </div>
@@ -1760,10 +1557,24 @@ intervalSel.addEventListener("change", e => setRefreshInterval(parseInt(e.target
 setRefreshInterval(CONFIG.defaultIntervalMin);
 
 applyUrlParams();
+
+// Hydrate from localStorage cache if available, so the page renders
+// instantly with last-known data while we fetch fresh in background.
+const cachedSnapshot = CONFIG.dataUrl ? readCache() : null;
+if (cachedSnapshot) {
+  D = cachedSnapshot.payload;
+}
+
 renderAlerts();
 buildHome();
 B.home = true;
 updateReviewsBadge();
+updateNoDataBanner();
+
+if (cachedSnapshot) {
+  setStatus("loading", "Refreshing");
+  document.getElementById("rfshStatus").title = "Showing cached data from " + fmtTs(cachedSnapshot.written_at) + ", fetching fresh";
+}
 
 // Initial data load attempt (no-op if CONFIG.dataUrl not set)
 if (CONFIG.dataUrl) loadData(false);
