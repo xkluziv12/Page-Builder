@@ -63,26 +63,19 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:10
 .ubtn.ghost{background:var(--s1);color:var(--ink2);border-color:var(--b1);box-shadow:none}
 .ubtn.ghost:hover{border-color:var(--a);color:var(--a);background:var(--s1);box-shadow:var(--sh)}
 
-/* ============ REFRESH BAR ============ */
-.rbar{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:14px 28px 0;max-width:1680px;margin:0 auto;flex-wrap:wrap}
-.rbar-l{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.rbar-r{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.rbar-tier-lbl{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink3)}
-.rbtn{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:11px;font-weight:600;padding:8px 14px;background:var(--s1);border:1px solid var(--b1);color:var(--ink);cursor:pointer;border-radius:999px;transition:all .15s;box-shadow:var(--sh)}
-.rbtn:hover{border-color:var(--a);color:var(--a);box-shadow:var(--sh2)}
-.rbtn:disabled{opacity:.6;cursor:wait}
-.rbtn .rbtn-i{font-size:13px;line-height:1;display:inline-block;transition:transform .3s}
-.rbtn.spin .rbtn-i{animation:rbtn-spin .8s linear infinite}
-@keyframes rbtn-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-.rbtn .rbtn-t{font-weight:600;letter-spacing:.01em}
-.rbtn .rbtn-s{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.04em;font-weight:400;margin-left:4px;padding-left:8px;border-left:1px solid var(--b1)}
-.rbtn.success{border-color:var(--g);color:var(--g)}
-.rbtn.success .rbtn-s{color:var(--g)}
-.rbtn.error{border-color:var(--r);color:var(--r)}
-.rbtn.error .rbtn-s{color:var(--r)}
-.rfi{font-family:var(--sans);font-size:11px;letter-spacing:.01em;padding:7px 28px 7px 12px;border:1px solid var(--b1);background:var(--s1);color:var(--ink2);cursor:pointer;font-weight:500;border-radius:8px;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath d='M0 0L4 6L8 0' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;transition:all .15s}
-.rfi:hover{border-color:var(--a);color:var(--a)}
-.rfi:focus{outline:none;border-color:var(--a);box-shadow:0 0 0 3px var(--adim)}
+/* ============ HEADER REFRESH CONTROL ============ */
+.refresh-ctl{display:inline-flex;align-items:center;gap:0;background:var(--s1);border:1px solid var(--b1);border-radius:8px;overflow:hidden;height:32px}
+.refresh-sel{font-family:var(--sans);font-size:11.5px;font-weight:500;padding:0 26px 0 10px;border:none;background:transparent;color:var(--ink2);cursor:pointer;height:100%;appearance:none;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath d='M0 0L4 6L8 0' fill='%2394a3b8'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 9px center;border-right:1px solid var(--b1)}
+.refresh-sel:hover,.refresh-sel:focus{color:var(--a);outline:none}
+.refresh-now{height:100%;border:none;border-radius:0;padding:0 12px;background:transparent}
+.refresh-now:hover{background:var(--bg)}
+.refresh-now .refresh-i{display:inline-block;font-size:14px;line-height:1;transition:transform .3s}
+.refresh-now.spin .refresh-i{animation:refresh-spin .8s linear infinite}
+.refresh-now.ok{color:var(--g)}
+.refresh-now.err{color:var(--r)}
+.refresh-now.cached{color:var(--w)}
+.refresh-now.cached::after{content:'·';margin-left:1px;color:var(--w);font-weight:bold}
+@keyframes refresh-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
 
 /* ============ TABS (DCD-aligned) ============ */
 .tabs{display:flex;align-items:center;height:46px;padding:0 24px;background:var(--s1);border-bottom:1px solid var(--b1);gap:2px;overflow-x:auto;scrollbar-width:none;position:sticky;top:53px;z-index:49}
@@ -178,9 +171,12 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:10
 /* Empty state */
 .empty{text-align:center;padding:90px 20px 60px}
 .empty-mark{width:48px;height:48px;border:1px solid var(--a);border-radius:12px;display:inline-flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:800;color:var(--a);font-size:22px;margin-bottom:20px;background:var(--adim)}
+.empty-mark.err-mark{border-color:var(--r);color:var(--r);background:rgba(220,38,38,.08)}
 .empty h2{font-family:var(--sans);font-size:32px;font-weight:700;margin-bottom:10px;color:var(--ink);letter-spacing:-.02em}
 .empty p{font-size:13px;color:var(--ink2);margin-bottom:24px;max-width:440px;margin-left:auto;margin-right:auto;line-height:1.5}
 .empty .hint{font-family:var(--mono);font-size:9px;color:var(--ink3);letter-spacing:.1em;text-transform:uppercase;margin-top:18px}
+.empty-actions{display:inline-flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-bottom:8px}
+.err-detail{font-family:var(--mono);font-size:10px;color:var(--r);background:rgba(220,38,38,.05);border:1px solid rgba(220,38,38,.2);border-radius:6px;padding:10px 14px;max-width:480px;margin:0 auto 24px;letter-spacing:.02em;word-break:break-word;text-align:left}
 
 /* Scroll container */
 .sp{max-height:340px;overflow-y:auto}
@@ -285,6 +281,14 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:10
     <span class="logo-name">STS WIW</span>
   </div>
   <div class="spacer"></div>
+  <div class="refresh-ctl" id="refreshCtl" style="display:none">
+    <select class="refresh-sel" id="refreshIntervalSel" onchange="setAutoRefresh(this.value)" title="Auto-refresh interval">
+      <option value="0" selected>Auto: Off</option>
+      <option value="15">Auto: 15m</option>
+      <option value="30">Auto: 30m</option>
+    </select>
+    <button class="icon-btn refresh-now" id="refreshNowBtn" onclick="fetchData()" title="Refresh now"><span class="refresh-i">↻</span></button>
+  </div>
   <input type="file" id="csv" accept=".csv" style="display:none" onchange="ld(event)">
   <button class="icon-btn" onclick="document.getElementById('csv').click()" title="Load CSV file">📂 Load CSV</button>
   <button class="icon-btn" id="thmBtn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle theme">☾</button>
@@ -292,38 +296,6 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:10
 </header>
 
 <!-- ============ REFRESH BAR ============ -->
-<div class="rbar" id="rbar" style="display:none">
-  <div class="rbar-l">
-    <button class="rbtn" id="rbT" onclick="refreshTier('today')" title="Pull today's rows from master">
-      <span class="rbtn-i">↻</span><span class="rbtn-t">Today</span>
-      <span class="rbtn-s" id="rbTs">never</span>
-    </button>
-    <button class="rbtn" id="rbW" onclick="refreshTier('weekly')" title="Pull last 7 days from master">
-      <span class="rbtn-i">↻</span><span class="rbtn-t">Weekly</span>
-      <span class="rbtn-s" id="rbWs">never</span>
-    </button>
-    <button class="rbtn" id="rbM" onclick="refreshTier('monthly')" title="Pull last 30 days from master">
-      <span class="rbtn-i">↻</span><span class="rbtn-t">Monthly</span>
-      <span class="rbtn-s" id="rbMs">never</span>
-    </button>
-  </div>
-  <div class="rbar-r">
-    <span class="rbar-tier-lbl">Viewing</span>
-    <select id="tierSel" class="rfi" onchange="switchTier(this.value)">
-      <option value="today">Today</option>
-      <option value="weekly">Last 7 days</option>
-      <option value="monthly">Last 30 days</option>
-    </select>
-    <span class="rbar-tier-lbl" style="margin-left:14px">Auto</span>
-    <select id="autoSel" class="rfi" onchange="setAutoRefresh(this.value)">
-      <option value="0" selected>Off</option>
-      <option value="3600">Every hour</option>
-      <option value="1800">Every 30m</option>
-      <option value="900">Every 15m</option>
-    </select>
-  </div>
-</div>
-
 <!-- ============ TABS ============ -->
 <div class="tabs" id="tabs">
   <button class="tab active" data-v="home" onclick="sv('home')">Home<span class="dot"></span></button>
@@ -343,9 +315,27 @@ body{background:var(--bg);color:var(--ink);font-family:var(--sans);min-height:10
   <div class="empty">
     <div class="empty-mark">W</div>
     <h2>Operations Pulse</h2>
-    <p>Upload the PRICE_PULL CSV export from the master sheet to see today's check-in activity, routing flow, profit pulse, red flags, and wins across the floor.</p>
-    <button class="ubtn" onclick="document.getElementById('csv').click()">📂 Load CSV</button>
-    <div class="hint">Or wire a live n8n endpoint in the CONFIG block at the top of the script</div>
+    <p>Pull live data from the n8n reader, or upload a CSV export of the master sheet. Either way, you'll see today's check-in activity, routing flow, profit pulse, red flags, and wins across the floor.</p>
+    <div class="empty-actions">
+      <button class="ubtn" id="emptyPullLiveBtn" onclick="fetchData()">⚡ Pull Live</button>
+      <button class="ubtn ghost" onclick="document.getElementById('csv').click()">📂 Load CSV</button>
+    </div>
+    <div class="hint" id="emptyHint">Live endpoint reads from the master sheet. Auto-refresh available in the header dropdown.</div>
+  </div>
+</div>
+
+<!-- ============ ERROR VIEW (fetch failed, no cache) ============ -->
+<div id="error-view" class="view">
+  <div class="empty">
+    <div class="empty-mark err-mark">!</div>
+    <h2>No data available</h2>
+    <p id="errorMsg">The live data fetch failed and no cached data is available. Check the n8n workflow status, the webhook URL, and CORS configuration.</p>
+    <div class="err-detail" id="errorDetail">—</div>
+    <div class="empty-actions">
+      <button class="ubtn" onclick="fetchData()">↻ Try Again</button>
+      <button class="ubtn ghost" onclick="document.getElementById('csv').click()">📂 Load CSV Instead</button>
+    </div>
+    <div class="hint">If this keeps failing, verify the workflow is Active and the URL in CONFIG.DATA_ENDPOINT matches the production webhook.</div>
   </div>
 </div>
 
@@ -890,21 +880,16 @@ async function emailReport(){
 ============================================ */
 
 const CONFIG = {
-  // Reader endpoint — single GET with ?view=today|weekly|monthly|insights|alerts
-  DATA_ENDPOINT: '',
-  // Writer endpoints — POST to refresh each tier's cache tab from master
-  REFRESH_TODAY_URL: '',
-  REFRESH_WEEKLY_URL: '',
-  REFRESH_MONTHLY_URL: '',
+  // Reader endpoint — GET returns {monthly:[...], daily:[...], generated_at, ...}
+  DATA_ENDPOINT: 'https://stsrecycling.app.n8n.cloud/webhook/sts-dashboard-read',
   // Manager-report endpoint — POST triggers an immediate email send
-  EMAIL_REPORT_URL: '',
-  // Default tier on load
-  DEFAULT_TIER: 'today',  // 'today' | 'weekly' | 'monthly'
-  // Auto-refresh: 0 = off, otherwise seconds
-  AUTO_REFRESH_SEC: 0,
-  // Debounce: ignore refresh-now clicks if last refresh was within this many seconds
-  REFRESH_DEBOUNCE_SEC: 30
+  EMAIL_REPORT_URL: ''
 };
+
+// Bump when payload shape changes (renamed fields, removed columns, etc).
+// Caches with mismatched version are discarded on read.
+const CACHE_VERSION = 1;
+const CACHE_KEY = 'sts_wiw_live_cache_v' + CACHE_VERSION;
 
 /* ============================================
    CATEGORY_CONFIG — extracted from WIW v6.2 workflow JSON (Final Routing Decision node)
@@ -951,7 +936,7 @@ const PROD_INFO = {
 /* ============================================
    STATE
 ============================================ */
-let D = [];                  // raw rows; populated by ld() (CSV upload) or fetchTier() (live)
+let D = [];                  // raw rows; populated by ld() (CSV) or fetchData() (live)
 let filtered = [];           // filtered by current time range
 let range = 'today';
 let maxDate = null;          // set when data loads
@@ -960,9 +945,6 @@ let autoRefreshTimer = null;
 let lastFetchTime = null;
 let lastFetchStatus = 'idle';
 let sourceLabel = '';
-let currentTier = (CONFIG.DEFAULT_TIER || 'today');
-// Per-tier last-refresh timestamps (writer side)
-let tierLastRefresh = { today: null, weekly: null, monthly: null };
 
 // Compare mode state
 let compareData = [];         // prior CSV rows
@@ -1048,177 +1030,203 @@ function activityDate(r){
 }
 
 /* ============================================
-   LIVE FETCH (READER) + TIER REFRESH (WRITERS)
+   LIVE FETCH (READER) + LOCAL CACHE
 ============================================ */
 
-// fetchTier: pulls from the reader endpoint for the given tier and renders.
-// Does NOT trigger a writer; the cache tab must already exist (writer has run).
-async function fetchTier(tier){
-  if (!CONFIG.DATA_ENDPOINT) return;
-  if (!tier) tier = currentTier;
+// State: tracks whether dashboard is currently showing CSV data (cache writes paused)
+let csvModeActive = false;
+let cacheTimestamp = null;  // ISO string, when cache was written
+
+function readCache(){
   try {
-    const sep = CONFIG.DATA_ENDPOINT.includes('?') ? '&' : '?';
-    const url = CONFIG.DATA_ENDPOINT + sep + 'view=' + encodeURIComponent(tier);
-    const res = await fetch(url, { cache:'no-store' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const ct = (res.headers.get('content-type') || '').toLowerCase();
-    let rows;
-    if (ct.includes('application/json')){
-      const data = await res.json();
-      rows = Array.isArray(data) ? data : (data.items || data.rows || data.data || []);
-    } else {
-      rows = csv(await res.text());
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const obj = JSON.parse(raw);
+    if (!obj || obj.version !== CACHE_VERSION) {
+      // Stale cache from old schema; discard
+      try { localStorage.removeItem(CACHE_KEY); } catch(e){}
+      return null;
     }
-    if (!Array.isArray(rows)) throw new Error('Bad response shape');
-    D = rows;
-    let mx = '';
-    for (const r of D){ const d = activityDate(r); if (d > mx) mx = d; }
-    maxDate = mx || new Date().toISOString().split('T')[0];
+    return obj;
+  } catch(e){
+    console.warn('Cache read failed:', e);
+    return null;
+  }
+}
+
+function writeCache(payload){
+  try {
+    const wrapper = {
+      version: CACHE_VERSION,
+      written_at: new Date().toISOString(),
+      payload
+    };
+    localStorage.setItem(CACHE_KEY, JSON.stringify(wrapper));
+  } catch(e){
+    console.warn('Cache write failed (likely quota exceeded):', e);
+  }
+}
+
+// Internal: turn a raw payload into D + maxDate. Returns true if D got populated.
+function applyPayload(data){
+  let monthly = [], daily = [];
+  if (Array.isArray(data)){
+    monthly = data;
+  } else if (data && (Array.isArray(data.monthly) || Array.isArray(data.daily))){
+    monthly = data.monthly || [];
+    daily = data.daily || [];
+  } else if (data && Array.isArray(data.items)){
+    monthly = data.items;
+  } else {
+    return false;
+  }
+
+  // Merge by Search_Key so daily overlays monthly
+  const merged = new Map();
+  for (const r of monthly){
+    const key = r.Search_Key || (r.Manufacturer + '|' + r.Model + '|' + (r.Sub_Model || ''));
+    merged.set(key, r);
+  }
+  for (const r of daily){
+    const key = r.Search_Key || (r.Manufacturer + '|' + r.Model + '|' + (r.Sub_Model || ''));
+    const existing = merged.get(key);
+    if (existing) merged.set(key, Object.assign({}, existing, r));
+    else merged.set(key, r);
+  }
+  D = Array.from(merged.values());
+
+  let mx = '';
+  for (const row of D){
+    const d = activityDate(row);
+    if (d > mx) mx = d;
+  }
+  maxDate = mx || new Date().toISOString().split('T')[0];
+  return true;
+}
+
+// Hydrate D from cache if present. Returns true if cache was applied.
+function hydrateFromCache(){
+  const cached = readCache();
+  if (!cached || !cached.payload) return false;
+  if (!applyPayload(cached.payload)) return false;
+  cacheTimestamp = cached.written_at;
+  // Swap empty/error → home-view
+  $('empty-view').classList.remove('active');
+  $('error-view').classList.remove('active');
+  const anyActive = document.querySelector('.view.active');
+  if (!anyActive || anyActive.id === 'empty-view' || anyActive.id === 'error-view') $('home-view').classList.add('active');
+  sourceLabel = 'Cached · ' + relTime(cached.written_at);
+  return true;
+}
+
+// fetchData: hits the live endpoint. Updates D + cache on success.
+// On failure, leaves any existing D (e.g. from cache hydration) in place.
+async function fetchData(){
+  if (!CONFIG.DATA_ENDPOINT) return false;
+  setRefreshState('spin');
+  try {
+    const res = await fetch(CONFIG.DATA_ENDPOINT, { cache: 'no-store' });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+
+    if (!applyPayload(data)){
+      throw new Error('Unrecognized payload shape');
+    }
+
+    // Don't overwrite cache while CSV is loaded — but cache the live data
+    // we just fetched so a future "back to live" view restores it
+    writeCache(data);
+    cacheTimestamp = new Date().toISOString();
+
+    // If user is currently in CSV mode, don't replace their view
+    if (csvModeActive){
+      setRefreshState('ok', 'Fetched in background');
+      return true;
+    }
+
     $('empty-view').classList.remove('active');
+    $('error-view').classList.remove('active');
     const anyActive = document.querySelector('.view.active');
-    if (!anyActive || anyActive.id === 'empty-view') $('home-view').classList.add('active');
+    if (!anyActive || anyActive.id === 'empty-view' || anyActive.id === 'error-view') $('home-view').classList.add('active');
+
     lastFetchTime = new Date();
-    sourceLabel = 'Live · ' + tier;
+    sourceLabel = 'Live · ' + (data.total_rows ? data.total_rows.toLocaleString() + ' total' : D.length + ' merged');
     render();
-    fetchAIInsights();
-    fetchAlerts();
+    setRefreshState('ok');
     return true;
   } catch (err){
-    console.error('fetchTier(' + tier + ') failed:', err);
+    console.error('fetchData failed:', err);
+    // If we have cached data already rendered, mark refresh control as "showing cached"
+    if (D.length && cacheTimestamp){
+      setRefreshState('cached', cacheTimestamp);
+    } else {
+      setRefreshState('err', err.message);
+      // No data of any kind to show — surface the error in body
+      const detail = $('errorDetail');
+      if (detail) detail.textContent = String(err.message || err);
+      // Switch to error-view if we're currently in empty-view (initial load fail)
+      const ev = $('empty-view');
+      const errv = $('error-view');
+      if (ev && ev.classList.contains('active')){
+        ev.classList.remove('active');
+        if (errv) errv.classList.add('active');
+      } else if (errv && !document.querySelector('.view.active')){
+        errv.classList.add('active');
+      }
+    }
     return false;
   }
 }
 
-// switchTier: user picked a different tier from the dropdown.
-// Just re-fetches the reader at that tier; does not call the writer.
-function switchTier(tier){
-  if (!tier) return;
-  currentTier = tier;
-  try { localStorage.setItem('sts_tier', tier); } catch(e){}
-  fetchTier(tier);
-}
-
-// refreshTier: clicked one of the [↻ Today/Weekly/Monthly] buttons.
-// Calls the writer webhook to rebuild that tier's cache from master,
-// then re-fetches the reader if that tier is the one currently displayed.
-async function refreshTier(tier){
-  const writerUrl = ({
-    today: CONFIG.REFRESH_TODAY_URL,
-    weekly: CONFIG.REFRESH_WEEKLY_URL,
-    monthly: CONFIG.REFRESH_MONTHLY_URL
-  })[tier];
-  const btn = ({ today: $('rbT'), weekly: $('rbW'), monthly: $('rbM') })[tier];
-  if (!writerUrl){
-    setRbtnState(btn, 'error', 'no endpoint');
-    return;
-  }
-  // Debounce
-  const last = tierLastRefresh[tier];
-  if (last){
-    const ageSec = (new Date() - new Date(last)) / 1000;
-    if (ageSec < CONFIG.REFRESH_DEBOUNCE_SEC){
-      const remaining = Math.ceil(CONFIG.REFRESH_DEBOUNCE_SEC - ageSec);
-      setRbtnState(btn, 'idle', 'wait ' + remaining + 's');
-      setTimeout(() => updateRbtnLabels(), 2000);
-      return;
-    }
-  }
-  setRbtnState(btn, 'spin', 'refreshing...');
-  if (btn) btn.disabled = true;
-  try {
-    const res = await fetch(writerUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ source: 'dashboard' })
-    });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const data = await res.json();
-    const rowsWritten = (data && (data.rows_written ?? 0));
-    tierLastRefresh[tier] = new Date().toISOString();
-    try { localStorage.setItem('sts_lastRefresh_' + tier, tierLastRefresh[tier]); } catch(e){}
-    setRbtnState(btn, 'success', rowsWritten + ' rows');
-    // If user is currently viewing this tier, re-fetch it
-    if (currentTier === tier){
-      await fetchTier(tier);
-    }
-  } catch (err){
-    console.error('refreshTier(' + tier + ') failed:', err);
-    setRbtnState(btn, 'error', 'failed');
-  } finally {
-    if (btn) btn.disabled = false;
-    setTimeout(() => { setRbtnState(btn, 'idle'); updateRbtnLabels(); }, 2500);
-  }
-}
-
-function setRbtnState(btn, state, subtext){
-  if (!btn) return;
-  btn.classList.remove('spin', 'success', 'error');
-  if (state === 'spin') btn.classList.add('spin');
-  else if (state === 'success') btn.classList.add('success');
-  else if (state === 'error') btn.classList.add('error');
-  if (subtext != null){
-    const s = btn.querySelector('.rbtn-s');
-    if (s) s.textContent = subtext;
-  }
-}
-
-function updateRbtnLabels(){
-  ['today','weekly','monthly'].forEach(tier => {
-    const sub = ({ today: $('rbTs'), weekly: $('rbWs'), monthly: $('rbMs') })[tier];
-    if (!sub) return;
-    const ts = tierLastRefresh[tier];
-    sub.textContent = ts ? relativeTime(new Date(ts)) : 'never';
-  });
-}
-
-function relativeTime(t){
-  if (!t) return '—';
+function relTime(iso){
+  if (!iso) return 'never';
+  const t = new Date(iso);
   const diff = Math.round((new Date() - t) / 1000);
-  if (diff < 5) return 'just now';
-  if (diff < 60) return diff + 's ago';
+  if (diff < 60) return 'just now';
   if (diff < 3600) return Math.floor(diff/60) + 'm ago';
   if (diff < 86400) return Math.floor(diff/3600) + 'h ago';
   return Math.floor(diff/86400) + 'd ago';
 }
 
-function setAutoRefresh(sec){
-  const s = parseInt(sec) || 0;
-  CONFIG.AUTO_REFRESH_SEC = s;
-  try { localStorage.setItem('sts_autoRefresh', String(s)); } catch(e){}
-  if (autoRefreshTimer){ clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
-  if (s > 0){
-    autoRefreshTimer = setInterval(() => {
-      // Auto-refresh refreshes only the currently-viewed tier
-      refreshTier(currentTier);
-    }, s * 1000);
+function setRefreshState(state, msg){
+  const btn = $('refreshNowBtn');
+  if (!btn) return;
+  btn.classList.remove('spin', 'err', 'ok', 'cached');
+  if (state === 'spin') btn.classList.add('spin');
+  else if (state === 'err'){ btn.classList.add('err'); btn.title = 'Refresh failed: ' + (msg || ''); }
+  else if (state === 'ok'){ btn.classList.add('ok'); btn.title = (msg || 'Refreshed') + ' · click to refresh again'; }
+  else if (state === 'cached'){
+    btn.classList.add('cached');
+    btn.title = 'Showing cached data from ' + relTime(msg) + ' · live fetch failed · click to retry';
+  }
+  // Auto-clear ok/err state after 3 seconds; cached state persists until next successful fetch
+  if (state === 'ok' || state === 'err'){
+    setTimeout(() => {
+      btn.classList.remove('ok', 'err');
+      btn.title = 'Refresh now';
+    }, 3000);
   }
 }
 
-// Restore saved tier choice + last-refresh timestamps from localStorage
-function restoreTierState(){
+function setAutoRefresh(min){
+  const m = parseInt(min) || 0;
+  if (autoRefreshTimer){ clearInterval(autoRefreshTimer); autoRefreshTimer = null; }
+  try { localStorage.setItem('sts_autoRefreshMin', String(m)); } catch(e){}
+  if (m > 0 && CONFIG.DATA_ENDPOINT){
+    autoRefreshTimer = setInterval(fetchData, m * 60 * 1000);
+  }
+}
+
+function restoreRefreshPref(){
   try {
-    const t = localStorage.getItem('sts_tier');
-    if (t && ['today','weekly','monthly'].includes(t)){
-      currentTier = t;
-      const sel = $('tierSel');
-      if (sel) sel.value = t;
-    }
-    ['today','weekly','monthly'].forEach(tier => {
-      const ts = localStorage.getItem('sts_lastRefresh_' + tier);
-      if (ts) tierLastRefresh[tier] = ts;
-    });
-    const ar = localStorage.getItem('sts_autoRefresh');
-    if (ar){
-      CONFIG.AUTO_REFRESH_SEC = parseInt(ar) || 0;
-      const sel = $('autoSel');
-      if (sel) sel.value = ar;
-      setAutoRefresh(ar);
+    const saved = localStorage.getItem('sts_autoRefreshMin');
+    if (saved){
+      const sel = $('refreshIntervalSel');
+      if (sel) sel.value = saved;
+      setAutoRefresh(saved);
     }
   } catch(e){}
 }
-
-// Update relative-time labels every 30 seconds
-setInterval(updateRbtnLabels, 30000);
 
 
 /* ============================================
@@ -1361,10 +1369,13 @@ function ld(e){
       if (d > mx) mx = d;
     }
     maxDate = mx || new Date().toISOString().split('T')[0];
-    // Swap from empty state to home view
+    // CSV mode: live cache stays untouched, background fetches don't replace this view
+    csvModeActive = true;
+    // Swap from empty/error state to home view
     $('empty-view').classList.remove('active');
+    $('error-view').classList.remove('active');
     const anyActive = document.querySelector('.view.active');
-    if (!anyActive || anyActive.id === 'empty-view') $('home-view').classList.add('active');
+    if (!anyActive || anyActive.id === 'empty-view' || anyActive.id === 'error-view') $('home-view').classList.add('active');
     lastFetchTime = new Date();
     sourceLabel = 'CSV · ' + f.name;
     render();
@@ -1415,7 +1426,13 @@ function sv(v){
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.v === v));
   document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
   if (D.length === 0){
-    $('empty-view').classList.add('active');
+    // No data — show empty state (or error if a fetch failed)
+    const errv = $('error-view');
+    if (errv && errv.querySelector('#errorDetail') && errv.querySelector('#errorDetail').textContent !== '—'){
+      errv.classList.add('active');
+    } else {
+      $('empty-view').classList.add('active');
+    }
     return;
   }
   $(v + '-view').classList.add('active');
@@ -2553,21 +2570,28 @@ window.addEventListener('load', () => {
   const shortId = PROD_INFO.webhookUrl.split('/').pop().substring(0, 8);
   hookLink.textContent = 'stsrecycling.app.n8n.cloud · ' + shortId + '…';
 
-  // If no endpoint is configured, hide the refresh bar.
-  // Empty state is shown until user uploads a CSV.
+  // If no endpoint is configured, hide the refresh control AND the Pull Live button.
+  // Empty state shows CSV upload only.
   if (!CONFIG.DATA_ENDPOINT){
-    const rbar = document.getElementById('rbar');
-    if (rbar) rbar.style.display = 'none';
+    const rctl = document.getElementById('refreshCtl');
+    if (rctl) rctl.style.display = 'none';
+    const pullBtn = document.getElementById('emptyPullLiveBtn');
+    if (pullBtn) pullBtn.style.display = 'none';
+    const hint = document.getElementById('emptyHint');
+    if (hint) hint.textContent = 'Live endpoint not configured. Set CONFIG.DATA_ENDPOINT in the script to enable Pull Live.';
     return;
   }
-  // Show the refresh bar
-  const rbar = document.getElementById('rbar');
-  if (rbar) rbar.style.display = 'flex';
-  // Restore tier choice + last-refresh times from localStorage
-  restoreTierState();
-  updateRbtnLabels();
-  // Initial fetch of currently-selected tier
-  fetchTier(currentTier);
+  // Live endpoint configured: show refresh control, restore prefs
+  const rctl = document.getElementById('refreshCtl');
+  if (rctl) rctl.style.display = 'inline-flex';
+  restoreRefreshPref();
+
+  // Hydrate from localStorage cache for instant render, then fetch fresh in background.
+  // If fetch fails, cached view stays + refresh button shows 'cached' state.
+  // If no cache and fetch fails, error-view shows.
+  const hadCache = hydrateFromCache();
+  if (hadCache) render();
+  fetchData();
 });
 </script>
 </body>
