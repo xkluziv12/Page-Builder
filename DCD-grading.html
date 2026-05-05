@@ -283,6 +283,31 @@ main{max-width:1440px;margin:0 auto;padding:22px}
 .comp-tag-bios{background:#fef3c7;color:#92400e}
 .comp-tag-data{background:#ede9fe;color:#5b21b6}
 
+/* SOLID COMMERCE SOURCE STYLING */
+.sc-banner{display:flex;align-items:center;gap:10px;padding:10px 14px;background:linear-gradient(90deg,#ecfdf5,#d1fae5);border:1px solid #86efac;border-radius:8px;margin-bottom:14px;font-size:12px;color:#065f46}
+.sc-banner-ic{font-size:14px}
+.sc-banner-tag{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;background:#059669;color:#fff;border-radius:5px;font-size:10px;font-weight:700;font-family:'IBM Plex Mono',monospace;letter-spacing:.4px;text-transform:uppercase}
+.sc-banner-tag::before{content:'';width:6px;height:6px;border-radius:50%;background:#86efac;box-shadow:0 0 0 2px rgba(134,239,172,.4)}
+.sc-banner-meta{margin-left:auto;font-size:11px;color:#065f46;opacity:.8;font-family:'IBM Plex Mono',monospace}
+.kpi-sc::before{background:linear-gradient(90deg,#059669,#10b981)!important;height:4px!important}
+.kpi-sc{position:relative}
+.sc-tag{position:absolute;top:10px;right:12px;font-size:9px;font-weight:700;color:#fff;background:#059669;padding:2px 6px;border-radius:4px;font-family:'IBM Plex Mono',monospace;letter-spacing:.3px}
+.kpi-d-sc{color:#059669!important;font-weight:500}
+.ord-val{display:inline-block;font-size:10.5px;font-weight:600;color:#065f46;background:#d1fae5;padding:1px 7px;border-radius:4px;font-family:'IBM Plex Mono',monospace;margin-left:4px}
+.cat-row{display:grid;grid-template-columns:1fr 60px 60px 60px 70px;gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--bd);font-size:13px}
+.cat-row:last-child{border-bottom:none}
+.cat-row.cat-row-h{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--tx2);padding-bottom:8px;background:var(--bg);border-radius:6px;padding:8px 10px;margin:0 -10px 4px -10px}
+.cat-stat{font-family:'IBM Plex Mono',monospace;font-size:12.5px;font-weight:500;text-align:right}
+.cat-stat-warn{color:var(--rd);font-weight:600}
+.cat-stat-low{color:var(--am)}
+.low-stock-tag{display:inline-block;font-size:9px;font-weight:700;color:#fff;background:var(--am);padding:1px 5px;border-radius:3px;margin-left:6px;text-transform:uppercase;font-family:'IBM Plex Mono',monospace}
+
+/* COMPLIANCE EXPOSURE */
+.comp-exp{background:linear-gradient(135deg,#fef2f2,#fee2e2);border:1px solid #fca5a5;border-radius:var(--r);padding:14px 18px;margin-bottom:14px;display:flex;align-items:center;gap:14px}
+.comp-exp-l{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#991b1b}
+.comp-exp-v{font-size:24px;font-weight:600;font-family:'IBM Plex Mono',monospace;color:#7f1d1d}
+.comp-exp-meta{margin-left:auto;font-size:11.5px;color:#991b1b;text-align:right}
+
 /* FOOTER */
 footer{padding:18px 24px;text-align:center;font-size:11px;color:var(--tx3);border-top:1px solid var(--bd);margin-top:24px}
 footer .mono{color:var(--tx2)}
@@ -1664,7 +1689,161 @@ let D = {
 "dead_reason": "< 90s AND < 75 words",
 "transcript_snippet": "Speaker 2: Hi. I was calling about the account that I just set up with you guys. I need to see where I send my tax-exempt form. jennifer.rosales: That will be with our sales team. Let me transfer you over."
 }
+],
+"solidCommerce": {
+"meta": {
+"connected": true,
+"source": "Solid Commerce API",
+"last_sync": "2026-05-04T19:55:00",
+"sample": true
+},
+"financials": {
+"revenue_at_risk": 4263,
+"refunds_processed": 329,
+"replacements_shipped": 3019,
+"retention_saved": 734,
+"paid_upgrades": 45,
+"avg_order_value": 412
+},
+"orders": {
+"12-04587-EB": {
+"value": 489,
+"date": "2026-04-10",
+"item": "Dell Latitude 5540",
+"platform": "eBay"
+},
+"12-04701-EB": {
+"value": 385,
+"date": "2026-04-15",
+"item": "HP EliteBook 840 G5",
+"platform": "eBay"
+},
+"12-04723-EB": {
+"value": 525,
+"date": "2026-04-22",
+"item": "Dell Latitude 7490",
+"platform": "eBay"
+},
+"12-04735-EB": {
+"value": 549,
+"date": "2026-04-28",
+"item": "Lenovo ThinkPad T490",
+"platform": "eBay"
+},
+"12-04730-EB": {
+"value": 179,
+"date": "2026-04-30",
+"item": "Dell Chromebook",
+"platform": "eBay"
+},
+"12-03750-EB": {
+"value": 469,
+"date": "2026-02-18",
+"item": "Dell Latitude 7400",
+"platform": "eBay"
+},
+"WM-90401": {
+"value": 349,
+"date": "2026-04-05",
+"item": "Lenovo ThinkPad T450",
+"platform": "Walmart"
+},
+"178150": {
+"value": 629,
+"date": "2026-04-25",
+"item": "Lenovo ThinkPad T14 Gen 1",
+"platform": "Home Depot"
+},
+"8178846": {
+"value": 329,
+"date": "2026-03-04",
+"item": "Dell Optiplex 5080",
+"platform": "website"
+},
+"179519": {
+"value": 412,
+"date": "2026-05-01",
+"item": "Lenovo ThinkPad",
+"platform": "website"
+}
+},
+"catalog": {
+"Dell Latitude 5540": {
+"avg_price": 489,
+"units_sold_30d": 24,
+"in_stock": 12,
+"return_rate_30d_pct": 8.3
+},
+"Dell Chromebook": {
+"avg_price": 179,
+"units_sold_30d": 47,
+"in_stock": 31,
+"return_rate_30d_pct": 4.2
+},
+"HP EliteBook 840 G5": {
+"avg_price": 385,
+"units_sold_30d": 18,
+"in_stock": 22,
+"return_rate_30d_pct": 5.6
+},
+"Dell OptiPlex 7070": {
+"avg_price": 349,
+"units_sold_30d": 15,
+"in_stock": 8,
+"return_rate_30d_pct": 6.7
+},
+"Lenovo ThinkPad T450": {
+"avg_price": 349,
+"units_sold_30d": 11,
+"in_stock": 4,
+"return_rate_30d_pct": 18.2,
+"low_stock": true
+},
+"Lenovo ThinkPad T490": {
+"avg_price": 549,
+"units_sold_30d": 22,
+"in_stock": 16,
+"return_rate_30d_pct": 4.5
+},
+"Dell Latitude 7400": {
+"avg_price": 469,
+"units_sold_30d": 9,
+"in_stock": 14,
+"return_rate_30d_pct": 11.1
+},
+"Dell Latitude 7490 (ordered) / 5490 (received)": {
+"avg_price": 525,
+"units_sold_30d": 20,
+"in_stock": 18,
+"return_rate_30d_pct": 5.0
+},
+"Lenovo ThinkPad T480/T490": {
+"avg_price": 525,
+"units_sold_30d": 17,
+"in_stock": 12,
+"return_rate_30d_pct": 5.9
+},
+"Lenovo ThinkPad T14 Gen 1": {
+"avg_price": 629,
+"units_sold_30d": 8,
+"in_stock": 3,
+"return_rate_30d_pct": 12.5,
+"low_stock": true
+},
+"Dell Optiplex 5080": {
+"avg_price": 329,
+"units_sold_30d": 12,
+"in_stock": 7,
+"return_rate_30d_pct": 8.3
+}
+},
+"compliance_exposure": {
+"total_replacement_cost": 358,
+"flagged_orders": [
+"12-04730-EB"
 ]
+}
+}
 };
 
 // ════════════════════════════════════════════════════════════════════
@@ -1761,6 +1940,7 @@ async function sendReport(mode, payload = {}, btn = null) {
 function fmtTs(s){ if(!s) return "…"; try{ const d=new Date(s); return d.toLocaleString("en-US",{month:"short",day:"numeric",hour:"numeric",minute:"2-digit"});}catch(e){return s;}}
 function fmtDate(s){ if(!s) return ""; try{ const d=new Date(s); return d.toLocaleDateString("en-US",{month:"short",day:"numeric"});}catch(e){return s;}}
 function fmtMin(m){ if(m==null) return "—"; return Number(m).toFixed(1) + "m"; }
+function fmtMoney(n){ if(n==null) return "—"; return "$" + Number(n).toLocaleString("en-US",{maximumFractionDigits:0}); }
 function pct(n,d){ if(!d) return 0; return Math.round(100*n/d); }
 function safe(s){ if(s==null) return ""; return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function isTrue(v){ return v===true || v==="TRUE" || v==="true" || v===1; }
@@ -1842,6 +2022,8 @@ function updateBadges(){
 // ════════════════════════════════════════════════════════════════════
 function buildHome(){
   const k = D.kpis||{};
+  const sc = D.solidCommerce||{};
+  const fin = sc.financials||{};
   const home = document.getElementById("home");
   home.innerHTML = `
     <div class="mgr-actions">
@@ -1856,6 +2038,23 @@ function buildHome(){
       <div class="kpi kpi-amber"><div class="kpi-l">FCR Rate</div><div class="kpi-v">${k.fcr_rate_pct||0}%</div><div class="kpi-d">${k.fcr_count||0}/${k.total_calls||0} resolved first call</div></div>
       <div class="kpi kpi-purple"><div class="kpi-l">Avg Duration</div><div class="kpi-v">${k.avg_duration_min||0}<span style="font-size:18px;color:var(--tx3)">m</span></div><div class="kpi-d">${k.satisfied_pct||0}% satisfied</div></div>
     </div>
+
+    ${sc.meta?.connected ? `
+    <div class="sc-banner">
+      <span class="sc-banner-ic">💰</span>
+      <span class="sc-banner-tag">SC Live</span>
+      <span><strong>Solid Commerce</strong> · revenue and inventory data enriching the views below</span>
+      <span class="sc-banner-meta">last sync ${fmtTs(sc.meta.last_sync)}</span>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi kpi-sc"><span class="sc-tag">SC</span><div class="kpi-l">Revenue at Risk</div><div class="kpi-v">${fmtMoney(fin.revenue_at_risk)}</div><div class="kpi-d kpi-d-sc">across active issues</div></div>
+      <div class="kpi kpi-sc"><span class="sc-tag">SC</span><div class="kpi-l">Replacements Cost</div><div class="kpi-v">${fmtMoney(fin.replacements_shipped)}</div><div class="kpi-d kpi-d-sc">${k.replacements_shipped||0} units shipped</div></div>
+      <div class="kpi kpi-sc"><span class="sc-tag">SC</span><div class="kpi-l">Retention Saved</div><div class="kpi-v">${fmtMoney(fin.retention_saved)}</div><div class="kpi-d kpi-d-sc">prevented refunds</div></div>
+      <div class="kpi kpi-sc"><span class="sc-tag">SC</span><div class="kpi-l">Refunds Processed</div><div class="kpi-v">${fmtMoney(fin.refunds_processed)}</div><div class="kpi-d kpi-d-sc">returns + refunds</div></div>
+      <div class="kpi kpi-sc"><span class="sc-tag">SC</span><div class="kpi-l">Paid Upgrades</div><div class="kpi-v">${fmtMoney(fin.paid_upgrades)}</div><div class="kpi-d kpi-d-sc">upsell revenue</div></div>
+    </div>
+    ` : ""}
 
     <div class="row r-2-1">
       <div class="cd">
@@ -2138,13 +2337,16 @@ function renderCallCard(c){
   const cust = c.customer_name || (dead?"unknown":"unidentified customer");
   const prod = [c.product_brand, c.product_model].filter(Boolean).join(" ") || c.product_type || "";
   const dur = c.duration_minutes!=null ? fmtMin(c.duration_minutes) : (c.duration_seconds!=null ? Math.round(c.duration_seconds/60*10)/10+"m" : "—");
+  const orders = D.solidCommerce?.orders || {};
+  const ordVal = c.order_number && orders[c.order_number]?.value;
+  const ordValTag = ordVal ? `<span class="ord-val" title="Order value from Solid Commerce">${fmtMoney(ordVal)}</span>` : "";
 
   const headerLine = `
     <div class="call-hd" onclick="this.parentElement.querySelector('.call-bd').classList.toggle('open')">
       <span class="cat-badge ${cat.cls}">${cat.label}</span>
       <div>
         <div class="call-p">${safe(cust)}</div>
-        <div class="call-p-sub">${safe(c.rep_name||"unassigned")} · ${fmtDate(c.call_date)}${prod?` · ${safe(prod)}`:""}${c.order_number?` · order ${safe(c.order_number)}`:""}</div>
+        <div class="call-p-sub">${safe(c.rep_name||"unassigned")} · ${fmtDate(c.call_date)}${prod?` · ${safe(prod)}`:""}${c.order_number?` · order ${safe(c.order_number)}${ordValTag}`:""}</div>
       </div>
       <div class="dots">${tags.join("")}</div>
       <div class="call-dur">${dur}</div>
@@ -2171,6 +2373,7 @@ function renderCallBody(c, dead){
   const agentFlags = parseFlags(c.agent_behavior_flags);
   const custFlags = parseFlags(c.customer_behavior_flags);
   const policyFlags = parseFlags(c.policy_flags);
+  const scOrder = c.order_number ? (D.solidCommerce?.orders||{})[c.order_number] : null;
 
   return `<div class="call-bd">
     <div class="call-grid">
@@ -2179,8 +2382,8 @@ function renderCallBody(c, dead){
         <div class="cb-tx"><strong>${safe(c.issue_type||"—")}</strong>${c.issue_detail?` · ${safe(c.issue_detail)}`:""}</div>
       </div>
       <div class="cb cb-prod">
-        <div class="cb-l">Product</div>
-        <div class="cb-tx">${safe([c.product_brand,c.product_model].filter(Boolean).join(" ")||c.product_type||"—")}${c.product_specs?` · ${safe(c.product_specs)}`:""}${c.platform?`<br><span style="color:var(--tx3);font-size:11px">platform: ${safe(c.platform)}</span>`:""}${c.order_number?`<br><span style="color:var(--tx3);font-size:11px">order: ${safe(c.order_number)}</span>`:""}</div>
+        <div class="cb-l">Product${scOrder?` <span class="sc-banner-tag" style="margin-left:4px">SC</span>`:""}</div>
+        <div class="cb-tx">${safe([c.product_brand,c.product_model].filter(Boolean).join(" ")||c.product_type||"—")}${c.product_specs?` · ${safe(c.product_specs)}`:""}${c.platform?`<br><span style="color:var(--tx3);font-size:11px">platform: ${safe(c.platform)}</span>`:""}${c.order_number?`<br><span style="color:var(--tx3);font-size:11px">order: ${safe(c.order_number)}${scOrder?` · ${fmtMoney(scOrder.value)} · placed ${fmtDate(scOrder.date)}`:""}</span>`:""}</div>
       </div>
       <div class="cb cb-out">
         <div class="cb-l">Outcome</div>
@@ -2289,10 +2492,45 @@ function buildProducts(){
   const brands = p.by_brand || {};
   const models = p.by_model || [];
   const repeats = p.repeat_models || [];
+  const catalog = D.solidCommerce?.catalog || {};
+  const scConnected = D.solidCommerce?.meta?.connected;
   const maxBrand = Math.max(...Object.values(brands), 1);
-  const maxModel = Math.max(...models.map(m=>m.count), 1);
+
+  const enrichRow = (modelName, callCount, isRepeat) => {
+    const sc = catalog[modelName];
+    const lowStock = sc?.low_stock || (sc && sc.in_stock < 5);
+    const highReturn = sc && sc.return_rate_30d_pct >= 10;
+    return `
+      <div class="cat-row" onclick="filterBySearch('${safe(modelName)}')" style="cursor:pointer">
+        <div class="prod-nm">${safe(modelName)} ${isRepeat?`<span class="prod-rep-tag">×${callCount}</span>`:""} ${lowStock?`<span class="low-stock-tag">low stock</span>`:""}</div>
+        <div class="cat-stat">${sc?fmtMoney(sc.avg_price):"—"}</div>
+        <div class="cat-stat">${sc?sc.units_sold_30d:"—"}</div>
+        <div class="cat-stat ${lowStock?"cat-stat-low":""}">${sc?sc.in_stock:"—"}</div>
+        <div class="cat-stat ${highReturn?"cat-stat-warn":""}">${sc?sc.return_rate_30d_pct.toFixed(1)+"%":"—"}</div>
+      </div>
+    `;
+  };
+
+  const headerRow = `
+    <div class="cat-row cat-row-h">
+      <div>Model</div>
+      <div style="text-align:right">Avg $ <span class="sc-tag" style="position:static;margin-left:4px">SC</span></div>
+      <div style="text-align:right">Sold 30d <span class="sc-tag" style="position:static;margin-left:4px">SC</span></div>
+      <div style="text-align:right">Stock <span class="sc-tag" style="position:static;margin-left:4px">SC</span></div>
+      <div style="text-align:right">Ret % <span class="sc-tag" style="position:static;margin-left:4px">SC</span></div>
+    </div>
+  `;
 
   el.innerHTML = `
+    ${scConnected ? `
+    <div class="sc-banner">
+      <span class="sc-banner-ic">💰</span>
+      <span class="sc-banner-tag">SC Live</span>
+      <span>Pricing, inventory, and 30-day return rates pulled from <strong>Solid Commerce</strong></span>
+      <span class="sc-banner-meta">${Object.keys(catalog).length} SKUs · last sync ${fmtTs(D.solidCommerce.meta.last_sync)}</span>
+    </div>
+    ` : ""}
+
     <div class="prod-grid">
       <div class="cd">
         <div class="cd-h"><div class="cd-t">Calls by Brand</div><div class="cd-st">${Object.keys(brands).length} brand${Object.keys(brands).length===1?"":"s"}</div></div>
@@ -2305,28 +2543,14 @@ function buildProducts(){
         `).join("") || `<div class="fu-empty">No brand data</div>`}
       </div>
       <div class="cd">
-        <div class="cd-h"><div class="cd-t">Repeat Models</div><div class="cd-st">${repeats.length} model${repeats.length===1?"":"s"} appearing 2+ times</div></div>
-        ${repeats.length ? repeats.map(m=>`
-          <div class="prod-row">
-            <div>
-              <div class="prod-nm">${safe(m.model)} <span class="prod-rep-tag">×${m.count}</span></div>
-              <div class="prod-nm-sub">recurring issue · investigate root cause</div>
-            </div>
-            <div class="prod-cnt">${m.count}</div>
-          </div>
-        `).join("") : `<div class="fu-empty">No repeat models in current window</div>`}
+        <div class="cd-h"><div class="cd-t">Repeat-Issue Models</div><div class="cd-st">${repeats.length} model${repeats.length===1?"":"s"} · 2+ support calls</div></div>
+        ${repeats.length ? `${headerRow}${repeats.map(m=>enrichRow(m.model, m.count, true)).join("")}` : `<div class="fu-empty">No repeat models in current window</div>`}
       </div>
     </div>
 
     <div class="cd">
-      <div class="cd-h"><div class="cd-t">All Models</div><div class="cd-st">click to filter call log</div></div>
-      ${models.length ? models.map(m=>`
-        <div class="prod-row" style="cursor:pointer" onclick="filterBySearch('${safe(m.model)}')">
-          <div class="prod-nm">${safe(m.model)}</div>
-          <div class="prod-bar"><div class="prod-bar-fl" style="width:${100*m.count/maxModel}%"></div></div>
-          <div class="prod-cnt">${m.count}</div>
-        </div>
-      `).join("") : `<div class="fu-empty">No model data</div>`}
+      <div class="cd-h"><div class="cd-t">All Models · Catalog View</div><div class="cd-st">click any row to filter call log${scConnected?" · ":""}${scConnected?`<span class="sc-banner-tag" style="margin-left:6px">SC enriched</span>`:""}</div></div>
+      ${models.length ? `${headerRow}${models.map(m=>enrichRow(m.model, m.count, false)).join("")}` : `<div class="fu-empty">No model data</div>`}
     </div>
   `;
 }
@@ -2345,8 +2569,24 @@ function buildCompliance(){
   const sl = items.filter(i=>isTrue(i.school_lock)).length;
   const bl = items.filter(i=>isTrue(i.bios_lock)).length;
   const dn = items.filter(i=>isTrue(i.data_not_wiped)).length;
+  const orders = D.solidCommerce?.orders || {};
+  const scConnected = D.solidCommerce?.meta?.connected;
+  const exposure = items.reduce((sum, i) => sum + (orders[i.order_number]?.value || 0), 0);
 
   el.innerHTML = `
+    ${scConnected && items.length ? `
+    <div class="comp-exp">
+      <div>
+        <div class="comp-exp-l">💰 Replacement Cost Exposure <span class="sc-banner-tag" style="margin-left:6px">SC</span></div>
+        <div class="comp-exp-v">${fmtMoney(exposure)}</div>
+      </div>
+      <div class="comp-exp-meta">
+        across ${items.length} flagged unit${items.length===1?"":"s"}<br>
+        order values from Solid Commerce
+      </div>
+    </div>
+    ` : ""}
+
     <div class="comp-grid">
       <div class="comp-kpi ${sl===0?"ok":""}"><div class="comp-kpi-l">School Locks</div><div class="comp-kpi-v">${sl}</div><div class="comp-kpi-d">device managed by school district</div></div>
       <div class="comp-kpi ${bl===0?"ok":""}"><div class="comp-kpi-l">BIOS Locks</div><div class="comp-kpi-v">${bl}</div><div class="comp-kpi-d">end user cannot access device</div></div>
@@ -2355,7 +2595,9 @@ function buildCompliance(){
 
     <div class="cd">
       <div class="cd-h"><div class="cd-t">Compliance-Flagged Calls</div><div class="cd-st">${items.length} flagged · sorted newest first</div></div>
-      ${items.length ? items.map(i=>`
+      ${items.length ? items.map(i=>{
+        const ordVal = orders[i.order_number]?.value;
+        return `
         <div class="fu-row">
           <div>
             <div class="fu-p">
@@ -2364,13 +2606,13 @@ function buildCompliance(){
               ${isTrue(i.data_not_wiped)?`<span class="comp-tag comp-tag-data">Data</span>`:""}
               ${safe(i.product||"unknown product")}
             </div>
-            <div class="fu-p-sub">${safe(i.rep_name||"unassigned")} · ${safe(i.platform||"unknown platform")}${i.order_number?` · order ${safe(i.order_number)}`:""}</div>
+            <div class="fu-p-sub">${safe(i.rep_name||"unassigned")} · ${safe(i.platform||"unknown platform")}${i.order_number?` · order ${safe(i.order_number)}`:""}${ordVal?` <span class="ord-val">${fmtMoney(ordVal)}</span>`:""}</div>
             ${i.summary?`<div class="fu-p-sub" style="margin-top:4px">${safe(i.summary)}</div>`:""}
           </div>
           <div class="fu-due">${fmtDate(i.date)}</div>
           <div class="fu-act" onclick="goToCall('${safe(i.call_id)}')">view ↗</div>
-        </div>
-      `).join("") : `<div class="fu-empty">No compliance flags in current window. ✓</div>`}
+        </div>`;
+      }).join("") : `<div class="fu-empty">No compliance flags in current window. ✓</div>`}
     </div>
   `;
 }
