@@ -91,10 +91,17 @@
         .wiz-phase{margin-bottom:6px;}
         .wp-done,.wp-active,.wp-upcoming{display:none;}
         .wiz-phase.is-done .wp-done{display:flex;}
+        .wiz-phase.is-done-open .wp-done{display:flex;}
+        .wiz-phase.is-done-open .wp-active{display:block;}
         .wiz-phase.is-active .wp-active{display:block;}
         .wiz-phase.is-upcoming .wp-upcoming{display:flex;}
         /* Done row */
-        .wp-done{align-items:center;gap:8px;padding:10px 14px;border-radius:8px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:13px;color:#166534;}
+        .wp-done{align-items:center;gap:8px;padding:10px 14px;border-radius:8px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:13px;color:#166534;cursor:pointer;transition:background .2s;}
+        .wp-done:hover{background:#dcfce7;}
+        .wp-done-toggle{margin-left:6px;font-size:10px;color:#86efac;transition:transform .2s;}
+        .wiz-phase.is-done-open .wp-done-toggle{transform:rotate(180deg);}
+        .wiz-phase.is-done-open .wp-done{border-radius:8px 8px 0 0;margin-bottom:0;border-bottom-color:transparent;}
+        .wiz-phase.is-done-open .wp-active{border-top:none;border-radius:0 0 10px 10px;}
         .wp-done-check{color:#16a34a;font-size:14px;flex-shrink:0;}
         .wp-done-time{font-size:11px;color:#86efac;margin-left:auto;}
         /* Active card */
@@ -482,7 +489,7 @@ function buildWizardHTML(company) {
     let html = '';
     phases.forEach((p, i) => {
         html += `<div class="wiz-phase ${i===0?'is-active':'is-upcoming'}" id="${key}-wp-${i}">
-            <div class="wp-done"><span class="wp-done-check"><i class="fas fa-check-circle"></i></span> ${p.name}<span class="wp-done-time" id="${key}-wt-${i}"></span></div>
+            <div class="wp-done" onclick="toggleDonePhase('${key}',${i})"><span class="wp-done-check"><i class="fas fa-check-circle"></i></span> ${p.name}<span class="wp-done-time" id="${key}-wt-${i}"></span><span class="wp-done-toggle"><i class="fas fa-chevron-down"></i></span></div>
             <div class="wp-active${activeClass}"><div class="wp-active-head ${headClass}"><div><div class="wp-step-label">Step ${i+1} of ${phases.length}</div><div class="wp-title">${p.name}</div></div><div class="wp-time">${p.time}</div></div>${phaseContent[i]}<div class="wp-next"><button class="btn-next" onclick="advancePhase('${company}')"><i class="fas fa-arrow-right"></i> Done — next step</button></div></div>
             <div class="wp-upcoming"><div class="wp-up-num">${i+1}</div>${p.name}<span class="wp-up-time">${p.time}</span></div>
         </div>`;
@@ -545,6 +552,16 @@ function advancePhase(company) {
     renderProgressDots(company);
     saveState();
     showToast(phases[cur].name+' done → '+phases[cur+1].name);
+}
+
+function toggleDonePhase(key, idx) {
+    const el = document.getElementById(key+'-wp-'+idx);
+    if(!el) return;
+    if(el.classList.contains('is-done')) {
+        el.className = 'wiz-phase is-done-open';
+    } else if(el.classList.contains('is-done-open')) {
+        el.className = 'wiz-phase is-done';
+    }
 }
 
 // ===== RESEARCH =====
