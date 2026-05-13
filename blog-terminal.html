@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root{--navy:#1e3a5f;--navy-light:#2d4a6f;--navy-dark:#152a45;--gold:#c9a962;--gold-dark:#b8954d;--cream:#fdfbf7;--white:#fff;--text-primary:#1a1a2e;--text-secondary:#64748b;--text-muted:#94a3b8;--border-light:#e8e4dc;--shadow-soft:rgba(30,58,95,.08);--dcd-teal:#0d9488;}
+        :root{--navy:#1e3a5f;--navy-light:#2d4a6f;--navy-dark:#152a45;--gold:#c9a962;--gold-dark:#b8954d;--cream:#fdfbf7;--white:#fff;--text-primary:#1a1a2e;--text-secondary:#64748b;--text-muted:#94a3b8;--border-light:#e8e4dc;--shadow-soft:rgba(30,58,95,.08);--dcd-teal:#0d9488;--tc-green:#059669;}
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--text-primary);line-height:1.5;padding-bottom:80px;}
         .container{max-width:1200px;margin:0 auto;padding:0 16px;}
@@ -43,7 +43,7 @@
         .thinking-dot:nth-child(2){animation-delay:.2s}.thinking-dot:nth-child(3){animation-delay:.4s}
         @keyframes thinkPulse{0%,80%,100%{transform:scale(0);opacity:.3}40%{transform:scale(1);opacity:1}}
         .thinking-label{font-size:11px;color:var(--gold);letter-spacing:1px;text-transform:uppercase;}
-        .topics-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+        .topics-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:14px;}
         .topics-col-header{font-size:12px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
         .topics-col-header.sts{color:var(--gold);}.topics-col-header.dcd{color:#5eead4;}
         .topic-card{background:rgba(255,255,255,.06);border:1px solid rgba(201,169,98,.2);border-radius:8px;padding:12px 14px 12px 38px;margin-bottom:6px;cursor:pointer;transition:all .2s;position:relative;}
@@ -72,7 +72,8 @@
         .company-tab{flex:1;padding:12px 16px;border:none;cursor:pointer;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;transition:all .2s;background:var(--cream);color:var(--text-secondary);display:flex;align-items:center;justify-content:center;gap:8px;}
         .company-tab.active-sts{background:var(--navy);color:var(--white);}
         .company-tab.active-dcd{background:var(--dcd-teal);color:var(--white);}
-        .company-tab:not(.active-sts):not(.active-dcd):hover{background:var(--white);}
+        .company-tab.active-tc{background:var(--tc-green);color:var(--white);}
+        .company-tab:not(.active-sts):not(.active-dcd):not(.active-tc):hover{background:var(--white);}
         .company-view{display:none;}.company-view.active{display:block;}
         /* PROGRESS DOTS */
         .progress-dots{display:flex;gap:3px;margin-bottom:14px;}
@@ -95,6 +96,8 @@
         .wiz-phase.is-done-open .wp-active{display:block;}
         .wiz-phase.is-active .wp-active{display:block;}
         .wiz-phase.is-upcoming .wp-upcoming{display:flex;}
+        .wiz-phase.is-upcoming-open .wp-upcoming{display:flex;}
+        .wiz-phase.is-upcoming-open .wp-active{display:block;}
         /* Done row */
         .wp-done{align-items:center;gap:8px;padding:10px 14px;border-radius:8px;background:#f0fdf4;border:1px solid #bbf7d0;font-size:13px;color:#166534;cursor:pointer;transition:background .2s;}
         .wp-done:hover{background:#dcfce7;}
@@ -108,7 +111,7 @@
         .wp-active{background:var(--white);border:2px solid var(--navy);border-radius:10px;overflow:hidden;}
         .wp-active.dcd{border-color:var(--dcd-teal);}
         .wp-active-head{padding:10px 16px;display:flex;align-items:center;justify-content:space-between;}
-        .wp-active-head.sts-head{background:var(--navy);}.wp-active-head.dcd-head{background:var(--dcd-teal);}
+        .wp-active-head.sts-head{background:var(--navy);}.wp-active-head.dcd-head{background:var(--dcd-teal);}.wp-active-head.tc-head{background:var(--tc-green);}
         .wp-step-label{color:rgba(255,255,255,.6);font-size:10px;text-transform:uppercase;letter-spacing:1px;}
         .wp-title{color:var(--white);font-size:15px;font-weight:600;}
         .wp-time{color:rgba(255,255,255,.5);font-size:11px;}
@@ -117,7 +120,12 @@
         .btn-next{padding:10px 24px;border:none;border-radius:6px;background:#16a34a;color:#fff;font-family:'Inter',sans-serif;font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;}
         .btn-next:hover{background:#15803d;}
         /* Upcoming row */
-        .wp-upcoming{align-items:center;gap:8px;padding:8px 14px;font-size:12px;color:var(--text-muted);}
+        .wp-upcoming{align-items:center;gap:8px;padding:8px 14px;font-size:12px;color:var(--text-muted);cursor:pointer;border-radius:8px;transition:background .2s;}
+        .wp-upcoming:hover{background:var(--cream);}
+        .wp-up-toggle{margin-left:6px;font-size:10px;color:var(--border-light);transition:transform .2s;}
+        .wiz-phase.is-upcoming-open .wp-up-toggle{transform:rotate(180deg);}
+        .wiz-phase.is-upcoming-open .wp-upcoming{background:var(--cream);border-radius:8px 8px 0 0;border:1px solid var(--border-light);border-bottom:none;}
+        .wiz-phase.is-upcoming-open .wp-active{border-top:none;border-radius:0 0 10px 10px;opacity:.85;}
         .wp-up-num{width:22px;height:22px;border-radius:50%;background:var(--cream);border:1px solid var(--border-light);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;color:var(--text-secondary);flex-shrink:0;}
         .wp-up-time{margin-left:auto;font-size:10px;}
         /* STEPS */
@@ -201,7 +209,7 @@
     </style>
 </head>
 <body>
-<div class="header-bar"><div class="container"><div class="header-title"><span>M.A.R.K.</span> Blog Terminal</div><div class="header-tags"><span class="header-tag sts">STS</span><span class="header-tag dcd">DCD</span></div></div></div>
+<div class="header-bar"><div class="container"><div class="header-title"><span>M.A.R.K.</span> Blog Terminal</div><div class="header-tags"><span class="header-tag sts">STS</span><span class="header-tag dcd">DCD</span><span class="header-tag" style="background:var(--tc-green);">TC</span></div></div></div>
 <div class="container">
     <!-- MISSION CONTROL -->
     <div class="card setup-section">
@@ -215,14 +223,16 @@
                 <div style="color:var(--white);font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px;"><i class="fas fa-brain" style="color:var(--gold);"></i> AI Research Engine</div>
                 <div style="font-size:9px;color:rgba(255,255,255,.4);font-family:'JetBrains Mono',monospace;"><span style="background:#000;color:white;padding:1px 5px;border-radius:3px;font-size:10px;font-weight:700;">GROK 4</span></div>
             </div>
-            <button class="research-run-btn" id="runResearchBtn" onclick="runResearch()"><i class="fas fa-rocket"></i> Research Both</button>
+            <button class="research-run-btn" id="runResearchBtn" onclick="runResearch()"><i class="fas fa-rocket"></i> Research All</button>
             <div class="topics-grid" id="thinkingGrid" style="display:none;">
                 <div class="thinking-indicator active" id="stsThinking"><div class="thinking-dots"><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div></div><div class="thinking-label">Researching STS...</div></div>
                 <div class="thinking-indicator active" id="dcdThinking"><div class="thinking-dots"><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div></div><div class="thinking-label">Researching DCD...</div></div>
+                <div class="thinking-indicator active" id="tcThinking"><div class="thinking-dots"><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div></div><div class="thinking-label">Researching TC...</div></div>
             </div>
             <div class="topics-grid" id="topicsGrid" style="display:none;">
                 <div><div class="topics-col-header sts"><i class="fas fa-recycle"></i> STS Topics</div><div id="stsTopicCards"></div><div class="error-box" id="stsResearchError"></div><button class="regen-btn" id="stsRegenBtn" onclick="runResearchSingle('STS')"><i class="fas fa-sync"></i> Regenerate STS</button></div>
                 <div><div class="topics-col-header dcd"><i class="fas fa-store"></i> DCD Topics</div><div id="dcdTopicCards"></div><div class="error-box" id="dcdResearchError"></div><button class="regen-btn" id="dcdRegenBtn" onclick="runResearchSingle('DCD')"><i class="fas fa-sync"></i> Regenerate DCD</button></div>
+                <div><div class="topics-col-header" style="color:#34d399;"><i class="fas fa-leaf"></i> TC Topics</div><div id="tcTopicCards"></div><div class="error-box" id="tcResearchError"></div><button class="regen-btn" id="tcRegenBtn" onclick="runResearchSingle('TC')"><i class="fas fa-sync"></i> Regenerate TC</button></div>
             </div>
         </div>
     </div>
@@ -232,6 +242,7 @@
         <div class="company-tabs">
             <button id="tabSTS" class="company-tab active-sts" onclick="switchTab('STS')"><i class="fas fa-recycle"></i> STS</button>
             <button id="tabDCD" class="company-tab" onclick="switchTab('DCD')"><i class="fas fa-store"></i> DCD</button>
+            <button id="tabTC" class="company-tab" onclick="switchTab('TC')"><i class="fas fa-leaf"></i> TC</button>
         </div>
 
         <!-- ===== STS VIEW ===== -->
@@ -277,6 +288,28 @@
             </div>
             <div id="dcd-wizard"></div>
         </div>
+
+        <!-- ===== TC VIEW ===== -->
+        <div class="company-view" id="tcView">
+            <div class="progress-dots" id="tc-progress"></div>
+            <div class="meta-panel" id="tc-metaPanel" style="border-color:var(--tc-green);">
+                <button class="meta-toggle-btn" onclick="toggleMeta('TC')"><i class="fas fa-tags" style="color:var(--tc-green);"></i> TC Meta Fields <i class="fas fa-chevron-down meta-toggle-icon" id="tc-metaIcon"></i><span style="margin-left:auto;"><button class="btn btn-ghost sm" onclick="event.stopPropagation();copyAllMeta('TC')"><i class="fas fa-copy"></i> All</button></span></button>
+                <div class="meta-body" id="tc-metaBody">
+                    <div class="chat-name-banner" style="background:linear-gradient(135deg,var(--tc-green),#047857);"><div style="flex:1;"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#a7f3d0;margin-bottom:2px;">Claude Chat Name</div><div class="chat-name-text" id="tc-chatName" style="color:#6ee7b7;">—</div></div><button class="btn btn-ghost sm" onclick="copyField('TC','chatName')"><i class="fas fa-copy"></i></button></div>
+                    <div class="meta-grid">
+                        <div><div class="meta-field-label">Page Title (60c)</div><div class="copy-row"><div class="meta-field-value" id="tc-mf-title">—</div><button class="btn btn-ghost sm" onclick="copyField('TC','title')"><i class="fas fa-copy"></i></button></div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;" id="tc-mf-title-count"></div></div>
+                        <div><div class="meta-field-label">URL Slug</div><div class="copy-row"><div class="meta-field-value" id="tc-mf-slug">—</div><button class="btn btn-ghost sm" onclick="copyField('TC','slug')"><i class="fas fa-copy"></i></button></div></div>
+                    </div>
+                    <div><div class="meta-field-label">Meta Description (150-160c)</div><div class="copy-row"><div class="meta-field-value" id="tc-mf-desc">—</div><button class="btn btn-ghost sm" onclick="copyField('TC','desc')"><i class="fas fa-copy"></i></button></div><div style="font-size:10px;color:var(--text-muted);margin-top:2px;" id="tc-mf-desc-count"></div></div>
+                    <div><div class="meta-field-label">Meta Keywords</div><div class="copy-row"><div class="meta-field-value" id="tc-mf-keywords">—</div><button class="btn btn-ghost sm" onclick="copyField('TC','keywords')"><i class="fas fa-copy"></i></button></div></div>
+                </div>
+            </div>
+            <div class="launcher" id="tc-launcher" style="display:none;background:var(--tc-green);">
+                <div class="launcher-label"><i class="fas fa-brain"></i> Claude Chat<span class="launcher-warn">Sonnet 4.6 only</span></div>
+                <a href="https://claude.ai" target="_blank" class="launcher-link" style="color:#6ee7b7;border-color:#6ee7b7;">Open Claude ↗</a>
+            </div>
+            <div id="tc-wizard"></div>
+        </div>
     </div>
     <div style="text-align:center;padding:20px 0;"><button class="btn btn-ghost" onclick="resetAll()" style="border-color:#ef4444;"><span style="color:#ef4444;">⚠️</span> Reset &amp; Start New Session</button></div>
 </div>
@@ -307,7 +340,8 @@
 <script>
 const CFG = {
     STS: { label:'STS Electronic Recycling', short:'STS', projectUrl:'https://claude.ai/project/019aef3e-df18-7142-a666-8397254c5fe8', siteUrl:'https://www.stselectronicrecyclinginc.com', color:'#c9a962' },
-    DCD: { label:'Discount Computer Depot', short:'DCD', projectUrl:'https://claude.ai/project/019c504e-fef3-75e0-862b-85cd4539579f', siteUrl:'https://www.discountcomputerdepot.com', color:'#0d9488' }
+    DCD: { label:'Discount Computer Depot', short:'DCD', projectUrl:'https://claude.ai/project/019c504e-fef3-75e0-862b-85cd4539579f', siteUrl:'https://www.discountcomputerdepot.com', color:'#0d9488' },
+    TC: { label:'TechnoCycle', short:'TC', projectUrl:'https://claude.ai', siteUrl:'https://technocycle.com', color:'#059669' }
 };
 const WEBHOOK = 'https://stsrecycling.app.n8n.cloud/webhook/mark-ai-brain';
 const PHASE_DEFS = {
@@ -327,10 +361,18 @@ const PHASE_DEFS = {
         { name:'Audit SEO', time:'~5 min' },
         { name:'Check links', time:'~2 min' },
         { name:'Publish + log', time:'~5 min' }
+    ],
+    TC: [
+        { name:'Strategize', time:'~1 min' },
+        { name:'Build HTML', time:'~3 min' },
+        { name:'Set up WordPress', time:'while building' },
+        { name:'Audit SEO', time:'~5 min' },
+        { name:'Check links', time:'~2 min' },
+        { name:'Publish + log', time:'~5 min' }
     ]
 };
 
-let S = { vaName:'', mgmtIdea:'', sts:{ topic:null, meta:null, chatName:'', lastTopics:[], recommendation:'', checks:{}, wizPhase:0, wizTimes:{} }, dcd:{ topic:null, meta:null, chatName:'', lastTopics:[], recommendation:'', checks:{}, wizPhase:0, wizTimes:{} }, chatHistory:[] };
+let S = { vaName:'', mgmtIdea:'', sts:{ topic:null, meta:null, chatName:'', lastTopics:[], recommendation:'', checks:{}, wizPhase:0, wizTimes:{} }, dcd:{ topic:null, meta:null, chatName:'', lastTopics:[], recommendation:'', checks:{}, wizPhase:0, wizTimes:{} }, tc:{ topic:null, meta:null, chatName:'', lastTopics:[], recommendation:'', checks:{}, wizPhase:0, wizTimes:{} }, chatHistory:[] };
 const co = c => c.toLowerCase();
 
 // ===== WIZARD RENDERING =====
@@ -342,19 +384,22 @@ function buildWizardHTML(company) {
     const liveUrl = slug ? CFG[company].siteUrl+'/'+slug : '';
     const joomlaUrl = slug ? CFG[company].siteUrl+'/'+slug+'/blog/'+slug : '';
     const isDCD = company === 'DCD';
-    const headClass = isDCD ? 'dcd-head' : 'sts-head';
-    const activeClass = isDCD ? ' dcd' : '';
-    const btnClass = isDCD ? 'btn-teal' : 'btn-gold';
-    const btnClass2 = isDCD ? 'btn-teal' : 'btn-navy';
+    const isTC = company === 'TC';
+    const isSTS = company === 'STS';
+    const headClass = isDCD ? 'dcd-head' : isTC ? 'tc-head' : 'sts-head';
+    const activeClass = isDCD ? ' dcd' : isTC ? ' dcd' : '';
+    const btnClass = isDCD ? 'btn-teal' : isTC ? 'btn-gold' : 'btn-gold';
+    const btnClass2 = isDCD ? 'btn-teal' : isTC ? 'btn-navy' : 'btn-navy';
 
     const phaseContent = [];
 
     // Phase 1: Strategize
     phaseContent.push(`<div class="wp-body">
-        ${!isDCD ? `<div class="info-box" style="margin-bottom:8px;"><i class="fas fa-info-circle" style="color:var(--gold);"></i> Loaded in project — links for reference</div>
+        ${isSTS ? `<div class="info-box" style="margin-bottom:8px;"><i class="fas fa-info-circle" style="color:var(--gold);"></i> Loaded in project — links for reference</div>
         <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"><a href="https://docs.google.com/document/d/19pAXN_sUNJ8ZOgR3Fv_9Df2CYoFOq_YojSy8yjQW9Zo/edit" target="_blank" class="link-pill"><i class="fas fa-file-alt"></i> STS Prompt v4.3</a><a href="https://docs.google.com/document/d/1gmZMWbIHt408yf6RgyrnwMsewGqWQSXKDuC7MJZZX1o/edit" target="_blank" class="link-pill"><i class="fas fa-palette"></i> Design Bible</a></div>` :
-        `<div class="info-box teal" style="margin-bottom:8px;"><strong>Upload both files first</strong> — DCD Blog Prompt + Design Bible</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"><a href="https://docs.google.com/document/d/148QH1BGJ2JIsVBC5Vq61-Ja-eo175ycOM9OrC3aIzBI/edit" target="_blank" class="link-pill teal"><i class="fas fa-file-alt"></i> DCD Prompt v1.0</a><a href="https://docs.google.com/document/d/1SfzlHhsowhTQIHIdOUpBSne7vxDvH5NTWD3j7cdOdF0/edit" target="_blank" class="link-pill teal"><i class="fas fa-palette"></i> Design Bible</a></div>`}
+        isDCD ? `<div class="info-box teal" style="margin-bottom:8px;"><strong>Upload both files first</strong> — DCD Blog Prompt + Design Bible</div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"><a href="https://docs.google.com/document/d/148QH1BGJ2JIsVBC5Vq61-Ja-eo175ycOM9OrC3aIzBI/edit" target="_blank" class="link-pill teal"><i class="fas fa-file-alt"></i> DCD Prompt v1.0</a><a href="https://docs.google.com/document/d/1SfzlHhsowhTQIHIdOUpBSne7vxDvH5NTWD3j7cdOdF0/edit" target="_blank" class="link-pill teal"><i class="fas fa-palette"></i> Design Bible</a></div>` :
+        `<div class="info-box" style="margin-bottom:8px;border-left-color:var(--tc-green);"><strong>No prompt doc yet</strong> — using STS v4.3 framework adapted for TechnoCycle. Provide company context in the strategy prompt.</div>`}
         <button class="btn ${btnClass} btn-full" onclick="copyPrompt('${company}','strategy');animateButton(this,'Copying...','Copied!')"><i class="fas fa-compass"></i> Copy strategy prompt</button>
         <div class="step"><input type="checkbox" id="${key}-p1" onchange="saveState()"><div class="step-label">Strategy pasted — plan confirmed</div></div>
     </div>`);
@@ -367,7 +412,7 @@ function buildWizardHTML(company) {
     </div>`);
 
     // Phase 3: CMS Setup
-    if(!isDCD) {
+    if(isSTS) {
         phaseContent.push(`<div class="wp-body">
         <a href="https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_menus&view=items&menutype=blog" target="_blank" class="link-pill" style="margin-bottom:10px;"><i class="fas fa-bars"></i> Open Blog Menu ↗</a>
         <div class="step"><input type="checkbox" id="${key}-p3-1" onchange="saveState()"><div><div class="step-label">New → paste Title + Alias</div>
@@ -376,19 +421,40 @@ function buildWizardHTML(company) {
         </div></div>
         <div class="step"><input type="checkbox" id="${key}-p3-2" onchange="saveState()"><div class="step-label">Menu Item Type → <strong>Articles</strong> → <strong>Single Article</strong></div></div>
         <div class="step"><input type="checkbox" id="${key}-p3-3" onchange="saveState()"><div class="step-label">Template: <code style="font-size:11px;background:var(--cream);padding:1px 4px;border-radius:3px;">Clean Top 2026</code></div></div>
-        <div class="step"><input type="checkbox" id="${key}-p3-4" onchange="saveState()"><div class="step-label">Select Article → <strong>Create</strong> → paste title → Category: <strong style="color:#dc2626;">Blog</strong></div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-4" onchange="saveState()"><div class="step-label">Select Article → <strong>Create</strong> → paste title <strong>(title only)</strong></div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-4b" onchange="saveState()"><div class="step-label">Make sure Category is set to <strong style="color:#dc2626;">BLOG</strong></div></div>
         <div class="step"><input type="checkbox" id="${key}-p3-5" onchange="saveState()"><div class="step-label">Options → Show Title: <strong>Hide</strong> → Save &amp; Close article</div></div>
         <div class="step"><input type="checkbox" id="${key}-p3-6" onchange="saveState()"><div class="step-label">Publishing → change <strong>Created Date</strong> + <strong>Start Publishing</strong> to another day</div></div>
         <div class="step"><input type="checkbox" id="${key}-p3-7" onchange="saveState()"><div class="step-label">Back to Menu → Options → Show Title: <strong>Hide</strong></div></div>
         <div class="divider"></div>
-        <div class="step"><input type="checkbox" id="${key}-p3-8" onchange="saveState()"><div><div class="step-label">Page Display → paste title</div>
+        <div class="step"><input type="checkbox" id="${key}-p3-8" onchange="saveState()"><div><div class="step-label">Tabs → <strong>Page Display</strong> → paste page title</div>
             <div class="copy-row" style="margin-top:4px;"><div class="copy-val">${m.title||'—'}</div><button class="copy-btn" onclick="copyCsField('STS','title')">Copy</button></div>
         </div></div>
-        <div class="step"><input type="checkbox" id="${key}-p3-9" onchange="saveState()"><div><div class="step-label">Metadata → paste description + keywords</div>
+        <div class="step"><input type="checkbox" id="${key}-p3-9" onchange="saveState()"><div><div class="step-label">Tabs → <strong>Metadata</strong> → paste description + keywords</div>
             <div class="copy-row" style="margin-top:4px;"><div style="flex:1"><div class="copy-label">Description</div><div class="copy-val" id="sts-cs-desc">${m.desc||'—'}</div></div><button class="copy-btn" onclick="copyCsField('STS','desc')">Copy</button></div>
             <div class="copy-row"><div style="flex:1"><div class="copy-label">Keywords</div><div class="copy-val" id="sts-cs-keywords">${m.keywords||'—'}</div></div><button class="copy-btn" onclick="copyCsField('STS','keywords')">Copy</button></div>
         </div></div>
         <div class="step"><input type="checkbox" id="${key}-p3-10" onchange="saveState()"><div class="step-label"><strong>Save</strong> menu item</div></div>
+    </div>`);
+    } else if(isTC) {
+        phaseContent.push(`<div class="wp-body">
+        <a href="https://technocycle.com/wp-admin/edit.php" target="_blank" class="link-pill" style="margin-bottom:10px;border-color:var(--tc-green);color:var(--tc-green);"><i class="fas fa-plus-circle"></i> WP Admin → Posts ↗</a>
+        <div class="step"><input type="checkbox" id="${key}-p3-1" onchange="saveState()"><div><div class="step-label"><strong>Add New Post</strong> → paste title</div>
+            <div class="copy-row" style="margin-top:4px;"><div style="flex:1"><div class="copy-label">Title</div><div class="copy-val" id="tc-cs-title">${m.title||'—'}</div></div><button class="copy-btn" onclick="copyCsField('TC','title')">Copy</button></div>
+        </div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-2" onchange="saveState()"><div><div class="step-label">Permalink → edit slug</div>
+            <div class="copy-row" style="margin-top:4px;"><div style="flex:1"><div class="copy-label">Slug</div><div class="copy-val" id="tc-cs-slug">${slug||'—'}</div></div><button class="copy-btn" onclick="copyCsField('TC','slug')">Copy</button></div>
+        </div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-3" onchange="saveState()"><div class="step-label">Category: <strong style="color:var(--tc-green);">Blog</strong></div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-4" onchange="saveState()"><div class="step-label"><strong>Edit with Elementor</strong> → drag <strong>HTML</strong> widget → paste blog content</div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-5" onchange="saveState()"><div class="step-label">Publishing date → change to another day</div></div>
+        <div class="divider"></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-6" onchange="saveState()"><div><div class="step-label">Yoast SEO → paste meta title + description</div>
+            <div class="copy-row" style="margin-top:4px;"><div style="flex:1"><div class="copy-label">Meta Title</div><div class="copy-val">${m.title||'—'}</div></div><button class="copy-btn" onclick="copyCsField('TC','title')">Copy</button></div>
+            <div class="copy-row"><div style="flex:1"><div class="copy-label">Meta Description</div><div class="copy-val" id="tc-cs-desc">${m.desc||'—'}</div></div><button class="copy-btn" onclick="copyCsField('TC','desc')">Copy</button></div>
+        </div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-7" onchange="saveState()"><div class="step-label">Yoast → Focus keyword</div></div>
+        <div class="step"><input type="checkbox" id="${key}-p3-8" onchange="saveState()"><div class="step-label"><strong>Save Draft</strong> in WordPress (publish later)</div></div>
     </div>`);
     } else {
         phaseContent.push(`<div class="wp-body">
@@ -416,7 +482,7 @@ function buildWizardHTML(company) {
     </div>`);
 
     // Phase 5 (STS only): Schema
-    if(!isDCD) {
+    if(isSTS) {
         phaseContent.push(`<div class="wp-body">
         <div class="step"><input type="checkbox" id="${key}-p5-0" onchange="saveState()"><div><div class="step-label">Upload Schema Generator doc to Claude</div>
             <a href="https://docs.google.com/document/d/1labL6l4YBkop02jZhGEujg_OfAgKYElCwQ2hctGIXI8/edit" target="_blank" class="link-pill" style="margin-top:4px;"><i class="fas fa-database"></i> Master Schema Generator v1.4 ↗</a>
@@ -427,15 +493,15 @@ function buildWizardHTML(company) {
     }
 
     // Link Check phase
-    const linkPhaseIdx = isDCD ? 4 : 5;
+    const linkPhaseIdx = isSTS ? 5 : 4;
     phaseContent.push(`<div class="wp-body">
         <button class="btn btn-orange btn-full" onclick="copyPrompt('${company}','links');animateButton(this,'Copying...','Copied!')"><i class="fas fa-link"></i> Copy link audit prompt</button>
         <div class="step"><input type="checkbox" id="${key}-p${linkPhaseIdx+1}-1" onchange="saveState()"><div class="step-label">All links verified</div></div>
     </div>`);
 
     // Publish + Log phase
-    const pubPhaseIdx = isDCD ? 5 : 6;
-    if(!isDCD) {
+    const pubPhaseIdx = isSTS ? 6 : 5;
+    if(isSTS) {
         phaseContent.push(`<div class="wp-body">
         <div class="section-sep">Paste content</div>
         <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-1" onchange="saveState()"><div class="step-label">Editor → Source view → paste blog HTML</div></div>
@@ -462,7 +528,7 @@ function buildWizardHTML(company) {
         <div id="sts-logStatus" style="font-size:10px;color:var(--text-muted);text-align:center;display:none;margin-top:4px;"></div>
         <a href="https://docs.google.com/spreadsheets/d/1GD45icQKkbfJyt5NvxpgGvMfm35GLoqG5QP5GDfSvBY/edit?gid=774290803" target="_blank" style="display:block;text-align:center;font-size:10px;color:var(--text-muted);margin-top:6px;">Open STS Tracker manually ↗</a>
     </div>`);
-    } else {
+    } else if(isDCD) {
         phaseContent.push(`<div class="wp-body">
         <div class="section-sep">Paste content</div>
         <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-1" onchange="saveState()"><div class="step-label">Drag HTML element → paste blog content (includes schema) → click X</div></div>
@@ -483,15 +549,34 @@ function buildWizardHTML(company) {
         <div id="dcd-logStatus" style="font-size:10px;color:var(--text-muted);text-align:center;display:none;margin-top:4px;"></div>
         <a href="https://docs.google.com/spreadsheets/d/1GD45icQKkbfJyt5NvxpgGvMfm35GLoqG5QP5GDfSvBY/edit?gid=1625373374" target="_blank" style="display:block;text-align:center;font-size:10px;color:var(--text-muted);margin-top:6px;">Open DCD Tracker manually ↗</a>
     </div>`);
+    } else {
+        phaseContent.push(`<div class="wp-body">
+        <div class="section-sep">Publish</div>
+        <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-1" onchange="saveState()"><div class="step-label">Preview post in WordPress — visual check</div></div>
+        <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-2" onchange="saveState()"><div class="step-label">Click <strong>Publish</strong> in WordPress</div></div>
+        <div class="section-sep">Verify URL</div>
+        <div style="background:var(--cream);border:2px solid var(--tc-green);border-radius:8px;padding:12px;margin:8px 0;">
+            <div style="font-size:10px;font-weight:700;color:var(--tc-green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Live blog URL</div>
+            <a id="tc-liveLink" href="${liveUrl||'#'}" target="_blank" style="display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tc-green);word-break:break-all;text-decoration:underline;">${liveUrl||'—'}</a>
+        </div>
+        <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-3" onchange="saveState()"><div class="step-label">Live URL loads — no 404</div></div>
+        <div class="section-sep">Log to tracker</div>
+        <div class="log-preview">
+            <div class="copy-row" style="margin:0 0 4px;"><div style="flex:1"><div class="copy-label">Title → sheet</div><div class="copy-val" id="tc-log-title">${m.title||'—'}</div></div></div>
+            <div class="copy-row" style="margin:0;"><div style="flex:1"><div class="copy-label">URL → sheet</div><div class="copy-val" id="tc-log-slug">${liveUrl||'—'}</div></div></div>
+        </div>
+        <button class="btn btn-red btn-full" id="tc-logBtn" style="margin-top:8px;" onclick="logBlog('TC')"><i class="fas fa-paper-plane"></i> Log to TC sheet</button>
+        <div id="tc-logStatus" style="font-size:10px;color:var(--text-muted);text-align:center;display:none;margin-top:4px;"></div>
+    </div>`);
     }
 
     // Build full wizard HTML
     let html = '';
     phases.forEach((p, i) => {
         html += `<div class="wiz-phase ${i===0?'is-active':'is-upcoming'}" id="${key}-wp-${i}">
-            <div class="wp-done" onclick="toggleDonePhase('${key}',${i})"><span class="wp-done-check"><i class="fas fa-check-circle"></i></span> ${p.name}<span class="wp-done-time" id="${key}-wt-${i}"></span><span class="wp-done-toggle"><i class="fas fa-chevron-down"></i></span></div>
+            <div class="wp-done" onclick="togglePhaseView('${key}',${i})"><span class="wp-done-check"><i class="fas fa-check-circle"></i></span> ${p.name}<span class="wp-done-time" id="${key}-wt-${i}"></span><span class="wp-done-toggle"><i class="fas fa-chevron-down"></i></span></div>
             <div class="wp-active${activeClass}"><div class="wp-active-head ${headClass}"><div><div class="wp-step-label">Step ${i+1} of ${phases.length}</div><div class="wp-title">${p.name}</div></div><div class="wp-time">${p.time}</div></div>${phaseContent[i]}<div class="wp-next"><button class="btn-next" onclick="advancePhase('${company}')"><i class="fas fa-arrow-right"></i> Done — next step</button></div></div>
-            <div class="wp-upcoming"><div class="wp-up-num">${i+1}</div>${p.name}<span class="wp-up-time">${p.time}</span></div>
+            <div class="wp-upcoming" onclick="togglePhaseView('${key}',${i})"><div class="wp-up-num">${i+1}</div>${p.name}<span class="wp-up-time">${p.time}</span><span class="wp-up-toggle"><i class="fas fa-chevron-down"></i></span></div>
         </div>`;
     });
     return html;
@@ -554,13 +639,17 @@ function advancePhase(company) {
     showToast(phases[cur].name+' done → '+phases[cur+1].name);
 }
 
-function toggleDonePhase(key, idx) {
+function togglePhaseView(key, idx) {
     const el = document.getElementById(key+'-wp-'+idx);
     if(!el) return;
     if(el.classList.contains('is-done')) {
         el.className = 'wiz-phase is-done-open';
     } else if(el.classList.contains('is-done-open')) {
         el.className = 'wiz-phase is-done';
+    } else if(el.classList.contains('is-upcoming')) {
+        el.className = 'wiz-phase is-upcoming-open';
+    } else if(el.classList.contains('is-upcoming-open')) {
+        el.className = 'wiz-phase is-upcoming';
     }
 }
 
@@ -573,11 +662,11 @@ async function runResearch() {
     btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Researching...';
     document.getElementById('thinkingGrid').style.display = 'grid';
     document.getElementById('topicsGrid').style.display = 'none';
-    const [stsRes, dcdRes] = await Promise.allSettled([fetchResearch('STS'), fetchResearch('DCD')]);
+    const [stsRes, dcdRes, tcRes] = await Promise.allSettled([fetchResearch('STS'), fetchResearch('DCD'), fetchResearch('TC')]);
     document.getElementById('thinkingGrid').style.display = 'none';
     document.getElementById('topicsGrid').style.display = 'grid';
-    handleResearchResult('STS', stsRes); handleResearchResult('DCD', dcdRes);
-    btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync"></i> Re-Research Both';
+    handleResearchResult('STS', stsRes); handleResearchResult('DCD', dcdRes); handleResearchResult('TC', tcRes);
+    btn.disabled = false; btn.innerHTML = '<i class="fas fa-sync"></i> Re-Research All';
 }
 async function runResearchSingle(company) {
     const btn = document.getElementById(co(company)+'RegenBtn'); btn.classList.remove('visible');
@@ -602,7 +691,7 @@ function handleResearchResult(company, result) {
 function renderTopics(company, topics, recommendation) {
     const key = co(company); const list = document.getElementById(key+'TopicCards'); const isDCD = company === 'DCD'; list.innerHTML = '';
     if(recommendation){ const d = document.createElement('div'); d.className = 'rec-box'; d.innerHTML = '<i class="fas fa-star" style="margin-right:4px;"></i><strong>Pick:</strong> '+recommendation; list.appendChild(d); }
-    topics.forEach((t,i) => { const card = document.createElement('div'); card.className = 'topic-card'+(isDCD?' dcd-card':''); card.id = key+'-tc-'+i; card.onclick = () => selectTopic(company, i);
+    topics.forEach((t,i) => { const card = document.createElement('div'); card.className = 'topic-card'+(isDCD?' dcd-card':'')+(company==='TC'?' dcd-card':''); card.id = key+'-tc-'+i; card.onclick = () => selectTopic(company, i);
         card.innerHTML = `<div class="topic-num${isDCD?' dcd':''}">${t.num}</div><div class="select-badge">Selected</div><div class="topic-card-title">${t.title}${t.isRecommended?'&nbsp;<span class="topic-tag rec">★</span>':''}</div><div class="topic-card-meta"><span class="topic-tag intent">${t.intent}</span><span class="topic-tag targets">${t.targets}</span></div><div class="topic-card-why">${t.whyNow}</div>`;
         list.appendChild(card); });
 }
@@ -661,15 +750,22 @@ function copyPrompt(company, type) {
     case 'strategy':
         if(!t){showToast('Select a '+company+' topic first!',true);return;}
         if(company==='STS'){text=`\u26d4 MODEL CHECK: If you are Claude Opus, STOP NOW. Tell the user: "Switch to Sonnet 4.6 in the model selector (bottom-left of chat). This prompt is optimized for Sonnet and must not run on Opus." Do NOT proceed on Opus under any circumstances.\n\nFIRST: Name this chat "${S[key].chatName}"\n\nRESEARCH COMPLETE \u2014 SKIP GATES 0A\u20130G (Grok already ran research, topic selected, meta fields generated).\n\n${brief}\n\n\u26a0\ufe0f THIS IS STEP 1 OF 2 \u2014 STRATEGY ONLY. DO NOT BUILD HTML YET.\n\nExecute Gates 1A\u20131L from the STS Blog Creation Prompt v4.3. Output a VISIBLE strategy summary:\n\n1. \u2705 Keyword + Semantic Cluster (Gate 1A): Primary keyword, 10-15 LSI terms\n2. \u2705 Entity Ledger (Gate 1A): Verified entities with sources, verified statistics with sources\n3. \u2705 Outline + Query Fan-Out (Gate 1B): Full section outline with H2/H3 structure, word count target, fan-out coverage (What/How/Who/Why/When)\n4. \u2705 Content Gap Exploitation (Gate 1B): Gaps identified + exploitation strategy\n5. \u2705 Micro-Anchor Plan (Gate 1D): 3-4 planned anchors with patterns\n6. \u2705 Internal Link Plan (Gate 1G): 5-8+ links from approved inventory with anchor text\n7. \u2705 Answer Block Plan (Gate 1J): 3-4 blocks, 40-60 words each\n8. \u2705 Attribution Plan (Gate 1K): 3+ patterns with verified statistics\n9. \u2705 Blog Title Evaluation: Research title vs. improved title recommendation\n\nDo NOT execute Gates 2, 3, or 4. Do NOT generate HTML or schema. Output the strategy summary and STOP.\n\u26a0\ufe0f SKIP SCHEMA GENERATION \u2014 schema will be created in a separate prompt using the Master Schema Generator v1.4 after SEO audit.`;}
-        else{text=`\u26d4 MODEL CHECK: If you are Claude Opus, STOP NOW. Tell the user: "Switch to Sonnet 4.6 in the model selector (bottom-left of chat). This prompt is optimized for Sonnet and must not run on Opus." Do NOT proceed on Opus under any circumstances.\n\nFIRST: Name this chat "${S[key].chatName}"\n\nRESEARCH COMPLETE \u2014 Grok already executed research. SKIP these gates entirely:\n\u2022 GATE 0A\u20130G \u2014 all done, topic selected below\n\nDO execute from the uploaded Blog Creation Prompt:\n\u2022 GATE 0F (Design Reference Extraction) \u2014 read the uploaded Design Bible\n\u2022 GATES 1A\u20131L (Content Strategy Engine) \u2014 full execution\n\n\u26a0\ufe0f THIS IS STEP 1 OF 2 \u2014 STRATEGY ONLY. DO NOT BUILD HTML YET.\n\n${brief}\n\nFILES TO UPLOAD FIRST (both required):\n\u2022 DCD Blog Creation Prompt v1.0\n\u2022 DCD Design Bible\n\nOutput a VISIBLE strategy summary:\n1. \u2705 Keyword + Semantic Cluster: Primary keyword, 10-15 LSI terms\n2. \u2705 Entity Ledger: Verified entities + statistics with sources\n3. \u2705 Outline + Query Fan-Out: Section structure, word count target, fan-out coverage\n4. \u2705 Content Gap Exploitation: Gaps + strategy\n5. \u2705 Micro-Anchor Plan: 3-4 planned anchors\n6. \u2705 Internal Link Plan: Links from approved inventory\n7. \u2705 Answer Block Plan: 3-4 blocks, 40-60 words each\n8. \u2705 Blog Title Evaluation: Research title vs. improved recommendation\n\nDo NOT execute Gates 2, 3, or 4. Do NOT generate HTML or schema. Output the strategy and STOP.`;}
+        else if(company==='DCD'){text=`\u26d4 MODEL CHECK: If you are Claude Opus, STOP NOW. Tell the user: "Switch to Sonnet 4.6 in the model selector (bottom-left of chat). This prompt is optimized for Sonnet and must not run on Opus." Do NOT proceed on Opus under any circumstances.\n\nFIRST: Name this chat "${S[key].chatName}"\n\nRESEARCH COMPLETE \u2014 Grok already executed research. SKIP these gates entirely:\n\u2022 GATE 0A\u20130G \u2014 all done, topic selected below\n\nDO execute from the uploaded Blog Creation Prompt:\n\u2022 GATE 0F (Design Reference Extraction) \u2014 read the uploaded Design Bible\n\u2022 GATES 1A\u20131L (Content Strategy Engine) \u2014 full execution\n\n\u26a0\ufe0f THIS IS STEP 1 OF 2 \u2014 STRATEGY ONLY. DO NOT BUILD HTML YET.\n\n${brief}\n\nFILES TO UPLOAD FIRST (both required):\n\u2022 DCD Blog Creation Prompt v1.0\n\u2022 DCD Design Bible\n\nOutput a VISIBLE strategy summary:\n1. \u2705 Keyword + Semantic Cluster: Primary keyword, 10-15 LSI terms\n2. \u2705 Entity Ledger: Verified entities + statistics with sources\n3. \u2705 Outline + Query Fan-Out: Section structure, word count target, fan-out coverage\n4. \u2705 Content Gap Exploitation: Gaps + strategy\n5. \u2705 Micro-Anchor Plan: 3-4 planned anchors\n6. \u2705 Internal Link Plan: Links from approved inventory\n7. \u2705 Answer Block Plan: 3-4 blocks, 40-60 words each\n8. \u2705 Blog Title Evaluation: Research title vs. improved recommendation\n\nDo NOT execute Gates 2, 3, or 4. Do NOT generate HTML or schema. Output the strategy and STOP.`;}
+        else{text=`\u26d4 MODEL CHECK: If you are Claude Opus, STOP NOW. Switch to Sonnet 4.6.\n\nFIRST: Name this chat "${S[key].chatName}"\n\nRESEARCH COMPLETE \u2014 topic selected below.\n\n${brief}\n\nCOMPANY CONTEXT \u2014 TechnoCycle:\n\u2022 Houston-based ITAD + e-waste recycler (since 1997)\n\u2022 URL: technocycle.com | Phone: 713-895-7409\n\u2022 Address: 6600 Long Point Rd, Ste 103, Houston, TX 77055\n\u2022 60,000 sq ft facility, 51 employees\n\u2022 Certifications: R2v3, NAID AAA, ISO 14001, ISO 9001, ISO 45001\n\u2022 Tagline: "Stewards of Yesterday\u2019s Technology for a Better Tomorrow"\n\u2022 Services: ITAD, e-waste recycling, hard drive shredding, data erasure, asset remarketing\n\u2022 Email: recycle@technocycle.com\n\u2022 Social: facebook.com/TechnocycleITAD, linkedin.com/company/technocycle-it-remarketing\n\n\u26a0\ufe0f THIS IS STEP 1 OF 2 \u2014 STRATEGY ONLY. DO NOT BUILD HTML YET.\n\nBuild a content strategy using the STS v4.3 framework adapted for TechnoCycle. Output:\n1. \u2705 Keyword + Semantic Cluster: Primary keyword, 10-15 LSI terms\n2. \u2705 Entity Ledger: Verified entities + statistics with sources\n3. \u2705 Outline + Query Fan-Out: Full section outline, word count target, fan-out coverage\n4. \u2705 Content Gap Exploitation: Gaps + strategy\n5. \u2705 Micro-Anchor Plan: 3-4 planned anchors\n6. \u2705 Internal Link Plan: Links to real TechnoCycle pages only\n7. \u2705 Answer Block Plan: 3-4 blocks, 40-60 words each\n8. \u2705 Blog Title Evaluation: Research title vs. improved recommendation\n\nDo NOT generate HTML yet. Strategy only. STOP after the summary.`;}
         break;
     case 'htmlbuild':
         if(!t){showToast('Select a '+company+' topic first!',true);return;}
         if(company==='STS'){text=`${forcePrefix}\u26a0\ufe0f THIS IS STEP 2 OF 2 \u2014 BUILD HTML NOW.\n\nThe strategy from Step 1 is confirmed. You have the full content plan in this chat.\n\nExecute Gates 2\u20134 from the STS Blog Creation Prompt v4.3:\n\u2022 Gate 3A: HTML Construction \u2014 build the complete blog using ALL strategy from Gates 1A\u20131L above\n\u2022 Gate 3B: UX Scannability Optimization\n\u2022 Gate 3C: Quality Checklist (14 points + anti-pattern validation)\n\u2022 Gate 4: File Delivery with mandatory checklist, proof of work, GEO scoring, and meta fields\n\n\u26a0\ufe0f SKIP SCHEMA GENERATION \u2014 schema will be created separately using the Master Schema Generator v1.4.\n\nBLOG TITLE GUIDANCE:\nIf you recommended an improved title in Step 1, use it. Final Page Title in Joomla meta should be \u226460 chars with primary keyword + "| STS Electronic Recycling".\n\nDeliver:\n\u2192 blog-final.html \u2014 complete blog HTML, NO schema embedded\n\u2192 Gate 4 delivery with full checklist + proof of work + GEO score + meta fields\n\nCREATE ARTIFACTS only \u2014 do NOT paste code in chat.\nBegin now.`;}
-        else{text=`${forcePrefix}\u26a0\ufe0f THIS IS STEP 2 OF 2 \u2014 BUILD HTML NOW.\n\nThe strategy from Step 1 is confirmed. You have the full content plan in this chat.\n\nExecute from the uploaded Blog Creation Prompt:\n\u2022 GATE 2 (Schema Generation) \u2014 8 types EMBEDDED at bottom of content HTML (NOT a separate file)\n\u2022 GATE 3 (HTML Construction + QA) \u2014 build + quality gates\n\u2022 GATE 4 (File Delivery + Checklist) \u2014 full delivery with proof of work\n\n\u26a0\ufe0f OVERRIDE: Embed schema at the bottom of blog-content.html inside a <script type="application/ld+json"> block. Output ONE file only.\n\nBLOG TITLE GUIDANCE:\nIf you recommended an improved title in Step 1, use it. Page Title for Shogun should be \u226460 chars with primary keyword + "| DCD".\n\nDeliver:\n\u2192 "blog-content.html" \u2014 complete blog HTML with schema embedded, ALL CSS scoped to .blog-${t.slug}-container, NO global selectors\n\n\u26a0\ufe0f ALL CSS must be scoped \u2014 global selectors break site navigation.\n\u26a0\ufe0f CREATE ARTIFACTS only \u2014 do NOT paste code in chat.\nBegin now.`;}
+        else if(company==='DCD'){text=`${forcePrefix}\u26a0\ufe0f THIS IS STEP 2 OF 2 \u2014 BUILD HTML NOW.\n\nThe strategy from Step 1 is confirmed. You have the full content plan in this chat.\n\nExecute from the uploaded Blog Creation Prompt:\n\u2022 GATE 2 (Schema Generation) \u2014 8 types EMBEDDED at bottom of content HTML (NOT a separate file)\n\u2022 GATE 3 (HTML Construction + QA) \u2014 build + quality gates\n\u2022 GATE 4 (File Delivery + Checklist) \u2014 full delivery with proof of work\n\n\u26a0\ufe0f OVERRIDE: Embed schema at the bottom of blog-content.html inside a <script type="application/ld+json"> block. Output ONE file only.\n\nBLOG TITLE GUIDANCE:\nIf you recommended an improved title in Step 1, use it. Page Title for Shogun should be \u226460 chars with primary keyword + "| DCD".\n\nDeliver:\n\u2192 "blog-content.html" \u2014 complete blog HTML with schema embedded, ALL CSS scoped to .blog-${t.slug}-container, NO global selectors\n\n\u26a0\ufe0f ALL CSS must be scoped \u2014 global selectors break site navigation.\n\u26a0\ufe0f CREATE ARTIFACTS only \u2014 do NOT paste code in chat.\nBegin now.`;}
+        else{text=`${forcePrefix}\u26a0\ufe0f THIS IS STEP 2 OF 2 \u2014 BUILD HTML NOW.\n\nThe strategy from Step 1 is confirmed. You have the full content plan in this chat.\n\nCOMPANY: TechnoCycle (technocycle.com)\nCMS: WordPress + Elementor (HTML widget drop)\n\nBuild a complete blog post as a single HTML file:\n\u2022 Full HTML construction using ALL strategy from Step 1\n\u2022 Embed JSON-LD schema at bottom inside <script type="application/ld+json"> block\n\u2022 ALL CSS scoped to .blog-${t.slug}-container \u2014 NO global selectors (breaks WordPress theme)\n\u2022 Match TechnoCycle\u2019s existing site aesthetic: clean, professional, green/white/dark gray\n\u2022 Include FAQ section, CTA blocks, structured data\n\nBLOG TITLE GUIDANCE:\nPage Title should be \u226460 chars with primary keyword + "| TechnoCycle".\n\nSchema must reference:\n\u2022 Company: TechnoCycle\n\u2022 URL: technocycle.com/${t.slug}\n\u2022 Phone: +1-713-895-7409\n\u2022 Address: 6600 Long Point Rd, Ste 103, Houston, TX 77055\n\u2022 Certifications: R2v3, NAID AAA, ISO 14001, ISO 9001, ISO 45001\n\nDeliver:\n\u2192 "blog-content.html" \u2014 complete blog HTML with schema embedded, ALL CSS scoped\n\nCREATE ARTIFACTS only \u2014 do NOT paste code in chat.\nBegin now.`;}
         break;
     case 'seo':
-        text=`${forcePrefix}TASK: Full SEO Audit on blog HTML\n\nUPLOAD the Universal Blog SEO Audit document to this chat first, then execute every step in it against the blog HTML.\n\n\u26a0\ufe0f CRITICAL: Design and UX quality must ALWAYS be at the forefront. Do NOT flatten, simplify, or remove visual components, hover states, gradients, or layout sophistication during optimization. SEO improvements must work WITHIN the existing design \u2014 never against it.\n\nExecute EVERY step in the uploaded audit document. Do not skip. Do not summarize.\nOutput updated HTML as new artifact: "blog-final-seo.html"\nPreserve ALL design elements. No lengthy explanations.`;
+        if(company==='STS'){
+        text=`${forcePrefix}TASK: Full SEO Audit on blog HTML\n\nCONTEXT \u2014 READ BEFORE EXECUTING:\nThis blog was built using STS Blog Creation Prompt v4.3.\nThe following are pre-built to spec and will validate without changes in most cases:\n  - GEO answer blocks (4 present, ~55 words each)\n  - Attribution patterns (4 present, different sources)\n  - Micro-anchors (4 present, 4 different LLM training patterns)\n  - Internal links from approved 14-URL STS inventory\n  - FAQ (6 questions)\n  - Entity precision (verifiable certifications, statute numbers)\n\nPREDICTABLE GAPS \u2014 prioritize these in Phase 0C and Phase 1:\n  1. Creator entity signals \u2014 ALWAYS missing from v4.3 builds.\n     Always inject: HTML comment in head, meta author tag,\n     closing body comment for Mark Domnenko per Tech 1L.\n  2. Outbound authority links \u2014 always zero. Add 2-3 to\n     NIST.gov, IBM report page, GAO.gov, or CFR references\n     already cited in the text per Tech 1O.\n  3. Question H2 conversions \u2014 typically 2/11, need 4-6.\n  4. Link density \u2014 usually 4-6 under formula target.\n  5. Paragraph density \u2014 check for 80+ word violations.\n\nHARD CONSTRAINTS:\n  - Internal links: STS 14-URL approved inventory ONLY\n  - Outbound links: authoritative external sources only\n    (NIST.gov, GAO.gov, IBM.com reports, CFR.gov)\n  - Zero schema in HTML \u2014 schema is separate file\n\n\u26a0\ufe0f Design preservation is absolute. Do NOT flatten, simplify,\nor remove visual components, hover states, gradients, card\nlayouts, or layout sophistication. SEO must work within the\ndesign \u2014 never against it.\n\nExecute EVERY step. Do not skip. Do not summarize.\nOutput: blog-${S.sts.meta?.slug||'[slug]'}-optimized.html`;}
+        else if(company==='DCD'){
+        text=`${forcePrefix}TASK: Full SEO Audit on blog HTML\n\nCONTEXT \u2014 READ BEFORE EXECUTING:\nThis blog was built using DCD Blog Creation Prompt v1.0.\nThe following are pre-built to spec and will validate without changes in most cases:\n  - GEO answer blocks\n  - Attribution patterns\n  - Micro-anchors\n  - Internal links from approved DCD inventory\n  - FAQ questions\n  - Entity precision\n\nPREDICTABLE GAPS \u2014 prioritize these in Phase 0C and Phase 1:\n  1. Creator entity signals \u2014 ALWAYS missing from v1.0 builds.\n     Always inject: HTML comment in head, meta author tag,\n     closing body comment for Mark Domnenko per Tech 1L.\n  2. Outbound authority links \u2014 always zero. Add 2-3 to\n     authoritative sources already cited in the text per Tech 1O.\n  3. Question H2 conversions \u2014 typically under target, need 4-6.\n  4. Link density \u2014 usually under formula target.\n  5. Paragraph density \u2014 check for 80+ word violations.\n\nHARD CONSTRAINTS:\n  - Internal links: DCD approved inventory ONLY\n  - Outbound links: authoritative external sources only\n  - Schema is EMBEDDED in content HTML (do not remove)\n\n\u26a0\ufe0f Design preservation is absolute. Do NOT flatten, simplify,\nor remove visual components, hover states, gradients, card\nlayouts, or layout sophistication. SEO must work within the\ndesign \u2014 never against it.\n\nExecute EVERY step. Do not skip. Do not summarize.\nOutput: blog-${S.dcd.meta?.slug||'[slug]'}-optimized.html`;}
+        else{
+        text=`${forcePrefix}TASK: Full SEO Audit on blog HTML\n\nCONTEXT \u2014 READ BEFORE EXECUTING:\nThis blog was built for TechnoCycle (technocycle.com).\n\nPREDICTABLE GAPS:\n  1. Creator entity signals \u2014 inject HTML comment + meta author for Mark Domnenko.\n  2. Outbound authority links \u2014 add 2-3 to authoritative sources.\n  3. Question H2 conversions \u2014 need 4-6.\n  4. Link density \u2014 check against formula target.\n  5. Paragraph density \u2014 check for 80+ word violations.\n\nHARD CONSTRAINTS:\n  - Internal links: real TechnoCycle pages ONLY (technocycle.com/*)\n  - Outbound links: authoritative external sources only\n  - Schema is EMBEDDED in content HTML (do not remove)\n\n\u26a0\ufe0f Design preservation is absolute. Do NOT flatten, simplify,\nor remove visual components. SEO must work within the design.\n\nExecute EVERY step. Do not skip. Do not summarize.\nOutput: blog-${S.tc.meta?.slug||'[slug]'}-optimized.html`;}
         break;
     case 'schema':
         text=`${forcePrefix}TASK: Generate production-ready JSON-LD schema for this STS blog using the Master Schema Generator v1.4 you just received.\n\nPAGE TYPE: NATIONAL (blog article, not a city page)\nSERVICE: Use the blog topic as the service context\nPAGE URL: ${CFG.STS.siteUrl}/${S.sts.meta?.slug || '[slug]'}\n\nINSTRUCTIONS:\n1. Read the final blog HTML artifact in this chat\n2. Follow the Master Schema Generator v1.4 document exactly\n3. Set PAGE_TYPE = NATIONAL for all blog articles\n4. Generate NICHE_FROM_HTML knowsAbout terms (18-22 terms from blog content)\n5. Generate NICHE_GENERATED service catalog (12-20 services from blog topic)\n6. Generate 8-12 national FAQ entries targeting featured snippets\n7. Use HQ facility defaults: CID cid:2633689675265688157, Jacksonville TX 75766\n\nOVERRIDES FOR BLOG SCHEMA:\n\u2022 Add BlogPosting schema object to the @graph (headline, author, datePublished, dateModified, wordCount, keywords)\n\u2022 IMPORTANT: Include "dateModified" on BlogPosting \u2014 set to today\u2019s date (YYYY-MM-DD). The Schema Generator was built for city pages and omits dateModified by default.\n\u2022 Author: "STS Compliance Research Team" (or appropriate team name for topic)\n\u2022 Publisher: reference @id "${CFG.STS.siteUrl}/#org"\n\u2022 Include speakable specification on BlogPosting\n\u2022 FAQPage: extract ALL visible FAQ Q&As from the blog HTML \u2014 answers MUST match page content exactly\n\nRun full Phase 0 preflight (skip CID verification \u2014 use HQ defaults), Phase 1 construction, Phase 2 validation (all 16 checks).\n\n\u26a0\ufe0f OUTPUT FORMAT \u2014 STRICT:\nThe schema.txt artifact must contain ONLY the script-wrapped JSON-LD. Nothing else.\n\u2022 Starts with: <script type="application/ld+json">\n\u2022 Ends with: <\/script>\n\u2022 Do NOT include the HTML comment line\n\u2022 Do NOT include the <meta name="author"> tag\n\u2022 Do NOT include any text outside the script tags\n\nDisplay meta fields in copy/paste boxes in chat.\nNo lengthy explanations.`;
@@ -684,29 +780,29 @@ function copyPrompt(company, type) {
 
 // ===== UI HELPERS =====
 function toggleMeta(company) { const key=co(company); const body=document.getElementById(key+'-metaBody'); const icon=document.getElementById(key+'-metaIcon'); if(body.style.display==='none'||!body.style.display){body.style.display='block';icon.classList.add('open');}else{body.style.display='none';icon.classList.remove('open');} }
-function switchTab(company) { document.getElementById('tabSTS').className='company-tab'+(company==='STS'?' active-sts':''); document.getElementById('tabDCD').className='company-tab'+(company==='DCD'?' active-dcd':''); document.getElementById('stsView').className='company-view'+(company==='STS'?' active':''); document.getElementById('dcdView').className='company-view'+(company==='DCD'?' active':''); if(S[co(company)].meta) document.getElementById(co(company)+'-metaPanel').classList.add('visible'); }
+function switchTab(company) { document.getElementById('tabSTS').className='company-tab'+(company==='STS'?' active-sts':''); document.getElementById('tabDCD').className='company-tab'+(company==='DCD'?' active-dcd':''); document.getElementById('tabTC').className='company-tab'+(company==='TC'?' active-tc':''); document.getElementById('stsView').className='company-view'+(company==='STS'?' active':''); document.getElementById('dcdView').className='company-view'+(company==='DCD'?' active':''); document.getElementById('tcView').className='company-view'+(company==='TC'?' active':''); if(S[co(company)].meta) document.getElementById(co(company)+'-metaPanel').classList.add('visible'); }
 function animateButton(btn,pt,st){ const orig=btn.innerHTML; btn.classList.add('processing'); btn.innerHTML='<span style="opacity:.8">\u25d0</span> '+pt; setTimeout(()=>{btn.classList.remove('processing');btn.classList.add('success');btn.innerHTML='<span>\u2713</span> '+st;setTimeout(()=>{btn.classList.remove('success');btn.innerHTML=orig;},1200);},600); }
 function showToast(msg,isErr=false){ const t=document.getElementById('toast'); t.innerHTML='<i class="fas '+(isErr?'fa-exclamation-circle':'fa-check-circle')+'"></i> <span>'+msg+'</span>'; t.style.borderLeft=isErr?'4px solid #ef4444':'4px solid #34d399'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
 
 // ===== PERSISTENCE =====
-function saveState(){ try{ S.vaName=document.getElementById('vaName').value.trim(); S.mgmtIdea=document.getElementById('mgmtIdea').value.trim(); document.querySelectorAll('input[type=checkbox]').forEach(function(cb){if(cb.id){var k=cb.id.startsWith('dcd')?'dcd':'sts';S[k].checks[cb.id]=cb.checked;}}); localStorage.setItem('markBlogV2',JSON.stringify(S)); }catch(e){} }
+function saveState(){ try{ S.vaName=document.getElementById('vaName').value.trim(); S.mgmtIdea=document.getElementById('mgmtIdea').value.trim(); document.querySelectorAll('input[type=checkbox]').forEach(function(cb){if(cb.id){var k=cb.id.startsWith('tc')?'tc':cb.id.startsWith('dcd')?'dcd':'sts';S[k].checks[cb.id]=cb.checked;}}); localStorage.setItem('markBlogV2',JSON.stringify(S)); }catch(e){} }
 function loadState(){ try{ const raw=localStorage.getItem('markBlogV2'); if(!raw) return; const saved=JSON.parse(raw); Object.assign(S,saved);
     if(S.vaName) document.getElementById('vaName').value=S.vaName;
     if(S.mgmtIdea) document.getElementById('mgmtIdea').value=S.mgmtIdea;
-    ['STS','DCD'].forEach(company=>{ const key=co(company); const cs=S[key];
-        if(cs.lastTopics?.length>0){ document.getElementById('topicsGrid').style.display='grid'; renderTopics(company,cs.lastTopics,cs.recommendation||''); document.getElementById(key+'RegenBtn').classList.add('visible'); document.getElementById('runResearchBtn').innerHTML='<i class="fas fa-sync"></i> Re-Research Both';
+    ['STS','DCD','TC'].forEach(company=>{ const key=co(company); const cs=S[key];
+        if(cs.lastTopics?.length>0){ document.getElementById('topicsGrid').style.display='grid'; renderTopics(company,cs.lastTopics,cs.recommendation||''); document.getElementById(key+'RegenBtn').classList.add('visible'); document.getElementById('runResearchBtn').innerHTML='<i class="fas fa-sync"></i> Re-Research All';
             if(cs.topic){ const idx=cs.lastTopics.findIndex(t=>t.title===cs.topic.title); if(idx>=0){const card=document.getElementById(key+'-tc-'+idx);if(card)card.classList.add('selected');} } }
         if(cs.meta){ document.getElementById(key+'-chatName').textContent=cs.chatName||'—'; document.getElementById(key+'-mf-title').textContent=cs.meta.title||'—'; document.getElementById(key+'-mf-desc').textContent=cs.meta.desc||'—'; document.getElementById(key+'-mf-keywords').textContent=cs.meta.keywords||'—'; document.getElementById(key+'-mf-slug').textContent=cs.meta.slug||'—'; document.getElementById(key+'-metaPanel').classList.add('visible'); document.getElementById('columnsGrid').style.display='block'; renderWizard(company); }
     });
-    if(S.sts.meta||S.dcd.meta) switchTab(S.sts.meta?'STS':'DCD');
+    if(S.sts.meta||S.dcd.meta||S.tc.meta) switchTab(S.sts.meta?'STS':S.dcd.meta?'DCD':'TC');
 }catch(e){console.error('Load state error:',e);} }
 function resetAll(){ if(!confirm('Reset all data and start a new session?')) return; try{localStorage.removeItem('markBlogV2');}catch(e){}
     document.getElementById('vaName').value=''; document.getElementById('mgmtIdea').value='';
     document.getElementById('topicsGrid').style.display='none'; document.getElementById('columnsGrid').style.display='none'; document.getElementById('thinkingGrid').style.display='none';
-    ['sts','dcd'].forEach(key=>{ document.getElementById(key+'TopicCards').innerHTML=''; document.getElementById(key+'ResearchError').classList.remove('visible'); document.getElementById(key+'RegenBtn').classList.remove('visible'); document.getElementById(key+'-metaPanel').classList.remove('visible'); document.getElementById(key+'-wizard').innerHTML=''; document.getElementById(key+'-launcher').style.display='none'; document.getElementById(key+'-progress').innerHTML=''; });
+    ['sts','dcd','tc'].forEach(key=>{ document.getElementById(key+'TopicCards').innerHTML=''; document.getElementById(key+'ResearchError').classList.remove('visible'); document.getElementById(key+'RegenBtn').classList.remove('visible'); document.getElementById(key+'-metaPanel').classList.remove('visible'); document.getElementById(key+'-wizard').innerHTML=''; document.getElementById(key+'-launcher').style.display='none'; document.getElementById(key+'-progress').innerHTML=''; });
     switchTab('STS');
-    const btn=document.getElementById('runResearchBtn'); btn.disabled=false; btn.innerHTML='<i class="fas fa-rocket"></i> Research Both';
-    S={vaName:'',mgmtIdea:'',sts:{topic:null,meta:null,chatName:'',lastTopics:[],recommendation:'',checks:{},wizPhase:0,wizTimes:{}},dcd:{topic:null,meta:null,chatName:'',lastTopics:[],recommendation:'',checks:{},wizPhase:0,wizTimes:{}},chatHistory:[]};
+    const btn=document.getElementById('runResearchBtn'); btn.disabled=false; btn.innerHTML='<i class="fas fa-rocket"></i> Research All';
+    S={vaName:'',mgmtIdea:'',sts:{topic:null,meta:null,chatName:'',lastTopics:[],recommendation:'',checks:{},wizPhase:0,wizTimes:{}},dcd:{topic:null,meta:null,chatName:'',lastTopics:[],recommendation:'',checks:{},wizPhase:0,wizTimes:{}},tc:{topic:null,meta:null,chatName:'',lastTopics:[],recommendation:'',checks:{},wizPhase:0,wizTimes:{}},chatHistory:[]};
     showToast('Reset complete'); }
 
 // ===== CHAT =====
