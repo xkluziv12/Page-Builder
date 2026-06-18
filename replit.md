@@ -1,6 +1,6 @@
-# [Project name]
+# Page Terminal
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Page Terminal is the "M.A.R.K." (Machine Assisted Routing Kit) toolset — a navy/gold navigation shell that hosts a set of standalone SEO/page-building tools (Page Rebuild, Hub + Spoke, Service Pages, Blogs, and dashboards) for STS Electronic Recycling virtual assistants.
 
 ## Run & Operate
 
@@ -22,11 +22,16 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/page-terminal/src/App.tsx` — the navigation shell (navy/gold nav bar) that switches the active tool in an iframe. Nav items and their target files are defined in the `TOOLS` array.
+- `artifacts/page-terminal/src/terminal.css` — styling for the nav shell.
+- `artifacts/page-terminal/public/tools/*.html` — the standalone tool pages (one self-contained HTML file each), served as static assets and loaded into the shell via iframe.
+- `artifacts/page-terminal/public/tools/_placeholder.css` + `new-pages.html` / `marketing.html` / `ai-pages.html` — themed "not configured yet" placeholders for the modules that were empty in the source.
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- The original system was a GitHub Pages site (`xkluziv12/Page-Builder`) where a thin wrapper iframed standalone HTML tools. This rebuild preserves that architecture: a React nav shell + static HTML tools loaded by iframe — not a React rewrite of each tool.
+- The tool pages are fully self-contained (inline CSS/JS). They are NOT cross-linked; navigation lives only in the shell.
+- Several dashboard tools (`DCD-grading`, `SALES-grading`, `WIW-data`, `blog-terminal`) fetch from external n8n webhooks at `stsrecycling.app.n8n.cloud`. Those remain external dependencies and are not hosted here.
 
 ## Product
 

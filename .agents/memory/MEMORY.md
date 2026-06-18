@@ -1,0 +1,1 @@
+- [Page Terminal (M.A.R.K.) architecture](page-terminal-architecture.md) — React shell hosts self-contained static HTML tools via iframe; do not rewrite tools into React.

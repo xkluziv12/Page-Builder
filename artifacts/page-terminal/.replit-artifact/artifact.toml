@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Page Terminal"
+version = "1.0.0"
+id = "artifacts/page-terminal"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19951
+
+[services.development]
+run = "pnpm --filter @workspace/page-terminal run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/page-terminal", "run", "build" ]
+publicDir = "artifacts/page-terminal/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19951"
+BASE_PATH = "/"
