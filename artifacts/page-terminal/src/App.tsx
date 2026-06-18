@@ -11,6 +11,7 @@ const BASE = import.meta.env.BASE_URL;
 
 const TOOLS: Tool[] = [
   { label: "Page Rebuild", icon: "fas fa-sync-alt", file: "index.html" },
+  { label: "Page Rebuild (No GMB)", icon: "fas fa-store-slash", file: "no-gmb.html" },
   { label: "Hub + Spoke", icon: "fas fa-sitemap", file: "hub-spoke.html" },
   { label: "New Pages", icon: "fas fa-plus-circle", file: "new-pages.html" },
   { label: "Marketing", icon: "fas fa-bullhorn", file: "marketing.html" },
