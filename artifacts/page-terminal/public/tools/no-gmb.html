@@ -327,6 +327,27 @@
             border-radius: 6px; color: var(--text-primary); font-size: 13px;
         }
 
+        /* ===== SCHEMA VALIDATOR ===== */
+        .code-check-area {
+            background: var(--navy-dark);
+            color: #e2e8f0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            width: 100%;
+            height: 100px;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid var(--navy);
+            margin-top: 8px;
+            resize: vertical;
+        }
+        .schema-results { margin-top: 15px; padding: 15px; border-radius: 6px; font-size: 13px; }
+        .schema-results.pass { background: #f8fdf9; border: 1px solid #d1e7d5; }
+        .schema-results.fail { background: #fef7f7; border: 1px solid #f5d5d5; }
+        .schema-check-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
+        .schema-check-item.pass { color: var(--gold-dark); }
+        .schema-check-item.fail { color: #dc2626; }
+
         .quick-links { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
         .quick-link {
             display: inline-flex; align-items: center; gap: 6px;
@@ -432,7 +453,7 @@
                     </div>
 
                     <div class="info-box" style="margin-bottom:15px;">
-                        <i class="fas fa-info-circle"></i> <strong>No GMB mode:</strong> This city has no Google Business listing. Pages are built as service-area content with Hub+Spoke internal linking. No CID, no schema, no footer NAP.
+                        <i class="fas fa-info-circle"></i> <strong>No GMB mode:</strong> This city has no Google Business listing. Pages are built like a standard Page Rebuild — schema included — with Hub+Spoke internal linking. The only difference: no GMB street address and no CID.
                     </div>
 
                     <div class="divider"></div>
@@ -694,10 +715,65 @@
                 </div>
             </div>
 
-            <!-- PHASE 4: JOOMLA PART 1 - META -->
+            <!-- PHASE 4: SCHEMA GENERATOR -->
+            <div class="card phase" id="phase4" style="border-left: 4px solid var(--accent);">
+                <div class="phase-header" onclick="togglePhase('phase4')">
+                    <div class="phase-title"><span class="phase-num" style="background:var(--accent);">4</span> Schema Generator</div>
+                    <div class="phase-time">5 min</div>
+                </div>
+                <div class="phase-content">
+                    <div class="warning-box" style="margin-bottom:15px;">
+                        <i class="fas fa-exclamation-triangle"></i> <strong>NO GMB:</strong> The SEO audit stripped the schema. Rebuild it now — <strong>with NO CID and NO GMB street address</strong>. City/state targeting only.
+                    </div>
+
+                    <div class="step">
+                        <input type="checkbox" id="p4-1" onchange="updateProgress()">
+                        <div>
+                            <div class="step-label">Upload Schema Generator & Run</div>
+                            <button class="btn btn-accent btn-compile" style="margin-top:5px;" onclick="copyPrompt('schema'); animateButton(this, 'Compiling...', 'Schema Ready');">
+                                <i class="fas fa-code"></i> Compile Schema Protocol
+                            </button>
+                            <div style="margin-top:8px; font-size:11px; color:#f97316;">
+                                <i class="fas fa-exclamation-circle"></i> NO CID (no identifier, hasMap, or Maps link), NO street address, NO aggregateRating/reviews
+                            </div>
+
+                            <div style="margin-top:12px;">
+                                <div style="color: #ef4444; font-size: 11px; font-weight: 600; margin-bottom: 6px;">
+                                    <i class="fas fa-arrow-down"></i> UPLOAD FILE + PASTE PROMPT
+                                </div>
+                                <a href="https://docs.google.com/document/d/1labL6l4YBkop02jZhGEujg_OfAgKYElCwQ2hctGIXI8/edit?usp=sharing" target="_blank" class="quick-link">
+                                    <i class="fas fa-file-code"></i> Schema Generator Doc
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SCHEMA VALIDATOR -->
+                    <div class="data-box" style="margin-top:20px; border-color: var(--accent);">
+                        <h4 style="font-size:14px; margin-bottom:8px; color:var(--accent);">
+                            <i class="fas fa-shield-alt"></i> Schema Validator
+                        </h4>
+                        <p style="font-size:12px; color:#64748b; margin-bottom:10px;">
+                            Paste Schema code to verify it has city targeting and NO CID / NO street address.
+                        </p>
+                        <textarea id="schemaPaste" class="code-check-area" placeholder="Paste your JSON-LD schema code here..."></textarea>
+                        <button class="btn btn-primary btn-compile" style="width:100%; margin-top:10px;" onclick="validateSchema(); animateButton(this, 'Analyzing...', 'Audit Complete');">
+                            <i class="fas fa-check-circle"></i> Execute Schema Audit
+                        </button>
+                        <div id="schemaResults"></div>
+                    </div>
+
+                    <div class="step" style="margin-top:20px;">
+                        <input type="checkbox" id="p4-2" onchange="updateProgress()">
+                        <div class="step-label">Verify: Schema has <span style="color:#ef4444; font-weight:600;">&lt;script&gt;</span> at TOP and <span style="color:#ef4444; font-weight:600;">&lt;/script&gt;</span> at BOTTOM</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PHASE 5: JOOMLA PART 1 - META -->
             <div class="card phase" id="phase5">
                 <div class="phase-header" onclick="togglePhase('phase5')">
-                    <div class="phase-title"><span class="phase-num">4</span> Joomla Part 1: Meta Setup</div>
+                    <div class="phase-title"><span class="phase-num">5</span> Joomla Part 1: Meta Setup</div>
                     <div class="phase-time">3 min</div>
                 </div>
                 <div class="phase-content">
@@ -760,10 +836,10 @@
                 </div>
             </div>
 
-            <!-- PHASE 5: PRE-UPLOAD LINK AUDIT -->
+            <!-- PHASE 6: PRE-UPLOAD LINK AUDIT -->
             <div class="card phase" id="phase6">
                 <div class="phase-header" onclick="togglePhase('phase6')">
-                    <div class="phase-title"><span class="phase-num">5</span> Pre-Upload Link Audit</div>
+                    <div class="phase-title"><span class="phase-num">6</span> Pre-Upload Link Audit</div>
                     <div class="phase-time">2 min</div>
                 </div>
                 <div class="phase-content">
@@ -787,15 +863,15 @@
                 </div>
             </div>
 
-            <!-- PHASE 6: JOOMLA PART 2 - HTML -->
+            <!-- PHASE 7: JOOMLA PART 2 - HTML & SCHEMA -->
             <div class="card phase" id="phase7">
                 <div class="phase-header" onclick="togglePhase('phase7')">
-                    <div class="phase-title"><span class="phase-num">6</span> Joomla Part 2: HTML</div>
-                    <div class="phase-time">4 min</div>
+                    <div class="phase-title"><span class="phase-num">7</span> Joomla Part 2: HTML & Schema</div>
+                    <div class="phase-time">5 min</div>
                 </div>
                 <div class="phase-content">
                     <div class="part-header">
-                        <i class="fas fa-code"></i> PART 2: Content
+                        <i class="fas fa-code"></i> PART 2: Content & Schema
                     </div>
 
                     <div class="step">
@@ -819,16 +895,26 @@
                     </div>
 
                     <div class="step">
+                        <input type="checkbox" id="p7-5" onchange="updateProgress()">
+                        <div class="step-label">Google Structured Data tab → Add Custom Code</div>
+                    </div>
+
+                    <div class="step">
+                        <input type="checkbox" id="p7-6" onchange="updateProgress()">
+                        <div class="step-label">Paste Schema (no CID) → Verify <span style="color:#ef4444; font-weight:600;">script tags</span> at top/bottom</div>
+                    </div>
+
+                    <div class="step">
                         <input type="checkbox" id="p7-7" onchange="updateProgress()">
                         <div class="step-label">Save & Close</div>
                     </div>
                 </div>
             </div>
 
-            <!-- PHASE 7: VERIFY & CACHE -->
+            <!-- PHASE 8: VERIFY & CACHE -->
             <div class="card phase" id="phase8">
                 <div class="phase-header" onclick="togglePhase('phase8')">
-                    <div class="phase-title"><span class="phase-num">7</span> Part 3: Cache & Verify</div>
+                    <div class="phase-title"><span class="phase-num">8</span> Part 3: Cache & Verify</div>
                     <div class="phase-time">3 min</div>
                 </div>
                 <div class="phase-content">
@@ -1924,7 +2010,7 @@ OPTIONAL (for service-specific pages):
 SYSTEM INSTRUCTIONS
 ═══════════════════════════════════
 
-You are building a landing page for STS Electronic Recycling. This is a NO GMB build — this city has no Google Business listing. Do NOT invent an address, phone, hours, CID, or schema. The page is a service-area content page only.
+You are building a landing page for STS Electronic Recycling. This is a NO GMB build — this city has no Google Business listing. Do NOT invent or include a street address, local phone, business hours, or CID. The page IS a full landing page (schema included), just without a GMB street address and without a CID. Schema is generated separately in Phase 4 (no CID, no street address).
 
 RULES FOR THIS ENTIRE SESSION:
 1. Follow ALL instructions exactly — no shortcuts, no summarizing, no skipping steps
@@ -1975,14 +2061,14 @@ NICHE: ${niche}
 ═══════════════════════════════════
 
 ⚠️ NO GMB BUILD:
-This city has no Google Business listing. Do NOT include any local address, phone number, business hours, CID, map embed, or LocalBusiness schema. Do NOT invent an address. This is a service-area content page only.
+This city has no Google Business listing. Do NOT include or invent a street address, local phone number, business hours, CID, or Google Maps embed/CID link. Do NOT invent an address. Schema is generated separately in Phase 4 (no CID, no street address) — this is otherwise a standard landing page.
 ${hubSpokeSection}
 EXECUTION INSTRUCTIONS:
 1. Use Master Page Builder logic - follow EVERY step
 2. Apply Master Design (Tier 2) strictly - NO deviations
 3. Hero section MUST have city "${city}" + niche "${niche}" in H1, form on RIGHT
 4. Mobile responsive - images must NOT squeeze text
-5. Do NOT include Schema
+5. Do NOT include Schema yet (built separately in Phase 4 — no CID, no GMB address)
 6. Do NOT include a footer NAP block (no local address/phone for this city)
 7. Facility mentions: Say "serving ${city} from our 600,000 sq ft facility" — NOT "our ${city} facility"
 ${hubSpoke ? '8. Include 3-4 internal links from Hub+Spoke handoff in rows 4+ (NOT hero)' : ''}
@@ -2008,7 +2094,7 @@ INSTRUCTIONS:
 4. Fix the specific issue mentioned above
 5. Ensure Hero has city in H1, form on RIGHT
 6. Ensure mobile view works - no image squeeze
-7. NO GMB: do not add address, phone, hours, CID, or schema
+7. NO GMB: do not invent a street address, local phone, hours, or CID
 
 ⚠️ CRITICAL OUTPUT REQUIREMENT:
 CREATE A NEW ARTIFACT with the complete rebuilt HTML code. Do NOT paste code in chat.
@@ -2050,13 +2136,14 @@ CRITICAL RULES:
 - Execute EVERY SINGLE STEP in the SEO Audit file
 - Do NOT skip any optimization
 - The first 2 rows (Hero section) = MINOR tweaks only, no major changes
+- STRIP/REMOVE all existing Schema (rebuilt separately in Phase 4)
 - Verify emails = mailto:recycle@stsrecycle.com
-- NO GMB: do NOT add a local address, phone, hours, CID, or schema
+- NO GMB: do NOT add or invent a street address, local phone, hours, or CID
 ${hubSpoke ? '- Verify 3-4 internal links exist in content sections (rows 4+, NOT hero)' : ''}
 
 Complete the ENTIRE audit. Do not stop early. Do not summarize.
 
-Output the optimized HTML. No lengthy explanations.`;
+Output the optimized HTML (without schema). No lengthy explanations.`;
                     break;
 
                 case 'seo-verify':
@@ -2102,11 +2189,13 @@ LOCAL SEO:
 This is a NO GMB build. Search the HTML for any invented local data.
 
 WRONG (fix these):
-❌ A street address for this city
+❌ A street address for this city (including streetAddress in schema)
 ❌ A local phone number presented as this city's location
 ❌ Business hours for a local branch
-❌ LocalBusiness/Organization schema with a CID
+❌ A CID anywhere (identifier "cid:...", hasMap, or sameAs Google Maps CID link)
 ❌ A Google Maps embed or CID link
+
+NOTE: Schema itself is FINE and expected — only a CID or invented street address is wrong.
 
 ACTION: If any invented local data found → REMOVE IT and output:
 🔴 REMOVED: [show what was removed]
@@ -2132,6 +2221,7 @@ If clean → output: ✅ Facility language: Clean
 ════════════════════════════════════════════════════════
 
 ${hubSpokeVerifySection}CLEANUP:
+☐ Schema REMOVED (rebuilt in Phase 4 — no CID, no GMB address)
 ☐ No broken/placeholder links
 ☐ No lorem ipsum or [PLACEHOLDER] text
 
@@ -2171,7 +2261,7 @@ FINAL VERDICT
 ════════════════════════════════════════════════════════
 
 If ALL checks passed and no issues remain:
-✅ SEO VERIFICATION PASSED — Proceed to Joomla
+✅ SEO VERIFICATION PASSED — Proceed to Phase 4: Schema
 
 If ANY issues need fixing:
 ❌ SEO VERIFICATION FAILED — Issues listed above must be fixed before proceeding
@@ -2180,6 +2270,40 @@ Output the updated HTML artifact if any changes were made.
 
 Keep report SHORT and SCANNABLE. No lengthy explanations.`;
                     break;
+
+                case 'schema': {
+                    text = `${forcePrefix}TASK: GENERATE SCHEMA (JSON-LD) — NO GMB
+
+═══════════════════════════════════
+📁 REQUIRED FILE — UPLOAD NOW
+═══════════════════════════════════
+Upload: 📄 Schema Generator
+⚠️ DO NOT PROCEED until file is uploaded.
+═══════════════════════════════════
+
+City: ${city}
+State: ${state || '[STATE]'}
+Niche: ${niche}
+Website: https://www.stselectronicrecyclinginc.com
+
+⚠️ NO GMB MODE — CRITICAL DIFFERENCES:
+This city has NO Google Business listing. Generate schema EXACTLY like a standard build EXCEPT:
+- NO CID anywhere — do NOT add an "identifier" with "cid:...", NO "hasMap", and NO "sameAs" Google Maps CID link (https://www.google.com/maps?cid=...)
+- NO GMB street address — do NOT include "streetAddress" or a postal code. Do NOT invent an address.
+- NO local phone number for this city.
+
+REQUIREMENTS:
+1. Type: LocalBusiness (or RecyclingCenter) / Organization
+2. Use CITY + STATE targeting only — "address" may include addressLocality "${city}" and addressRegion "${state || '[STATE]'}" plus addressCountry "US", and/or "areaServed": "${city}, ${state || '[STATE]'}". NO streetAddress, NO postalCode.
+3. Include "Electronic Recycling" in the name and description
+4. Include the website URL
+5. Wrap in <script type="application/ld+json"> tags
+6. Do NOT include aggregateRating/reviews
+7. Do NOT include any CID, identifier, hasMap, or Google Maps link
+
+Output the complete schema script block. No lengthy explanations.`;
+                    break;
+                }
 
                 case 'meta':
                     text = `Generate SEO meta data for: ${pageName}
@@ -2218,6 +2342,81 @@ Keep response TIGHT. Code blocks only. No lengthy explanations.`;
                 console.error('Copy failed:', err);
                 showToast("Copy failed - try again", true);
             });
+        }
+
+        // === SCHEMA VALIDATOR (NO GMB) ===
+        function validateSchema() {
+            const code = document.getElementById('schemaPaste').value;
+            const resultsDiv = document.getElementById('schemaResults');
+
+            if(!code.trim()) {
+                showToast("Paste schema code first!", true);
+                return;
+            }
+
+            const lower = code.toLowerCase();
+            let checks = [];
+            let hasErrors = false;
+
+            // Check 1: Script tags
+            if(code.includes('<script') && code.includes('</' + 'script>')) {
+                checks.push({ pass: true, text: 'Script tags present' });
+            } else {
+                checks.push({ pass: false, text: 'Missing script tags' });
+                hasErrors = true;
+            }
+
+            // Check 2: JSON-LD
+            if(lower.includes('application/ld+json')) {
+                checks.push({ pass: true, text: 'JSON-LD format' });
+            } else {
+                checks.push({ pass: false, text: 'Missing JSON-LD format' });
+                hasErrors = true;
+            }
+
+            // Check 3: NO CID - CRITICAL for No GMB
+            const hasCid = lower.includes('cid=') || lower.includes('cid:') || lower.includes('hasmap') || lower.includes('"identifier"');
+            if(hasCid) {
+                checks.push({ pass: false, text: 'CID found — remove identifier "cid:", hasMap, and Google Maps CID link (No GMB)' });
+                hasErrors = true;
+            } else {
+                checks.push({ pass: true, text: 'No CID present (correct for No GMB)' });
+            }
+
+            // Check 4: NO street address - CRITICAL for No GMB
+            if(lower.includes('streetaddress')) {
+                checks.push({ pass: false, text: 'Street address found — remove "streetAddress" (No GMB)' });
+                hasErrors = true;
+            } else {
+                checks.push({ pass: true, text: 'No street address (correct for No GMB)' });
+            }
+
+            // Check 5: City name (targeting preserved)
+            const city = appState.city || document.getElementById('cityName').value;
+            if(city && lower.includes(city.toLowerCase())) {
+                checks.push({ pass: true, text: 'City "' + city + '" found (targeting present)' });
+            } else if(city) {
+                checks.push({ pass: false, text: 'City "' + city + '" NOT found — add city/state targeting' });
+                hasErrors = true;
+            }
+
+            // Check 6: Electronic Recycling
+            if(lower.includes('electronic') && lower.includes('recycling')) {
+                checks.push({ pass: true, text: '"Electronic Recycling" keyword found' });
+            } else {
+                checks.push({ pass: false, text: 'Missing "Electronic Recycling"' });
+                hasErrors = true;
+            }
+
+            let html = `<div class="schema-results ${hasErrors ? 'fail' : 'pass'}">`;
+            html += `<strong>${hasErrors ? '❌ Issues Found' : '✅ Schema Valid (No GMB)'}</strong><br><br>`;
+            checks.forEach(c => {
+                html += `<div class="schema-check-item ${c.pass ? 'pass' : 'fail'}">`;
+                html += `<i class="fas ${c.pass ? 'fa-check-circle' : 'fa-times-circle'}"></i> ${c.text}`;
+                html += `</div>`;
+            });
+            html += '</div>';
+            resultsDiv.innerHTML = html;
         }
 
         // === UTILS ===
@@ -2279,6 +2478,7 @@ Keep response TIGHT. Code blocks only. No lengthy explanations.`;
 📄 ${appState.pageName || 'N/A'}
 🔗 ${appState.pageURL || 'N/A'}
 📍 ${appState.city || 'N/A'}${appState.state ? ', ' + appState.state : ''}
+🚫 Mode: No GMB address / No CID (schema included)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👤 ${appState.vaName || 'N/A'} • ⏱️ ${document.getElementById('timerDisplay').textContent}
 📊 ${checked}/${total} (${percent}%) ${status}`;
@@ -2365,7 +2565,7 @@ Keep response TIGHT. Code blocks only. No lengthy explanations.`;
                     <strong style="color:var(--navy);">GEO-PARSE Engine:</strong> City extraction utilizes a multi-tiered resolution cascade. Primary resolution queries a pre-indexed hashmap of US metropolitan statistical areas sorted by descending key-length to prevent substring collision. Secondary resolution employs negative-space tokenization against an exclusion lexicon.
                 </p>
                 <p style="margin-bottom:12px;">
-                    <strong style="color:var(--navy);">No GMB Mode:</strong> This variant targets service-area cities with no Google Business listing. GMB parsing, CID verification, schema generation, and footer NAP are removed. Pages are built as content + Hub+Spoke internal linking only.
+                    <strong style="color:var(--navy);">No GMB Mode:</strong> This variant targets service-area cities with no Google Business listing. GMB parsing, CID verification, and footer NAP are removed. Schema is still generated (Phase 4) but without a CID or GMB street address — city/state targeting only. Pages otherwise match the standard Page Rebuild, plus Hub+Spoke internal linking.
                 </p>
             </div>
 
