@@ -1,0 +1,112 @@
+## FINAL REPORT — STS No-GMB Checklist, Phases 5–8
+### Page: Billings, MT — `https://www.stselectronicrecyclinginc.com/billings-mt`
+### Run Date: June 20, 2026
+
+---
+
+## EXECUTION SUMMARY
+
+| Phase | Status | Notes |
+|---|---|---|
+| Phase 5 — Meta Setup | ✅ Complete | Saved |
+| Phase 6 — Link Audit | ✅ Complete | Wait-only, passed |
+| Phase 7 — HTML & Schema | ✅ Complete | Saved & Closed |
+| Phase 8 — Cache & Verify | ✅ Complete | Cache cleared, page live |
+| Schema Validation | ✅ Clean | 0 errors both validators |
+| Speed Check | ⏳ Pending | GTmetrix API — Replit dashboard |
+
+---
+
+## PHASE-BY-PHASE DETAIL
+
+**Phase 5 — Meta Setup**
+All fields set and saved. Template Style = CLEAN TOP 2026, Show Title = Hide, Browser Page Title = `Electronics Recycling Billings MT | R2 Certified | STS`, Meta Description and Keywords matched PAGE DATA exactly (pre-populated from prior session — no rewrite needed). One field required overwrite: Browser Page Title had an old value and was cleared and retyped.
+
+**Phase 6 — Link Audit**
+Wait-only. No actions taken.
+
+**Phase 7 — HTML & Schema**
+Article modal opened via Details → Edit button. Editor was already in Code View (plain textarea). Old HTML selected with Cmd+A and deleted. New HTML pasted by user — 536 lines / 54,138 characters, verified ending `</body></html>`. Options tab → Show Title set to Hide. Google Structured Data tab → Add Structured Data → Custom Code — schema pasted by user, 219 lines / 14,725 characters, verified first line `<script type="application/ld+json">`, last line `</script>`, no CID. Save & Close executed — "Menu item saved." confirmed.
+
+**Phase 8 — Cache & Verify**
+Joomla cache cleared via `com_cache` — "All cache group(s) have been cleared" confirmed (3 groups wiped: advportfoliopro 1.55 MB, joomsef 30 b, page 64.34 MB). Live page loaded and hard refreshed. New HTML rendering correctly — hero section "R2 Certified Electronics Recycling in Billings, Montana" visible, no article title showing. One open item: browser page title still showing old JoomSEF-cached value on first load — expected to resolve on next JoomSEF cycle.
+
+---
+
+## SCHEMA VALIDATION RESULTS
+
+**Schema.org Validator — `validator.schema.org`**
+Result: **0 errors, 0 warnings, 7 items** — WebPage, HowTo, Organization, BreadcrumbList (×2), Article, FAQPage. Fully clean.
+
+**Google Rich Results Test — `search.google.com/test/rich-results`**
+Result: **5 valid items, eligible for rich results** — Articles (×1), Breadcrumbs (×2), Local businesses (×1), Organization (×1). Two non-critical orange warnings on Local businesses: `Missing field "address" (optional)` and `Missing field "image" (optional)`. Both are optional fields — expected on a No-GMB page, no action required. No blocking errors.
+
+---
+
+## CHANGE LOG — FULL DEVIATIONS
+
+**Phase 5**
+WHERE: Page Display tab → Browser Page Title
+EXPECTED: Field empty or matching new value
+ACTUAL: Field contained a prior different value
+ACTION TAKEN: Cleared field, retyped exact PAGE DATA value
+FOLLOW-UP: None
+
+**Phase 7**
+WHERE: Article Options tab → Show Title → Chosen dropdown
+EXPECTED: Single click opens dropdown on correct row
+ACTUAL: First click opened Linked Titles dropdown (one row below) due to coordinate offset in nested iframe
+ACTION TAKEN: Pressed Escape, recalculated coordinates, clicked correct row on second attempt
+FOLLOW-UP: PLAYWRIGHT NOTE — use `#jform_attribs_show_title_chzn .chzn-single` selector inside nested iframe rather than coordinates
+
+**Phase 8**
+WHERE: Browser page title on live site after cache clear
+EXPECTED: `Electronics Recycling Billings MT | R2 Certified | STS`
+ACTUAL: `Billings Electronics Recycling | STS Electronic Recycling` (JoomSEF cached value)
+ACTION TAKEN: None — Joomla DB value confirmed correct; JoomSEF cache layer not purged by Joomla internal cache clear
+FOLLOW-UP: Clear JoomSEF cache manually, or confirm it self-resolves on next request cycle
+
+---
+
+## CHECKLIST AMENDMENTS FOR ALL FUTURE CITIES
+
+**Amendment 1 — Before/After Visual Screenshot**
+WHERE TO INSERT: Phase 7, new Step 0 (before clicking Edit Article)
+ACTION: Open live city URL in a separate tab, screenshot = `[city-slug]-BEFORE.png`. After Phase 8 hard refresh, screenshot = `[city-slug]-AFTER.png`. Include both in Phase 8 report as visual diff.
+NOTE FOR BILLINGS: Before screenshot not captured — checklist amendment not yet in place at time of run.
+
+**Amendment 2 — Schema Validation (Phase 8 Step 5)**
+Run both validators after every city:
+- `validator.schema.org` — Fetch URL, confirm 0 errors 0 warnings
+- `search.google.com/test/rich-results` — Confirm all items green, note any non-critical warnings
+
+---
+
+## API RECOMMENDATIONS FOR REPLIT DASHBOARD
+
+These three APIs should be integrated into the Replit QC dashboard and run as the final step after each city deployment — not through the task agent.
+
+**1. GTmetrix API** *(you already have this)*
+What it checks: Page speed, Core Web Vitals (LCP, TBT, CLS), performance score, waterfall
+Endpoint: `POST https://gtmetrix.com/api/2.0/tests`
+Key outputs to surface on dashboard: Performance score, Structure score, LCP, TBT, CLS, Time to First Byte, fully loaded time
+Trigger: After Phase 8 cache clear — run against the live city URL
+
+**2. Google Rich Results Test API** *(via Google Search Console API)*
+What it checks: Valid structured data types, non-critical and critical schema issues
+Endpoint: `https://searchconsole.googleapis.com/v1/urlTestingTools/richResultsTest:run`
+Auth: Google OAuth2 / service account
+Key outputs: List of detected types, error count per type, warning details
+Note: Same as what we ran manually today — automating it removes the manual step entirely
+
+**3. Schema Duplicate Detector** — recommended third-party: **Lipperhey** or **ScreamingFrog API** (or a custom Replit script)
+What it checks: Parses the live page HTML, extracts all `<script type="application/ld+json">` blocks, checks for duplicate `@type` entries (e.g. two LocalBusiness blocks), conflicting `@id` values, and malformed JSON
+Why it matters: Google and Schema.org validators don't flag duplicates as errors — but duplicate schema blocks can cause Google to ignore one or both. A custom Replit script using `cheerio` + `ajv` (JSON schema validator) can catch this in under 1 second per URL
+Endpoint: Custom — fetch live URL → parse JSON-LD blocks → cross-check `@type` and `@id` uniqueness
+
+**Recommended dashboard flow per city:**
+1. GTmetrix test → flag if performance score < 85 or LCP > 2.5s
+2. Google Rich Results API → flag any errors (orange warnings are acceptable, red errors are not)
+3. Custom JSON-LD duplicate checker → flag any duplicate `@type` blocks or invalid JSON
+
+All three run against the live URL, results logged to a Replit dashboard table with city name, run date, and pass/fail per check.
