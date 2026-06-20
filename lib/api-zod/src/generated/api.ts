@@ -419,7 +419,29 @@ export const RunPhaseResponse = zod.object({
   "passed": zod.boolean(),
   "message": zod.string(),
   "details": zod.array(zod.string()).optional()
+})),
+  "linkAudit": zod.object({
+  "passed": zod.boolean(),
+  "errorCount": zod.number(),
+  "offendingLinks": zod.array(zod.object({
+  "checkId": zod.string(),
+  "label": zod.string(),
+  "detail": zod.string()
+})),
+  "checks": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "severity": zod.enum(['error', 'warning', 'info']),
+  "passed": zod.boolean(),
+  "message": zod.string(),
+  "details": zod.array(zod.string()).optional()
 }))
+})
+}),zod.null()]).optional(),
+  "linkAuditOverride": zod.union([zod.object({
+  "by": zod.string(),
+  "at": zod.string(),
+  "reason": zod.string().nullish()
 }),zod.null()]).optional(),
   "phases": zod.array(zod.object({
   "phase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
@@ -688,7 +710,7 @@ export const OverrideLinkAuditResponse = zod.object({
   "state": zod.string(),
   "track": zod.enum(['page', 'blog']),
   "engine": zod.enum(['claude', 'replit']),
-  "status": zod.enum(['draft', 'running', 'review', 'approved', 'publishing', 'published', 'failed']),
+  "status": zod.enum(['draft', 'queued', 'running', 'review', 'approved', 'publishing', 'published', 'failed']),
   "currentPhase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
   "classification": zod.string().optional(),
   "niche": zod.string().optional(),
@@ -782,7 +804,7 @@ export const RevokeLinkAuditOverrideResponse = zod.object({
   "state": zod.string(),
   "track": zod.enum(['page', 'blog']),
   "engine": zod.enum(['claude', 'replit']),
-  "status": zod.enum(['draft', 'running', 'review', 'approved', 'publishing', 'published', 'failed']),
+  "status": zod.enum(['draft', 'queued', 'running', 'review', 'approved', 'publishing', 'published', 'failed']),
   "currentPhase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
   "classification": zod.string().optional(),
   "niche": zod.string().optional(),
@@ -860,6 +882,127 @@ export const RevokeLinkAuditOverrideResponse = zod.object({
 })),
   "createdAt": zod.string().nullish(),
   "updatedAt": zod.string().nullish()
+})
+
+
+/**
+ * @summary List post-publish QC results for a run (most recent first)
+ */
+export const GetQcResultsParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetQcResultsResponseItem = zod.object({
+  "id": zod.number(),
+  "runId": zod.number(),
+  "city": zod.string(),
+  "state": zod.string(),
+  "url": zod.string(),
+  "passed": zod.boolean(),
+  "gtmetrixPassed": zod.boolean().nullish(),
+  "jsonLdPassed": zod.boolean().nullish(),
+  "report": zod.object({
+  "url": zod.string(),
+  "ranAt": zod.string(),
+  "passed": zod.boolean(),
+  "gtmetrix": zod.object({
+  "ran": zod.boolean(),
+  "passed": zod.boolean(),
+  "metrics": zod.union([zod.object({
+  "performanceScore": zod.number().nullish(),
+  "structureScore": zod.number().nullish(),
+  "lcp": zod.number().nullish(),
+  "tbt": zod.number().nullish(),
+  "cls": zod.number().nullish(),
+  "ttfb": zod.number().nullish(),
+  "fullyLoadedTime": zod.number().nullish(),
+  "reportUrl": zod.string().nullish()
+}),zod.null()]).optional(),
+  "failReasons": zod.array(zod.string()).optional(),
+  "error": zod.string().nullish()
+}),
+  "jsonLd": zod.object({
+  "ran": zod.boolean(),
+  "passed": zod.boolean(),
+  "blockCount": zod.number(),
+  "blocks": zod.array(zod.object({
+  "index": zod.number(),
+  "valid": zod.boolean(),
+  "types": zod.array(zod.string()),
+  "ids": zod.array(zod.string()),
+  "error": zod.string().nullish()
+})).optional(),
+  "duplicateTypes": zod.array(zod.string()).optional(),
+  "conflictingIds": zod.array(zod.string()).optional(),
+  "invalidBlockIndexes": zod.array(zod.number()).optional(),
+  "issues": zod.array(zod.string()).optional(),
+  "error": zod.string().nullish()
+})
+}),
+  "createdAt": zod.string().nullish()
+})
+export const GetQcResultsResponse = zod.array(GetQcResultsResponseItem)
+
+
+/**
+ * @summary Run the post-publish QC suite (GTmetrix speed + JSON-LD scan) against the live URL
+ */
+export const RunQcParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const RunQcBody = zod.object({
+  "url": zod.string().optional().describe('Override the live URL to QC. Defaults to the run\'s base domain + alias.')
+})
+
+export const RunQcResponse = zod.object({
+  "id": zod.number(),
+  "runId": zod.number(),
+  "city": zod.string(),
+  "state": zod.string(),
+  "url": zod.string(),
+  "passed": zod.boolean(),
+  "gtmetrixPassed": zod.boolean().nullish(),
+  "jsonLdPassed": zod.boolean().nullish(),
+  "report": zod.object({
+  "url": zod.string(),
+  "ranAt": zod.string(),
+  "passed": zod.boolean(),
+  "gtmetrix": zod.object({
+  "ran": zod.boolean(),
+  "passed": zod.boolean(),
+  "metrics": zod.union([zod.object({
+  "performanceScore": zod.number().nullish(),
+  "structureScore": zod.number().nullish(),
+  "lcp": zod.number().nullish(),
+  "tbt": zod.number().nullish(),
+  "cls": zod.number().nullish(),
+  "ttfb": zod.number().nullish(),
+  "fullyLoadedTime": zod.number().nullish(),
+  "reportUrl": zod.string().nullish()
+}),zod.null()]).optional(),
+  "failReasons": zod.array(zod.string()).optional(),
+  "error": zod.string().nullish()
+}),
+  "jsonLd": zod.object({
+  "ran": zod.boolean(),
+  "passed": zod.boolean(),
+  "blockCount": zod.number(),
+  "blocks": zod.array(zod.object({
+  "index": zod.number(),
+  "valid": zod.boolean(),
+  "types": zod.array(zod.string()),
+  "ids": zod.array(zod.string()),
+  "error": zod.string().nullish()
+})).optional(),
+  "duplicateTypes": zod.array(zod.string()).optional(),
+  "conflictingIds": zod.array(zod.string()).optional(),
+  "invalidBlockIndexes": zod.array(zod.number()).optional(),
+  "issues": zod.array(zod.string()).optional(),
+  "error": zod.string().nullish()
+})
+}),
+  "createdAt": zod.string().nullish()
 })
 
 

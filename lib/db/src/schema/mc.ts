@@ -105,3 +105,30 @@ export const insertMcUrlRegistrySchema = createInsertSchema(mcUrlRegistryTable).
 });
 export type InsertMcUrlRegistry = z.infer<typeof insertMcUrlRegistrySchema>;
 export type McUrlRegistry = typeof mcUrlRegistryTable.$inferSelect;
+
+/**
+ * Durable per-city post-publish QC record. Each run of the dashboard QC suite
+ * (GTmetrix speed + JSON-LD duplicate/integrity scan against the LIVE URL)
+ * inserts one row so the team keeps a permanent QC trail per city. The full
+ * QcReport is stored as JSONB; the boolean columns are denormalized for quick
+ * listing/filtering.
+ */
+export const mcQcResultsTable = pgTable("mc_qc_results", {
+  id: serial("id").primaryKey(),
+  runId: integer("run_id").notNull(),
+  city: text("city").notNull(),
+  state: text("state").notNull(),
+  url: text("url").notNull(),
+  passed: boolean("passed").notNull(),
+  gtmetrixPassed: boolean("gtmetrix_passed"),
+  jsonLdPassed: boolean("json_ld_passed"),
+  report: jsonb("report").$type<Record<string, unknown>>().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const insertMcQcResultSchema = createInsertSchema(mcQcResultsTable).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertMcQcResult = z.infer<typeof insertMcQcResultSchema>;
+export type McQcResult = typeof mcQcResultsTable.$inferSelect;

@@ -4,13 +4,17 @@ import {
   db,
   mcChatMessagesTable,
   mcPageVersionsTable,
+  mcQcResultsTable,
   mcRunsTable,
+  type McQcResult,
   type McRun,
 } from "@workspace/db";
 import {
+  BASE_DOMAIN,
   deriveLinkAudit,
   runCheckers,
   runPhase,
+  runPostPublishQc,
   type AIEngine,
   type CheckResult,
   type LinkAuditOverride,
@@ -161,6 +165,24 @@ async function executePhase(
       })
       .where(eq(mcRunsTable.id, run.id))
       .returning();
+
+    // Automatic post-publish QC: once a publish is confirmed, run the QC suite
+    // against the freshly published live URL and persist it. Backgrounded
+    // because GTmetrix polling can take a minute — the approve response returns
+    // immediately and the run view polls the QC endpoint for the result. The
+    // QC engine never throws; we still catch+log so a floating rejection can't
+    // crash the process. Manual "Run QC" remains available for re-checks.
+    if (publishConfirmed) {
+      const qcUrl = deriveQcUrl(updated!);
+      if (qcUrl) {
+        void runQcForRun(updated!, qcUrl).catch((err) =>
+          logger.error({ err, runId: updated!.id }, "Automatic post-publish QC failed"),
+        );
+      } else {
+        logger.warn({ runId: updated!.id }, "Publish confirmed but no alias to derive QC URL");
+      }
+    }
+
     return { run: updated!, ok: true };
   } catch (err) {
     const message = err instanceof Error ? err.message : "Phase failed";
@@ -547,6 +569,131 @@ router.delete("/mc/runs/:id/link-audit/override", async (req, res) => {
     .where(eq(mcRunsTable.id, id))
     .returning();
   res.json(serializeRun(updated!));
+});
+
+function serializeQcResult(row: McQcResult): Record<string, unknown> {
+  return {
+    id: row.id,
+    runId: row.runId,
+    city: row.city,
+    state: row.state,
+    url: row.url,
+    passed: row.passed,
+    gtmetrixPassed: row.gtmetrixPassed,
+    jsonLdPassed: row.jsonLdPassed,
+    report: row.report,
+    createdAt: row.createdAt?.toISOString?.() ?? null,
+  };
+}
+
+/** Live URL for a run, derived from its published alias: base domain + alias. */
+function deriveQcUrl(run: McRun): string | null {
+  const meta = run.joomlaMeta as { alias?: unknown } | null;
+  const alias = typeof meta?.alias === "string" ? meta.alias.trim() : "";
+  if (alias) return `${BASE_DOMAIN}/${alias.replace(/^\/+/, "")}`;
+  return null;
+}
+
+/**
+ * Allow QC only against the STS production domain (and its subdomains) over
+ * http/https. The `url` override is operator-supplied and fetched server-side,
+ * so without this guard the endpoint becomes an SSRF vector into internal hosts
+ * or cloud metadata endpoints. The alias-derived URL is always on-domain; this
+ * only gates the explicit override.
+ */
+function isAllowedQcUrl(raw: string): boolean {
+  let u: URL;
+  try {
+    u = new URL(raw);
+  } catch {
+    return false;
+  }
+  if (u.protocol !== "https:" && u.protocol !== "http:") return false;
+  let baseHost: string;
+  try {
+    baseHost = new URL(BASE_DOMAIN).hostname.toLowerCase();
+  } catch {
+    return false;
+  }
+  const registrable = baseHost.replace(/^www\./, "");
+  const host = u.hostname.toLowerCase();
+  return host === baseHost || host === registrable || host.endsWith(`.${registrable}`);
+}
+
+/**
+ * Run the post-publish QC suite (GTmetrix speed + JSON-LD scan) against a live
+ * URL and persist the result. Shared by the manual endpoint and the automatic
+ * post-publish trigger. The QC engine itself never throws; a missing key or
+ * unreachable page is recorded as a failed check, not an exception.
+ */
+async function runQcForRun(run: McRun, url: string): Promise<McQcResult> {
+  const report = await runPostPublishQc({
+    url,
+    gtmetrixApiKey: process.env.GTMETRIX_API_KEY ?? null,
+  });
+  const [row] = await db
+    .insert(mcQcResultsTable)
+    .values({
+      runId: run.id,
+      city: run.city,
+      state: run.state,
+      url,
+      passed: report.passed,
+      gtmetrixPassed: report.gtmetrix.ran ? report.gtmetrix.passed : null,
+      jsonLdPassed: report.jsonLd.ran ? report.jsonLd.passed : null,
+      report: report as unknown as Record<string, unknown>,
+    })
+    .returning();
+  return row!;
+}
+
+// GET /mc/runs/:id/qc — post-publish QC history (most recent first)
+router.get("/mc/runs/:id/qc", async (req, res) => {
+  const id = Number(req.params.id);
+  const rows = await db
+    .select()
+    .from(mcQcResultsTable)
+    .where(eq(mcQcResultsTable.runId, id))
+    .orderBy(desc(mcQcResultsTable.createdAt));
+  res.json(rows.map(serializeQcResult));
+});
+
+// POST /mc/runs/:id/qc — manually (re-)run GTmetrix speed + JSON-LD scan against
+// the live URL. QC also runs automatically once a publish is confirmed (see
+// executePhase); this endpoint is for re-checks and ad-hoc runs. These checks
+// run from the DASHBOARD only — never through the Joomla task agent.
+router.post("/mc/runs/:id/qc", async (req, res) => {
+  const id = Number(req.params.id);
+  const run = await loadRun(id);
+  if (!run) {
+    res.status(404).json({ error: "Run not found" });
+    return;
+  }
+
+  const override = req.body?.url;
+  let url: string | null;
+  if (typeof override === "string" && override.trim()) {
+    const candidate = override.trim();
+    if (!isAllowedQcUrl(candidate)) {
+      res.status(400).json({
+        error: `QC URL must be on ${BASE_DOMAIN}. Refusing to fetch an off-domain URL.`,
+      });
+      return;
+    }
+    url = candidate;
+  } else {
+    url = deriveQcUrl(run);
+  }
+  if (!url) {
+    res.status(400).json({
+      error:
+        "No live URL to QC. Publish the page first (so it has an alias) or pass a `url` in the request body.",
+    });
+    return;
+  }
+
+  const row = await runQcForRun(run, url);
+  res.json(serializeQcResult(row));
 });
 
 // GET /mc/runs/:id/chat — chat history

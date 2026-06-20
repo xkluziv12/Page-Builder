@@ -29,6 +29,8 @@ import type {
   HealthStatus,
   LinkAuditOverrideRequest,
   MissionRun,
+  QcResultRecord,
+  QcRunInput,
   RegistryInfo,
   ReplitPhaseInput,
   RunInput
@@ -1001,6 +1003,155 @@ export const useRevokeLinkAuditOverride = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getRevokeLinkAuditOverrideMutationOptions(options));
+    }
+
+export const getGetQcResultsUrl = (id: number,) => {
+
+
+
+
+  return `/api/mc/runs/${id}/qc`
+}
+
+/**
+ * @summary List post-publish QC results for a run (most recent first)
+ */
+export const getQcResults = async (id: number, options?: RequestInit): Promise<QcResultRecord[]> => {
+
+  return customFetch<QcResultRecord[]>(getGetQcResultsUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetQcResultsQueryKey = (id: number,) => {
+    return [
+    `/api/mc/runs/${id}/qc`
+    ] as const;
+    }
+
+
+export const getGetQcResultsQueryOptions = <TData = Awaited<ReturnType<typeof getQcResults>>, TError = ErrorType<unknown>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getQcResults>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetQcResultsQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getQcResults>>> = ({ signal }) => getQcResults(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getQcResults>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetQcResultsQueryResult = NonNullable<Awaited<ReturnType<typeof getQcResults>>>
+export type GetQcResultsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List post-publish QC results for a run (most recent first)
+ */
+
+export function useGetQcResults<TData = Awaited<ReturnType<typeof getQcResults>>, TError = ErrorType<unknown>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getQcResults>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetQcResultsQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getRunQcUrl = (id: number,) => {
+
+
+
+
+  return `/api/mc/runs/${id}/qc`
+}
+
+/**
+ * @summary Run the post-publish QC suite (GTmetrix speed + JSON-LD scan) against the live URL
+ */
+export const runQc = async (id: number,
+    qcRunInput?: QcRunInput, options?: RequestInit): Promise<QcResultRecord> => {
+
+  return customFetch<QcResultRecord>(getRunQcUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      qcRunInput,)
+  }
+);}
+
+
+
+
+export const getRunQcMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runQc>>, TError,{id: number;data?: BodyType<QcRunInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof runQc>>, TError,{id: number;data?: BodyType<QcRunInput>}, TContext> => {
+
+const mutationKey = ['runQc'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof runQc>>, {id: number;data?: BodyType<QcRunInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  runQc(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RunQcMutationResult = NonNullable<Awaited<ReturnType<typeof runQc>>>
+    export type RunQcMutationBody = BodyType<QcRunInput> | undefined
+    export type RunQcMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Run the post-publish QC suite (GTmetrix speed + JSON-LD scan) against the live URL
+ */
+export const useRunQc = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runQc>>, TError,{id: number;data?: BodyType<QcRunInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof runQc>>,
+        TError,
+        {id: number;data?: BodyType<QcRunInput>},
+        TContext
+      > => {
+      return useMutation(getRunQcMutationOptions(options));
     }
 
 export const getGetChatHistoryUrl = (id: number,) => {

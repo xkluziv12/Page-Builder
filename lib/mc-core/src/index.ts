@@ -34,3 +34,20 @@ export type {
   PhaseOutput,
   PipelineDeps,
 } from "./pipeline/orchestrator";
+export {
+  runPostPublishQc,
+  scanJsonLd,
+  runGtmetrixSpeedCheck,
+  GTMETRIX_API_BASE,
+  QC_THRESHOLDS,
+  SINGLETON_SCHEMA_TYPES,
+} from "./qc";
+export type {
+  PostPublishQcInput,
+  QcReport,
+  GtmetrixCheck,
+  GtmetrixMetrics,
+  GtmetrixOptions,
+  JsonLdScan,
+  JsonLdBlock,
+} from "./qc";

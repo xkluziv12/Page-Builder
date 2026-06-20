@@ -11,8 +11,11 @@ import {
   useDeleteRun,
   useOverrideLinkAudit,
   useRevokeLinkAuditOverride,
+  useGetQcResults,
+  useRunQc,
   getGetRunQueryKey,
   getGetChatHistoryQueryKey,
+  getGetQcResultsQueryKey,
 } from "@workspace/api-client-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -31,6 +34,8 @@ import {
   ShieldCheck,
   Link2,
   ShieldAlert,
+  Gauge,
+  History,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -58,6 +63,9 @@ export default function RunDetail() {
   const { data: chat } = useGetChatHistory(id, {
     query: { refetchInterval: 4000, queryKey: getGetChatHistoryQueryKey(id) },
   });
+  const { data: qcResults } = useGetQcResults(id, {
+    query: { refetchInterval: 4000, queryKey: getGetQcResultsQueryKey(id) },
+  });
 
   const runPhase = useRunPhase();
   const approvePhase = useApprovePhase();
@@ -66,6 +74,7 @@ export default function RunDetail() {
   const deleteRun = useDeleteRun();
   const overrideLinkAudit = useOverrideLinkAudit();
   const revokeLinkAuditOverride = useRevokeLinkAuditOverride();
+  const runQc = useRunQc();
 
   const [message, setMessage] = useState("");
   const [overrideBy, setOverrideBy] = useState("");
@@ -74,6 +83,28 @@ export default function RunDetail() {
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: getGetRunQueryKey(id) });
     queryClient.invalidateQueries({ queryKey: getGetChatHistoryQueryKey(id) });
+  };
+
+  const handleQc = () => {
+    runQc.mutate(
+      { id, data: {} },
+      {
+        onSuccess: (res) => {
+          toast({
+            title: res.passed ? "QC passed" : "QC failed",
+            description: res.url,
+            variant: res.passed ? "default" : "destructive",
+          });
+          queryClient.invalidateQueries({ queryKey: getGetQcResultsQueryKey(id) });
+        },
+        onError: (err) =>
+          toast({
+            title: "QC could not run",
+            description: (err as { error?: string })?.error ?? "Unknown error",
+            variant: "destructive",
+          }),
+      },
+    );
   };
 
   if (isLoading) {
@@ -533,6 +564,118 @@ export default function RunDetail() {
                       </div>
                     ))}
                   </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="border-b border-border pb-4 flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Gauge className="h-4 w-4 text-primary" /> Post-Publish QC
+              </CardTitle>
+              <Button size="sm" variant="outline" onClick={handleQc} disabled={runQc.isPending}>
+                {runQc.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : "Run QC"}
+              </Button>
+            </CardHeader>
+            <CardContent className="p-4 space-y-3">
+              <p className="text-xs text-muted-foreground">
+                Runs against the live URL: GTmetrix speed (Performance ≥ 85, LCP ≤ 2.5s) and a
+                JSON-LD duplicate/integrity scan.
+              </p>
+              {!qcResults || qcResults.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  No QC yet. Publish the page, then run QC against the live URL.
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {(() => {
+                    const latest = qcResults[0]!;
+                    const r = latest.report;
+                    return (
+                      <div className="rounded-md border border-border p-3 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <Badge variant={latest.passed ? "default" : "destructive"}>
+                            {latest.passed ? "PASS" : "FAIL"}
+                          </Badge>
+                          <span className="text-xs text-muted-foreground font-mono truncate max-w-[60%]">
+                            {latest.url}
+                          </span>
+                        </div>
+                        <div className="flex items-start gap-2 text-xs">
+                          {r.gtmetrix.passed ? (
+                            <CheckCircle2 className="h-3.5 w-3.5 text-green-500 mt-0.5 shrink-0" />
+                          ) : (
+                            <XCircle className="h-3.5 w-3.5 text-destructive mt-0.5 shrink-0" />
+                          )}
+                          <div className="min-w-0">
+                            <span className="font-medium">GTmetrix speed</span>
+                            {r.gtmetrix.metrics && (
+                              <p className="text-muted-foreground">
+                                Perf {r.gtmetrix.metrics.performanceScore ?? "—"} · LCP{" "}
+                                {r.gtmetrix.metrics.lcp != null
+                                  ? `${r.gtmetrix.metrics.lcp}ms`
+                                  : "—"}
+                              </p>
+                            )}
+                            {r.gtmetrix.error && (
+                              <p className="text-amber-500">{r.gtmetrix.error}</p>
+                            )}
+                            {r.gtmetrix.failReasons?.map((fr, i) => (
+                              <p key={i} className="text-destructive">
+                                {fr}
+                              </p>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-2 text-xs">
+                          {r.jsonLd.passed ? (
+                            <CheckCircle2 className="h-3.5 w-3.5 text-green-500 mt-0.5 shrink-0" />
+                          ) : (
+                            <XCircle className="h-3.5 w-3.5 text-destructive mt-0.5 shrink-0" />
+                          )}
+                          <div className="min-w-0">
+                            <span className="font-medium">
+                              JSON-LD scan ({r.jsonLd.blockCount} blocks)
+                            </span>
+                            {r.jsonLd.error && <p className="text-amber-500">{r.jsonLd.error}</p>}
+                            {r.jsonLd.issues?.map((iss, i) => (
+                              <p key={i} className="text-destructive">
+                                {iss}
+                              </p>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })()}
+                  {qcResults.length > 1 && (
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1.5 text-xs text-muted-foreground uppercase tracking-wide">
+                        <History className="h-3 w-3" /> History
+                      </div>
+                      {qcResults.slice(1).map((q) => (
+                        <div
+                          key={q.id}
+                          className="flex items-center justify-between text-xs border-b border-border/50 py-1.5"
+                        >
+                          <span className="flex items-center gap-2">
+                            {q.passed ? (
+                              <CheckCircle2 className="h-3.5 w-3.5 text-green-500 shrink-0" />
+                            ) : (
+                              <XCircle className="h-3.5 w-3.5 text-destructive shrink-0" />
+                            )}
+                            <span>
+                              {q.city}, {q.state}
+                            </span>
+                          </span>
+                          <span className="text-muted-foreground">
+                            {q.createdAt ? new Date(q.createdAt).toLocaleString() : ""}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>

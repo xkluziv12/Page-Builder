@@ -215,6 +215,85 @@ export interface JoomlaMeta {
   alias?: string | null;
 }
 
+export interface QcRunInput {
+  /** Override the live URL to QC. Defaults to the run's base domain + alias. */
+  url?: string;
+}
+
+export interface GtmetrixMetrics {
+  /** @nullable */
+  performanceScore?: number | null;
+  /** @nullable */
+  structureScore?: number | null;
+  /** @nullable */
+  lcp?: number | null;
+  /** @nullable */
+  tbt?: number | null;
+  /** @nullable */
+  cls?: number | null;
+  /** @nullable */
+  ttfb?: number | null;
+  /** @nullable */
+  fullyLoadedTime?: number | null;
+  /** @nullable */
+  reportUrl?: string | null;
+}
+
+export interface GtmetrixCheck {
+  ran: boolean;
+  passed: boolean;
+  metrics?: GtmetrixMetrics | null;
+  failReasons?: string[];
+  /** @nullable */
+  error?: string | null;
+}
+
+export interface JsonLdBlock {
+  index: number;
+  valid: boolean;
+  types: string[];
+  ids: string[];
+  /** @nullable */
+  error?: string | null;
+}
+
+export interface JsonLdScan {
+  ran: boolean;
+  passed: boolean;
+  blockCount: number;
+  blocks?: JsonLdBlock[];
+  duplicateTypes?: string[];
+  conflictingIds?: string[];
+  invalidBlockIndexes?: number[];
+  issues?: string[];
+  /** @nullable */
+  error?: string | null;
+}
+
+export interface QcReport {
+  url: string;
+  ranAt: string;
+  passed: boolean;
+  gtmetrix: GtmetrixCheck;
+  jsonLd: JsonLdScan;
+}
+
+export interface QcResultRecord {
+  id: number;
+  runId: number;
+  city: string;
+  state: string;
+  url: string;
+  passed: boolean;
+  /** @nullable */
+  gtmetrixPassed?: boolean | null;
+  /** @nullable */
+  jsonLdPassed?: boolean | null;
+  report: QcReport;
+  /** @nullable */
+  createdAt?: string | null;
+}
+
 export type ChatMessageRole = typeof ChatMessageRole[keyof typeof ChatMessageRole];
 
 
