@@ -1,0 +1,129 @@
+Here is the final, granular research report documenting the JoomSEF component workflow for automated implementation.
+
+COMPONENT MAP
+Exact Page Title: JoomSEF URL Manager
+
+JoomSEF Version: Not explicitly printed in the component layout workspace (Joomla version: 3.9.26).
+
+All Top-Level Sidebar Sections:
+
+Control Panel
+
+Configuration
+
+Manage Extensions
+
+Edit .htaccess
+
+Manage SEF URLs (Used for Operation A)
+
+Manage Meta Tags
+
+SiteMap
+
+Manage 301 Redirects (Used for Operation B)
+
+Statistics
+
+Upgrade
+
+Help & Support
+
+(A) EDIT / SHORTEN A SEF URL ALIAS
+1. SEF URLs List View
+List Table Columns: Num | Checkbox | Hits | SEF URL | Real URL | Enabled | SEF | Locked | Active | Cached | Host
+
+Filters: Search bar field filtering by text, alongside dropdown menus for ViewMode, Itemid, and Component.
+
+Worked Example ("billings"):
+
+Current SEF Alias: billings-mt
+
+Real URL/Target: index.php?option=com_content&catid=90&id=107&view=article&Itemid=970
+
+2. Record Edit Screen Configuration
+Global Layout Actions (Top Left Header Toolbar): [ ✓ Save & Close ] | [ ✖ Close ]
+
+Workspace Tabs: URL | Aliases | Meta Tags | SiteMap | Internal links
+
+Tab A.1: "URL" Fields
+New SEF URL * Type: Text Input Box
+
+Default: billings-mt
+
+Tooltip/Hint Summary: Expects the SEF path relative to the site root with no leading slash.
+
+Old Non-SEF URL
+
+Type: Text Input Box
+
+Default: index.php?option=com_content&catid=90&id=107&view=article&Itemid=970
+
+Itemid
+
+Type: Text Input Box
+
+Default: 970
+
+Save as Custom Redirect / Enabled / SEF / Locked
+
+Type: Green/Red Toggle Buttons (Radios)
+
+Default Status: All active (Green / Yes)
+
+Tab A.2: "Aliases" Fields
+Alias List
+
+Type: Textarea Box
+
+Tooltip/Hint Summary: Listing of secondary custom aliases mapping into this core URL mapping.
+
+Tab A.3: "Meta Tags" Fields
+Title | Meta Description | Meta Keywords | Canonical Link
+
+Type: Text Input Box (Title, Canonical) and Textareas (Description, Keywords)
+
+Defaults: Populate custom target SEO metadata configurations.
+
+Tab A.4: "SiteMap" Fields
+Indexed (Toggle) | Date (Text Input) | Change Frequency (Dropdown) | Priority (Dropdown)
+
+(B) ADD A 301 REDIRECT
+1. Redirect Manager Workspace
+Navigation Pathway: Manage 301 Redirects (Sidebar Option #8)
+
+List Table Columns: Num | Checkbox | Moved from URL | Moved to URL | Last used
+
+Global Layout Actions (Top Left Header Toolbar): [ ✓ Save & Close ] | [ ✖ Cancel ]
+
+2. New Redirect Form Layout
+Moved from URL
+
+Type: Single Text Input Box
+
+Tooltip/Hint Summary: "This is URL to redirect from." Expects the old path relative to the site root directory.
+
+Moved to URL
+
+Type: Single Text Input Box
+
+Tooltip/Hint Summary: "This is URL to redirect to." Expects either a relative site path or absolute URL target.
+
+FIELD MAP
+Operation	Screen	Exact Control Label	Control Type	Selector / Locator Hint
+(A) Search	Manage SEF URLs List	Search	Text Input	#filter_search or input[name="search"]
+(A) Filter Submit	Manage SEF URLs List	Search (Icon Button)	Button	Button adjoining search text input element
+(A) Edit Field	Edit SEF URL Form	New SEF URL	Text Input	#sef_url or input[name="sef_url"]
+(A) Save Action	Edit SEF URL Form	Save & Close	Toolbar Button	.btn-wrapper #toolbar-save or text click Save & Close
+(B) Open Entry	Manage 301 Redirects	New	Toolbar Button	.btn-wrapper #toolbar-new
+(B) Source Path	Add Redirect Form	Moved from URL	Text Input	Input selector associated near target tooltip icon
+(B) Target Path	Add Redirect Form	Moved to URL	Text Input	Input selector associated near target tooltip icon
+(B) Save Action	Add Redirect Form	Save & Close	Toolbar Button	.btn-wrapper #toolbar-save or text click Save & Close
+GOTCHAS FOR VISUAL AUTOMATION
+Strict Single Entry Constraints: JoomSEF features no batch, comma-separated, or multi-line loading layout windows inside the Manage 301 Redirects screen. To process all 4 requirements needed for a single renamed page (e.g., full path, short base slug, full path + /amp, short slug + /amp), an orchestration agent must cleanly loop 4 distinct times, running the full sequence loop: Click New → Populate Fields → Click Save & Close.
+
+Leading Slash Uniformity: The interface defaults to relative site paths without leading slashes. Ensure your automated strings trim the preceding slash character (e.g., enter my-old-slug instead of /my-old-slug) to match how JoomSEF parses addresses internally.
+
+Dynamic Tooltips: Form instructions and clues are tucked behind hover-triggered blue info symbols (i). If a script relies on reading instructions from the DOM dynamically, it must target or hover over these elements first.
+
+Cache Sync Requirements: Saving metadata inside JoomSEF writes directly into database tables, but live routing tables may lag due to the JoomSEF server-side cache layer. If live verification breaks post-automation, adding a clear-cache routing step may be required.

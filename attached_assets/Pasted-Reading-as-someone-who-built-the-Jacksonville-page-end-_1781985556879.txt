@@ -1,0 +1,57 @@
+Reading as someone who built the Jacksonville page end-to-end. A few things that conversation got right, a few gaps worth flagging, and one structural point that changes the checker design.
+
+---
+
+**What they got exactly right**
+
+The "parallel analysis → single change-list → one edit pass" decision for the SEO Audit is the correct fix for the IBM stat silent failure. That failure happened precisely because technique 1G modified a sentence, then technique 1M tried to replace text inside that same modified sentence using the original string as the target. A single compiled change-list, applied in one pass with explicit conflict detection, eliminates that class of bug entirely.
+
+The "known-good URL registry per city" is also correct and necessary. In the Jacksonville build I added `https://www.stselectronicrecyclinginc.com/industries-we-serve/industries-1/healthcare-electronic-recycling` as a strategic link — that URL came from the handoff industry cross-link section and appears to be real. But I cannot confirm it resolves without either fetching it or checking against a registry. The automation needs this check to run loud failures, not warnings.
+
+---
+
+**Gaps the conversation didn't address**
+
+**1. The bible is the actual single point of failure, and nobody mentioned locking it.**
+
+The conversation mentions "lock the design template per build" as a note, but doesn't describe how. The bible is a `.docx` that gets uploaded fresh each session. If the version uploaded changes between Jacksonville and the next city — even one CSS value, one section order, one card title — every structural diff checker silently re-baselines. You need a content hash of the bible file stored at build time, compared on every future audit of that page. If the hash changed, flag it and re-run the structural audit. Without this, the "bible compliance checker" checks compliance against whatever version was uploaded last, not the one the page was built against.
+
+**2. The str.replace() silent failure pattern needs a hard rule, not just a design note.**
+
+Every string replacement in the pipeline must be followed by an immediate assertion that the new string is present and the old string is absent. This is one line of Python. Right now the audit scripts write to file and only verify at the end of a phase — by which point multiple replacements have stacked. If replacement 3 silently fails and replacement 7 depends on what replacement 3 changed, you have compounding undetected errors. The rule should be: every `html.replace(old, new)` is immediately followed by `assert new in html and old not in html, f"REPLACEMENT FAILED: {old[:50]}"`. Make this a pipeline standard, not an afterthought.
+
+**3. Word count volatility is higher than the conversation implies.**
+
+The conversation treats word count as a simple check. In reality, on the Jacksonville build the count went: 1,652 → 1,883 → 1,944 → 1,995 → 2,000 across four separate correction passes. The issue is that I estimate word additions from AUDIT_TARGET replacements before running them, and those estimates are consistently optimistic by 15-20%. In automation, build a feedback loop: run the audit, measure the resulting word count, if still under floor run a targeted expansion pass (picking the 2-3 shortest paragraphs in body sections and extending them), measure again. Cap at 3 iterations. This is deterministic and doesn't require a human to notice it's short.
+
+**4. The entity data quality gate needs to run before any page in the city builds, not just be noted.**
+
+The conversation says "you eyeball and fix the list once." That's right, but the specific check that should happen before the human eyeballs is: cross-reference every HANDOFF_ENTITY name against a verified source (JEDCO, hospital Medicare data, company websites) and flag any entity where the employee count is marked "estimated" rather than verified. In Jacksonville, "estimated 600-800" (handoff) vs "965" (JEDCO) for Jacksonville ISD is a 20% error on the primary employer. That kind of discrepancy should appear as a red flag in the dashboard before the human approves the entity list, not after the pages are built and the SEO audit discovers it.
+
+**5. The schema is the most fragile artifact and the conversation barely mentions it.**
+
+The schema has six objects with 20 service descriptions, 8 FAQs, 6 HowTo steps, and cross-references between objects. Every service description contains entity names and employee counts. If the entity list changes between build and schema (which it did in Jacksonville — CHRISTUS name was corrected during the audit), the schema and the HTML body will have different entity forms for the same organization. The checker needs to verify entity name consistency across both artifacts before approving either for deployment.
+
+---
+
+**One structural point on the Joomla publish step**
+
+The three-part publish payload for each page is: (1) body HTML to article editor, (2) schema to `<head>` field, (3) title/description/keywords to Publishing tab. These are three separate paste operations in different parts of the Joomla admin. Any automation — helper PHP file, direct DB write, or browser robot — needs to treat these as atomic: either all three land or none do. If the body HTML saves but the schema doesn't, you have a published page with no structured data. If the title saves but the description doesn't, meta is incomplete. The helper file approach should wrap all three in a single transaction. This is worth specifying explicitly in the build plan because it's easy to implement the helper as "save the article body" and miss the head and meta fields entirely.
+
+---
+
+**On the n8n integration idea**
+
+The plan to use n8n for research is sound, but one specific risk: if n8n is feeding me a pre-built research brief that includes entity data, and that data contains the handoff's "estimated" employee counts rather than JEDCO-verified ones, the brief just launders the same error into the build automatically. The n8n research workflow needs a verification step that specifically fetches the primary employer data source (JEDCO for Texas cities, equivalent EDC sites for others) and replaces estimated counts before the brief reaches me. Otherwise automation just makes wrong entity data faster.
+
+---
+
+**Summary of what I'd add to the plan**
+
+1. Bible version hash stored per build, checked on every future audit of that page
+2. Mandatory assert-after-replace on every string substitution in the pipeline
+3. Word count feedback loop (max 3 iterations, automated) rather than a one-time check
+4. Entity verification gate runs before human review, flags "estimated" counts for manual correction
+5. Entity name consistency check between HTML and schema artifacts before either is approved for deploy
+6. Joomla publish treated as a three-field atomic operation in the helper file design
+7. n8n research brief must include a verified-source entity step, not passthrough from the handoff
