@@ -3,6 +3,8 @@ import type {
   CheckerReport,
   Classification,
   JoomlaMeta,
+  LinkAuditIssue,
+  LinkAuditResult,
   PageType,
   Track,
   UrlRegistry,
@@ -136,6 +138,44 @@ export function checkInsecureLinks(html: string): CheckResult {
     "No insecure links",
     "error",
     `${bad.length} insecure http:// link(s) found.`,
+    bad,
+  );
+}
+
+/**
+ * 3b. Placeholder / empty link hrefs. An anchor whose href is empty (`href=""`),
+ * a bare fragment (`href="#"`), or a `javascript:` stub is a dead link that
+ * looks like navigation but goes nowhere. These slip past the registry checker
+ * (they are not internal links) so they get their own gate.
+ */
+export function checkPlaceholderLinks(html: string): CheckResult {
+  // Note: this regex uses `*` (not `+`) so it also captures empty href values,
+  // which extractHrefs intentionally skips.
+  const re = /<a\b[^>]*\bhref\s*=\s*["']([^"']*)["']/gi;
+  const bad: string[] = [];
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(html)) !== null) {
+    const raw = (m[1] ?? "").trim();
+    if (raw === "") {
+      bad.push('empty href (href="")');
+    } else if (raw === "#") {
+      bad.push('bare fragment (href="#")');
+    } else if (/^javascript:/i.test(raw)) {
+      bad.push(`javascript: stub (${raw})`);
+    }
+  }
+  if (bad.length === 0) {
+    return pass(
+      "placeholder-links",
+      "No placeholder links",
+      "No empty or placeholder href values found.",
+    );
+  }
+  return fail(
+    "placeholder-links",
+    "No placeholder links",
+    "error",
+    `${bad.length} placeholder/empty link href(s) found. Give each link a real destination or remove it.`,
     bad,
   );
 }
@@ -587,6 +627,60 @@ export function checkAssertAfterReplace(
   );
 }
 
+/**
+ * The checker IDs that constitute the link audit. These are carved out of the
+ * full report so the dashboard can present links as their own pre-publish gate
+ * and so a human override can excuse exactly these errors (and nothing else).
+ */
+export const LINK_CHECK_IDS = [
+  "insecure-links",
+  "placeholder-links",
+  "known-redirects",
+  "url-registry",
+  "sacred-links",
+] as const;
+
+/** Derive the dedicated link-audit view from a set of completed checks. */
+export function deriveLinkAudit(checks: CheckResult[]): LinkAuditResult {
+  const ids = new Set<string>(LINK_CHECK_IDS);
+  const linkChecks = checks.filter((c) => ids.has(c.id));
+  const failing = linkChecks.filter((c) => !c.passed && c.severity === "error");
+  const offendingLinks: LinkAuditIssue[] = [];
+  for (const c of failing) {
+    if (c.details.length === 0) {
+      offendingLinks.push({ checkId: c.id, label: c.label, detail: c.message });
+    } else {
+      for (const d of c.details) {
+        offendingLinks.push({ checkId: c.id, label: c.label, detail: d });
+      }
+    }
+  }
+  return {
+    passed: failing.length === 0,
+    errorCount: failing.length,
+    offendingLinks,
+    checks: linkChecks,
+  };
+}
+
+/**
+ * Count the checker errors that should block publish. Always counts non-link
+ * errors. Link-audit errors are excused only when a human override is in effect,
+ * so a recorded override lets a run past a failing link audit without disabling
+ * the rest of the safety net.
+ */
+export function blockingErrorCount(
+  report: CheckerReport,
+  linkAuditOverridden: boolean,
+): number {
+  const linkIds = new Set<string>(LINK_CHECK_IDS);
+  return report.checks.filter((c) => {
+    if (c.passed || c.severity !== "error") return false;
+    if (linkAuditOverridden && linkIds.has(c.id)) return false;
+    return true;
+  }).length;
+}
+
 /** Run the full checker suite and assemble a structured report. */
 export function runCheckers(input: CheckerInput): CheckerReport {
   const pageType: PageType = input.pageType ?? "SPOKE";
@@ -601,6 +695,7 @@ export function runCheckers(input: CheckerInput): CheckerReport {
     checkEmDash(input.html),
     checkImagePaths(input.html, input.registry),
     checkInsecureLinks(input.html),
+    checkPlaceholderLinks(input.html),
     checkKnownRedirects(input.html),
     checkUrlRegistry(input.html, input.registry),
     checkSacredLinks(input.html, input.registry, track),
@@ -624,5 +719,6 @@ export function runCheckers(input: CheckerInput): CheckerReport {
     wordCount: wordCount(input.html),
     ranAt: new Date().toISOString(),
     checks,
+    linkAudit: deriveLinkAudit(checks),
   };
 }

@@ -7,6 +7,7 @@
  */
 import type { CheckerReport } from './checkerReport';
 import type { JoomlaMeta } from './joomlaMeta';
+import type { LinkAuditOverride } from './linkAuditOverride';
 import type { MissionRunCurrentPhase } from './missionRunCurrentPhase';
 import type { MissionRunEngine } from './missionRunEngine';
 import type { MissionRunStatus } from './missionRunStatus';
@@ -42,6 +43,7 @@ export interface MissionRun {
   generatedSchema?: string | null;
   joomlaMeta?: JoomlaMeta | null;
   checkerReport?: CheckerReport | null;
+  linkAuditOverride?: LinkAuditOverride | null;
   phases: PhaseState[];
   /** @nullable */
   createdAt?: string | null;

@@ -220,6 +220,7 @@ export function serializeRun(run: McRun): Record<string, unknown> {
     generatedSchema: run.generatedSchema,
     joomlaMeta: run.joomlaMeta ?? null,
     checkerReport: run.checkerReport ?? null,
+    linkAuditOverride: run.linkAuditOverride ?? null,
     phases: run.phases ?? [],
     createdAt: run.createdAt?.toISOString?.() ?? null,
     updatedAt: run.updatedAt?.toISOString?.() ?? null,

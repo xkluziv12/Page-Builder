@@ -147,6 +147,32 @@ export interface CheckResult {
   details?: string[];
 }
 
+export interface LinkAuditIssue {
+  checkId: string;
+  label: string;
+  detail: string;
+}
+
+export interface LinkAuditResult {
+  passed: boolean;
+  errorCount: number;
+  offendingLinks: LinkAuditIssue[];
+  checks: CheckResult[];
+}
+
+export interface LinkAuditOverride {
+  by: string;
+  at: string;
+  /** @nullable */
+  reason?: string | null;
+}
+
+export interface LinkAuditOverrideRequest {
+  by: string;
+  /** @nullable */
+  reason?: string | null;
+}
+
 export interface CheckerReport {
   passed: boolean;
   errorCount?: number;
@@ -155,6 +181,7 @@ export interface CheckerReport {
   /** @nullable */
   ranAt?: string | null;
   checks: CheckResult[];
+  linkAudit: LinkAuditResult;
 }
 
 export interface EntityFlag {
@@ -280,6 +307,7 @@ export interface MissionRun {
   generatedSchema?: string | null;
   joomlaMeta?: JoomlaMeta | null;
   checkerReport?: CheckerReport | null;
+  linkAuditOverride?: LinkAuditOverride | null;
   phases: PhaseState[];
   /** @nullable */
   createdAt?: string | null;

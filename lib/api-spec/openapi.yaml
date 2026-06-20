@@ -196,6 +196,40 @@ paths:
               schema:
                 $ref: "#/components/schemas/CheckerReport"
 
+  /mc/runs/{id}/link-audit/override:
+    post:
+      operationId: overrideLinkAudit
+      tags: [mission-control]
+      summary: Record a human override of a failing link audit so publish can proceed
+      parameters:
+        - $ref: "#/components/parameters/RunId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LinkAuditOverrideRequest"
+      responses:
+        "200":
+          description: Updated run with the recorded override
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissionRun"
+    delete:
+      operationId: revokeLinkAuditOverride
+      tags: [mission-control]
+      summary: Revoke a previously recorded link-audit override
+      parameters:
+        - $ref: "#/components/parameters/RunId"
+      responses:
+        "200":
+          description: Updated run with the override cleared
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissionRun"
+
   /mc/runs/{id}/chat:
     get:
       operationId: getChatHistory
@@ -370,9 +404,57 @@ components:
           items:
             type: string
 
+    LinkAuditIssue:
+      type: object
+      required: [checkId, label, detail]
+      properties:
+        checkId:
+          type: string
+        label:
+          type: string
+        detail:
+          type: string
+
+    LinkAuditResult:
+      type: object
+      required: [passed, errorCount, offendingLinks, checks]
+      properties:
+        passed:
+          type: boolean
+        errorCount:
+          type: integer
+        offendingLinks:
+          type: array
+          items:
+            $ref: "#/components/schemas/LinkAuditIssue"
+        checks:
+          type: array
+          items:
+            $ref: "#/components/schemas/CheckResult"
+
+    LinkAuditOverride:
+      type: object
+      required: [by, at]
+      properties:
+        by:
+          type: string
+        at:
+          type: string
+        reason:
+          type: ["string", "null"]
+
+    LinkAuditOverrideRequest:
+      type: object
+      required: [by]
+      properties:
+        by:
+          type: string
+        reason:
+          type: ["string", "null"]
+
     CheckerReport:
       type: object
-      required: [passed, checks]
+      required: [passed, checks, linkAudit]
       properties:
         passed:
           type: boolean
@@ -388,6 +470,8 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/CheckResult"
+        linkAudit:
+          $ref: "#/components/schemas/LinkAuditResult"
 
     EntityFlag:
       type: object
@@ -518,6 +602,10 @@ components:
         checkerReport:
           oneOf:
             - $ref: "#/components/schemas/CheckerReport"
+            - type: "null"
+        linkAuditOverride:
+          oneOf:
+            - $ref: "#/components/schemas/LinkAuditOverride"
             - type: "null"
         phases:
           type: array

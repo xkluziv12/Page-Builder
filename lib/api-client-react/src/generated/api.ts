@@ -27,6 +27,7 @@ import type {
   DashboardSummary,
   ErrorResponse,
   HealthStatus,
+  LinkAuditOverrideRequest,
   MissionRun,
   RegistryInfo,
   ReplitPhaseInput,
@@ -858,6 +859,148 @@ export const useRunCheckers = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getRunCheckersMutationOptions(options));
+    }
+
+export const getOverrideLinkAuditUrl = (id: number,) => {
+
+
+
+
+  return `/api/mc/runs/${id}/link-audit/override`
+}
+
+/**
+ * @summary Record a human override of a failing link audit so publish can proceed
+ */
+export const overrideLinkAudit = async (id: number,
+    linkAuditOverrideRequest: LinkAuditOverrideRequest, options?: RequestInit): Promise<MissionRun> => {
+
+  return customFetch<MissionRun>(getOverrideLinkAuditUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      linkAuditOverrideRequest,)
+  }
+);}
+
+
+
+
+export const getOverrideLinkAuditMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof overrideLinkAudit>>, TError,{id: number;data: BodyType<LinkAuditOverrideRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof overrideLinkAudit>>, TError,{id: number;data: BodyType<LinkAuditOverrideRequest>}, TContext> => {
+
+const mutationKey = ['overrideLinkAudit'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof overrideLinkAudit>>, {id: number;data: BodyType<LinkAuditOverrideRequest>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  overrideLinkAudit(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type OverrideLinkAuditMutationResult = NonNullable<Awaited<ReturnType<typeof overrideLinkAudit>>>
+    export type OverrideLinkAuditMutationBody = BodyType<LinkAuditOverrideRequest>
+    export type OverrideLinkAuditMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Record a human override of a failing link audit so publish can proceed
+ */
+export const useOverrideLinkAudit = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof overrideLinkAudit>>, TError,{id: number;data: BodyType<LinkAuditOverrideRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof overrideLinkAudit>>,
+        TError,
+        {id: number;data: BodyType<LinkAuditOverrideRequest>},
+        TContext
+      > => {
+      return useMutation(getOverrideLinkAuditMutationOptions(options));
+    }
+
+export const getRevokeLinkAuditOverrideUrl = (id: number,) => {
+
+
+
+
+  return `/api/mc/runs/${id}/link-audit/override`
+}
+
+/**
+ * @summary Revoke a previously recorded link-audit override
+ */
+export const revokeLinkAuditOverride = async (id: number, options?: RequestInit): Promise<MissionRun> => {
+
+  return customFetch<MissionRun>(getRevokeLinkAuditOverrideUrl(id),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+export const getRevokeLinkAuditOverrideMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeLinkAuditOverride>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof revokeLinkAuditOverride>>, TError,{id: number}, TContext> => {
+
+const mutationKey = ['revokeLinkAuditOverride'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof revokeLinkAuditOverride>>, {id: number}> = (props) => {
+          const {id} = props ?? {};
+
+          return  revokeLinkAuditOverride(id,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RevokeLinkAuditOverrideMutationResult = NonNullable<Awaited<ReturnType<typeof revokeLinkAuditOverride>>>
+
+    export type RevokeLinkAuditOverrideMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Revoke a previously recorded link-audit override
+ */
+export const useRevokeLinkAuditOverride = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof revokeLinkAuditOverride>>, TError,{id: number}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof revokeLinkAuditOverride>>,
+        TError,
+        {id: number},
+        TContext
+      > => {
+      return useMutation(getRevokeLinkAuditOverrideMutationOptions(options));
     }
 
 export const getGetChatHistoryUrl = (id: number,) => {

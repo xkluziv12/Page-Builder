@@ -26,6 +26,39 @@ export interface CheckResult {
   details: string[];
 }
 
+/** A single offending link surfaced by the dedicated link audit. */
+export interface LinkAuditIssue {
+  /** The checker that flagged it (e.g. "insecure-links", "url-registry"). */
+  checkId: string;
+  /** Human label of the originating checker. */
+  label: string;
+  /** The specific offending link or message. */
+  detail: string;
+}
+
+/**
+ * A focused view of the link-related checkers, carved out of the full checker
+ * report so the dashboard can present "links: clean / failed" as its own
+ * pre-publish gate, separate from the rest of the checker output.
+ */
+export interface LinkAuditResult {
+  passed: boolean;
+  errorCount: number;
+  offendingLinks: LinkAuditIssue[];
+  /** The underlying link checks (pass + fail) for transparency. */
+  checks: CheckResult[];
+}
+
+/** A recorded human decision to publish past a failing link audit. */
+export interface LinkAuditOverride {
+  /** Operator who applied the override. */
+  by: string;
+  /** ISO timestamp of when the override was applied. */
+  at: string;
+  /** Optional reason / justification. */
+  reason: string | null;
+}
+
 export interface CheckerReport {
   passed: boolean;
   errorCount: number;
@@ -33,6 +66,8 @@ export interface CheckerReport {
   wordCount: number;
   ranAt: string;
   checks: CheckResult[];
+  /** Dedicated link-audit view derived from the link-related checks. */
+  linkAudit: LinkAuditResult;
 }
 
 export interface EntityFlag {

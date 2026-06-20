@@ -1,4 +1,4 @@
-import { runCheckers } from "../checkers";
+import { blockingErrorCount, runCheckers } from "../checkers";
 import { computeStructuralHash } from "../checkers/structural-hash";
 import type { AIEngine } from "../engine/types";
 import type { JoomlaPublisher } from "../publisher/joomla";
@@ -6,7 +6,14 @@ import { logBlogEntry, type BlogLogEntry } from "../research/blog-log";
 import { runEntityQualityGate } from "../research/entity-gate";
 import { fetchResearchBrief } from "../research/n8n";
 import { deriveJoomlaMeta, generateLocalBusinessSchema, parseSchema } from "../schema/generator";
-import type { CheckerReport, JoomlaMeta, PhaseName, ResearchBrief, RunContext } from "../types";
+import type {
+  CheckerReport,
+  JoomlaMeta,
+  LinkAuditOverride,
+  PhaseName,
+  ResearchBrief,
+  RunContext,
+} from "../types";
 
 const BUSINESS_NAME = "STS Electronic Recycling";
 
@@ -29,6 +36,12 @@ export interface PhaseState {
   schema: string | null;
   joomlaMeta: JoomlaMeta | null;
   checkerReport: CheckerReport | null;
+  /**
+   * A recorded human override of a failing link audit. When present, link-audit
+   * errors no longer block publish (other checker errors still do). Null when no
+   * override is in effect.
+   */
+  linkAuditOverride?: LinkAuditOverride | null;
 }
 
 export interface PhaseOutput {
@@ -152,9 +165,11 @@ export async function runPhase(
           entities: state.researchBrief?.entities,
         });
       state.checkerReport = report;
-      if (!report.passed) {
+      const override = prior.linkAuditOverride ?? null;
+      const blocking = blockingErrorCount(report, override !== null);
+      if (blocking > 0) {
         throw new Error(
-          `Publish blocked: ${report.errorCount} checker error(s) must be resolved first.`,
+          `Publish blocked: ${blocking} checker error(s) must be resolved first.`,
         );
       }
       const meta = state.joomlaMeta ?? deriveJoomlaMeta(state.html, ctx);
@@ -170,6 +185,9 @@ export async function runPhase(
       // back the already-atomic Joomla publish. Only log when the publish was
       // actually confirmed — never record an unpublished page as "published".
       let summary = result.message;
+      if (override !== null && !report.linkAudit.passed && result.published) {
+        summary = `${summary} Link audit overridden by ${override.by} on ${override.at}${override.reason ? ` (${override.reason})` : ""}.`;
+      }
       if (ctx.track === "blog" && result.published) {
         const blogLog = deps.blogLog ?? logBlogEntry;
         try {

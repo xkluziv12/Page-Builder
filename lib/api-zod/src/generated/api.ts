@@ -70,7 +70,29 @@ export const ListRunsResponseItem = zod.object({
   "passed": zod.boolean(),
   "message": zod.string(),
   "details": zod.array(zod.string()).optional()
+})),
+  "linkAudit": zod.object({
+  "passed": zod.boolean(),
+  "errorCount": zod.number(),
+  "offendingLinks": zod.array(zod.object({
+  "checkId": zod.string(),
+  "label": zod.string(),
+  "detail": zod.string()
+})),
+  "checks": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "severity": zod.enum(['error', 'warning', 'info']),
+  "passed": zod.boolean(),
+  "message": zod.string(),
+  "details": zod.array(zod.string()).optional()
 }))
+})
+}),zod.null()]).optional(),
+  "linkAuditOverride": zod.union([zod.object({
+  "by": zod.string(),
+  "at": zod.string(),
+  "reason": zod.string().nullish()
 }),zod.null()]).optional(),
   "phases": zod.array(zod.object({
   "phase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
@@ -174,7 +196,29 @@ export const GetSummaryResponse = zod.object({
   "passed": zod.boolean(),
   "message": zod.string(),
   "details": zod.array(zod.string()).optional()
+})),
+  "linkAudit": zod.object({
+  "passed": zod.boolean(),
+  "errorCount": zod.number(),
+  "offendingLinks": zod.array(zod.object({
+  "checkId": zod.string(),
+  "label": zod.string(),
+  "detail": zod.string()
+})),
+  "checks": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "severity": zod.enum(['error', 'warning', 'info']),
+  "passed": zod.boolean(),
+  "message": zod.string(),
+  "details": zod.array(zod.string()).optional()
 }))
+})
+}),zod.null()]).optional(),
+  "linkAuditOverride": zod.union([zod.object({
+  "by": zod.string(),
+  "at": zod.string(),
+  "reason": zod.string().nullish()
 }),zod.null()]).optional(),
   "phases": zod.array(zod.object({
   "phase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
@@ -272,7 +316,29 @@ export const GetRunResponse = zod.object({
   "passed": zod.boolean(),
   "message": zod.string(),
   "details": zod.array(zod.string()).optional()
+})),
+  "linkAudit": zod.object({
+  "passed": zod.boolean(),
+  "errorCount": zod.number(),
+  "offendingLinks": zod.array(zod.object({
+  "checkId": zod.string(),
+  "label": zod.string(),
+  "detail": zod.string()
+})),
+  "checks": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "severity": zod.enum(['error', 'warning', 'info']),
+  "passed": zod.boolean(),
+  "message": zod.string(),
+  "details": zod.array(zod.string()).optional()
 }))
+})
+}),zod.null()]).optional(),
+  "linkAuditOverride": zod.union([zod.object({
+  "by": zod.string(),
+  "at": zod.string(),
+  "reason": zod.string().nullish()
 }),zod.null()]).optional(),
   "phases": zod.array(zod.object({
   "phase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
@@ -431,7 +497,29 @@ export const RunReplitPhaseResponse = zod.object({
   "passed": zod.boolean(),
   "message": zod.string(),
   "details": zod.array(zod.string()).optional()
+})),
+  "linkAudit": zod.object({
+  "passed": zod.boolean(),
+  "errorCount": zod.number(),
+  "offendingLinks": zod.array(zod.object({
+  "checkId": zod.string(),
+  "label": zod.string(),
+  "detail": zod.string()
+})),
+  "checks": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "severity": zod.enum(['error', 'warning', 'info']),
+  "passed": zod.boolean(),
+  "message": zod.string(),
+  "details": zod.array(zod.string()).optional()
 }))
+})
+}),zod.null()]).optional(),
+  "linkAuditOverride": zod.union([zod.object({
+  "by": zod.string(),
+  "at": zod.string(),
+  "reason": zod.string().nullish()
 }),zod.null()]).optional(),
   "phases": zod.array(zod.object({
   "phase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
@@ -504,7 +592,29 @@ export const ApprovePhaseResponse = zod.object({
   "passed": zod.boolean(),
   "message": zod.string(),
   "details": zod.array(zod.string()).optional()
+})),
+  "linkAudit": zod.object({
+  "passed": zod.boolean(),
+  "errorCount": zod.number(),
+  "offendingLinks": zod.array(zod.object({
+  "checkId": zod.string(),
+  "label": zod.string(),
+  "detail": zod.string()
+})),
+  "checks": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "severity": zod.enum(['error', 'warning', 'info']),
+  "passed": zod.boolean(),
+  "message": zod.string(),
+  "details": zod.array(zod.string()).optional()
 }))
+})
+}),zod.null()]).optional(),
+  "linkAuditOverride": zod.union([zod.object({
+  "by": zod.string(),
+  "at": zod.string(),
+  "reason": zod.string().nullish()
 }),zod.null()]).optional(),
   "phases": zod.array(zod.object({
   "phase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
@@ -539,7 +649,217 @@ export const RunCheckersResponse = zod.object({
   "passed": zod.boolean(),
   "message": zod.string(),
   "details": zod.array(zod.string()).optional()
+})),
+  "linkAudit": zod.object({
+  "passed": zod.boolean(),
+  "errorCount": zod.number(),
+  "offendingLinks": zod.array(zod.object({
+  "checkId": zod.string(),
+  "label": zod.string(),
+  "detail": zod.string()
+})),
+  "checks": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "severity": zod.enum(['error', 'warning', 'info']),
+  "passed": zod.boolean(),
+  "message": zod.string(),
+  "details": zod.array(zod.string()).optional()
 }))
+})
+})
+
+
+/**
+ * @summary Record a human override of a failing link audit so publish can proceed
+ */
+export const OverrideLinkAuditParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const OverrideLinkAuditBody = zod.object({
+  "by": zod.string(),
+  "reason": zod.string().nullish()
+})
+
+export const OverrideLinkAuditResponse = zod.object({
+  "id": zod.number(),
+  "city": zod.string(),
+  "state": zod.string(),
+  "track": zod.enum(['page', 'blog']),
+  "engine": zod.enum(['claude', 'replit']),
+  "status": zod.enum(['draft', 'running', 'review', 'approved', 'publishing', 'published', 'failed']),
+  "currentPhase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
+  "classification": zod.string().optional(),
+  "niche": zod.string().optional(),
+  "competition": zod.string().optional(),
+  "pageType": zod.string().optional(),
+  "existingUrls": zod.array(zod.string()).optional(),
+  "handoff": zod.string().nullish(),
+  "verifiedCid": zod.string().nullish(),
+  "designBibleHash": zod.string().nullish(),
+  "blogTopic": zod.string().nullish(),
+  "researchBrief": zod.union([zod.object({
+  "summary": zod.string().nullish(),
+  "entities": zod.array(zod.record(zod.string(), zod.unknown())).optional(),
+  "sources": zod.array(zod.string()).optional(),
+  "flags": zod.array(zod.object({
+  "name": zod.string(),
+  "field": zod.string(),
+  "issue": zod.string(),
+  "verified": zod.boolean().optional()
+})).optional(),
+  "raw": zod.string().nullish()
+}),zod.null()]).optional(),
+  "pageHtml": zod.string().nullish(),
+  "generatedSchema": zod.string().nullish(),
+  "joomlaMeta": zod.union([zod.object({
+  "title": zod.string().nullish(),
+  "description": zod.string().nullish(),
+  "keywords": zod.string().nullish(),
+  "alias": zod.string().nullish()
+}),zod.null()]).optional(),
+  "checkerReport": zod.union([zod.object({
+  "passed": zod.boolean(),
+  "errorCount": zod.number().optional(),
+  "warningCount": zod.number().optional(),
+  "wordCount": zod.number().optional(),
+  "ranAt": zod.string().nullish(),
+  "checks": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "severity": zod.enum(['error', 'warning', 'info']),
+  "passed": zod.boolean(),
+  "message": zod.string(),
+  "details": zod.array(zod.string()).optional()
+})),
+  "linkAudit": zod.object({
+  "passed": zod.boolean(),
+  "errorCount": zod.number(),
+  "offendingLinks": zod.array(zod.object({
+  "checkId": zod.string(),
+  "label": zod.string(),
+  "detail": zod.string()
+})),
+  "checks": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "severity": zod.enum(['error', 'warning', 'info']),
+  "passed": zod.boolean(),
+  "message": zod.string(),
+  "details": zod.array(zod.string()).optional()
+}))
+})
+}),zod.null()]).optional(),
+  "linkAuditOverride": zod.union([zod.object({
+  "by": zod.string(),
+  "at": zod.string(),
+  "reason": zod.string().nullish()
+}),zod.null()]).optional(),
+  "phases": zod.array(zod.object({
+  "phase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
+  "status": zod.enum(['locked', 'ready', 'running', 'review', 'approved', 'failed']),
+  "summary": zod.string().nullish(),
+  "error": zod.string().nullish(),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish()
+})),
+  "createdAt": zod.string().nullish(),
+  "updatedAt": zod.string().nullish()
+})
+
+
+/**
+ * @summary Revoke a previously recorded link-audit override
+ */
+export const RevokeLinkAuditOverrideParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const RevokeLinkAuditOverrideResponse = zod.object({
+  "id": zod.number(),
+  "city": zod.string(),
+  "state": zod.string(),
+  "track": zod.enum(['page', 'blog']),
+  "engine": zod.enum(['claude', 'replit']),
+  "status": zod.enum(['draft', 'running', 'review', 'approved', 'publishing', 'published', 'failed']),
+  "currentPhase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
+  "classification": zod.string().optional(),
+  "niche": zod.string().optional(),
+  "competition": zod.string().optional(),
+  "pageType": zod.string().optional(),
+  "existingUrls": zod.array(zod.string()).optional(),
+  "handoff": zod.string().nullish(),
+  "verifiedCid": zod.string().nullish(),
+  "designBibleHash": zod.string().nullish(),
+  "blogTopic": zod.string().nullish(),
+  "researchBrief": zod.union([zod.object({
+  "summary": zod.string().nullish(),
+  "entities": zod.array(zod.record(zod.string(), zod.unknown())).optional(),
+  "sources": zod.array(zod.string()).optional(),
+  "flags": zod.array(zod.object({
+  "name": zod.string(),
+  "field": zod.string(),
+  "issue": zod.string(),
+  "verified": zod.boolean().optional()
+})).optional(),
+  "raw": zod.string().nullish()
+}),zod.null()]).optional(),
+  "pageHtml": zod.string().nullish(),
+  "generatedSchema": zod.string().nullish(),
+  "joomlaMeta": zod.union([zod.object({
+  "title": zod.string().nullish(),
+  "description": zod.string().nullish(),
+  "keywords": zod.string().nullish(),
+  "alias": zod.string().nullish()
+}),zod.null()]).optional(),
+  "checkerReport": zod.union([zod.object({
+  "passed": zod.boolean(),
+  "errorCount": zod.number().optional(),
+  "warningCount": zod.number().optional(),
+  "wordCount": zod.number().optional(),
+  "ranAt": zod.string().nullish(),
+  "checks": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "severity": zod.enum(['error', 'warning', 'info']),
+  "passed": zod.boolean(),
+  "message": zod.string(),
+  "details": zod.array(zod.string()).optional()
+})),
+  "linkAudit": zod.object({
+  "passed": zod.boolean(),
+  "errorCount": zod.number(),
+  "offendingLinks": zod.array(zod.object({
+  "checkId": zod.string(),
+  "label": zod.string(),
+  "detail": zod.string()
+})),
+  "checks": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "severity": zod.enum(['error', 'warning', 'info']),
+  "passed": zod.boolean(),
+  "message": zod.string(),
+  "details": zod.array(zod.string()).optional()
+}))
+})
+}),zod.null()]).optional(),
+  "linkAuditOverride": zod.union([zod.object({
+  "by": zod.string(),
+  "at": zod.string(),
+  "reason": zod.string().nullish()
+}),zod.null()]).optional(),
+  "phases": zod.array(zod.object({
+  "phase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
+  "status": zod.enum(['locked', 'ready', 'running', 'review', 'approved', 'failed']),
+  "summary": zod.string().nullish(),
+  "error": zod.string().nullish(),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish()
+})),
+  "createdAt": zod.string().nullish(),
+  "updatedAt": zod.string().nullish()
 })
 
 
@@ -589,7 +909,24 @@ export const ChatEditResponse = zod.object({
   "passed": zod.boolean(),
   "message": zod.string(),
   "details": zod.array(zod.string()).optional()
+})),
+  "linkAudit": zod.object({
+  "passed": zod.boolean(),
+  "errorCount": zod.number(),
+  "offendingLinks": zod.array(zod.object({
+  "checkId": zod.string(),
+  "label": zod.string(),
+  "detail": zod.string()
+})),
+  "checks": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "severity": zod.enum(['error', 'warning', 'info']),
+  "passed": zod.boolean(),
+  "message": zod.string(),
+  "details": zod.array(zod.string()).optional()
 }))
+})
 }).optional()
 })
 

@@ -37,6 +37,7 @@ export const mcRunsTable = pgTable("mc_runs", {
   generatedSchema: text("generated_schema"),
   joomlaMeta: jsonb("joomla_meta").$type<Record<string, unknown> | null>(),
   checkerReport: jsonb("checker_report").$type<Record<string, unknown> | null>(),
+  linkAuditOverride: jsonb("link_audit_override").$type<Record<string, unknown> | null>(),
   phases: jsonb("phases").$type<Record<string, unknown>[]>().notNull().default([]),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),

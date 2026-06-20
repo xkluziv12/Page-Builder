@@ -10,10 +10,14 @@ import {
   checkIcons,
   checkImagePaths,
   checkKnownRedirects,
+  checkPlaceholderLinks,
   checkSacredLinks,
   checkUrlRegistry,
   checkWordCount,
   runCheckers,
+  deriveLinkAudit,
+  blockingErrorCount,
+  LINK_CHECK_IDS,
   AUDIT_TARGET_MARKER,
 } from "./index";
 import { computeStructuralHash } from "./structural-hash";
@@ -359,5 +363,77 @@ describe("runCheckers", () => {
     expect(report.passed).toBe(false);
     expect(report.errorCount).toBeGreaterThan(0);
     expect(report.checks.length).toBeGreaterThan(0);
+  });
+
+  it("carries a dedicated linkAudit view", () => {
+    const report = runCheckers({
+      html: '<a href="">empty</a>',
+      registry,
+      pageType: "SPOKE",
+      track: "page",
+      afterAudit: false,
+    });
+    expect(report.linkAudit).toBeDefined();
+    expect(report.linkAudit.passed).toBe(false);
+    expect(report.linkAudit.offendingLinks.length).toBeGreaterThan(0);
+  });
+});
+
+describe("checkPlaceholderLinks", () => {
+  it("passes when no placeholder hrefs are present", () => {
+    expect(
+      checkPlaceholderLinks('<a href="https://example.com/page">ok</a>').passed,
+    ).toBe(true);
+  });
+  it("flags empty, fragment, and javascript hrefs", () => {
+    const r = checkPlaceholderLinks(
+      '<a href="">a</a><a href="#">b</a><a href="javascript:void(0)">c</a>',
+    );
+    expect(r.passed).toBe(false);
+    expect(r.severity).toBe("error");
+    expect(r.details.length).toBe(3);
+  });
+});
+
+describe("deriveLinkAudit", () => {
+  it("passes and includes only link checks when links are clean", () => {
+    const audit = deriveLinkAudit([
+      { id: "placeholder-links", label: "L", severity: "error", passed: true, message: "", details: [] },
+      { id: "em-dash", label: "D", severity: "error", passed: false, message: "x", details: [] },
+    ]);
+    expect(audit.passed).toBe(true);
+    expect(audit.errorCount).toBe(0);
+    expect(audit.checks.every((c) => (LINK_CHECK_IDS as readonly string[]).includes(c.id))).toBe(true);
+  });
+  it("collects offending links from failing link checks only", () => {
+    const audit = deriveLinkAudit([
+      { id: "insecure-links", label: "Insecure", severity: "error", passed: false, message: "m", details: ["http://x"] },
+      { id: "em-dash", label: "D", severity: "error", passed: false, message: "x", details: ["—"] },
+    ]);
+    expect(audit.passed).toBe(false);
+    expect(audit.errorCount).toBe(1);
+    expect(audit.offendingLinks).toHaveLength(1);
+    expect(audit.offendingLinks[0]!.detail).toBe("http://x");
+  });
+});
+
+describe("blockingErrorCount", () => {
+  const baseReport = {
+    passed: false,
+    errorCount: 2,
+    warningCount: 0,
+    wordCount: 0,
+    ranAt: null,
+    linkAudit: { passed: false, errorCount: 1, offendingLinks: [], checks: [] },
+    checks: [
+      { id: "url-registry", label: "Registry", severity: "error" as const, passed: false, message: "m", details: [] },
+      { id: "em-dash", label: "Dash", severity: "error" as const, passed: false, message: "m", details: [] },
+    ],
+  };
+  it("counts all errors when not overridden", () => {
+    expect(blockingErrorCount(baseReport, false)).toBe(2);
+  });
+  it("excuses only link errors when overridden", () => {
+    expect(blockingErrorCount(baseReport, true)).toBe(1);
   });
 });

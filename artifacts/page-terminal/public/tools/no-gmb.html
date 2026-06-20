@@ -798,6 +798,33 @@
                 </div>
             </div>
 
+            <!-- PRE-PUBLISH GATE: LINK AUDIT (runs before the Joomla upload sequence) -->
+            <div class="card phase" id="phase-link-audit" style="border-left: 4px solid #f97316;">
+                <div class="phase-header" onclick="togglePhase('phase-link-audit')">
+                    <div class="phase-title"><span class="phase-num" style="background:#f97316;"><i class="fas fa-link"></i></span> Pre-Publish Link Audit</div>
+                    <div class="phase-time">2 min</div>
+                </div>
+                <div class="phase-content">
+                    <div class="warning-box" style="margin-bottom:15px;">
+                        <i class="fas fa-exclamation-triangle"></i> <strong>PRE-PUBLISH GATE:</strong> Verify all links are clean <em>before</em> starting the Joomla upload. This gate must pass (or be overridden in Mission Control) before Phase 5.
+                    </div>
+                    <div class="step">
+                        <input type="checkbox" id="p6-1" onchange="updateProgress()">
+                        <div>
+                            <div class="step-label">Run Final Link Audit Before Upload</div>
+                            <div class="step-sub">Catches broken, placeholder/empty, insecure (http://), off-registry, and missing sacred links from SEO edits</div>
+                            <button class="btn btn-compile" style="margin-top:8px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color:white;" onclick="copyPrompt('verify-links'); animateButton(this, 'Scanning...', 'Audit Ready');">
+                                <i class="fas fa-link"></i> Execute Final Audit
+                            </button>
+                        </div>
+                    </div>
+                    <div class="step">
+                        <input type="checkbox" id="p6-2" onchange="updateProgress()">
+                        <div class="step-label">✅ All Links Verified — Ready for Joomla</div>
+                    </div>
+                </div>
+            </div>
+
             <!-- PHASE 5: JOOMLA PART 1 - META -->
             <div class="card phase" id="phase5">
                 <div class="phase-header" onclick="togglePhase('phase5')">
@@ -870,33 +897,6 @@
                     <div class="step">
                         <input type="checkbox" id="p5-6" onchange="updateProgress()">
                         <div class="step-label">Metadata tab → Add Meta Description & Keywords → SAVE</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- PHASE 6: PRE-UPLOAD LINK AUDIT -->
-            <div class="card phase" id="phase6">
-                <div class="phase-header" onclick="togglePhase('phase6')">
-                    <div class="phase-title"><span class="phase-num">6</span> Pre-Upload Link Audit</div>
-                    <div class="phase-time">2 min</div>
-                </div>
-                <div class="phase-content">
-                    <div class="warning-box" style="margin-bottom:15px;">
-                        <i class="fas fa-exclamation-triangle"></i> <strong>LAST CHECK:</strong> Verify all links before uploading to Joomla
-                    </div>
-                    <div class="step">
-                        <input type="checkbox" id="p6-1" onchange="updateProgress()">
-                        <div>
-                            <div class="step-label">Run Final Link Audit Before Upload</div>
-                            <div class="step-sub">Catches any issues from SEO edits</div>
-                            <button class="btn btn-compile" style="margin-top:8px; background: linear-gradient(135deg, #f97316 0%, #ea580c 100%); color:white;" onclick="copyPrompt('verify-links'); animateButton(this, 'Scanning...', 'Audit Ready');">
-                                <i class="fas fa-link"></i> Execute Final Audit
-                            </button>
-                        </div>
-                    </div>
-                    <div class="step">
-                        <input type="checkbox" id="p6-2" onchange="updateProgress()">
-                        <div class="step-label">✅ All Links Verified — Ready for Joomla</div>
                     </div>
                 </div>
             </div>

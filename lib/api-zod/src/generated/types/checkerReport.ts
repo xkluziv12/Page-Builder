@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { CheckResult } from './checkResult';
+import type { LinkAuditResult } from './linkAuditResult';
 
 export interface CheckerReport {
   passed: boolean;
@@ -15,4 +16,5 @@ export interface CheckerReport {
   /** @nullable */
   ranAt?: string | null;
   checks: CheckResult[];
+  linkAudit: LinkAuditResult;
 }

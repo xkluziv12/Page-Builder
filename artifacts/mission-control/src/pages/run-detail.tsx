@@ -9,6 +9,8 @@ import {
   useChatEdit,
   useGetChatHistory,
   useDeleteRun,
+  useOverrideLinkAudit,
+  useRevokeLinkAuditOverride,
   getGetRunQueryKey,
   getGetChatHistoryQueryKey,
 } from "@workspace/api-client-react";
@@ -27,6 +29,8 @@ import {
   XCircle,
   Trash2,
   ShieldCheck,
+  Link2,
+  ShieldAlert,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -60,8 +64,12 @@ export default function RunDetail() {
   const runCheckers = useRunCheckers();
   const chatEdit = useChatEdit();
   const deleteRun = useDeleteRun();
+  const overrideLinkAudit = useOverrideLinkAudit();
+  const revokeLinkAuditOverride = useRevokeLinkAuditOverride();
 
   const [message, setMessage] = useState("");
+  const [overrideBy, setOverrideBy] = useState("");
+  const [overrideReason, setOverrideReason] = useState("");
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: getGetRunQueryKey(id) });
@@ -143,6 +151,51 @@ export default function RunDetail() {
           toast({ title: "Checkers ran" });
           invalidate();
         },
+      },
+    );
+  };
+
+  const handleOverride = () => {
+    if (!overrideBy.trim()) {
+      toast({
+        title: "Name required",
+        description: "Enter who is approving the override.",
+        variant: "destructive",
+      });
+      return;
+    }
+    overrideLinkAudit.mutate(
+      { id, data: { by: overrideBy.trim(), reason: overrideReason.trim() || null } },
+      {
+        onSuccess: () => {
+          toast({ title: "Link audit overridden", description: "Publish can now proceed." });
+          setOverrideReason("");
+          invalidate();
+        },
+        onError: (err) =>
+          toast({
+            title: "Override failed",
+            description: (err as { error?: string })?.error ?? "Unknown error",
+            variant: "destructive",
+          }),
+      },
+    );
+  };
+
+  const handleRevokeOverride = () => {
+    revokeLinkAuditOverride.mutate(
+      { id },
+      {
+        onSuccess: () => {
+          toast({ title: "Override revoked" });
+          invalidate();
+        },
+        onError: (err) =>
+          toast({
+            title: "Revoke failed",
+            description: (err as { error?: string })?.error ?? "Unknown error",
+            variant: "destructive",
+          }),
       },
     );
   };
@@ -309,6 +362,116 @@ export default function RunDetail() {
               })}
             </CardContent>
           </Card>
+
+          {(() => {
+            const linkAudit = report?.linkAudit;
+            const override = run.linkAuditOverride ?? null;
+            if (!linkAudit) return null;
+            const passed = linkAudit.passed;
+            return (
+              <Card data-testid="card-link-audit">
+                <CardHeader className="border-b border-border pb-4 flex flex-row items-center justify-between">
+                  <CardTitle className="flex items-center gap-2">
+                    <Link2 className="h-4 w-4 text-primary" /> Link Audit
+                  </CardTitle>
+                  <Badge variant={passed ? "default" : override ? "secondary" : "destructive"}>
+                    {passed ? "PASS" : override ? "OVERRIDDEN" : "FAIL"}
+                  </Badge>
+                </CardHeader>
+                <CardContent className="p-4 space-y-3">
+                  <p className="text-xs text-muted-foreground">
+                    Pre-publish gate: broken, placeholder/empty, insecure (http://), unknown
+                    registry, and missing sacred/required links must be clean before publishing.
+                  </p>
+
+                  {passed ? (
+                    <div className="flex items-center gap-2 text-sm text-green-500">
+                      <CheckCircle2 className="h-4 w-4" /> All links clean.
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm text-destructive">
+                        <ShieldAlert className="h-4 w-4" />
+                        {linkAudit.errorCount} offending link
+                        {linkAudit.errorCount === 1 ? "" : "s"}
+                      </div>
+                      <div className="space-y-1 max-h-48 overflow-auto">
+                        {linkAudit.offendingLinks?.map((l, i) => (
+                          <div
+                            key={i}
+                            className="text-xs border-b border-border/50 py-1.5"
+                            data-testid={`link-audit-issue-${i}`}
+                          >
+                            <span className="font-medium">{l.label}</span>
+                            <p className="text-muted-foreground/70 font-mono break-all">
+                              {l.detail}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {override ? (
+                    <div className="rounded-md border border-amber-500/40 bg-amber-500/5 p-3 space-y-2">
+                      <p className="text-xs text-amber-600 dark:text-amber-400">
+                        Overridden by <span className="font-semibold">{override.by}</span> on{" "}
+                        {new Date(override.at).toLocaleString()}
+                        {override.reason ? ` — ${override.reason}` : ""}
+                      </p>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={handleRevokeOverride}
+                        disabled={revokeLinkAuditOverride.isPending}
+                        data-testid="button-revoke-override"
+                      >
+                        {revokeLinkAuditOverride.isPending ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          "Revoke override"
+                        )}
+                      </Button>
+                    </div>
+                  ) : (
+                    !passed && (
+                      <div className="rounded-md border border-border p-3 space-y-2">
+                        <p className="text-xs text-muted-foreground">
+                          Recorded human override (who/when) to let publish proceed past this
+                          failing link audit. Other checker errors still block publish.
+                        </p>
+                        <Input
+                          placeholder="Your name"
+                          value={overrideBy}
+                          onChange={(e) => setOverrideBy(e.target.value)}
+                          data-testid="input-override-by"
+                        />
+                        <Input
+                          placeholder="Reason (optional)"
+                          value={overrideReason}
+                          onChange={(e) => setOverrideReason(e.target.value)}
+                          data-testid="input-override-reason"
+                        />
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={handleOverride}
+                          disabled={overrideLinkAudit.isPending}
+                          data-testid="button-override-link-audit"
+                        >
+                          {overrideLinkAudit.isPending ? (
+                            <Loader2 className="h-3 w-3 animate-spin" />
+                          ) : (
+                            "Override & allow publish"
+                          )}
+                        </Button>
+                      </div>
+                    )
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })()}
 
           <Card>
             <CardHeader className="border-b border-border pb-4 flex flex-row items-center justify-between">

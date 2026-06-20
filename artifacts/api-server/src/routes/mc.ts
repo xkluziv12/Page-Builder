@@ -7,7 +7,15 @@ import {
   mcRunsTable,
   type McRun,
 } from "@workspace/db";
-import { runCheckers, runPhase, type AIEngine, type PhaseName } from "@workspace/mc-core";
+import {
+  deriveLinkAudit,
+  runCheckers,
+  runPhase,
+  type AIEngine,
+  type CheckResult,
+  type LinkAuditOverride,
+  type PhaseName,
+} from "@workspace/mc-core";
 import {
   engineFor,
   replitEngineFor,
@@ -107,6 +115,7 @@ async function executePhase(
         schema: run.generatedSchema,
         joomlaMeta: (run.joomlaMeta as never) ?? null,
         checkerReport: (run.checkerReport as never) ?? null,
+        linkAuditOverride: (run.linkAuditOverride as never) ?? null,
       },
       { engine, publisher },
     );
@@ -133,6 +142,10 @@ async function executePhase(
     }
 
     const status = publishConfirmed ? "published" : "review";
+    // A link-audit override is tied to the exact HTML it was applied to. Once a
+    // phase regenerates the page, the prior override is stale and must be
+    // dropped so a fresh human decision is required against the new content.
+    const htmlChanged = !!output.state.html && output.state.html !== run.pageHtml;
     const [updated] = await db
       .update(mcRunsTable)
       .set({
@@ -142,6 +155,7 @@ async function executePhase(
         generatedSchema: output.state.schema,
         joomlaMeta: (output.state.joomlaMeta as never) ?? run.joomlaMeta ?? null,
         checkerReport: (output.state.checkerReport as never) ?? null,
+        linkAuditOverride: htmlChanged ? null : (run.linkAuditOverride ?? null),
         status,
         updatedAt: new Date(),
       })
@@ -462,6 +476,79 @@ router.post("/mc/runs/:id/check", async (req, res) => {
   res.json(report);
 });
 
+// POST /mc/runs/:id/link-audit/override — record a human override of a failing
+// link audit so publish can proceed past it. The override is recorded with who
+// applied it and when (auditable), and only excuses link-audit errors — every
+// other checker error still blocks publish.
+router.post("/mc/runs/:id/link-audit/override", async (req, res) => {
+  const id = Number(req.params.id);
+  const by = typeof req.body?.by === "string" ? req.body.by.trim() : "";
+  const reason = typeof req.body?.reason === "string" ? req.body.reason.trim() : "";
+  if (!by) {
+    res.status(400).json({ error: "An operator name ('by') is required to record an override." });
+    return;
+  }
+  const run = await loadRun(id);
+  if (!run) {
+    res.status(404).json({ error: "Run not found" });
+    return;
+  }
+  // Recompute the link audit against the current HTML so an override can only be
+  // recorded when there is actually a failing link audit to excuse.
+  const registry = await loadRegistry(run.handoff ? [run.handoff] : [], run.existingUrls ?? []);
+  const report = runCheckers({
+    html: run.pageHtml ?? "",
+    registry,
+    pageType: run.pageType as never,
+    track: run.track === "blog" ? "blog" : "page",
+    classification: run.classification as never,
+    city: run.city,
+    designBibleHash: run.designBibleHash,
+    afterAudit: true,
+    schema: run.generatedSchema,
+    businessName: "STS Electronic Recycling",
+    entities: (run.researchBrief as { entities?: Record<string, unknown>[] } | null)?.entities,
+  });
+  if (report.linkAudit.passed) {
+    res.status(409).json({
+      error: "The link audit currently passes — there is nothing to override.",
+      run: serializeRun(run),
+    });
+    return;
+  }
+  const override: LinkAuditOverride = {
+    by,
+    at: new Date().toISOString(),
+    reason: reason || null,
+  };
+  const [updated] = await db
+    .update(mcRunsTable)
+    .set({
+      linkAuditOverride: override as unknown as Record<string, unknown>,
+      checkerReport: report as unknown as Record<string, unknown>,
+      updatedAt: new Date(),
+    })
+    .where(eq(mcRunsTable.id, id))
+    .returning();
+  res.json(serializeRun(updated!));
+});
+
+// DELETE /mc/runs/:id/link-audit/override — revoke a recorded override.
+router.delete("/mc/runs/:id/link-audit/override", async (req, res) => {
+  const id = Number(req.params.id);
+  const run = await loadRun(id);
+  if (!run) {
+    res.status(404).json({ error: "Run not found" });
+    return;
+  }
+  const [updated] = await db
+    .update(mcRunsTable)
+    .set({ linkAuditOverride: null, updatedAt: new Date() })
+    .where(eq(mcRunsTable.id, id))
+    .returning();
+  res.json(serializeRun(updated!));
+});
+
 // GET /mc/runs/:id/chat — chat history
 router.get("/mc/runs/:id/chat", async (req, res) => {
   const id = Number(req.params.id);
@@ -539,6 +626,9 @@ router.post("/mc/runs/:id/chat", async (req, res) => {
       .set({
         pageHtml: result.content,
         checkerReport: report as unknown as Record<string, unknown>,
+        // A chat edit changes the page, so any prior link-audit override is now
+        // stale and is dropped — a fresh decision is required against new HTML.
+        linkAuditOverride: null,
         updatedAt: new Date(),
       })
       .where(eq(mcRunsTable.id, id));
