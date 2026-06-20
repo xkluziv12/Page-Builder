@@ -452,6 +452,22 @@
                         </div>
                     </div>
 
+                    <div class="input-grid-3" style="margin-top:12px;">
+                        <div class="form-group">
+                            <label>County <span style="color:var(--text-muted); font-weight:400;">(no "County" suffix)</span></label>
+                            <input type="text" id="countyName" placeholder="e.g. Yellowstone" style="background: white;" oninput="saveState()">
+                        </div>
+                        <div class="form-group">
+                            <label>State (Full Name)</label>
+                            <input type="text" id="stateFull" placeholder="Auto-filled from State" style="background: white;" oninput="saveState()">
+                        </div>
+                        <div class="form-group" style="display:flex; align-items:flex-end;">
+                            <button class="btn btn-accent" style="width:100%;" onclick="generateMetaSchema()">
+                                <i class="fas fa-bolt"></i> Generate Meta + Schema
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="info-box" style="margin-bottom:15px;">
                         <i class="fas fa-info-circle"></i> <strong>No GMB mode:</strong> This city has no Google Business listing. Pages are built like a standard Page Rebuild — schema included — with Hub+Spoke internal linking. The only difference: no GMB street address and no CID.
                     </div>
@@ -726,25 +742,37 @@
                         <i class="fas fa-exclamation-triangle"></i> <strong>NO GMB:</strong> The SEO audit stripped the schema. Rebuild it now — <strong>with NO CID and NO GMB street address</strong>. City/state targeting only.
                     </div>
 
+                    <!-- DETERMINISTIC GENERATOR — SCHEMA -->
                     <div class="step">
                         <input type="checkbox" id="p4-1" onchange="updateProgress()">
                         <div>
-                            <div class="step-label">Upload Schema Generator & Run</div>
-                            <button class="btn btn-accent btn-compile" style="margin-top:5px;" onclick="copyPrompt('schema'); animateButton(this, 'Compiling...', 'Schema Ready');">
-                                <i class="fas fa-code"></i> Compile Schema Protocol
+                            <div class="step-label">⚡ Auto-Generate Schema (deterministic — no AI needed)</div>
+                            <div class="step-sub">Uses City / State / County from Mission Control above. No CID, no street address — city/state targeting only.</div>
+                            <button class="btn btn-accent btn-compile" style="margin-top:8px;" onclick="generateMetaSchema()">
+                                <i class="fas fa-bolt"></i> Generate Schema
                             </button>
-                            <div style="margin-top:8px; font-size:11px; color:#f97316;">
-                                <i class="fas fa-exclamation-circle"></i> NO CID (no identifier, hasMap, or Maps link), NO street address, NO aggregateRating/reviews
-                            </div>
 
-                            <div style="margin-top:12px;">
-                                <div style="color: #ef4444; font-size: 11px; font-weight: 600; margin-bottom: 6px;">
-                                    <i class="fas fa-arrow-down"></i> UPLOAD FILE + PASTE PROMPT
+                            <div id="genSchemaOutput" style="display:none; margin-top:12px;"></div>
+
+                            <details style="margin-top:14px;">
+                                <summary style="cursor:pointer; font-size:11px; color:var(--text-muted);">Fallback: generate with Claude instead</summary>
+                                <div style="margin-top:8px;">
+                                    <button class="btn btn-ghost btn-compile" style="margin-top:5px;" onclick="copyPrompt('schema'); animateButton(this, 'Compiling...', 'Schema Ready');">
+                                        <i class="fas fa-code"></i> Compile Schema Protocol
+                                    </button>
+                                    <div style="margin-top:8px; font-size:11px; color:#f97316;">
+                                        <i class="fas fa-exclamation-circle"></i> NO CID (no identifier, hasMap, or Maps link), NO street address, NO aggregateRating/reviews
+                                    </div>
+                                    <div style="margin-top:12px;">
+                                        <div style="color: #ef4444; font-size: 11px; font-weight: 600; margin-bottom: 6px;">
+                                            <i class="fas fa-arrow-down"></i> UPLOAD FILE + PASTE PROMPT
+                                        </div>
+                                        <a href="https://docs.google.com/document/d/1labL6l4YBkop02jZhGEujg_OfAgKYElCwQ2hctGIXI8/edit?usp=sharing" target="_blank" class="quick-link">
+                                            <i class="fas fa-file-code"></i> Schema Generator Doc
+                                        </a>
+                                    </div>
                                 </div>
-                                <a href="https://docs.google.com/document/d/1labL6l4YBkop02jZhGEujg_OfAgKYElCwQ2hctGIXI8/edit?usp=sharing" target="_blank" class="quick-link">
-                                    <i class="fas fa-file-code"></i> Schema Generator Doc
-                                </a>
-                            </div>
+                            </details>
                         </div>
                     </div>
 
@@ -817,10 +845,20 @@
                     <div class="step">
                         <input type="checkbox" id="p5-4" onchange="updateProgress()">
                         <div>
-                            <div class="step-label">Get Meta Data from Claude</div>
-                            <button class="btn btn-ghost" style="margin-top:5px;" onclick="copyPrompt('meta')">
-                                <i class="fas fa-tags"></i> Copy Meta Prompt
+                            <div class="step-label">⚡ Auto-Generate Meta Data (deterministic — no AI needed)</div>
+                            <div class="step-sub">Page Title, Meta Description & Keywords from City / State / County. Paste straight into the Page Title & Metadata tabs.</div>
+                            <button class="btn btn-accent" style="margin-top:8px;" onclick="generateMetaSchema()">
+                                <i class="fas fa-bolt"></i> Generate Meta Data
                             </button>
+
+                            <div id="genMetaOutput" style="display:none; margin-top:12px;"></div>
+
+                            <details style="margin-top:14px;">
+                                <summary style="cursor:pointer; font-size:11px; color:var(--text-muted);">Fallback: get meta from Claude instead</summary>
+                                <button class="btn btn-ghost" style="margin-top:8px;" onclick="copyPrompt('meta')">
+                                    <i class="fas fa-tags"></i> Copy Meta Prompt
+                                </button>
+                            </details>
                         </div>
                     </div>
 
@@ -901,7 +939,10 @@
 
                     <div class="step">
                         <input type="checkbox" id="p7-6" onchange="updateProgress()">
-                        <div class="step-label">Paste Schema (no CID) → Verify <span style="color:#ef4444; font-weight:600;">script tags</span> at top/bottom</div>
+                        <div>
+                            <div class="step-label">Paste Schema (no CID) → Verify <span style="color:#ef4444; font-weight:600;">script tags</span> at top/bottom</div>
+                            <div class="step-sub">Use the deterministic schema from <strong>Phase 4</strong> (Auto-Generate Schema). The Claude prompt is only a fallback.</div>
+                        </div>
                     </div>
 
                     <div class="step">
@@ -1141,6 +1182,10 @@
             appState.hubSpokeHandoff = document.getElementById('hubSpokeHandoff').value;
             appState.city = document.getElementById('cityName').value;
             appState.state = document.getElementById('stateName').value;
+            const countyEl = document.getElementById('countyName');
+            const stateFullEl = document.getElementById('stateFull');
+            if(countyEl) appState.county = countyEl.value;
+            if(stateFullEl) appState.stateFull = stateFullEl.value;
 
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                 appState.checks[cb.id] = cb.checked;
@@ -1159,6 +1204,10 @@
                 document.getElementById('hubSpokeHandoff').value = appState.hubSpokeHandoff || '';
                 document.getElementById('cityName').value = appState.city || '';
                 document.getElementById('stateName').value = appState.state || '';
+                const countyEl = document.getElementById('countyName');
+                const stateFullEl = document.getElementById('stateFull');
+                if(countyEl) countyEl.value = appState.county || '';
+                if(stateFullEl) stateFullEl.value = appState.stateFull || '';
 
                 if(appState.pageName) {
                     document.getElementById('displayPageName').textContent = appState.pageName;
@@ -1199,6 +1248,14 @@
                 document.getElementById('hubSpokeHandoff').value = '';
                 document.getElementById('cityName').value = '';
                 document.getElementById('stateName').value = '';
+                const countyEl = document.getElementById('countyName');
+                const stateFullEl = document.getElementById('stateFull');
+                if(countyEl) countyEl.value = '';
+                if(stateFullEl) stateFullEl.value = '';
+                const genSchema = document.getElementById('genSchemaOutput');
+                const genMeta = document.getElementById('genMetaOutput');
+                if(genSchema) { genSchema.style.display = 'none'; genSchema.innerHTML = ''; }
+                if(genMeta) { genMeta.style.display = 'none'; genMeta.innerHTML = ''; }
                 document.getElementById('displayPageName').textContent = '—';
 
                 document.getElementById('dataArea').style.display = 'none';
@@ -1797,6 +1854,11 @@
 
             document.getElementById('cityName').value = city || '';
             document.getElementById('stateName').value = state || '';
+            const stateFullEl = document.getElementById('stateFull');
+            if(stateFullEl && state) {
+                const full = getStateFull(state);
+                if(full) stateFullEl.value = full;
+            }
             document.getElementById('dataArea').style.display = 'block';
 
             if(!appState.startTime) appState.startTime = Date.now();
@@ -1930,6 +1992,188 @@
                 'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY'
             };
             return states[stateName] || '';
+        }
+
+        // === REVERSE: ABBREV -> FULL STATE NAME ===
+        function getStateFull(abbr) {
+            const states = {
+                'AL':'Alabama','AK':'Alaska','AZ':'Arizona','AR':'Arkansas','CA':'California',
+                'CO':'Colorado','CT':'Connecticut','DE':'Delaware','FL':'Florida','GA':'Georgia',
+                'HI':'Hawaii','ID':'Idaho','IL':'Illinois','IN':'Indiana','IA':'Iowa',
+                'KS':'Kansas','KY':'Kentucky','LA':'Louisiana','ME':'Maine','MD':'Maryland',
+                'MA':'Massachusetts','MI':'Michigan','MN':'Minnesota','MS':'Mississippi','MO':'Missouri',
+                'MT':'Montana','NE':'Nebraska','NV':'Nevada','NH':'New Hampshire','NJ':'New Jersey',
+                'NM':'New Mexico','NY':'New York','NC':'North Carolina','ND':'North Dakota','OH':'Ohio',
+                'OK':'Oklahoma','OR':'Oregon','PA':'Pennsylvania','RI':'Rhode Island','SC':'South Carolina',
+                'SD':'South Dakota','TN':'Tennessee','TX':'Texas','UT':'Utah','VT':'Vermont',
+                'VA':'Virginia','WA':'Washington','WV':'West Virginia','WI':'Wisconsin','WY':'Wyoming','DC':'District of Columbia'
+            };
+            return states[(abbr || '').toUpperCase()] || '';
+        }
+
+        // === DETERMINISTIC META + SCHEMA GENERATOR (NO GMB) ===
+        function escAttr(s) {
+            return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        }
+
+        function buildNoGmbPayloads(data) {
+            const { city, st, stateFull, county } = data;
+            const website = 'https://www.stselectronicrecyclinginc.com';
+
+            const title = `Electronics Recycling ${city} ${st} | R2 Certified | STS`;
+
+            const countyClause = county ? ` Free pickup in ${county} County.` : '';
+            const description = `R2 certified electronics recycling ${city} ${st}.${countyClause} NAID AAA data destruction and ITAD services for ${stateFull} businesses.`;
+
+            const keywords = [
+                `electronics recycling ${city} ${st}`,
+                `e-waste ${city} ${stateFull}`,
+                `R2 certified recycling ${city}`,
+                `ITAD ${city} ${st}`,
+                `data destruction ${city} ${stateFull}`,
+                `computer recycling ${city}`,
+                `IT asset disposition ${stateFull}`,
+                `NAID AAA data destruction ${stateFull}`
+            ].join(', ');
+
+            const schemaObj = {
+                "@context": "https://schema.org",
+                "@type": ["LocalBusiness", "RecyclingCenter"],
+                "name": `STS Electronic Recycling — ${city}, ${st}`,
+                "description": `R2 certified electronic recycling serving ${city}, ${stateFull}. NAID AAA data destruction and ITAD services for ${stateFull} businesses.`,
+                "url": website,
+                "address": {
+                    "@type": "PostalAddress",
+                    "addressLocality": city,
+                    "addressRegion": st,
+                    "addressCountry": "US"
+                },
+                "areaServed": `${city}, ${st}`
+            };
+
+            const schema = `<script type="application/ld+json">\n${JSON.stringify(schemaObj, null, 2)}\n</` + `script>`;
+
+            return { title, description, keywords, schema };
+        }
+
+        function validatePayloads(p) {
+            const issues = {};
+            issues.title = p.title.length <= 60;
+            issues.description = p.description.length <= 160;
+
+            const lower = p.schema.toLowerCase();
+            const hasScript = p.schema.includes('<script') && p.schema.includes('</' + 'script>');
+            const isJsonLd = lower.includes('application/ld+json');
+            const noCid = !(lower.includes('cid=') || lower.includes('cid:') || lower.includes('hasmap') || lower.includes('"identifier"'));
+            const noStreet = !lower.includes('streetaddress');
+            let balancedJson = false;
+            try {
+                const inner = p.schema.replace(/^[\s\S]*?<script[^>]*>/i, '').replace(/<\/script>[\s\S]*$/i, '').trim();
+                JSON.parse(inner);
+                balancedJson = true;
+            } catch (e) { balancedJson = false; }
+            issues.schema = hasScript && isJsonLd && noCid && noStreet && balancedJson;
+            issues.schemaDetail = { hasScript, isJsonLd, noCid, noStreet, balancedJson };
+            return issues;
+        }
+
+        function copyGenValue(elId, btn) {
+            const el = document.getElementById(elId);
+            if(!el) return;
+            navigator.clipboard.writeText(el.value).then(() => {
+                showToast("Copied!");
+                if(btn) {
+                    const orig = btn.innerHTML;
+                    btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+                    setTimeout(() => { btn.innerHTML = orig; }, 1500);
+                }
+            }).catch(() => showToast("Copy failed - try again", true));
+        }
+
+        function fieldBlock(opts) {
+            const { label, id, value, ok, hint } = opts;
+            const badge = ok
+                ? '<span style="color:var(--gold-dark); font-size:11px; font-weight:600;"><i class="fas fa-check-circle"></i> ' + (hint || 'OK') + '</span>'
+                : '<span style="color:#dc2626; font-size:11px; font-weight:600;"><i class="fas fa-times-circle"></i> ' + (hint || 'Check') + '</span>';
+            return `
+                <div style="margin-bottom:14px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
+                        <label style="font-size:12px; font-weight:600; color:var(--primary);">${label}</label>
+                        ${badge}
+                    </div>
+                    <textarea id="${id}" readonly style="width:100%; min-height:${opts.tall ? '150px' : '54px'}; padding:9px; border:1px solid var(--border-light); border-radius:6px; font-family:'JetBrains Mono','Inter',monospace; font-size:12px; background:var(--white); resize:vertical;">${escAttr(value)}</textarea>
+                    <button class="btn btn-ghost" style="margin-top:6px; padding:6px 14px; font-size:12px;" onclick="copyGenValue('${id}', this)">
+                        <i class="fas fa-copy"></i> Copy ${label}
+                    </button>
+                </div>`;
+        }
+
+        function generateMetaSchema() {
+            const city = (document.getElementById('cityName').value || '').trim();
+            const st = (document.getElementById('stateName').value || '').trim().toUpperCase();
+            const countyEl = document.getElementById('countyName');
+            const stateFullEl = document.getElementById('stateFull');
+            const county = countyEl ? countyEl.value.trim().replace(/\s+county$/i, '') : '';
+            let stateFull = stateFullEl ? stateFullEl.value.trim() : '';
+
+            if(!stateFull && st) {
+                stateFull = getStateFull(st);
+                if(stateFull && stateFullEl) stateFullEl.value = stateFull;
+            }
+
+            if(!city || !st) {
+                showToast("Enter City and State first (run Initialize & Extract Data).", true);
+                return;
+            }
+            if(!stateFull) stateFull = st;
+
+            const payloads = buildNoGmbPayloads({ city, st, stateFull, county });
+            const checks = validatePayloads(payloads);
+
+            // Render Meta output (Phase 5)
+            const metaDiv = document.getElementById('genMetaOutput');
+            if(metaDiv) {
+                let html = '<div class="data-box" style="border-color:var(--gold);">';
+                html += fieldBlock({ label: 'Page Title', id: 'genTitle', value: payloads.title, ok: checks.title, hint: payloads.title.length + '/60 chars' });
+                html += fieldBlock({ label: 'Meta Description', id: 'genDesc', value: payloads.description, ok: checks.description, hint: payloads.description.length + '/160 chars' });
+                html += fieldBlock({ label: 'Keywords', id: 'genKeywords', value: payloads.keywords, ok: true, hint: 'templated', tall: false });
+                if(!county) {
+                    html += '<div style="font-size:11px; color:#f97316; margin-top:-4px;"><i class="fas fa-exclamation-circle"></i> No County entered — "Free pickup" line omitted. Add the county for the full description.</div>';
+                }
+                html += '</div>';
+                metaDiv.innerHTML = html;
+                metaDiv.style.display = 'block';
+            }
+
+            // Render Schema output (Phase 4)
+            const schemaDiv = document.getElementById('genSchemaOutput');
+            if(schemaDiv) {
+                const d = checks.schemaDetail;
+                let hint = checks.schema ? 'valid · no CID · no street address' : 'invalid';
+                let html = '<div class="data-box" style="border-color:var(--gold);">';
+                html += fieldBlock({ label: 'Schema (JSON-LD)', id: 'genSchema', value: payloads.schema, ok: checks.schema, hint: hint, tall: true });
+                html += '<div style="font-size:11px; color:var(--text-secondary); display:flex; flex-wrap:wrap; gap:10px;">';
+                html += '<span>' + (d.hasScript ? '✅' : '❌') + ' script tags</span>';
+                html += '<span>' + (d.isJsonLd ? '✅' : '❌') + ' JSON-LD</span>';
+                html += '<span>' + (d.balancedJson ? '✅' : '❌') + ' valid JSON</span>';
+                html += '<span>' + (d.noCid ? '✅' : '❌') + ' no CID</span>';
+                html += '<span>' + (d.noStreet ? '✅' : '❌') + ' no street address</span>';
+                html += '</div></div>';
+                schemaDiv.innerHTML = html;
+                schemaDiv.style.display = 'block';
+            }
+
+            // Feed the existing schema validator + auto-run it
+            const schemaPaste = document.getElementById('schemaPaste');
+            if(schemaPaste) {
+                schemaPaste.value = payloads.schema;
+                if(typeof validateSchema === 'function') validateSchema();
+            }
+
+            // Persist generated values
+            appState.generated = payloads;
+            saveState();
+            showToast("Meta + Schema generated!");
         }
 
         // === OPEN LIVE PAGE ===
