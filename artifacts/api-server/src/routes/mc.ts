@@ -7,9 +7,10 @@ import {
   mcRunsTable,
   type McRun,
 } from "@workspace/db";
-import { runCheckers, runPhase, type PhaseName } from "@workspace/mc-core";
+import { runCheckers, runPhase, type AIEngine, type PhaseName } from "@workspace/mc-core";
 import {
   engineFor,
+  replitEngineFor,
   initialPhases,
   loadRegistry,
   nextPhase,
@@ -55,10 +56,19 @@ type PhaseExecResult = { run: McRun; ok: boolean; error?: string };
  * the run's current state. Phase-gate enforcement lives in the callers, not
  * here — this helper assumes the phase is cleared to run.
  */
-async function executePhase(run: McRun, phase: PhaseName): Promise<PhaseExecResult> {
-  let engine: Awaited<ReturnType<typeof engineFor>>;
+async function executePhase(
+  run: McRun,
+  phase: PhaseName,
+  engineOverride?: AIEngine,
+): Promise<PhaseExecResult> {
+  let engine: AIEngine;
   try {
-    engine = await engineFor(run.engine);
+    // Replit-mode runs supply their own ReplitEngine (seeded with the operator's
+    // Agent-produced artifact) via engineOverride; Dashboard (claude) runs are
+    // auto-resolved here. Either way the rest of the phase — checkers,
+    // persistence, parity gates — is identical, so a Replit page must clear the
+    // same bar as a Claude page.
+    engine = engineOverride ?? (await engineFor(run.engine));
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unsupported engine";
     const failed = patchPhase(run.phases as unknown as PhaseLadderEntry[], phase, {
@@ -175,6 +185,11 @@ router.post("/mc/runs", async (req, res) => {
     });
     return;
   }
+  // Replit-mode runs are operator-driven, so they are created "queued" and wait
+  // for a human operator to pick them up via the run-book — the server never
+  // auto-runs them. Dashboard (claude) runs start "running" and execute Research
+  // immediately.
+  const isReplit = engine === "replit";
   const [row] = await db
     .insert(mcRunsTable)
     .values({
@@ -191,11 +206,18 @@ router.post("/mc/runs", async (req, res) => {
       verifiedCid: body.verifiedCid ?? null,
       designBibleHash: body.designBibleHash ?? null,
       blogTopic: body.blogTopic ?? null,
-      status: "running",
+      status: isReplit ? "queued" : "running",
       currentPhase: "research",
       phases: initialPhases() as unknown as Record<string, unknown>[],
     })
     .returning();
+
+  if (isReplit) {
+    // Hand off to the Replit operator queue: Research stays "ready" for pickup.
+    res.status(201).json(serializeRun(row!));
+    return;
+  }
+
   // "Go" runs the pipeline: Research executes immediately, then pauses at the
   // first review gate. Subsequent phases auto-run on approval (see approve).
   const result = await executePhase(row!, "research");
@@ -293,6 +315,66 @@ router.post("/mc/runs/:id/phases/:phase/run", async (req, res) => {
   res.json(serializeRun(result.run));
 });
 
+// POST /mc/runs/:id/phases/:phase/replit — submit an operator/Agent-produced
+// artifact for a Replit-mode run and execute the phase against it. This is the
+// handoff seam the run-book CLI calls: the Replit Agent builds the HTML/schema,
+// the operator submits it here, and it flows through the SAME orchestrator,
+// checkers, and parity gates as a Claude run.
+router.post("/mc/runs/:id/phases/:phase/replit", async (req, res) => {
+  const id = Number(req.params.id);
+  const phase = String(req.params.phase);
+  if (!isPhase(phase)) {
+    res.status(400).json({ error: `Unknown phase: ${phase}` });
+    return;
+  }
+  const run = await loadRun(id);
+  if (!run) {
+    res.status(404).json({ error: "Run not found" });
+    return;
+  }
+  if (run.engine !== "replit") {
+    res.status(400).json({
+      error: `Run #${id} is a "${run.engine}" run. The Replit phase endpoint only drives Replit-mode runs.`,
+    });
+    return;
+  }
+
+  // Same phase-gate ladder as Dashboard mode: a phase only runs when it is the
+  // ready rung, still in review (re-submit), or being retried after a failure.
+  const ladder = run.phases as unknown as PhaseLadderEntry[];
+  const entry = ladder.find((p) => p.phase === phase);
+  const runnable = entry && ["ready", "review", "failed"].includes(entry.status);
+  if (!runnable) {
+    res.status(409).json({
+      error: `Phase "${phase}" is not runnable in its current state (${entry?.status ?? "unknown"}). Type "next" to approve the prior phase first.`,
+      run: serializeRun(run),
+    });
+    return;
+  }
+
+  // The Build/Audit phases need operator HTML; Schema needs the JSON-LD. Research
+  // reuses the shared n8n research fetch (parity with Dashboard) and Publish uses
+  // the shared publisher — neither needs a submitted artifact.
+  const body = req.body ?? {};
+  const html = typeof body.html === "string" ? body.html : undefined;
+  const schema = typeof body.schema === "string" ? body.schema : undefined;
+  if ((phase === "build" || phase === "audit") && !html) {
+    res.status(400).json({ error: `Phase "${phase}" requires { html } produced by the Replit Agent.` });
+    return;
+  }
+  if (phase === "schema" && !schema) {
+    res.status(400).json({ error: `Phase "schema" requires { schema } (JSON-LD) produced by the Replit Agent.` });
+    return;
+  }
+
+  const result = await executePhase(run, phase, replitEngineFor({ html, schema }));
+  if (!result.ok) {
+    res.status(400).json({ error: result.error ?? "Phase failed", run: serializeRun(result.run) });
+    return;
+  }
+  res.json(serializeRun(result.run));
+});
+
 // POST /mc/runs/:id/phases/:phase/approve — approve and unlock next
 router.post("/mc/runs/:id/phases/:phase/approve", async (req, res) => {
   const id = Number(req.params.id);
@@ -334,11 +416,16 @@ router.post("/mc/runs/:id/phases/:phase/approve", async (req, res) => {
     .where(eq(mcRunsTable.id, id))
     .returning();
 
-  // Approving a phase advances the pipeline: the next phase runs automatically
-  // and then pauses at its own review gate. The VA only ever approves — they
-  // never have to manually trigger each phase. The final phase (publish) has no
-  // "next", so approving the phase before it (schema) auto-runs publish.
-  if (next) {
+  // Dashboard (claude) mode: approving a phase advances the pipeline — the next
+  // phase runs automatically and then pauses at its own review gate. The VA only
+  // ever approves; they never manually trigger each phase. The final phase
+  // (publish) has no "next", so approving schema auto-runs publish.
+  //
+  // Replit mode: "Approve" (the operator typing "next") only opens the gate —
+  // it never auto-runs, because the next artifact must be produced by the Replit
+  // Agent and submitted via the Replit phase endpoint. The next phase is left
+  // "ready" for operator pickup.
+  if (next && updated!.engine !== "replit") {
     const result = await executePhase(updated!, next);
     res.json(serializeRun(result.run));
     return;
@@ -404,6 +491,13 @@ router.post("/mc/runs/:id/chat", async (req, res) => {
   const run = await loadRun(id);
   if (!run) {
     res.status(404).json({ error: "Run not found" });
+    return;
+  }
+  if (run.engine === "replit") {
+    res.status(400).json({
+      error:
+        "AI Edit Chat is a Dashboard-mode (Claude) feature. In Replit mode, edit the page with the Replit Agent and re-submit the Build or Audit phase via the run-book (POST /mc/runs/:id/phases/:phase/replit).",
+    });
     return;
   }
   if (!run.pageHtml) {

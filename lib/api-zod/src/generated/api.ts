@@ -26,7 +26,7 @@ export const ListRunsResponseItem = zod.object({
   "state": zod.string(),
   "track": zod.enum(['page', 'blog']),
   "engine": zod.enum(['claude', 'replit']),
-  "status": zod.enum(['draft', 'running', 'review', 'approved', 'publishing', 'published', 'failed']),
+  "status": zod.enum(['draft', 'queued', 'running', 'review', 'approved', 'publishing', 'published', 'failed']),
   "currentPhase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
   "classification": zod.string().optional(),
   "niche": zod.string().optional(),
@@ -130,7 +130,7 @@ export const GetSummaryResponse = zod.object({
   "state": zod.string(),
   "track": zod.enum(['page', 'blog']),
   "engine": zod.enum(['claude', 'replit']),
-  "status": zod.enum(['draft', 'running', 'review', 'approved', 'publishing', 'published', 'failed']),
+  "status": zod.enum(['draft', 'queued', 'running', 'review', 'approved', 'publishing', 'published', 'failed']),
   "currentPhase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
   "classification": zod.string().optional(),
   "niche": zod.string().optional(),
@@ -228,7 +228,7 @@ export const GetRunResponse = zod.object({
   "state": zod.string(),
   "track": zod.enum(['page', 'blog']),
   "engine": zod.enum(['claude', 'replit']),
-  "status": zod.enum(['draft', 'running', 'review', 'approved', 'publishing', 'published', 'failed']),
+  "status": zod.enum(['draft', 'queued', 'running', 'review', 'approved', 'publishing', 'published', 'failed']),
   "currentPhase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
   "classification": zod.string().optional(),
   "niche": zod.string().optional(),
@@ -309,7 +309,85 @@ export const RunPhaseResponse = zod.object({
   "state": zod.string(),
   "track": zod.enum(['page', 'blog']),
   "engine": zod.enum(['claude', 'replit']),
-  "status": zod.enum(['draft', 'running', 'review', 'approved', 'publishing', 'published', 'failed']),
+  "status": zod.enum(['draft', 'queued', 'running', 'review', 'approved', 'publishing', 'published', 'failed']),
+  "currentPhase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
+  "classification": zod.string().optional(),
+  "niche": zod.string().optional(),
+  "competition": zod.string().optional(),
+  "pageType": zod.string().optional(),
+  "existingUrls": zod.array(zod.string()).optional(),
+  "handoff": zod.string().nullish(),
+  "verifiedCid": zod.string().nullish(),
+  "designBibleHash": zod.string().nullish(),
+  "blogTopic": zod.string().nullish(),
+  "researchBrief": zod.union([zod.object({
+  "summary": zod.string().nullish(),
+  "entities": zod.array(zod.record(zod.string(), zod.unknown())).optional(),
+  "sources": zod.array(zod.string()).optional(),
+  "flags": zod.array(zod.object({
+  "name": zod.string(),
+  "field": zod.string(),
+  "issue": zod.string(),
+  "verified": zod.boolean().optional()
+})).optional(),
+  "raw": zod.string().nullish()
+}),zod.null()]).optional(),
+  "pageHtml": zod.string().nullish(),
+  "generatedSchema": zod.string().nullish(),
+  "joomlaMeta": zod.union([zod.object({
+  "title": zod.string().nullish(),
+  "description": zod.string().nullish(),
+  "keywords": zod.string().nullish(),
+  "alias": zod.string().nullish()
+}),zod.null()]).optional(),
+  "checkerReport": zod.union([zod.object({
+  "passed": zod.boolean(),
+  "errorCount": zod.number().optional(),
+  "warningCount": zod.number().optional(),
+  "wordCount": zod.number().optional(),
+  "ranAt": zod.string().nullish(),
+  "checks": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "severity": zod.enum(['error', 'warning', 'info']),
+  "passed": zod.boolean(),
+  "message": zod.string(),
+  "details": zod.array(zod.string()).optional()
+}))
+}),zod.null()]).optional(),
+  "phases": zod.array(zod.object({
+  "phase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
+  "status": zod.enum(['locked', 'ready', 'running', 'review', 'approved', 'failed']),
+  "summary": zod.string().nullish(),
+  "error": zod.string().nullish(),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish()
+})),
+  "createdAt": zod.string().nullish(),
+  "updatedAt": zod.string().nullish()
+})
+
+
+/**
+ * @summary Submit an operator/Agent-produced artifact and execute the phase (Replit mode)
+ */
+export const RunReplitPhaseParams = zod.object({
+  "id": zod.coerce.number(),
+  "phase": zod.enum(['research', 'build', 'audit', 'schema', 'publish'])
+})
+
+export const RunReplitPhaseBody = zod.object({
+  "html": zod.string().optional().describe('HTML produced by the Replit Agent (Build \/ Audit phases).'),
+  "schema": zod.string().optional().describe('JSON-LD produced by the Replit Agent (Schema phase).')
+}).describe('Operator\/Agent-produced artifact for a Replit-mode phase. Build and Audit require `html`; Schema requires `schema`. Research and Publish need no body (they reuse the shared research fetch and publisher).')
+
+export const RunReplitPhaseResponse = zod.object({
+  "id": zod.number(),
+  "city": zod.string(),
+  "state": zod.string(),
+  "track": zod.enum(['page', 'blog']),
+  "engine": zod.enum(['claude', 'replit']),
+  "status": zod.enum(['draft', 'queued', 'running', 'review', 'approved', 'publishing', 'published', 'failed']),
   "currentPhase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
   "classification": zod.string().optional(),
   "niche": zod.string().optional(),
@@ -382,7 +460,7 @@ export const ApprovePhaseResponse = zod.object({
   "state": zod.string(),
   "track": zod.enum(['page', 'blog']),
   "engine": zod.enum(['claude', 'replit']),
-  "status": zod.enum(['draft', 'running', 'review', 'approved', 'publishing', 'published', 'failed']),
+  "status": zod.enum(['draft', 'queued', 'running', 'review', 'approved', 'publishing', 'published', 'failed']),
   "currentPhase": zod.enum(['research', 'build', 'audit', 'schema', 'publish']),
   "classification": zod.string().optional(),
   "niche": zod.string().optional(),

@@ -37,7 +37,7 @@ Page Terminal is the "M.A.R.K." (Machine Assisted Routing Kit) toolset — a nav
 
 This monorepo also hosts **Mission Control** (`artifacts/mission-control`), a standalone page-builder app (Dashboard mode) for STS VAs. A VA enters a city + Go and the server runs a phase pipeline — Research → Build → Audit → Schema → Publish — with per-phase review/approve gates, DB-backed run state, a live preview frame, AI chat-edit, a loud checker suite, parallel runs, an STS blog track, and an atomic Joomla publishing seam.
 
-- Engine logic lives in the reusable lib `@workspace/mc-core` behind a clean `AIEngine` seam (`ClaudeEngine` now; a "Replit mode" engine is planned). The pipeline orchestrator never imports a concrete LLM client directly.
+- Engine logic lives in the reusable lib `@workspace/mc-core` behind a clean `AIEngine` seam with two engines: `ClaudeEngine` (Dashboard mode, auto-runs via the Anthropic API) and `ReplitEngine` (Replit mode, an operator-driven engine that returns Agent-supplied content). The pipeline orchestrator never imports a concrete LLM client directly, and both engines flow through the same `runPhase` + checker suite.
 - Backed by namespaced routes (`/api/mc/*`) in the shared api-server and dedicated `mc_*` tables. Page Terminal is untouched.
 - The Research phase depends on the external n8n `mark-ai-brain` webhook; when that webhook is unavailable the phase fails loudly and downstream phases stay locked.
 - Run with `pnpm --filter @workspace/mission-control run dev`; engine unit tests: `pnpm --filter @workspace/mc-core run test`.
@@ -53,3 +53,4 @@ _Populate as you build — sharp edges, "always run X before Y" rules._
 ## Pointers
 
 - See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- `docs/replit-agent-runbook.md` — operator run-book for "Replit mode": running the page-building pipeline with the Replit Agent as a second engine alongside the Claude-API "Dashboard mode". Covers the engine toggle, queued runs, the operator CLI (`pnpm --filter @workspace/scripts run mc <cmd>`), per-phase handoff, and the parity gate.

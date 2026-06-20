@@ -89,6 +89,7 @@ export default function RunDetail() {
 
   const phaseState = (p: Phase) => run.phases?.find((x) => x.phase === p);
   const report = run.checkerReport;
+  const isReplit = run.engine === "replit";
 
   const handleRun = (p: Phase) => {
     runPhase.mutate(
@@ -213,6 +214,20 @@ export default function RunDetail() {
         </div>
       </header>
 
+      {isReplit && (
+        <div className="px-6 pt-4">
+          <div className="rounded-md border border-secondary/40 bg-secondary/10 p-3 text-sm text-muted-foreground max-w-[1600px] mx-auto">
+            <span className="font-medium text-foreground">Replit mode.</span>{" "}
+            This run is built by the Replit Agent via the operator run-book — the
+            dashboard is the review surface. Run phases from the shell with{" "}
+            <code className="font-mono text-foreground">pnpm --filter @workspace/scripts run mc</code>{" "}
+            (research / build / audit / schema / publish), and approve each gate
+            here or by typing <span className="font-mono">next</span>. Pages pass
+            the identical checker suite before they can be approved or published.
+          </div>
+        </div>
+      )}
+
       <div className="flex-1 grid grid-cols-1 xl:grid-cols-3 gap-6 p-6 max-w-[1600px] mx-auto w-full">
         {/* Left column: pipeline + checkers */}
         <div className="space-y-6 xl:col-span-1">
@@ -232,7 +247,10 @@ export default function RunDetail() {
                 // approving a phase auto-runs the next. So the only manual action
                 // on the forward path is Approve; "Retry" is just the escape hatch
                 // for a phase that failed.
-                const canRetry = status === "failed";
+                // Retry runs the Dashboard (Claude) auto-run path, which does not
+                // apply to operator-driven Replit runs — they re-run a phase by
+                // re-submitting the artifact via the run-book CLI.
+                const canRetry = status === "failed" && !isReplit;
                 const canApprove = status === "review";
                 return (
                   <div
@@ -386,7 +404,13 @@ export default function RunDetail() {
           </CardHeader>
           <CardContent className="p-4 flex-1 flex flex-col">
             <div className="flex-1 space-y-3 overflow-auto min-h-[300px] max-h-[500px] mb-4">
-              {!chat || chat.length === 0 ? (
+              {isReplit ? (
+                <p className="text-sm text-muted-foreground">
+                  AI Edit Chat is a Dashboard (Claude) feature. In Replit mode,
+                  edit the page with the Replit Agent and re-submit the Build or
+                  Audit phase via the run-book CLI.
+                </p>
+              ) : !chat || chat.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   Ask for surgical edits to the page once it is built.
                 </p>
@@ -412,13 +436,13 @@ export default function RunDetail() {
               <Input
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
-                placeholder="e.g. Add a CTA after the intro"
-                disabled={!run.pageHtml || chatEdit.isPending}
+                placeholder={isReplit ? "Unavailable in Replit mode" : "e.g. Add a CTA after the intro"}
+                disabled={isReplit || !run.pageHtml || chatEdit.isPending}
                 onKeyDown={(e) => e.key === "Enter" && handleChat()}
               />
               <Button
                 onClick={handleChat}
-                disabled={!run.pageHtml || chatEdit.isPending || !message.trim()}
+                disabled={isReplit || !run.pageHtml || chatEdit.isPending || !message.trim()}
               >
                 {chatEdit.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send"}
               </Button>

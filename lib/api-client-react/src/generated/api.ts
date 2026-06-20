@@ -29,6 +29,7 @@ import type {
   HealthStatus,
   MissionRun,
   RegistryInfo,
+  ReplitPhaseInput,
   RunInput
 } from './api.schemas';
 
@@ -641,6 +642,80 @@ export const useRunPhase = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getRunPhaseMutationOptions(options));
+    }
+
+export const getRunReplitPhaseUrl = (id: number,
+    phase: 'research' | 'build' | 'audit' | 'schema' | 'publish',) => {
+
+
+
+
+  return `/api/mc/runs/${id}/phases/${phase}/replit`
+}
+
+/**
+ * @summary Submit an operator/Agent-produced artifact and execute the phase (Replit mode)
+ */
+export const runReplitPhase = async (id: number,
+    phase: 'research' | 'build' | 'audit' | 'schema' | 'publish',
+    replitPhaseInput?: ReplitPhaseInput, options?: RequestInit): Promise<MissionRun> => {
+
+  return customFetch<MissionRun>(getRunReplitPhaseUrl(id,phase),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      replitPhaseInput,)
+  }
+);}
+
+
+
+
+export const getRunReplitPhaseMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runReplitPhase>>, TError,{id: number;phase: 'research' | 'build' | 'audit' | 'schema' | 'publish';data?: BodyType<ReplitPhaseInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof runReplitPhase>>, TError,{id: number;phase: 'research' | 'build' | 'audit' | 'schema' | 'publish';data?: BodyType<ReplitPhaseInput>}, TContext> => {
+
+const mutationKey = ['runReplitPhase'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof runReplitPhase>>, {id: number;phase: 'research' | 'build' | 'audit' | 'schema' | 'publish';data?: BodyType<ReplitPhaseInput>}> = (props) => {
+          const {id,phase,data} = props ?? {};
+
+          return  runReplitPhase(id,phase,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RunReplitPhaseMutationResult = NonNullable<Awaited<ReturnType<typeof runReplitPhase>>>
+    export type RunReplitPhaseMutationBody = BodyType<ReplitPhaseInput> | undefined
+    export type RunReplitPhaseMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Submit an operator/Agent-produced artifact and execute the phase (Replit mode)
+ */
+export const useRunReplitPhase = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runReplitPhase>>, TError,{id: number;phase: 'research' | 'build' | 'audit' | 'schema' | 'publish';data?: BodyType<ReplitPhaseInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof runReplitPhase>>,
+        TError,
+        {id: number;phase: 'research' | 'build' | 'audit' | 'schema' | 'publish';data?: BodyType<ReplitPhaseInput>},
+        TContext
+      > => {
+      return useMutation(getRunReplitPhaseMutationOptions(options));
     }
 
 export const getApprovePhaseUrl = (id: number,

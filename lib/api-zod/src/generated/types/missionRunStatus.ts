@@ -11,6 +11,7 @@ export type MissionRunStatus = typeof MissionRunStatus[keyof typeof MissionRunSt
 
 export const MissionRunStatus = {
   draft: 'draft',
+  queued: 'queued',
   running: 'running',
   review: 'review',
   approved: 'approved',

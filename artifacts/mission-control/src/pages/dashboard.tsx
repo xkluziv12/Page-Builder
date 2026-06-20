@@ -41,7 +41,13 @@ export default function Dashboard() {
         onSuccess: () => {
           setCity("");
           setState("");
-          toast({ title: "Run Launched", description: `Build for ${city}, ${state} started.` });
+          toast({
+            title: engine === "replit" ? "Queued for Replit" : "Run Launched",
+            description:
+              engine === "replit"
+                ? `${city}, ${state} is queued for a Replit operator to pick up.`
+                : `Build for ${city}, ${state} started.`,
+          });
           queryClient.invalidateQueries({ queryKey: getListRunsQueryKey() });
           queryClient.invalidateQueries({ queryKey: getGetSummaryQueryKey() });
         },
@@ -121,11 +127,11 @@ export default function Dashboard() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Engine</label>
-                  <Select value={engine} onValueChange={(v: "claude") => setEngine(v)}>
+                  <Select value={engine} onValueChange={(v: "claude"|"replit") => setEngine(v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="claude">Claude</SelectItem>
-                      <SelectItem value="replit" disabled>Replit (coming soon)</SelectItem>
+                      <SelectItem value="claude">Claude (Dashboard)</SelectItem>
+                      <SelectItem value="replit">Replit (Agent)</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -186,6 +192,7 @@ export default function Dashboard() {
                       <tr>
                         <th className="px-6 py-3 font-medium">ID</th>
                         <th className="px-6 py-3 font-medium">Target</th>
+                        <th className="px-6 py-3 font-medium">Engine</th>
                         <th className="px-6 py-3 font-medium">Status</th>
                         <th className="px-6 py-3 font-medium">Phase</th>
                         <th className="px-6 py-3 font-medium text-right">Action</th>
@@ -196,6 +203,11 @@ export default function Dashboard() {
                         <tr key={run.id} className="hover:bg-muted/20 transition-colors">
                           <td className="px-6 py-4 font-mono text-muted-foreground">#{run.id}</td>
                           <td className="px-6 py-4 font-medium">{run.city}, {run.state}</td>
+                          <td className="px-6 py-4">
+                            <Badge variant={run.engine === 'replit' ? 'default' : 'outline'} className="uppercase">
+                              {run.engine}
+                            </Badge>
+                          </td>
                           <td className="px-6 py-4">
                             <Badge variant={run.status === 'failed' ? 'destructive' : run.status === 'published' ? 'default' : 'secondary'} className="uppercase">
                               {run.status}

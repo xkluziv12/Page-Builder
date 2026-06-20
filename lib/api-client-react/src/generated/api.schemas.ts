@@ -83,6 +83,16 @@ export interface ChatInput {
   message: string;
 }
 
+/**
+ * Operator/Agent-produced artifact for a Replit-mode phase. Build and Audit require `html`; Schema requires `schema`. Research and Publish need no body (they reuse the shared research fetch and publisher).
+ */
+export interface ReplitPhaseInput {
+  /** HTML produced by the Replit Agent (Build / Audit phases). */
+  html?: string;
+  /** JSON-LD produced by the Replit Agent (Schema phase). */
+  schema?: string;
+}
+
 export type PhaseStatePhase = typeof PhaseStatePhase[keyof typeof PhaseStatePhase];
 
 
@@ -222,6 +232,7 @@ export type MissionRunStatus = typeof MissionRunStatus[keyof typeof MissionRunSt
 
 export const MissionRunStatus = {
   draft: 'draft',
+  queued: 'queued',
   running: 'running',
   review: 'review',
   approved: 'approved',

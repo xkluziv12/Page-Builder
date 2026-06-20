@@ -28,6 +28,7 @@ export * from './phaseStatePhase';
 export * from './phaseStateStatus';
 export * from './registryInfo';
 export * from './registryLink';
+export * from './replitPhaseInput';
 export * from './researchBrief';
 export * from './researchBriefEntitiesItem';
 export * from './runInput';

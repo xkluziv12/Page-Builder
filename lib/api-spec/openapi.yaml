@@ -137,6 +137,34 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  /mc/runs/{id}/phases/{phase}/replit:
+    post:
+      operationId: runReplitPhase
+      tags: [mission-control]
+      summary: Submit an operator/Agent-produced artifact and execute the phase (Replit mode)
+      parameters:
+        - $ref: "#/components/parameters/RunId"
+        - $ref: "#/components/parameters/PhaseName"
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ReplitPhaseInput"
+      responses:
+        "200":
+          description: Phase executed against the submitted artifact; updated run state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissionRun"
+        "400":
+          description: Phase could not run or required artifact missing
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /mc/runs/{id}/phases/{phase}/approve:
     post:
       operationId: approvePhase
@@ -289,6 +317,20 @@ components:
           type: string
           minLength: 1
 
+    ReplitPhaseInput:
+      type: object
+      description: >-
+        Operator/Agent-produced artifact for a Replit-mode phase. Build and Audit
+        require `html`; Schema requires `schema`. Research and Publish need no
+        body (they reuse the shared research fetch and publisher).
+      properties:
+        html:
+          type: string
+          description: HTML produced by the Replit Agent (Build / Audit phases).
+        schema:
+          type: string
+          description: JSON-LD produced by the Replit Agent (Schema phase).
+
     PhaseState:
       type: object
       required: [phase, status]
@@ -437,7 +479,7 @@ components:
           enum: [claude, replit]
         status:
           type: string
-          enum: [draft, running, review, approved, publishing, published, failed]
+          enum: [draft, queued, running, review, approved, publishing, published, failed]
         currentPhase:
           type: string
           enum: [research, build, audit, schema, publish]

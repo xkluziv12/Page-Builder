@@ -1,6 +1,7 @@
 import { db, mcUrlRegistryTable, type McRun } from "@workspace/db";
 import {
   ClaudeEngine,
+  ReplitEngine,
   createJoomlaPublisher,
   buildRegistry,
   DEFAULT_SACRED_LINKS,
@@ -58,22 +59,49 @@ export const publisher = createJoomlaPublisher({
   token: process.env.JOOMLA_PUBLISH_TOKEN,
 });
 
-/** Engines available in Dashboard mode. "replit" is a planned follow-on. */
-export const SUPPORTED_ENGINES = ["claude"] as const;
+/**
+ * Engines a run can be created with.
+ *
+ * - `claude` — Dashboard mode: the server auto-runs each phase by calling the
+ *   Anthropic API (a synchronous {@link AIEngine}).
+ * - `replit` — Replit mode: an operator drives Replit's own Agent, which
+ *   produces each artifact; the operator submits it through the Replit phase
+ *   endpoint. The server never calls an external model for these runs.
+ */
+export const SUPPORTED_ENGINES = ["claude", "replit"] as const;
 
 /**
- * Resolve the engine for a run. Only Claude exists today; rather than silently
- * substituting Claude for an unsupported engine (which would mislabel run
- * provenance), unsupported engines fail loudly. The seam stays ready for a
- * second engine.
+ * Resolve the engine used by the server's *auto-run* path (Dashboard mode).
+ * Only Claude is auto-runnable: Replit runs are operator-driven and supply their
+ * own {@link ReplitEngine} per phase via the Replit submit endpoint, so they
+ * never go through this resolver. Calling it for "replit" therefore fails loudly
+ * rather than silently mislabeling provenance.
  */
 export async function engineFor(engine: string): Promise<AIEngine> {
   if (engine === "claude") {
     return new ClaudeEngine(await getAnthropic());
   }
+  if (engine === "replit") {
+    throw new Error(
+      `Replit-mode runs are operator-driven and cannot be auto-run by the server. The Replit Agent must submit each phase's artifact via the Replit run-book (POST /mc/runs/:id/phases/:phase/replit).`,
+    );
+  }
   throw new Error(
-    `Engine "${engine}" is not supported in Dashboard mode yet. Available engines: ${SUPPORTED_ENGINES.join(", ")}. "replit" mode is a planned follow-on.`,
+    `Engine "${engine}" is not supported. Available engines: ${SUPPORTED_ENGINES.join(", ")}.`,
   );
+}
+
+/** Build a Replit-mode engine seeded with operator-produced artifacts. */
+export function replitEngineFor(content: {
+  html?: string;
+  schema?: string;
+}): AIEngine {
+  return new ReplitEngine({
+    build: content.html,
+    audit: content.html,
+    chat: content.html,
+    schema: content.schema,
+  });
 }
 
 /** Load the merged, DB-seeded safeguard registry. */
