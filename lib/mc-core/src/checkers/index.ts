@@ -20,6 +20,7 @@ import {
 } from "../registry";
 import { extractHrefs, extractImgSrcs, stripTags, wordCount } from "./text";
 import { computeStructuralHash } from "./structural-hash";
+import { parseSchema } from "../schema/generator";
 
 export interface CheckerInput {
   html: string;
@@ -32,6 +33,12 @@ export interface CheckerInput {
   /** Word-count floor is only enforced after the audit phase has run. */
   afterAudit?: boolean;
   schema?: string | null;
+  /**
+   * The run's verified Google CID. This is the GMB vs No-GMB signal: present =>
+   * the page is a Google Business Profile page; absent => a No-GMB page. Drives
+   * the schema-rules checker.
+   */
+  verifiedCid?: string | null;
   joomlaMeta?: JoomlaMeta | null;
   businessName?: string;
   /** Researched entities from the brief, used for entity-consistency checks. */
@@ -627,6 +634,150 @@ export function checkAssertAfterReplace(
   );
 }
 
+/** URLs that indicate a Google Business Profile / Google Maps listing. */
+function isMapsUrl(url: string): boolean {
+  return /(?:google\.[a-z.]+\/maps|maps\.google\.|maps\.app\.goo\.gl|goo\.gl\/maps|\bg\.page\b)/i.test(
+    url,
+  );
+}
+
+interface SchemaWalk {
+  keys: Set<string>;
+  sameAs: string[];
+  /** Concrete CID values found: `cid` property values + `?cid=`/`&cid=` URL params. */
+  cidValues: Set<string>;
+}
+
+/** Collect every string leaf under a node (for sameAs values, which may nest). */
+function collectStrings(node: unknown, out: string[]): void {
+  if (Array.isArray(node)) {
+    for (const n of node) collectStrings(n, out);
+  } else if (typeof node === "string") {
+    out.push(node);
+  } else if (node && typeof node === "object") {
+    for (const v of Object.values(node as Record<string, unknown>)) collectStrings(v, out);
+  }
+}
+
+/** Pull every `?cid=<digits>` / `&cid=<digits>` value out of a URL-ish string. */
+function extractCidParams(s: string, out: Set<string>): void {
+  const re = /[?&]cid=(\d+)/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(s)) !== null) out.add(m[1]!);
+}
+
+/**
+ * Recursively index a parsed JSON-LD object. Records lowercased keys (for
+ * forbidden-field detection), sameAs values, and — crucially for GMB — the
+ * concrete CID *values* found in `cid` properties and `cid=` URL params, so the
+ * GMB check can require the exact verified CID rather than mere key presence.
+ */
+function walkSchema(node: unknown, acc: SchemaWalk): void {
+  if (Array.isArray(node)) {
+    for (const item of node) walkSchema(item, acc);
+    return;
+  }
+  if (node && typeof node === "object") {
+    for (const [k, v] of Object.entries(node as Record<string, unknown>)) {
+      const lk = k.toLowerCase();
+      acc.keys.add(lk);
+      if (lk === "sameas") collectStrings(v, acc.sameAs);
+      if (lk === "cid" && (typeof v === "string" || typeof v === "number")) {
+        acc.cidValues.add(String(v).trim());
+      }
+      walkSchema(v, acc);
+    }
+    return;
+  }
+  if (typeof node === "string") extractCidParams(node, acc.cidValues);
+}
+
+/**
+ * 14. GMB vs No-GMB JSON-LD schema rules. `verifiedCid` is the GMB signal: a run
+ * WITH a verified CID is a Google Business Profile page whose schema must carry
+ * that CID; a run WITHOUT one is a No-GMB page whose schema must not leak any
+ * location-identity signals (a CID, street address, postal code, phone, map
+ * link, or ratings/reviews). This gates the AI-produced schema deterministically
+ * without a page-type enum or variant refactor. It reports/gates only; it never
+ * rewrites the schema. Reuses the shared `parseSchema` helper.
+ */
+export function checkSchemaRules(
+  schema: string | null | undefined,
+  verifiedCid: string | null | undefined,
+): CheckResult {
+  if (!schema || !schema.trim()) {
+    return pass("schema-rules", "Schema GMB rules", "No schema provided yet; skipped.");
+  }
+  const parsed = parseSchema(schema);
+  if (!parsed) {
+    // Validity is enforced upstream (the schema phase falls back to the
+    // deterministic generator on unparseable engine output), so a non-JSON
+    // schema is out of scope for this rule check.
+    return pass(
+      "schema-rules",
+      "Schema GMB rules",
+      "Schema is not parseable JSON-LD; GMB rule checks skipped (validity handled elsewhere).",
+    );
+  }
+  const acc: SchemaWalk = { keys: new Set(), sameAs: [], cidValues: new Set() };
+  walkSchema(parsed, acc);
+
+  const cid = verifiedCid?.trim() || null;
+  // A CID is only "present" when a concrete value was found in a `cid` property
+  // or a `cid=` URL param — a bare `cid` key with no value, or CID-looking
+  // digits buried in unrelated copy, do not count.
+  const hasCid = acc.cidValues.size > 0;
+
+  if (cid) {
+    // GMB page: the schema must carry the EXACT verified CID, not just any CID.
+    if (acc.cidValues.has(cid)) {
+      return pass(
+        "schema-rules",
+        "Schema GMB rules",
+        "GMB page: schema carries the verified Google CID.",
+      );
+    }
+    const found = [...acc.cidValues];
+    const detail =
+      found.length > 0
+        ? `schema carries CID(s) [${found.join(", ")}] but not the verified CID "${cid}"`
+        : `verified CID "${cid}" not found in schema`;
+    return fail(
+      "schema-rules",
+      "Schema GMB rules",
+      "error",
+      "GMB page (verified CID present) but the schema is missing the verified Google CID. Add the correct CID so the page resolves to the verified Business Profile.",
+      [detail],
+    );
+  }
+
+  // No-GMB page: the schema must not leak Google Business Profile signals.
+  const offending: string[] = [];
+  if (hasCid) offending.push("contains a Google CID");
+  if (acc.keys.has("streetaddress")) offending.push("contains streetAddress");
+  if (acc.keys.has("postalcode")) offending.push("contains postalCode");
+  if (acc.keys.has("telephone")) offending.push("contains telephone");
+  if (acc.keys.has("hasmap")) offending.push("contains hasMap");
+  if (acc.sameAs.some(isMapsUrl)) offending.push("contains a Google Maps sameAs link");
+  if (acc.keys.has("aggregaterating")) offending.push("contains aggregateRating");
+  if (acc.keys.has("review") || acc.keys.has("reviews")) offending.push("contains review(s)");
+
+  if (offending.length === 0) {
+    return pass(
+      "schema-rules",
+      "Schema GMB rules",
+      "No-GMB page: schema is free of CID, address, phone, map, and rating signals.",
+    );
+  }
+  return fail(
+    "schema-rules",
+    "Schema GMB rules",
+    "error",
+    "No-GMB page: schema contains forbidden Google Business Profile signals. Remove them so the page does not claim a verified listing it does not have.",
+    offending,
+  );
+}
+
 /**
  * The checker IDs that constitute the link audit. These are carved out of the
  * full report so the dashboard can present links as their own pre-publish gate
@@ -704,6 +855,7 @@ export function runCheckers(input: CheckerInput): CheckerReport {
     checkIcons(input.html, input.approvedIconClasses),
     checkCertScope(input.html),
     checkEntityConsistency(input.html, input.schema, input.businessName, input.entities),
+    checkSchemaRules(input.schema, input.verifiedCid),
     checkAuditTargets(input.html, classification, afterAudit),
     checkAssertAfterReplace(input.html, input.replacements ?? []),
     checkBibleHash(input.designBibleHash, currentBibleHash),

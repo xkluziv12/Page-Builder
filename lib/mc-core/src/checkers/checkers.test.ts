@@ -12,6 +12,7 @@ import {
   checkKnownRedirects,
   checkPlaceholderLinks,
   checkSacredLinks,
+  checkSchemaRules,
   checkUrlRegistry,
   checkWordCount,
   runCheckers,
@@ -414,6 +415,100 @@ describe("deriveLinkAudit", () => {
     expect(audit.errorCount).toBe(1);
     expect(audit.offendingLinks).toHaveLength(1);
     expect(audit.offendingLinks[0]!.detail).toBe("http://x");
+  });
+});
+
+describe("checkSchemaRules", () => {
+  const noGmbClean = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: "STS Electronic Recycling — Austin, TX",
+    areaServed: { "@type": "City", name: "Austin" },
+    address: { "@type": "PostalAddress", addressLocality: "Austin", addressRegion: "TX" },
+  });
+
+  it("skips when no schema is provided", () => {
+    expect(checkSchemaRules(null, null).passed).toBe(true);
+    expect(checkSchemaRules("", "123").passed).toBe(true);
+  });
+
+  it("skips unparseable schema (validity handled elsewhere)", () => {
+    expect(checkSchemaRules("{not json", null).passed).toBe(true);
+  });
+
+  it("passes a clean No-GMB schema", () => {
+    expect(checkSchemaRules(noGmbClean, null).passed).toBe(true);
+  });
+
+  it("fails a No-GMB schema that leaks a CID", () => {
+    const s = JSON.stringify({
+      "@type": "LocalBusiness",
+      hasMap: "https://www.google.com/maps?cid=1234567890",
+    });
+    const r = checkSchemaRules(s, null);
+    expect(r.passed).toBe(false);
+    expect(r.severity).toBe("error");
+    expect(r.details.some((d) => /CID/i.test(d))).toBe(true);
+    expect(r.details.some((d) => /hasMap/i.test(d))).toBe(true);
+  });
+
+  it("fails a No-GMB schema with address, phone, ratings, and a Maps sameAs link", () => {
+    const s = JSON.stringify({
+      "@type": "LocalBusiness",
+      telephone: "+1-512-555-0100",
+      address: {
+        "@type": "PostalAddress",
+        streetAddress: "123 Main St",
+        postalCode: "78701",
+      },
+      sameAs: ["https://maps.app.goo.gl/abc"],
+      aggregateRating: { "@type": "AggregateRating", ratingValue: "4.8" },
+      review: [{ "@type": "Review" }],
+    });
+    const r = checkSchemaRules(s, null);
+    expect(r.passed).toBe(false);
+    const joined = r.details.join(" | ");
+    expect(joined).toMatch(/streetAddress/);
+    expect(joined).toMatch(/postalCode/);
+    expect(joined).toMatch(/telephone/);
+    expect(joined).toMatch(/sameAs/);
+    expect(joined).toMatch(/aggregateRating/);
+    expect(joined).toMatch(/review/i);
+  });
+
+  it("passes a GMB schema that carries the verified CID", () => {
+    const s = JSON.stringify({
+      "@type": "LocalBusiness",
+      hasMap: "https://www.google.com/maps?cid=987654321",
+    });
+    expect(checkSchemaRules(s, "987654321").passed).toBe(true);
+  });
+
+  it("fails a GMB schema missing the verified CID", () => {
+    const r = checkSchemaRules(noGmbClean, "987654321");
+    expect(r.passed).toBe(false);
+    expect(r.severity).toBe("error");
+    expect(r.details[0]).toMatch(/987654321/);
+  });
+
+  it("fails a GMB schema whose cid key holds the WRONG value", () => {
+    const s = JSON.stringify({ "@type": "LocalBusiness", cid: "111111111" });
+    const r = checkSchemaRules(s, "987654321");
+    expect(r.passed).toBe(false);
+    expect(r.severity).toBe("error");
+    expect(r.details[0]).toMatch(/111111111/);
+    expect(r.details[0]).toMatch(/987654321/);
+  });
+
+  it("does not pass a GMB schema where the CID only appears as an unrelated substring", () => {
+    // The verified CID's digits appear inside a longer number with no cid context.
+    const s = JSON.stringify({
+      "@type": "LocalBusiness",
+      description: "Order #987654321000 was processed.",
+    });
+    const r = checkSchemaRules(s, "987654321");
+    expect(r.passed).toBe(false);
+    expect(r.severity).toBe("error");
   });
 });
 

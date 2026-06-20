@@ -488,6 +488,7 @@ router.post("/mc/runs/:id/check", async (req, res) => {
     designBibleHash: run.designBibleHash,
     afterAudit: true,
     schema: run.generatedSchema,
+    verifiedCid: run.verifiedCid,
     businessName: "STS Electronic Recycling",
     entities: (run.researchBrief as { entities?: Record<string, unknown>[] } | null)?.entities,
   });
@@ -528,6 +529,7 @@ router.post("/mc/runs/:id/link-audit/override", async (req, res) => {
     designBibleHash: run.designBibleHash,
     afterAudit: true,
     schema: run.generatedSchema,
+    verifiedCid: run.verifiedCid,
     businessName: "STS Electronic Recycling",
     entities: (run.researchBrief as { entities?: Record<string, unknown>[] } | null)?.entities,
   });
@@ -757,6 +759,7 @@ router.post("/mc/runs/:id/chat", async (req, res) => {
       designBibleHash: run.designBibleHash,
       afterAudit: true,
       schema: run.generatedSchema,
+      verifiedCid: run.verifiedCid,
       businessName: "STS Electronic Recycling",
       entities: (run.researchBrief as { entities?: Record<string, unknown>[] } | null)?.entities,
     });

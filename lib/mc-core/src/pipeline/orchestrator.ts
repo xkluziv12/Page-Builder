@@ -25,6 +25,7 @@ function checkerBase(ctx: RunContext, html: string) {
     track: ctx.track,
     classification: ctx.classification,
     city: ctx.city,
+    verifiedCid: ctx.verifiedCid,
     designBibleHash: ctx.designBibleHash,
     currentBibleHash: computeStructuralHash(html),
   } as const;
