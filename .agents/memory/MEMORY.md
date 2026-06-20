@@ -1,1 +1,2 @@
 - [Page Terminal (M.A.R.K.) architecture](page-terminal-architecture.md) — React shell hosts self-contained static HTML tools via iframe; do not rewrite tools into React.
+- [Mission Control architecture](mission-control-architecture.md) — page-builder pipeline app; reusable mc-core engine behind AIEngine seam, /api/mc/* on shared server, research gated by external n8n webhook.

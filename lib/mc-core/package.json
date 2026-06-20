@@ -1,0 +1,22 @@
+{
+  "name": "@workspace/mc-core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./checkers": "./src/checkers/index.ts",
+    "./engine": "./src/engine/index.ts",
+    "./registry": "./src/registry.ts"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "vitest": "^4.1.9"
+  }
+}

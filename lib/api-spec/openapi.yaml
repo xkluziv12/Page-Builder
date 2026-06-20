@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: mission-control
+    description: Mission Control page-builder pipeline
 paths:
   /healthz:
     get:
@@ -24,7 +26,199 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /mc/runs:
+    get:
+      operationId: listRuns
+      tags: [mission-control]
+      summary: List all build runs
+      responses:
+        "200":
+          description: List of runs
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MissionRun"
+    post:
+      operationId: createRun
+      tags: [mission-control]
+      summary: Create a new build run
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RunInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissionRun"
+
+  /mc/summary:
+    get:
+      operationId: getSummary
+      tags: [mission-control]
+      summary: Dashboard summary (counts and recent activity)
+      responses:
+        "200":
+          description: Summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+
+  /mc/registry:
+    get:
+      operationId: getRegistry
+      tags: [mission-control]
+      summary: The locked URL/image/link safeguard registry
+      responses:
+        "200":
+          description: Registry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RegistryInfo"
+
+  /mc/runs/{id}:
+    get:
+      operationId: getRun
+      tags: [mission-control]
+      summary: Get a single run with full state
+      parameters:
+        - $ref: "#/components/parameters/RunId"
+      responses:
+        "200":
+          description: The run
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissionRun"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteRun
+      tags: [mission-control]
+      summary: Delete a run
+      parameters:
+        - $ref: "#/components/parameters/RunId"
+      responses:
+        "204":
+          description: Deleted
+
+  /mc/runs/{id}/phases/{phase}/run:
+    post:
+      operationId: runPhase
+      tags: [mission-control]
+      summary: Execute a pipeline phase
+      parameters:
+        - $ref: "#/components/parameters/RunId"
+        - $ref: "#/components/parameters/PhaseName"
+      responses:
+        "200":
+          description: Phase executed; updated run state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissionRun"
+        "400":
+          description: Phase could not run
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /mc/runs/{id}/phases/{phase}/approve:
+    post:
+      operationId: approvePhase
+      tags: [mission-control]
+      summary: Approve a completed phase and unlock the next
+      parameters:
+        - $ref: "#/components/parameters/RunId"
+        - $ref: "#/components/parameters/PhaseName"
+      responses:
+        "200":
+          description: Updated run state
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MissionRun"
+
+  /mc/runs/{id}/check:
+    post:
+      operationId: runCheckers
+      tags: [mission-control]
+      summary: Run the checker suite against the current page HTML
+      parameters:
+        - $ref: "#/components/parameters/RunId"
+      responses:
+        "200":
+          description: Checker report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckerReport"
+
+  /mc/runs/{id}/chat:
+    get:
+      operationId: getChatHistory
+      tags: [mission-control]
+      summary: Get the AI edit chat history for a run
+      parameters:
+        - $ref: "#/components/parameters/RunId"
+      responses:
+        "200":
+          description: Chat history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChatMessage"
+    post:
+      operationId: chatEdit
+      tags: [mission-control]
+      summary: Request a surgical AI edit to the page via chat
+      parameters:
+        - $ref: "#/components/parameters/RunId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatInput"
+      responses:
+        "200":
+          description: Edit result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatEditResult"
+
 components:
+  parameters:
+    RunId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+    PhaseName:
+      name: phase
+      in: path
+      required: true
+      schema:
+        type: string
+        enum: [research, build, audit, schema, publish]
   schemas:
     HealthStatus:
       type: object
@@ -34,3 +228,318 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: string
+
+    RunInput:
+      type: object
+      required: [city, state]
+      properties:
+        city:
+          type: string
+          minLength: 1
+        state:
+          type: string
+          minLength: 1
+        track:
+          type: string
+          enum: [page, blog]
+          default: page
+        engine:
+          type: string
+          enum: [claude, replit]
+          default: claude
+        classification:
+          type: string
+          enum: [NEW_BUILD, REVAMP, LIGHT_TOUCH]
+          default: NEW_BUILD
+        niche:
+          type: string
+          default: general
+        competition:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+          default: LOW
+        pageType:
+          type: string
+          enum: [HUB, SPOKE, NATIONAL]
+          default: SPOKE
+        existingUrls:
+          type: array
+          items:
+            type: string
+        handoff:
+          type: ["string", "null"]
+        verifiedCid:
+          type: ["string", "null"]
+        designBibleHash:
+          type: ["string", "null"]
+        blogTopic:
+          type: ["string", "null"]
+
+    ChatInput:
+      type: object
+      required: [message]
+      properties:
+        message:
+          type: string
+          minLength: 1
+
+    PhaseState:
+      type: object
+      required: [phase, status]
+      properties:
+        phase:
+          type: string
+          enum: [research, build, audit, schema, publish]
+        status:
+          type: string
+          enum: [locked, ready, running, review, approved, failed]
+        summary:
+          type: ["string", "null"]
+        error:
+          type: ["string", "null"]
+        startedAt:
+          type: ["string", "null"]
+        completedAt:
+          type: ["string", "null"]
+
+    CheckResult:
+      type: object
+      required: [id, label, severity, passed, message]
+      properties:
+        id:
+          type: string
+        label:
+          type: string
+        severity:
+          type: string
+          enum: [error, warning, info]
+        passed:
+          type: boolean
+        message:
+          type: string
+        details:
+          type: array
+          items:
+            type: string
+
+    CheckerReport:
+      type: object
+      required: [passed, checks]
+      properties:
+        passed:
+          type: boolean
+        errorCount:
+          type: integer
+        warningCount:
+          type: integer
+        wordCount:
+          type: integer
+        ranAt:
+          type: ["string", "null"]
+        checks:
+          type: array
+          items:
+            $ref: "#/components/schemas/CheckResult"
+
+    EntityFlag:
+      type: object
+      required: [name, field, issue]
+      properties:
+        name:
+          type: string
+        field:
+          type: string
+        issue:
+          type: string
+        verified:
+          type: boolean
+
+    ResearchBrief:
+      type: object
+      additionalProperties: true
+      properties:
+        summary:
+          type: ["string", "null"]
+        entities:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        sources:
+          type: array
+          items:
+            type: string
+        flags:
+          type: array
+          items:
+            $ref: "#/components/schemas/EntityFlag"
+        raw:
+          type: ["string", "null"]
+
+    JoomlaMeta:
+      type: object
+      properties:
+        title:
+          type: ["string", "null"]
+        description:
+          type: ["string", "null"]
+        keywords:
+          type: ["string", "null"]
+        alias:
+          type: ["string", "null"]
+
+    ChatMessage:
+      type: object
+      required: [id, role, content]
+      properties:
+        id:
+          type: integer
+        role:
+          type: string
+          enum: [user, assistant]
+        content:
+          type: string
+        createdAt:
+          type: ["string", "null"]
+
+    ChatEditResult:
+      type: object
+      required: [reply]
+      properties:
+        reply:
+          type: string
+        pageHtml:
+          type: ["string", "null"]
+        report:
+          $ref: "#/components/schemas/CheckerReport"
+
+    MissionRun:
+      type: object
+      required: [id, city, state, track, engine, status, currentPhase, phases]
+      properties:
+        id:
+          type: integer
+        city:
+          type: string
+        state:
+          type: string
+        track:
+          type: string
+          enum: [page, blog]
+        engine:
+          type: string
+          enum: [claude, replit]
+        status:
+          type: string
+          enum: [draft, running, review, approved, publishing, published, failed]
+        currentPhase:
+          type: string
+          enum: [research, build, audit, schema, publish]
+        classification:
+          type: string
+        niche:
+          type: string
+        competition:
+          type: string
+        pageType:
+          type: string
+        existingUrls:
+          type: array
+          items:
+            type: string
+        handoff:
+          type: ["string", "null"]
+        verifiedCid:
+          type: ["string", "null"]
+        designBibleHash:
+          type: ["string", "null"]
+        blogTopic:
+          type: ["string", "null"]
+        researchBrief:
+          oneOf:
+            - $ref: "#/components/schemas/ResearchBrief"
+            - type: "null"
+        pageHtml:
+          type: ["string", "null"]
+        generatedSchema:
+          type: ["string", "null"]
+        joomlaMeta:
+          oneOf:
+            - $ref: "#/components/schemas/JoomlaMeta"
+            - type: "null"
+        checkerReport:
+          oneOf:
+            - $ref: "#/components/schemas/CheckerReport"
+            - type: "null"
+        phases:
+          type: array
+          items:
+            $ref: "#/components/schemas/PhaseState"
+        createdAt:
+          type: ["string", "null"]
+        updatedAt:
+          type: ["string", "null"]
+
+    DashboardSummary:
+      type: object
+      required: [total, byStatus, recent]
+      properties:
+        total:
+          type: integer
+        byStatus:
+          type: array
+          items:
+            $ref: "#/components/schemas/StatusCount"
+        recent:
+          type: array
+          items:
+            $ref: "#/components/schemas/MissionRun"
+
+    StatusCount:
+      type: object
+      required: [status, count]
+      properties:
+        status:
+          type: string
+        count:
+          type: integer
+
+    RegistryLink:
+      type: object
+      required: [label, url]
+      properties:
+        label:
+          type: string
+        url:
+          type: string
+
+    RegistryInfo:
+      type: object
+      required: [sacredLinks, imageLibrary, industryLinks, allowlist]
+      properties:
+        baseDomain:
+          type: string
+        sacredLinks:
+          type: array
+          items:
+            $ref: "#/components/schemas/RegistryLink"
+        imageLibrary:
+          type: array
+          items:
+            $ref: "#/components/schemas/RegistryLink"
+        industryLinks:
+          type: array
+          items:
+            $ref: "#/components/schemas/RegistryLink"
+        allowlist:
+          type: array
+          items:
+            $ref: "#/components/schemas/RegistryLink"
+        wordCountFloor:
+          type: integer
