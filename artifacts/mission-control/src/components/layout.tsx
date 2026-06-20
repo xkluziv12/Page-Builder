@@ -9,10 +9,28 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     <SidebarProvider>
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar className="border-r border-sidebar-border bg-sidebar text-sidebar-foreground">
-          <SidebarHeader className="h-16 flex items-center px-4 border-b border-sidebar-border">
+          <SidebarHeader className="h-16 flex items-center justify-between px-4 border-b border-sidebar-border">
             <div className="flex items-center gap-2 text-primary">
               <Rocket className="h-5 w-5" />
               <span className="font-bold text-lg tracking-tight uppercase">MISSION CONTROL</span>
+            </div>
+            <div
+              role="group"
+              aria-label="Switch system"
+              className="inline-flex items-center rounded-full border border-primary/50 overflow-hidden text-[11px] font-bold tracking-wide"
+            >
+              <a
+                href="/"
+                className="px-3 py-1 text-sidebar-foreground/70 hover:text-sidebar-foreground transition-colors"
+              >
+                OLD
+              </a>
+              <span
+                aria-current="true"
+                className="px-3 py-1 bg-primary text-primary-foreground cursor-default"
+              >
+                NEW
+              </span>
             </div>
           </SidebarHeader>
           <SidebarContent className="p-4">

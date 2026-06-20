@@ -44,6 +44,15 @@ function App() {
             <div className="pt-brand-text">Page Terminal</div>
           </button>
 
+          <div className="pt-switch" role="group" aria-label="Switch system">
+            <span className="pt-switch-seg active" aria-current="true">
+              OLD
+            </span>
+            <a className="pt-switch-seg" href="/mission-control/">
+              NEW
+            </a>
+          </div>
+
           <button
             type="button"
             className="pt-toggle"
