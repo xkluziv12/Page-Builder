@@ -37,6 +37,8 @@ external SEO / research / publish seams.
 | `mc_page_versions` | Page HTML/schema version history (edit trail). |
 | `mc_url_registry` | Configurable safeguard registry. The source allowlist shipped empty, so the checker suite validates against these DB-seeded rows (merged with defaults) rather than a hard-coded list. `kind` is one of: sacred, image, industry, allowlist. |
 | `mc_qc_results` | Durable per-city post-publish QC record. Each run of the dashboard QC suite (GTmetrix speed + JSON-LD duplicate/integrity scan against the LIVE URL) inserts one row so the team keeps a permanent QC trail per city. The full QcReport is stored as JSONB; the boolean columns are denormalized for quick listing/filtering. |
+| `mc_work_log` | Canonical unified work-log / page registry. This is the ONE trustworthy view of "which pages/blogs are done vs not done" that every path feeds into: the old static VA tools (Page Terminal, No-GMB, Hub+Spoke, Blog Terminal), the new Mission Control pipeline, and the one-time historical import all upsert here. The natural key is `normalizedUrl` (a stripped, lower-cased URL) enforced by a unique index, so re-logging the same page UPDATES the row rather than creating a duplicate. SEO history lives in the separate mc_seo_snapshot table (one row per check) — never overwrite a single value on this row. |
+| `mc_seo_snapshot` | Date-stamped SEO snapshot, keyed to a work-log page (one row per page per check). History is preserved so monthly check-ins can compute trends (impressions % change, keyword position movement) — never overwrite. Two sources populate it: a "day-of" score captured on completion, and a scheduled monthly Google Search Console pull. |
 
 <!-- END GENERATED:db-tables -->
 
@@ -64,6 +66,13 @@ external SEO / research / publish seams.
 | POST | `/api/mc/runs/{id}/qc` | Run the post-publish QC suite (GTmetrix speed + JSON-LD scan) against the live URL |
 | GET | `/api/mc/runs/{id}/chat` | Get the AI edit chat history for a run |
 | POST | `/api/mc/runs/{id}/chat` | Request a surgical AI edit to the page via chat |
+| GET | `/api/mc/work-log` | List the canonical work-log (every page/blog, all sources) |
+| POST | `/api/mc/work-log` | Upsert a work-log record (natural-keyed by normalized URL) |
+| GET | `/api/mc/work-log/{id}/snapshots` | List the dated SEO snapshots for a work-log page (newest first) |
+| POST | `/api/mc/work-log/import` | One-time historical import of legacy master-list rows |
+| GET | `/api/mc/sitemap-reconcile` | Reconcile the work-log against the live production sitemap |
+| POST | `/api/mc/sheets/sync` | Push the work-log out to the fresh Google Sheet (one-way mirror) |
+| POST | `/api/mc/gsc/pull` | Pull dated SEO snapshots from Google Search Console for tracked pages |
 
 <!-- END GENERATED:api-routes -->
 
