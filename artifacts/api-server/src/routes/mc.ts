@@ -28,6 +28,7 @@ import {
   loadRegistry,
   nextPhase,
   publisher,
+  researchProviderFromEnv,
   serializeRun,
   toRunContext,
   PHASE_ORDER,
@@ -125,7 +126,7 @@ async function executePhase(
         checkerReport: (run.checkerReport as never) ?? null,
         linkAuditOverride: (run.linkAuditOverride as never) ?? null,
       },
-      { engine, publisher },
+      { engine, publisher, researchProvider: researchProviderFromEnv() },
     );
 
     // A publish phase only "completes" (run -> published, phase -> approved)
@@ -441,7 +442,7 @@ router.post("/mc/runs/:id/phases/:phase/replit", async (req, res) => {
   }
 
   // The Build/Audit phases need operator HTML; Schema needs the JSON-LD. Research
-  // reuses the shared n8n research fetch (parity with Dashboard) and Publish uses
+  // reuses the shared research provider (parity with Dashboard) and Publish uses
   // the shared publisher — neither needs a submitted artifact.
   const body = req.body ?? {};
   const html = typeof body.html === "string" ? body.html : undefined;

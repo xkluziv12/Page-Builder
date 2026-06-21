@@ -2,7 +2,11 @@ import { db, mcUrlRegistryTable, type McRun } from "@workspace/db";
 import {
   ClaudeEngine,
   ReplitEngine,
+  DirectResearchProvider,
+  N8nResearchProvider,
   createJoomlaPublisher,
+  createPerplexityResearch,
+  createSerpEntities,
   buildRegistry,
   deriveClassification,
   fetchSeoIntel,
@@ -20,6 +24,7 @@ import {
   type Competition,
   type ExtractedLocation,
   type RegistryLink,
+  type ResearchProvider,
   type RunContext,
   type SeoCredentials,
   type SeoIntel,
@@ -114,6 +119,54 @@ export function replitEngineFor(content: {
     chat: content.html,
     schema: content.schema,
   });
+}
+
+const SYNTHESIS_MODEL = "claude-sonnet-4-6";
+const SYNTHESIS_MAX_TOKENS = 8192;
+
+/**
+ * Structuring step for the direct research provider: a single Anthropic call
+ * that coerces web-grounded research into the strict ResearchBrief JSON. Reuses
+ * the already-wired Anthropic integration (no extra key). Returns plain text;
+ * the provider parses + fails loud on malformed JSON.
+ */
+async function synthesizeBrief(system: string, user: string): Promise<string> {
+  const client = await getAnthropic();
+  const message = await client.messages.create({
+    model: SYNTHESIS_MODEL,
+    max_tokens: SYNTHESIS_MAX_TOKENS,
+    system,
+    messages: [{ role: "user", content: user }],
+  });
+  return message.content
+    .map((b) => (b.type === "text" ? b.text : ""))
+    .join("\n")
+    .trim();
+}
+
+/**
+ * Resolve the research backend for the research phase. Defaults to the
+ * direct-API provider (Perplexity web-grounded research + citations, SerpAPI
+ * entity seeds, Claude synthesis) so a run no longer depends on the external
+ * n8n `mark-ai-brain` webhook being up. Set `MC_RESEARCH_PROVIDER=n8n` to
+ * explicitly fall back to the webhook. Missing keys (PERPLEXITY_API_KEY,
+ * SERPAPI_API_KEY) fail loudly at research time — never a silent placeholder.
+ */
+export function researchProviderFromEnv(): ResearchProvider {
+  const mode = (process.env.MC_RESEARCH_PROVIDER ?? "direct").trim().toLowerCase();
+  if (mode === "n8n") {
+    return new N8nResearchProvider();
+  }
+  if (mode === "direct") {
+    return new DirectResearchProvider({
+      groundedResearch: createPerplexityResearch(process.env.PERPLEXITY_API_KEY ?? ""),
+      fetchEntities: createSerpEntities(process.env.SERPAPI_API_KEY ?? ""),
+      synthesize: synthesizeBrief,
+    });
+  }
+  throw new Error(
+    `Unknown MC_RESEARCH_PROVIDER "${mode}". Use "direct" (default) or "n8n".`,
+  );
 }
 
 /** Load the merged, DB-seeded safeguard registry. */

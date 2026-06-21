@@ -4,7 +4,7 @@ import type { AIEngine } from "../engine/types";
 import type { JoomlaPublisher } from "../publisher/joomla";
 import { logBlogEntry, type BlogLogEntry } from "../research/blog-log";
 import { runEntityQualityGate } from "../research/entity-gate";
-import { fetchResearchBrief } from "../research/n8n";
+import type { ResearchInput, ResearchProvider } from "../research/provider";
 import { deriveJoomlaMeta, generateLocalBusinessSchema, parseSchema } from "../schema/generator";
 import type {
   CheckerReport,
@@ -60,7 +60,14 @@ export interface PhaseOutput {
 export interface PipelineDeps {
   engine: AIEngine;
   publisher: JoomlaPublisher;
-  /** Override the research fetcher (e.g. for tests). */
+  /**
+   * The research backend for the research phase. The orchestrator talks only to
+   * this seam — it never imports a concrete research client. Required to run the
+   * research phase; the api-server selects the direct-API provider by default
+   * (n8n is an explicit fallback). See `researchProviderFromEnv`.
+   */
+  researchProvider?: ResearchProvider;
+  /** Override the research fetcher directly (e.g. for tests). Takes precedence over researchProvider. */
   research?: (ctx: RunContext) => Promise<ResearchBrief>;
   /** Override the STS blog logger (e.g. for tests). Defaults to mark-blog-log. */
   blogLog?: (entry: BlogLogEntry) => Promise<void>;
@@ -82,7 +89,15 @@ export async function runPhase(
 
   switch (phase) {
     case "research": {
-      const fetch = deps.research ?? defaultResearch;
+      const provider = deps.researchProvider;
+      const fetch =
+        deps.research ??
+        (provider ? (c: RunContext) => provider.research(toResearchInput(c)) : null);
+      if (!fetch) {
+        throw new Error(
+          "No research provider configured for the research phase. Pass a researchProvider in PipelineDeps.",
+        );
+      }
       const brief = await fetch(ctx);
       // Entity data-quality gate: flag estimated/unsourced employee counts so the
       // VA must review them before approving. The brief must carry verified data,
@@ -217,15 +232,15 @@ export async function runPhase(
   }
 }
 
-function defaultResearch(ctx: RunContext): Promise<ResearchBrief> {
-  return fetchResearchBrief({
+function toResearchInput(ctx: RunContext): ResearchInput {
+  return {
     city: ctx.city,
     state: ctx.state,
     niche: ctx.niche,
     track: ctx.track,
     blogTopic: ctx.blogTopic,
     verifiedCid: ctx.verifiedCid,
-  });
+  };
 }
 
 function phaseSummary(label: string, report: CheckerReport): string {

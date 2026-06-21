@@ -1,16 +1,10 @@
 import type { EntityFlag, ResearchBrief } from "../types";
+import type { ResearchInput, ResearchProvider } from "./provider";
 
 export const MARK_AI_BRAIN_WEBHOOK =
   "https://stsrecycling.app.n8n.cloud/webhook/mark-ai-brain";
 
-export interface ResearchInput {
-  city: string;
-  state: string;
-  niche: string;
-  track: string;
-  blogTopic?: string | null;
-  verifiedCid?: string | null;
-}
+export type { ResearchInput };
 
 /**
  * Coerce whatever shape the n8n workflow returns into a ResearchBrief. The
@@ -90,4 +84,18 @@ export async function fetchResearchBrief(input: ResearchInput): Promise<Research
     }
   }
   return toBrief(data);
+}
+
+/**
+ * The n8n-backed {@link ResearchProvider}. Wraps {@link fetchResearchBrief} so
+ * the external `mark-ai-brain` webhook can still be selected as an explicit
+ * fallback for the research phase. Not the default — see
+ * `researchProviderFromEnv` in the api-server runtime.
+ */
+export class N8nResearchProvider implements ResearchProvider {
+  readonly name = "n8n";
+
+  research(input: ResearchInput): Promise<ResearchBrief> {
+    return fetchResearchBrief(input);
+  }
 }
