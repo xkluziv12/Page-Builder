@@ -6,10 +6,14 @@
   "scripts": {
     "hello": "tsx ./src/hello.ts",
     "mc": "tsx ./src/mc.ts",
+    "system-map": "tsx ./src/system-map.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@types/node": "catalog:",
     "tsx": "catalog:"
+  },
+  "dependencies": {
+    "yaml": "^2.9.0"
   }
 }
