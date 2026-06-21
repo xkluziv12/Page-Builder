@@ -305,6 +305,231 @@ export interface ChatEditResult {
   report?: CheckerReport;
 }
 
+export interface KeywordPosition {
+  keyword: string;
+  /** @nullable */
+  position?: number | null;
+}
+
+export interface KeywordMovement {
+  keyword: string;
+  /** @nullable */
+  previous?: number | null;
+  /** @nullable */
+  latest?: number | null;
+  /** @nullable */
+  delta?: number | null;
+}
+
+export interface SeoDelta {
+  /** @nullable */
+  latestDate?: string | null;
+  /** @nullable */
+  previousDate?: string | null;
+  /** @nullable */
+  latestImpressions?: number | null;
+  /** @nullable */
+  previousImpressions?: number | null;
+  /** @nullable */
+  impressionsPctChange?: number | null;
+  /** @nullable */
+  latestClicks?: number | null;
+  /** @nullable */
+  latestAvgPosition?: number | null;
+  keywordMovement?: KeywordMovement[];
+}
+
+export interface SeoSnapshot {
+  id: number;
+  workLogId: number;
+  normalizedUrl: string;
+  snapshotDate: string;
+  source: string;
+  /** @nullable */
+  impressions?: number | null;
+  /** @nullable */
+  clicks?: number | null;
+  /** @nullable */
+  avgPosition?: number | null;
+  keywords?: KeywordPosition[];
+  /** @nullable */
+  createdAt?: string | null;
+}
+
+export type WorkLogInputCompany = typeof WorkLogInputCompany[keyof typeof WorkLogInputCompany];
+
+
+export const WorkLogInputCompany = {
+  STS: 'STS',
+  DCD: 'DCD',
+  TechnoCycle: 'TechnoCycle',
+} as const;
+
+export type WorkLogInputPageType = typeof WorkLogInputPageType[keyof typeof WorkLogInputPageType];
+
+
+export const WorkLogInputPageType = {
+  city: 'city',
+  service: 'service',
+  hub: 'hub',
+  spoke: 'spoke',
+  blog: 'blog',
+} as const;
+
+export type WorkLogInputSource = typeof WorkLogInputSource[keyof typeof WorkLogInputSource];
+
+
+export const WorkLogInputSource = {
+  'old-tool': 'old-tool',
+  'mission-control': 'mission-control',
+  import: 'import',
+} as const;
+
+export type WorkLogInputStatus = typeof WorkLogInputStatus[keyof typeof WorkLogInputStatus];
+
+
+export const WorkLogInputStatus = {
+  done: 'done',
+  in_progress: 'in_progress',
+  not_started: 'not_started',
+} as const;
+
+/**
+ * Upsert payload for the canonical work-log. A usable URL (newUrl or oldUrl) is required — it forms the natural key.
+ */
+export interface WorkLogInput {
+  company?: WorkLogInputCompany;
+  city?: string;
+  state?: string;
+  pageName?: string;
+  /** @nullable */
+  oldUrl?: string | null;
+  /** @minLength 1 */
+  newUrl: string;
+  pageType?: WorkLogInputPageType;
+  /** @nullable */
+  tier?: string | null;
+  vaName?: string;
+  source?: WorkLogInputSource;
+  status?: WorkLogInputStatus;
+  /** @nullable */
+  runId?: number | null;
+  /** @nullable */
+  dateCompleted?: string | null;
+  /** @nullable */
+  notes?: string | null;
+}
+
+export interface WorkLogRecord {
+  id: number;
+  normalizedUrl: string;
+  company: string;
+  city: string;
+  state: string;
+  pageName?: string;
+  /** @nullable */
+  oldUrl?: string | null;
+  /** @nullable */
+  newUrl?: string | null;
+  pageType: string;
+  /** @nullable */
+  tier?: string | null;
+  vaName?: string;
+  source: string;
+  status: string;
+  /** @nullable */
+  inSitemap?: boolean | null;
+  /** @nullable */
+  runId?: number | null;
+  /** @nullable */
+  dateCompleted?: string | null;
+  /** @nullable */
+  notes?: string | null;
+  /** @nullable */
+  createdAt?: string | null;
+  /** @nullable */
+  updatedAt?: string | null;
+  seoDelta?: SeoDelta | null;
+}
+
+export type WorkLogImportInputDefaultCompany = typeof WorkLogImportInputDefaultCompany[keyof typeof WorkLogImportInputDefaultCompany];
+
+
+export const WorkLogImportInputDefaultCompany = {
+  STS: 'STS',
+  DCD: 'DCD',
+  TechnoCycle: 'TechnoCycle',
+} as const;
+
+export type WorkLogImportInputRowsItem = { [key: string]: unknown };
+
+export interface WorkLogImportInput {
+  defaultCompany?: WorkLogImportInputDefaultCompany;
+  /** Raw legacy rows (free-form key/value maps from the master sheet). */
+  rows: WorkLogImportInputRowsItem[];
+}
+
+export type WorkLogImportFlagRow = { [key: string]: unknown };
+
+export interface WorkLogImportFlag {
+  reason: string;
+  row?: WorkLogImportFlagRow;
+}
+
+export interface WorkLogImportResult {
+  total: number;
+  imported: number;
+  updated: number;
+  flagged: WorkLogImportFlag[];
+}
+
+export type SitemapPageStatusStatus = typeof SitemapPageStatusStatus[keyof typeof SitemapPageStatusStatus];
+
+
+export const SitemapPageStatusStatus = {
+  live: 'live',
+  'tracked-not-live': 'tracked-not-live',
+  'live-not-tracked': 'live-not-tracked',
+} as const;
+
+export interface SitemapPageStatus {
+  normalizedUrl: string;
+  status: SitemapPageStatusStatus;
+  /** @nullable */
+  workLogId?: number | null;
+  /** @nullable */
+  pageName?: string | null;
+}
+
+export interface SitemapReconciliation {
+  sitemapUrl: string;
+  ranAt: string;
+  totalSitemap: number;
+  totalTracked: number;
+  live: number;
+  trackedNotLive: number;
+  liveNotTracked: number;
+  persisted?: boolean;
+  pages: SitemapPageStatus[];
+}
+
+export interface SheetsSyncResult {
+  ok: boolean;
+  spreadsheetId: string;
+  /** @nullable */
+  spreadsheetUrl?: string | null;
+  tabs: string[];
+  rowCount?: number;
+  syncedAt?: string;
+}
+
+export interface GscPullResult {
+  ok: boolean;
+  pagesChecked: number;
+  snapshotsRecorded: number;
+  ranAt?: string;
+}
+
 export type MissionRunTrack = typeof MissionRunTrack[keyof typeof MissionRunTrack];
 
 
@@ -516,5 +741,23 @@ export interface RegistryInfo {
 
 export type GetSeoIntelParams = {
 url: string;
+};
+
+export type ListWorkLogParams = {
+company?: string;
+vaName?: string;
+status?: string;
+pageType?: string;
+/**
+ * Filter by completion month, format YYYY-MM.
+ */
+month?: string;
+};
+
+export type ReconcileSitemapParams = {
+/**
+ * When true, write the in-sitemap flag back onto each work-log row.
+ */
+persist?: boolean;
 };
 

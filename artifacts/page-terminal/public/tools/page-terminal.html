@@ -3928,12 +3928,45 @@ Keep response TIGHT. Code blocks only. No lengthy explanations.`;
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
 
+        async function trackToWorkLog(payload) {
+            if (!payload || !payload.newUrl) { showToast('No page URL to log', true); return; }
+            try {
+                const resp = await fetch('/api/mc/work-log', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const raw = await resp.text();
+                let data; try { data = JSON.parse(raw); } catch (e) { throw new Error('Invalid tracker response'); }
+                if (!resp.ok) throw new Error(data.error || ('Tracker error ' + resp.status));
+                showToast('Logged to tracker');
+                return data;
+            } catch (e) {
+                showToast('Tracker log failed: ' + e.message, true);
+                throw e;
+            }
+        }
+
         function generateReport() {
             const total = document.querySelectorAll('#phases input[type="checkbox"]').length;
             const checked = document.querySelectorAll('#phases input[type="checkbox"]:checked').length;
             const percent = Math.round((checked/total)*100);
             const status = checked === total ? '✅ COMPLETE' : '⚠️ INCOMPLETE';
             
+            if (appState.pageURL) {
+                trackToWorkLog({
+                    newUrl: appState.pageURL,
+                    city: appState.city || undefined,
+                    state: appState.state || undefined,
+                    pageName: appState.pageName || undefined,
+                    vaName: appState.vaName || undefined,
+                    pageType: 'city',
+                    source: 'old-tool',
+                    status: checked === total ? 'done' : 'in_progress',
+                    notes: `M.A.R.K. page-terminal ${checked}/${total} phases`
+                }).catch(() => {});
+            }
+
             const report = `🤖 M.A.R.K. BUILD REPORT
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📄 ${appState.pageName || 'N/A'}

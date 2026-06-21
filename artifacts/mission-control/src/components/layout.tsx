@@ -1,6 +1,6 @@
 import { Sidebar, SidebarContent, SidebarHeader, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarProvider } from "@/components/ui/sidebar";
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Rocket, BookOpen } from "lucide-react";
+import { LayoutDashboard, Rocket, BookOpen, Table2 } from "lucide-react";
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
@@ -40,6 +40,14 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
                   <Link href="/">
                     <LayoutDashboard className="h-4 w-4 mr-2" />
                     <span>Dashboard</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={location === "/master-grid"}>
+                  <Link href="/master-grid">
+                    <Table2 className="h-4 w-4 mr-2" />
+                    <span>Master Grid</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

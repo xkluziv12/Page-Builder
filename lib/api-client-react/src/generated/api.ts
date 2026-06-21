@@ -28,14 +28,24 @@ import type {
   DerivedRunInputs,
   ErrorResponse,
   GetSeoIntelParams,
+  GscPullResult,
   HealthStatus,
   LinkAuditOverrideRequest,
+  ListWorkLogParams,
   MissionRun,
   QcResultRecord,
   QcRunInput,
+  ReconcileSitemapParams,
   RegistryInfo,
   ReplitPhaseInput,
-  RunInput
+  RunInput,
+  SeoSnapshot,
+  SheetsSyncResult,
+  SitemapReconciliation,
+  WorkLogImportInput,
+  WorkLogImportResult,
+  WorkLogInput,
+  WorkLogRecord
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
@@ -1387,5 +1397,538 @@ export const useChatEdit = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getChatEditMutationOptions(options));
+    }
+
+export const getListWorkLogUrl = (params?: ListWorkLogParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/mc/work-log?${stringifiedParams}` : `/api/mc/work-log`
+}
+
+/**
+ * Returns every work-log row with its latest SEO snapshot delta embedded. Optional filters narrow by company, VA, status, type, and month.
+ * @summary List the canonical work-log (every page/blog, all sources)
+ */
+export const listWorkLog = async (params?: ListWorkLogParams, options?: RequestInit): Promise<WorkLogRecord[]> => {
+
+  return customFetch<WorkLogRecord[]>(getListWorkLogUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListWorkLogQueryKey = (params?: ListWorkLogParams,) => {
+    return [
+    `/api/mc/work-log`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListWorkLogQueryOptions = <TData = Awaited<ReturnType<typeof listWorkLog>>, TError = ErrorType<unknown>>(params?: ListWorkLogParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listWorkLog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListWorkLogQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listWorkLog>>> = ({ signal }) => listWorkLog(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listWorkLog>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListWorkLogQueryResult = NonNullable<Awaited<ReturnType<typeof listWorkLog>>>
+export type ListWorkLogQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List the canonical work-log (every page/blog, all sources)
+ */
+
+export function useListWorkLog<TData = Awaited<ReturnType<typeof listWorkLog>>, TError = ErrorType<unknown>>(
+ params?: ListWorkLogParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listWorkLog>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListWorkLogQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getUpsertWorkLogUrl = () => {
+
+
+
+
+  return `/api/mc/work-log`
+}
+
+/**
+ * Idempotent on the normalized URL: re-logging the same page updates the existing row instead of creating a duplicate. Used by the old static VA tools and Mission Control alike.
+ * @summary Upsert a work-log record (natural-keyed by normalized URL)
+ */
+export const upsertWorkLog = async (workLogInput: WorkLogInput, options?: RequestInit): Promise<WorkLogRecord> => {
+
+  return customFetch<WorkLogRecord>(getUpsertWorkLogUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      workLogInput,)
+  }
+);}
+
+
+
+
+export const getUpsertWorkLogMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertWorkLog>>, TError,{data: BodyType<WorkLogInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof upsertWorkLog>>, TError,{data: BodyType<WorkLogInput>}, TContext> => {
+
+const mutationKey = ['upsertWorkLog'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof upsertWorkLog>>, {data: BodyType<WorkLogInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  upsertWorkLog(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpsertWorkLogMutationResult = NonNullable<Awaited<ReturnType<typeof upsertWorkLog>>>
+    export type UpsertWorkLogMutationBody = BodyType<WorkLogInput>
+    export type UpsertWorkLogMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Upsert a work-log record (natural-keyed by normalized URL)
+ */
+export const useUpsertWorkLog = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof upsertWorkLog>>, TError,{data: BodyType<WorkLogInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof upsertWorkLog>>,
+        TError,
+        {data: BodyType<WorkLogInput>},
+        TContext
+      > => {
+      return useMutation(getUpsertWorkLogMutationOptions(options));
+    }
+
+export const getGetWorkLogSnapshotsUrl = (id: number,) => {
+
+
+
+
+  return `/api/mc/work-log/${id}/snapshots`
+}
+
+/**
+ * @summary List the dated SEO snapshots for a work-log page (newest first)
+ */
+export const getWorkLogSnapshots = async (id: number, options?: RequestInit): Promise<SeoSnapshot[]> => {
+
+  return customFetch<SeoSnapshot[]>(getGetWorkLogSnapshotsUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetWorkLogSnapshotsQueryKey = (id: number,) => {
+    return [
+    `/api/mc/work-log/${id}/snapshots`
+    ] as const;
+    }
+
+
+export const getGetWorkLogSnapshotsQueryOptions = <TData = Awaited<ReturnType<typeof getWorkLogSnapshots>>, TError = ErrorType<unknown>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWorkLogSnapshots>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetWorkLogSnapshotsQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getWorkLogSnapshots>>> = ({ signal }) => getWorkLogSnapshots(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getWorkLogSnapshots>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetWorkLogSnapshotsQueryResult = NonNullable<Awaited<ReturnType<typeof getWorkLogSnapshots>>>
+export type GetWorkLogSnapshotsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List the dated SEO snapshots for a work-log page (newest first)
+ */
+
+export function useGetWorkLogSnapshots<TData = Awaited<ReturnType<typeof getWorkLogSnapshots>>, TError = ErrorType<unknown>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getWorkLogSnapshots>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetWorkLogSnapshotsQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getImportWorkLogUrl = () => {
+
+
+
+
+  return `/api/mc/work-log/import`
+}
+
+/**
+ * Ingests an array of messy legacy rows, maps them to the canonical schema, de-duplicates by normalized URL (upsert), and flags rows that cannot be cleanly mapped for manual review rather than dropping them.
+ * @summary One-time historical import of legacy master-list rows
+ */
+export const importWorkLog = async (workLogImportInput: WorkLogImportInput, options?: RequestInit): Promise<WorkLogImportResult> => {
+
+  return customFetch<WorkLogImportResult>(getImportWorkLogUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      workLogImportInput,)
+  }
+);}
+
+
+
+
+export const getImportWorkLogMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof importWorkLog>>, TError,{data: BodyType<WorkLogImportInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof importWorkLog>>, TError,{data: BodyType<WorkLogImportInput>}, TContext> => {
+
+const mutationKey = ['importWorkLog'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof importWorkLog>>, {data: BodyType<WorkLogImportInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  importWorkLog(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ImportWorkLogMutationResult = NonNullable<Awaited<ReturnType<typeof importWorkLog>>>
+    export type ImportWorkLogMutationBody = BodyType<WorkLogImportInput>
+    export type ImportWorkLogMutationError = ErrorType<unknown>
+
+    /**
+ * @summary One-time historical import of legacy master-list rows
+ */
+export const useImportWorkLog = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof importWorkLog>>, TError,{data: BodyType<WorkLogImportInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof importWorkLog>>,
+        TError,
+        {data: BodyType<WorkLogImportInput>},
+        TContext
+      > => {
+      return useMutation(getImportWorkLogMutationOptions(options));
+    }
+
+export const getReconcileSitemapUrl = (params?: ReconcileSitemapParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/mc/sitemap-reconcile?${stringifiedParams}` : `/api/mc/sitemap-reconcile`
+}
+
+/**
+ * Fetches the live sitemap.xml, compares it against the work-log, and returns per-page status (live / tracked-but-not-live / live-but-untracked) plus a summary. Optionally persists the in-sitemap flag onto each row.
+ * @summary Reconcile the work-log against the live production sitemap
+ */
+export const reconcileSitemap = async (params?: ReconcileSitemapParams, options?: RequestInit): Promise<SitemapReconciliation> => {
+
+  return customFetch<SitemapReconciliation>(getReconcileSitemapUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getReconcileSitemapQueryKey = (params?: ReconcileSitemapParams,) => {
+    return [
+    `/api/mc/sitemap-reconcile`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getReconcileSitemapQueryOptions = <TData = Awaited<ReturnType<typeof reconcileSitemap>>, TError = ErrorType<ErrorResponse>>(params?: ReconcileSitemapParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof reconcileSitemap>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getReconcileSitemapQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof reconcileSitemap>>> = ({ signal }) => reconcileSitemap(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof reconcileSitemap>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ReconcileSitemapQueryResult = NonNullable<Awaited<ReturnType<typeof reconcileSitemap>>>
+export type ReconcileSitemapQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Reconcile the work-log against the live production sitemap
+ */
+
+export function useReconcileSitemap<TData = Awaited<ReturnType<typeof reconcileSitemap>>, TError = ErrorType<ErrorResponse>>(
+ params?: ReconcileSitemapParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof reconcileSitemap>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getReconcileSitemapQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getSyncSheetsUrl = () => {
+
+
+
+
+  return `/api/mc/sheets/sync`
+}
+
+/**
+ * Overwrites the standardized tabs (Pages, Blogs, Sitemap Status, By VA, Monthly) on the configured Google Sheet from the canonical work-log. The app is the source of truth; the sheet is a read-mirror. Fails loudly when the Google Sheets connection or target sheet is not configured.
+ * @summary Push the work-log out to the fresh Google Sheet (one-way mirror)
+ */
+export const syncSheets = async ( options?: RequestInit): Promise<SheetsSyncResult> => {
+
+  return customFetch<SheetsSyncResult>(getSyncSheetsUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getSyncSheetsMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof syncSheets>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof syncSheets>>, TError,void, TContext> => {
+
+const mutationKey = ['syncSheets'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof syncSheets>>, void> = () => {
+
+
+          return  syncSheets(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SyncSheetsMutationResult = NonNullable<Awaited<ReturnType<typeof syncSheets>>>
+
+    export type SyncSheetsMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Push the work-log out to the fresh Google Sheet (one-way mirror)
+ */
+export const useSyncSheets = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof syncSheets>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof syncSheets>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getSyncSheetsMutationOptions(options));
+    }
+
+export const getPullSearchConsoleUrl = () => {
+
+
+
+
+  return `/api/mc/gsc/pull`
+}
+
+/**
+ * Runs the internal Search Console pull (also invoked by the monthly scheduled job): records a dated snapshot per tracked page (top keyword positions, impressions, clicks, avg position). Fails loudly when GSC credentials are not configured.
+ * @summary Pull dated SEO snapshots from Google Search Console for tracked pages
+ */
+export const pullSearchConsole = async ( options?: RequestInit): Promise<GscPullResult> => {
+
+  return customFetch<GscPullResult>(getPullSearchConsoleUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getPullSearchConsoleMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof pullSearchConsole>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof pullSearchConsole>>, TError,void, TContext> => {
+
+const mutationKey = ['pullSearchConsole'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof pullSearchConsole>>, void> = () => {
+
+
+          return  pullSearchConsole(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PullSearchConsoleMutationResult = NonNullable<Awaited<ReturnType<typeof pullSearchConsole>>>
+
+    export type PullSearchConsoleMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Pull dated SEO snapshots from Google Search Console for tracked pages
+ */
+export const usePullSearchConsole = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof pullSearchConsole>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof pullSearchConsole>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getPullSearchConsoleMutationOptions(options));
     }
 

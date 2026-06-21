@@ -1085,7 +1085,50 @@ function createConfetti(){
 }
 
 // ===== REPORT =====
+async function trackToWorkLog(payload){
+    if(!payload||!payload.newUrl){ return; }
+    const resp=await fetch('/api/mc/work-log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const raw=await resp.text(); let data; try{data=JSON.parse(raw);}catch(e){throw new Error('Invalid tracker response');}
+    if(!resp.ok) throw new Error(data.error||('Tracker error '+resp.status));
+    return data;
+}
+
+function workLogBaseOrigin(){
+    const sample=(S.urls&&S.urls.find(u=>/^https?:\/\//i.test(u)))||(S.csvRows&&(S.csvRows.find(r=>/^https?:\/\//i.test(r.r1))||{}).r1)||'';
+    try{ return sample?new URL(sample).origin:''; }catch(e){ return ''; }
+}
+
+async function logToTracker(){
+    const rows=(S.csvRows||[]).filter(r=>{const c=classifyStatus(r.status);return c==='build'||c==='rename';});
+    if(rows.length===0){ showToast('No build/rename pages to log',true); return; }
+    const base=workLogBaseOrigin();
+    if(!base){ showToast('Cannot log: no site origin found in existing URLs/redirects',true); return; }
+    let ok=0, fail=0;
+    for(const r of rows){
+        const slug=(r.alias||'').replace(/^\/+|\/+$/g,'');
+        if(!slug){ fail++; continue; }
+        try{
+            await trackToWorkLog({
+                newUrl: base+'/'+slug,
+                oldUrl: /^https?:\/\//i.test(r.r1)?r.r1:undefined,
+                city: S.city||undefined,
+                state: S.state||undefined,
+                pageName: r.name||undefined,
+                pageType: (r.tier||'').toLowerCase().includes('hub')?'hub':'spoke',
+                tier: r.tier||undefined,
+                vaName: S.vaName||undefined,
+                source: 'old-tool',
+                status: r.done?'done':'in_progress',
+                notes: `M.A.R.K. hub-spoke (${classifyStatus(r.status)})`
+            });
+            ok++;
+        }catch(e){ fail++; }
+    }
+    showToast(fail?`Logged ${ok}, ${fail} failed`:`Logged ${ok} pages to tracker`, fail>0);
+}
+
 function generateReport(){
+    logToTracker().catch(()=>{});
     const allV=Array.from(document.querySelectorAll('#phases input[type="checkbox"]')).filter(cb=>{const ph=cb.closest('.phase');return !ph||ph.style.display!=='none';});
     const chk=allV.filter(cb=>cb.checked).length;
     const pct=allV.length>0?Math.round(chk/allV.length*100):0;

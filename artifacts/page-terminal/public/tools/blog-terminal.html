@@ -729,6 +729,14 @@ function copyAllMeta(company) { const key=co(company); const t=S[key].topic; if(
 function testLiveUrl(company) { const slug=S[co(company)].meta?.slug||''; if(!slug){showToast('Select a topic first',true);return;} const url=company==='STS'?CFG[company].siteUrl+'/'+slug+'/blog/'+slug:CFG[company].siteUrl+'/'+slug; window.open(url,'_blank'); }
 
 // ===== LOGGER =====
+async function trackToWorkLog(payload){
+    if(!payload||!payload.newUrl) return;
+    const resp=await fetch('/api/mc/work-log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const raw=await resp.text(); let data; try{data=JSON.parse(raw);}catch(e){throw new Error('Invalid tracker response');}
+    if(!resp.ok) throw new Error(data.error||('Tracker error '+resp.status));
+    return data;
+}
+
 async function logBlog(company) {
     const key=co(company); const m=S[key].meta; if(!m?.title||!m?.slug){showToast('No topic selected',true);return;}
     const btn=document.getElementById(key+'-logBtn'); const status=document.getElementById(key+'-logStatus');
@@ -736,6 +744,7 @@ async function logBlog(company) {
     btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Logging...';
     status.style.display='block'; status.textContent='Sending to Google Sheets...'; status.style.color='var(--text-muted)';
     try { const resp=await fetch('https://stsrecycling.app.n8n.cloud/webhook/mark-blog-log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({company,title:m.title,url})}); const raw=await resp.text(); let data; try{data=JSON.parse(raw);}catch(e){throw new Error('Invalid response');} if(!data.success) throw new Error(data.error||'Logger error');
+        try { await trackToWorkLog({ newUrl:url, company:(company==='STS'||company==='DCD'||company==='TechnoCycle')?company:undefined, pageName:m.title, pageType:'blog', vaName:S.vaName||undefined, source:'old-tool', status:'done', notes:'M.A.R.K. blog-terminal' }); } catch(trackErr) { showToast('Tracker log failed: '+trackErr.message,true); }
         status.textContent='\u2705 Logged: '+m.title; status.style.color='#16a34a'; btn.innerHTML='<i class="fas fa-check"></i> Logged!'; btn.style.background='#16a34a'; showToast(company+' blog logged!');
     } catch(e) { status.textContent='\u274c '+e.message; status.style.color='#dc2626'; btn.disabled=false; btn.innerHTML='<i class="fas fa-redo"></i> Retry'; btn.style.background='#dc2626'; showToast('Log failed',true); }
 }

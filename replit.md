@@ -60,6 +60,10 @@ Apply these on every build in this repo. Full reference: `docs/marks-builder-pro
 
 ## Gotchas
 
+- **`/api/*` is unauthenticated by design — this is a private internal VA tool.** None of the `/api/mc/*` endpoints (run create/publish/QC, and the work-log upsert/import/sheets-sync/gsc-pull) have route-level auth; the server mounts only `cors()` + body parsers. New mutating endpoints intentionally follow this existing convention rather than introducing a one-off auth system. **Do not expose this API to the public internet as-is** — if it ever needs to be internet-facing, add a single shared auth middleware across the whole `/api` router, not per-endpoint.
+- The work-log Sheets mirror fires **fire-and-forget after every completion** (old-tool POST, MC publish, and post-import). It is best-effort: when the Google Sheets connector / `WORKLOG_SHEET_ID` is unset it logs a debug "skipped (not configured)" and never fails the underlying upsert.
+- The monthly GSC snapshot pull runs from an **internal daily scheduler** (`mc-worklog-scheduler.ts`, started in `index.ts`). It self-throttles by checking the snapshot table for a `gsc-monthly` row in the current month, so restarts never double-pull. Tune the day-of-month via `GSC_PULL_DAY_OF_MONTH` (default 3).
+
 _Populate as you build — sharp edges, "always run X before Y" rules._
 
 ## Pointers

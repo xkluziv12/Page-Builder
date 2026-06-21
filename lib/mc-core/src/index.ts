@@ -29,6 +29,21 @@ export type {
   PublishResult,
   HttpJoomlaPublisherConfig,
 } from "./publisher/joomla";
+export {
+  normalizeWorkLogUrl,
+  computeSeoDelta,
+  inferPageType,
+} from "./worklog";
+export type {
+  WorkLogCompany,
+  WorkLogPageType,
+  WorkLogStatus,
+  WorkLogSource,
+  KeywordPosition,
+  SnapshotLike,
+  KeywordMovement,
+  SeoDelta,
+} from "./worklog";
 export { runPhase } from "./pipeline/orchestrator";
 export type {
   PhaseState,

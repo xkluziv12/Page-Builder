@@ -3,9 +3,11 @@ import {
   integer,
   jsonb,
   pgTable,
+  real,
   serial,
   text,
   timestamp,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
@@ -138,3 +140,95 @@ export const insertMcQcResultSchema = createInsertSchema(mcQcResultsTable).omit(
 });
 export type InsertMcQcResult = z.infer<typeof insertMcQcResultSchema>;
 export type McQcResult = typeof mcQcResultsTable.$inferSelect;
+
+/**
+ * Canonical unified work-log / page registry. This is the ONE trustworthy view of
+ * "which pages/blogs are done vs not done" that every path feeds into: the old
+ * static VA tools (Page Terminal, No-GMB, Hub+Spoke, Blog Terminal), the new
+ * Mission Control pipeline, and the one-time historical import all upsert here.
+ *
+ * The natural key is `normalizedUrl` (a stripped, lower-cased URL) enforced by a
+ * unique index, so re-logging the same page UPDATES the row rather than creating
+ * a duplicate. SEO history lives in the separate mc_seo_snapshot table (one row
+ * per check) — never overwrite a single value on this row.
+ */
+export const mcWorkLogTable = pgTable(
+  "mc_work_log",
+  {
+    id: serial("id").primaryKey(),
+    /** Stable natural key: normalized (protocol/host/path-only, lower-cased) URL. */
+    normalizedUrl: text("normalized_url").notNull(),
+    /** Company the page belongs to: STS / DCD / TechnoCycle. */
+    company: text("company").notNull().default("STS"),
+    city: text("city").notNull().default(""),
+    state: text("state").notNull().default(""),
+    /** Human page/blog name (title or descriptive label). */
+    pageName: text("page_name").notNull().default(""),
+    /** The original/old URL before a rebuild, when known. */
+    oldUrl: text("old_url"),
+    /** The live/new URL or Joomla alias the work produced. */
+    newUrl: text("new_url"),
+    /** Page category: city / service / hub / spoke / blog. */
+    pageType: text("page_type").notNull().default("city"),
+    /** Optional priority tier (e.g. Tier 1 / 2 / 3). */
+    tier: text("tier"),
+    /** Who did the work (VA name). */
+    vaName: text("va_name").notNull().default(""),
+    /** Where the record came from: old-tool / mission-control / import. */
+    source: text("source").notNull().default("old-tool"),
+    /** Work status: done / in_progress / not_started. */
+    status: text("status").notNull().default("done"),
+    /** Whether the page is actually live in the production sitemap. Null = unchecked. */
+    inSitemap: boolean("in_sitemap"),
+    /** Link back to the Mission Control run when this came from the pipeline. */
+    runId: integer("run_id"),
+    /** When the work was completed (null when not yet done). */
+    dateCompleted: timestamp("date_completed", { withTimezone: true }),
+    /** Free-text notes (e.g. import-mapping warnings, manual annotations). */
+    notes: text("notes"),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => ({
+    normalizedUrlIdx: uniqueIndex("mc_work_log_normalized_url_idx").on(t.normalizedUrl),
+  }),
+);
+
+export const insertMcWorkLogSchema = createInsertSchema(mcWorkLogTable).omit({
+  id: true,
+  createdAt: true,
+  updatedAt: true,
+});
+export type InsertMcWorkLog = z.infer<typeof insertMcWorkLogSchema>;
+export type McWorkLog = typeof mcWorkLogTable.$inferSelect;
+
+/**
+ * Date-stamped SEO snapshot, keyed to a work-log page (one row per page per
+ * check). History is preserved so monthly check-ins can compute trends
+ * (impressions % change, keyword position movement) — never overwrite. Two
+ * sources populate it: a "day-of" score captured on completion, and a scheduled
+ * monthly Google Search Console pull.
+ */
+export const mcSeoSnapshotTable = pgTable("mc_seo_snapshot", {
+  id: serial("id").primaryKey(),
+  workLogId: integer("work_log_id").notNull(),
+  /** Denormalized natural key so snapshots survive a work-log row rebuild. */
+  normalizedUrl: text("normalized_url").notNull(),
+  /** When this snapshot reflects (the data date, not necessarily insert time). */
+  snapshotDate: timestamp("snapshot_date", { withTimezone: true }).notNull().defaultNow(),
+  /** Where the snapshot came from: day-of / gsc-monthly. */
+  source: text("source").notNull().default("day-of"),
+  impressions: integer("impressions"),
+  clicks: integer("clicks"),
+  avgPosition: real("avg_position"),
+  /** Top ~5 tracked keywords + positions: [{ keyword, position }]. */
+  keywords: jsonb("keywords").$type<{ keyword: string; position: number | null }[]>().notNull().default([]),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const insertMcSeoSnapshotSchema = createInsertSchema(mcSeoSnapshotTable).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertMcSeoSnapshot = z.infer<typeof insertMcSeoSnapshotSchema>;
+export type McSeoSnapshot = typeof mcSeoSnapshotTable.$inferSelect;

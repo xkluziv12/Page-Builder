@@ -1358,3 +1358,218 @@ export const ChatEditResponse = zod.object({
 })
 
 
+/**
+ * Returns every work-log row with its latest SEO snapshot delta embedded. Optional filters narrow by company, VA, status, type, and month.
+ * @summary List the canonical work-log (every page/blog, all sources)
+ */
+export const ListWorkLogQueryParams = zod.object({
+  "company": zod.coerce.string().optional(),
+  "vaName": zod.coerce.string().optional(),
+  "status": zod.coerce.string().optional(),
+  "pageType": zod.coerce.string().optional(),
+  "month": zod.coerce.string().optional().describe('Filter by completion month, format YYYY-MM.')
+})
+
+export const ListWorkLogResponseItem = zod.object({
+  "id": zod.number(),
+  "normalizedUrl": zod.string(),
+  "company": zod.string(),
+  "city": zod.string(),
+  "state": zod.string(),
+  "pageName": zod.string().optional(),
+  "oldUrl": zod.string().nullish(),
+  "newUrl": zod.string().nullish(),
+  "pageType": zod.string(),
+  "tier": zod.string().nullish(),
+  "vaName": zod.string().optional(),
+  "source": zod.string(),
+  "status": zod.string(),
+  "inSitemap": zod.boolean().nullish(),
+  "runId": zod.number().nullish(),
+  "dateCompleted": zod.string().nullish(),
+  "notes": zod.string().nullish(),
+  "createdAt": zod.string().nullish(),
+  "updatedAt": zod.string().nullish(),
+  "seoDelta": zod.union([zod.object({
+  "latestDate": zod.string().nullish(),
+  "previousDate": zod.string().nullish(),
+  "latestImpressions": zod.number().nullish(),
+  "previousImpressions": zod.number().nullish(),
+  "impressionsPctChange": zod.number().nullish(),
+  "latestClicks": zod.number().nullish(),
+  "latestAvgPosition": zod.number().nullish(),
+  "keywordMovement": zod.array(zod.object({
+  "keyword": zod.string(),
+  "previous": zod.number().nullish(),
+  "latest": zod.number().nullish(),
+  "delta": zod.number().nullish()
+})).optional()
+}),zod.null()]).optional()
+})
+export const ListWorkLogResponse = zod.array(ListWorkLogResponseItem)
+
+
+/**
+ * Idempotent on the normalized URL: re-logging the same page updates the existing row instead of creating a duplicate. Used by the old static VA tools and Mission Control alike.
+ * @summary Upsert a work-log record (natural-keyed by normalized URL)
+ */
+export const upsertWorkLogBodyCompanyDefault = `STS`;
+export const upsertWorkLogBodySourceDefault = `old-tool`;
+export const upsertWorkLogBodyStatusDefault = `done`;
+
+export const UpsertWorkLogBody = zod.object({
+  "company": zod.enum(['STS', 'DCD', 'TechnoCycle']).default(upsertWorkLogBodyCompanyDefault),
+  "city": zod.string().optional(),
+  "state": zod.string().optional(),
+  "pageName": zod.string().optional(),
+  "oldUrl": zod.string().nullish(),
+  "newUrl": zod.string().min(1),
+  "pageType": zod.enum(['city', 'service', 'hub', 'spoke', 'blog']).optional(),
+  "tier": zod.string().nullish(),
+  "vaName": zod.string().optional(),
+  "source": zod.enum(['old-tool', 'mission-control', 'import']).default(upsertWorkLogBodySourceDefault),
+  "status": zod.enum(['done', 'in_progress', 'not_started']).default(upsertWorkLogBodyStatusDefault),
+  "runId": zod.number().nullish(),
+  "dateCompleted": zod.string().nullish(),
+  "notes": zod.string().nullish()
+}).describe('Upsert payload for the canonical work-log. A usable URL (newUrl or oldUrl) is required — it forms the natural key.')
+
+export const UpsertWorkLogResponse = zod.object({
+  "id": zod.number(),
+  "normalizedUrl": zod.string(),
+  "company": zod.string(),
+  "city": zod.string(),
+  "state": zod.string(),
+  "pageName": zod.string().optional(),
+  "oldUrl": zod.string().nullish(),
+  "newUrl": zod.string().nullish(),
+  "pageType": zod.string(),
+  "tier": zod.string().nullish(),
+  "vaName": zod.string().optional(),
+  "source": zod.string(),
+  "status": zod.string(),
+  "inSitemap": zod.boolean().nullish(),
+  "runId": zod.number().nullish(),
+  "dateCompleted": zod.string().nullish(),
+  "notes": zod.string().nullish(),
+  "createdAt": zod.string().nullish(),
+  "updatedAt": zod.string().nullish(),
+  "seoDelta": zod.union([zod.object({
+  "latestDate": zod.string().nullish(),
+  "previousDate": zod.string().nullish(),
+  "latestImpressions": zod.number().nullish(),
+  "previousImpressions": zod.number().nullish(),
+  "impressionsPctChange": zod.number().nullish(),
+  "latestClicks": zod.number().nullish(),
+  "latestAvgPosition": zod.number().nullish(),
+  "keywordMovement": zod.array(zod.object({
+  "keyword": zod.string(),
+  "previous": zod.number().nullish(),
+  "latest": zod.number().nullish(),
+  "delta": zod.number().nullish()
+})).optional()
+}),zod.null()]).optional()
+})
+
+
+/**
+ * @summary List the dated SEO snapshots for a work-log page (newest first)
+ */
+export const GetWorkLogSnapshotsParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetWorkLogSnapshotsResponseItem = zod.object({
+  "id": zod.number(),
+  "workLogId": zod.number(),
+  "normalizedUrl": zod.string(),
+  "snapshotDate": zod.string(),
+  "source": zod.string(),
+  "impressions": zod.number().nullish(),
+  "clicks": zod.number().nullish(),
+  "avgPosition": zod.number().nullish(),
+  "keywords": zod.array(zod.object({
+  "keyword": zod.string(),
+  "position": zod.number().nullish()
+})).optional(),
+  "createdAt": zod.string().nullish()
+})
+export const GetWorkLogSnapshotsResponse = zod.array(GetWorkLogSnapshotsResponseItem)
+
+
+/**
+ * Ingests an array of messy legacy rows, maps them to the canonical schema, de-duplicates by normalized URL (upsert), and flags rows that cannot be cleanly mapped for manual review rather than dropping them.
+ * @summary One-time historical import of legacy master-list rows
+ */
+export const importWorkLogBodyDefaultCompanyDefault = `STS`;
+
+export const ImportWorkLogBody = zod.object({
+  "defaultCompany": zod.enum(['STS', 'DCD', 'TechnoCycle']).default(importWorkLogBodyDefaultCompanyDefault),
+  "rows": zod.array(zod.record(zod.string(), zod.unknown())).describe('Raw legacy rows (free-form key\/value maps from the master sheet).')
+})
+
+export const ImportWorkLogResponse = zod.object({
+  "total": zod.number(),
+  "imported": zod.number(),
+  "updated": zod.number(),
+  "flagged": zod.array(zod.object({
+  "reason": zod.string(),
+  "row": zod.record(zod.string(), zod.unknown()).optional()
+}))
+})
+
+
+/**
+ * Fetches the live sitemap.xml, compares it against the work-log, and returns per-page status (live / tracked-but-not-live / live-but-untracked) plus a summary. Optionally persists the in-sitemap flag onto each row.
+ * @summary Reconcile the work-log against the live production sitemap
+ */
+export const reconcileSitemapQueryPersistDefault = false;
+
+export const ReconcileSitemapQueryParams = zod.object({
+  "persist": zod.coerce.boolean().default(reconcileSitemapQueryPersistDefault).describe('When true, write the in-sitemap flag back onto each work-log row.')
+})
+
+export const ReconcileSitemapResponse = zod.object({
+  "sitemapUrl": zod.string(),
+  "ranAt": zod.string(),
+  "totalSitemap": zod.number(),
+  "totalTracked": zod.number(),
+  "live": zod.number(),
+  "trackedNotLive": zod.number(),
+  "liveNotTracked": zod.number(),
+  "persisted": zod.boolean().optional(),
+  "pages": zod.array(zod.object({
+  "normalizedUrl": zod.string(),
+  "status": zod.enum(['live', 'tracked-not-live', 'live-not-tracked']),
+  "workLogId": zod.number().nullish(),
+  "pageName": zod.string().nullish()
+}))
+})
+
+
+/**
+ * Overwrites the standardized tabs (Pages, Blogs, Sitemap Status, By VA, Monthly) on the configured Google Sheet from the canonical work-log. The app is the source of truth; the sheet is a read-mirror. Fails loudly when the Google Sheets connection or target sheet is not configured.
+ * @summary Push the work-log out to the fresh Google Sheet (one-way mirror)
+ */
+export const SyncSheetsResponse = zod.object({
+  "ok": zod.boolean(),
+  "spreadsheetId": zod.string(),
+  "spreadsheetUrl": zod.string().nullish(),
+  "tabs": zod.array(zod.string()),
+  "rowCount": zod.number().optional(),
+  "syncedAt": zod.string().optional()
+})
+
+
+/**
+ * Runs the internal Search Console pull (also invoked by the monthly scheduled job): records a dated snapshot per tracked page (top keyword positions, impressions, clicks, avg position). Fails loudly when GSC credentials are not configured.
+ * @summary Pull dated SEO snapshots from Google Search Console for tracked pages
+ */
+export const PullSearchConsoleResponse = zod.object({
+  "ok": zod.boolean(),
+  "pagesChecked": zod.number(),
+  "snapshotsRecorded": zod.number(),
+  "ranAt": zod.string().optional()
+})
+
+

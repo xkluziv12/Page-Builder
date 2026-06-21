@@ -6,6 +6,7 @@ import { AppLayout } from "@/components/layout";
 import Dashboard from "@/pages/dashboard";
 import RunDetail from "@/pages/run-detail";
 import Registry from "@/pages/registry";
+import MasterGrid from "@/pages/master-grid";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient();
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/runs/:id" component={RunDetail} />
       <Route path="/registry" component={Registry} />
+      <Route path="/master-grid" component={MasterGrid} />
       <Route component={NotFound} />
     </Switch>
   );

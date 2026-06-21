@@ -35,6 +35,9 @@ import {
   type PhaseLadderEntry,
 } from "../lib/mc-runtime";
 import { logger } from "../lib/logger";
+import { recordSnapshot, upsertWorkLog } from "../lib/mc-worklog";
+import { triggerSheetsSyncBestEffort } from "../lib/mc-worklog-external";
+import { normalizeWorkLogUrl, type KeywordPosition } from "@workspace/mc-core";
 
 const router: IRouter = Router();
 
@@ -174,6 +177,14 @@ async function executePhase(
     // QC engine never throws; we still catch+log so a floating rejection can't
     // crash the process. Manual "Run QC" remains available for re-checks.
     if (publishConfirmed) {
+      // Feed the canonical work-log: a confirmed Mission Control publish is one
+      // of the paths into the single page tracker, alongside the old static
+      // tools and the historical import. Best-effort + logged so a tracker hiccup
+      // never blocks the publish response.
+      void recordPublishToWorkLog(updated!).catch((err) =>
+        logger.error({ err, runId: updated!.id }, "Failed to record publish to work-log"),
+      );
+
       const qcUrl = deriveQcUrl(updated!);
       if (qcUrl) {
         void runQcForRun(updated!, qcUrl).catch((err) =>
@@ -627,6 +638,71 @@ function serializeQcResult(row: McQcResult): Record<string, unknown> {
     report: row.report,
     createdAt: row.createdAt?.toISOString?.() ?? null,
   };
+}
+
+/**
+ * Record a confirmed Mission Control publish into the canonical work-log and
+ * capture a "day-of" SEO baseline snapshot. Keyed by the published live URL so
+ * re-publishing the same page updates its row instead of duplicating it. The
+ * day-of snapshot has no GSC traffic yet (the page just went live) — it captures
+ * the tracked keywords from the run's live SEO intel as a position-less baseline
+ * the monthly GSC pull later builds trends against.
+ */
+async function recordPublishToWorkLog(run: McRun): Promise<void> {
+  const liveUrl = deriveQcUrl(run);
+  if (!liveUrl) return;
+  const intel = run.seoIntel as
+    | { primaryKeyword?: { keyword?: string } | null; relatedKeywords?: { keyword?: string }[] }
+    | null;
+  const keywords: KeywordPosition[] = [];
+  if (intel?.primaryKeyword?.keyword) {
+    keywords.push({ keyword: intel.primaryKeyword.keyword, position: null });
+  }
+  for (const k of intel?.relatedKeywords ?? []) {
+    if (k.keyword && keywords.length < 5) keywords.push({ keyword: k.keyword, position: null });
+  }
+
+  const row = await upsertWorkLog({
+    company: "STS",
+    city: run.city,
+    state: run.state,
+    pageName: `${run.niche} ${run.city} ${run.state}`.trim(),
+    newUrl: liveUrl,
+    oldUrl: run.url,
+    pageType: mapRunPageType(run),
+    vaName: run.vaName,
+    source: "mission-control",
+    status: "done",
+    runId: run.id,
+    dateCompleted: new Date().toISOString(),
+  });
+  await recordSnapshot(row.id, normalizeWorkLogUrl(liveUrl), {
+    source: "day-of",
+    keywords,
+  });
+  // Mirror the completion out to the Google Sheet live (fire-and-forget).
+  void triggerSheetsSyncBestEffort();
+}
+
+/**
+ * Map a run's track + page type onto the canonical work-log page-type enum
+ * (city / service / hub / spoke / blog). A blog track always wins; otherwise the
+ * run's structural type maps through explicitly — NATIONAL pages are non-local
+ * service pages, so they classify as "service" rather than being silently
+ * coerced into the hub/spoke pair.
+ */
+function mapRunPageType(run: McRun): string {
+  if (run.track === "blog") return "blog";
+  switch (run.pageType) {
+    case "HUB":
+      return "hub";
+    case "SPOKE":
+      return "spoke";
+    case "NATIONAL":
+      return "service";
+    default:
+      return "service";
+  }
 }
 
 /** Live URL for a run, derived from its published alias: base domain + alias. */

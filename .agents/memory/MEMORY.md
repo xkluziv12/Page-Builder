@@ -3,3 +3,4 @@
 - [MC location verification](mc-location-verification.md) — page-content city/state cross-check: never block, correct STATE not CITY, equivalence-only city match (no substrings).
 - [Replit-Agent engine mode + toggle](replit-engine-mode.md) — second engine = operator-driven ReplitEngine reusing the same orchestrator/checkers; replit runs queue, don't auto-run, parity gate is automatic.
 - [Mission Control post-publish QC](mission-control-qc.md) — dashboard-only GTmetrix + JSON-LD checks; keys off run's published alias URL so it's universal across GMB/non-GMB, blog/page, hub/spoke — no per-variant branching.
+- [Unified work-log tracker](worklog-tracker.md) — one canonical mc_work_log keyed by normalized URL (www/slash collapse); old tools + MC + import all upsert into it; Master Grid surfaces it; Sheets/GSC syncs gated + fail-loud.
