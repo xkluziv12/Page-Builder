@@ -30,11 +30,11 @@ import { logger } from "./logger";
 type AnthropicClient = ConstructorParameters<typeof ClaudeEngine>[0];
 
 /**
- * Lazily resolve the Anthropic client via dynamic import. The integration
- * module throws at import time when its env vars are missing; loading it lazily
- * (and only when a Claude phase actually runs) means a missing Anthropic
- * integration fails just that phase, not the whole API server at startup — the
- * mc routes are mounted unconditionally alongside unrelated endpoints.
+ * Lazily resolve the Anthropic client via dynamic import. The client module
+ * throws at import time when ANTHROPIC_API_KEY is missing; loading it lazily
+ * (and only when a Claude phase actually runs) means a missing Anthropic key
+ * fails just that phase, not the whole API server at startup — the mc routes
+ * are mounted unconditionally alongside unrelated endpoints.
  */
 let cachedAnthropic: AnthropicClient | null = null;
 async function getAnthropic(): Promise<AnthropicClient> {
