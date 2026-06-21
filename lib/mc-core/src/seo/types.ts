@@ -61,6 +61,14 @@ export interface SeoIntel {
   sources: string[];
 }
 
+/** A city/state location signal extracted from a fetched page. */
+export interface ExtractedLocation {
+  /** Locality (city), title-cased, or null when only a region was found. */
+  city: string | null;
+  /** USPS 2-letter abbreviation (uppercase), or null when unresolved. */
+  state: string | null;
+}
+
 /** Outcome of fetching the target URL, used to derive classification. */
 export interface TargetPageProbe {
   /** Whether the URL resolved to a live page with a body. */
@@ -69,6 +77,12 @@ export interface TargetPageProbe {
   status: number | null;
   /** Approximate visible word count of the page body. */
   wordCount: number;
+  /**
+   * City/state signals scraped from the page body (JSON-LD PostalAddress and
+   * "City, ST ZIP" text). Used to confirm/correct the URL-parsed location so
+   * same-named cities in different states are not confused.
+   */
+  locations?: ExtractedLocation[];
 }
 
 export type { Classification, Competition };

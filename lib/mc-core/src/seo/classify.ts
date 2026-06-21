@@ -1,4 +1,5 @@
 import { isPrivateHostname } from "./url";
+import { extractLocations } from "./location";
 import type { Classification, TargetPageProbe } from "./types";
 
 const MAX_REDIRECTS = 5;
@@ -66,6 +67,7 @@ export async function probeTargetPage(
       exists: true,
       status: res.status,
       wordCount: estimateWordCount(html),
+      locations: extractLocations(html),
     };
   } catch {
     return { exists: false, status: null, wordCount: 0 };

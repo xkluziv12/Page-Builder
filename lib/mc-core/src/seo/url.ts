@@ -166,6 +166,20 @@ export function stateNameForAbbr(abbr: string): string {
 }
 
 /**
+ * Normalize a free-form state string ("Texas", "tx", "TX") to its USPS
+ * abbreviation, or null when it isn't a recognizable US state. Used to reconcile
+ * a page's address region against the URL-parsed state.
+ */
+export function normalizeStateToAbbr(value: string): string | null {
+  const v = value.trim();
+  if (!v) return null;
+  const upper = v.toUpperCase();
+  if (STATE_ABBRS.has(upper)) return upper;
+  const byName = STATE_NAME_TO_ABBR[v.toLowerCase()];
+  return byName ?? null;
+}
+
+/**
  * Parse a target page URL into { city, state, niche }. STS local pages encode
  * the locality in the final path segment, e.g.
  *   /electronics-recycling-austin-tx

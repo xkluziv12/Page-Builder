@@ -1,4 +1,5 @@
 - [Page Terminal (M.A.R.K.) architecture](page-terminal-architecture.md) — React shell hosts self-contained static HTML tools via iframe; do not rewrite tools into React.
 - [Mission Control architecture](mission-control-architecture.md) — page-builder pipeline app; reusable mc-core engine behind AIEngine seam, /api/mc/* on shared server, research gated by external n8n webhook.
+- [MC location verification](mc-location-verification.md) — page-content city/state cross-check: never block, correct STATE not CITY, equivalence-only city match (no substrings).
 - [Replit-Agent engine mode + toggle](replit-engine-mode.md) — second engine = operator-driven ReplitEngine reusing the same orchestrator/checkers; replit runs queue, don't auto-run, parity gate is automatic.
 - [Mission Control post-publish QC](mission-control-qc.md) — dashboard-only GTmetrix + JSON-LD checks; keys off run's published alias URL so it's universal across GMB/non-GMB, blog/page, hub/spoke — no per-variant branching.

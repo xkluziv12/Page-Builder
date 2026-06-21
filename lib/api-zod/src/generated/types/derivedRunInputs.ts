@@ -7,6 +7,8 @@
  */
 import type { DerivedRunInputsClassification } from './derivedRunInputsClassification';
 import type { DerivedRunInputsCompetition } from './derivedRunInputsCompetition';
+import type { DerivedRunInputsLocationSource } from './derivedRunInputsLocationSource';
+import type { ExtractedLocation } from './extractedLocation';
 import type { SeoIntel } from './seoIntel';
 
 /**
@@ -19,4 +21,10 @@ export interface DerivedRunInputs {
   classification: DerivedRunInputsClassification;
   competition: DerivedRunInputsCompetition;
   seoIntel: SeoIntel;
+  /** Whether the final city/state came from the URL slug or the fetched page. */
+  locationSource?: DerivedRunInputsLocationSource;
+  /** True when the live page corroborated or corrected the URL location. */
+  locationVerified?: boolean;
+  /** City/state signals scraped from the fetched page. */
+  detectedLocations?: ExtractedLocation[];
 }

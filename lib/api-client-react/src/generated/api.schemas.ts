@@ -453,6 +453,25 @@ export const DerivedRunInputsCompetition = {
 } as const;
 
 /**
+ * Whether the final city/state came from the URL slug or the fetched page.
+ */
+export type DerivedRunInputsLocationSource = typeof DerivedRunInputsLocationSource[keyof typeof DerivedRunInputsLocationSource];
+
+
+export const DerivedRunInputsLocationSource = {
+  url: 'url',
+  page: 'page',
+} as const;
+
+/**
+ * A city/state location signal extracted from a fetched page.
+ */
+export interface ExtractedLocation {
+  city: string | null;
+  state: string | null;
+}
+
+/**
  * Everything the server derives from a target URL for a run.
  */
 export interface DerivedRunInputs {
@@ -462,6 +481,12 @@ export interface DerivedRunInputs {
   classification: DerivedRunInputsClassification;
   competition: DerivedRunInputsCompetition;
   seoIntel: SeoIntel;
+  /** Whether the final city/state came from the URL slug or the fetched page. */
+  locationSource?: DerivedRunInputsLocationSource;
+  /** True when the live page corroborated or corrected the URL location. */
+  locationVerified?: boolean;
+  /** City/state signals scraped from the fetched page. */
+  detectedLocations?: ExtractedLocation[];
 }
 
 export interface StatusCount {

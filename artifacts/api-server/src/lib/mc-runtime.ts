@@ -10,6 +10,7 @@ import {
   normalizeTargetUrl,
   parseCityState,
   probeTargetPage,
+  cityNamesEquivalent,
   DEFAULT_SACRED_LINKS,
   DEFAULT_IMAGE_LIBRARY,
   DEFAULT_INDUSTRY_LINKS,
@@ -17,6 +18,7 @@ import {
   type AIEngine,
   type Classification,
   type Competition,
+  type ExtractedLocation,
   type RegistryLink,
   type RunContext,
   type SeoCredentials,
@@ -207,6 +209,12 @@ export interface DerivedRunInputs {
   classification: Classification;
   competition: Competition;
   seoIntel: SeoIntel;
+  /** Where the final city/state came from: the URL slug or the fetched page. */
+  locationSource: "url" | "page";
+  /** True when the live page corroborated (or corrected) the URL location. */
+  locationVerified: boolean;
+  /** City/state signals scraped from the page, for transparency. */
+  detectedLocations: ExtractedLocation[];
 }
 
 /**
@@ -246,17 +254,48 @@ export async function deriveRunInputs(url: string): Promise<DerivedRunInputs> {
   }
   const probe = await probeTargetPage(normalized);
   const classification = deriveClassification(probe);
+
+  // Cross-check the URL-parsed location against what the live page actually says,
+  // so a same-named city in the wrong state is caught before we fetch SERP data.
+  let city = loc.city;
+  let state = loc.state;
+  let locationSource: "url" | "page" = "url";
+  let locationVerified = false;
+  const detectedLocations = probe.locations ?? [];
+  if (detectedLocations.length > 0) {
+    const corroborated = detectedLocations.find(
+      (c) => c.state?.toUpperCase() === state.toUpperCase() && c.city && cityNamesEquivalent(c.city, city),
+    );
+    if (corroborated) {
+      locationVerified = true;
+    } else {
+      // Same city name, different state — the "sounds the same" case. The live
+      // page is authoritative for where it actually targets, so adopt its state.
+      const sameCityDiffState = detectedLocations.find(
+        (c) => c.city && cityNamesEquivalent(c.city, city) && c.state && c.state.toUpperCase() !== state.toUpperCase(),
+      );
+      if (sameCityDiffState?.state) {
+        state = sameCityDiffState.state.toUpperCase();
+        locationSource = "page";
+        locationVerified = true;
+      }
+    }
+  }
+
   const seoIntel = await fetchSeoIntel(
-    { city: loc.city, state: loc.state, niche: loc.niche },
+    { city, state, niche: loc.niche },
     creds,
   );
   return {
-    city: loc.city,
-    state: loc.state,
+    city,
+    state,
     niche: loc.niche,
     classification,
     competition: seoIntel.competition,
     seoIntel,
+    locationSource,
+    locationVerified,
+    detectedLocations,
   };
 }
 

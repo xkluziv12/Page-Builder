@@ -40,6 +40,7 @@ This monorepo also hosts **Mission Control** (`artifacts/mission-control`), a st
 - Engine logic lives in the reusable lib `@workspace/mc-core` behind a clean `AIEngine` seam with two engines: `ClaudeEngine` (Dashboard mode, auto-runs via the Anthropic API) and `ReplitEngine` (Replit mode, an operator-driven engine that returns Agent-supplied content). The pipeline orchestrator never imports a concrete LLM client directly, and both engines flow through the same `runPhase` + checker suite.
 - Backed by namespaced routes (`/api/mc/*`) in the shared api-server and dedicated `mc_*` tables. Page Terminal is untouched.
 - The Research phase depends on the external n8n `mark-ai-brain` webhook; when that webhook is unavailable the phase fails loudly and downstream phases stay locked.
+- On run creation the server derives city/state/niche/classification/competition/seoIntel live from the target URL, then **cross-checks the URL-parsed city/state against the fetched page content** (JSON-LD PostalAddress + "City, ST ZIP" text) to catch same-named cities in the wrong state. Verification only confirms or corrects the **state** (never switches to a different city) and never blocks run creation — see `lib/mc-core/src/seo/location.ts` and `deriveRunInputs` in `artifacts/api-server/src/lib/mc-runtime.ts`.
 - Run with `pnpm --filter @workspace/mission-control run dev`; engine unit tests: `pnpm --filter @workspace/mc-core run test`.
 
 ## User preferences

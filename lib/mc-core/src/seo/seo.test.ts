@@ -4,7 +4,9 @@ import {
   stateNameForAbbr,
   normalizeTargetUrl,
   isPrivateHostname,
+  normalizeStateToAbbr,
 } from "./url";
+import { extractLocations, cityNamesEquivalent } from "./location";
 import {
   deriveClassification,
   estimateWordCount,
@@ -245,5 +247,67 @@ describe("parseKeywordOverview", () => {
         competition: "MEDIUM",
       },
     ]);
+  });
+});
+
+describe("normalizeStateToAbbr", () => {
+  it("accepts abbreviations and full names, rejects junk", () => {
+    expect(normalizeStateToAbbr("tx")).toBe("TX");
+    expect(normalizeStateToAbbr("TX")).toBe("TX");
+    expect(normalizeStateToAbbr("Texas")).toBe("TX");
+    expect(normalizeStateToAbbr("  florida ")).toBe("FL");
+    expect(normalizeStateToAbbr("Notastate")).toBe(null);
+    expect(normalizeStateToAbbr("")).toBe(null);
+  });
+});
+
+describe("extractLocations", () => {
+  it("pulls city/state from JSON-LD PostalAddress", () => {
+    const html = `<html><head><script type="application/ld+json">
+      {"@type":"LocalBusiness","address":{"@type":"PostalAddress","addressLocality":"Austin","addressRegion":"TX"}}
+    </script></head><body></body></html>`;
+    expect(extractLocations(html)).toEqual([{ city: "Austin", state: "TX" }]);
+  });
+
+  it("pulls City, ST ZIP from visible text", () => {
+    const html = "<html><body><footer>Visit us at 1 Main St, Portland, OR 97201</footer></body></html>";
+    expect(extractLocations(html)).toContainEqual({ city: "Portland", state: "OR" });
+  });
+
+  it("normalizes a full state name in JSON-LD", () => {
+    const html = `<script type="application/ld+json">
+      {"address":{"addressLocality":"portland","addressRegion":"Maine"}}
+    </script>`;
+    expect(extractLocations(html)).toEqual([{ city: "Portland", state: "ME" }]);
+  });
+
+  it("dedupes repeated signals and ignores malformed JSON-LD", () => {
+    const html = `
+      <script type="application/ld+json">{ not valid json }</script>
+      <script type="application/ld+json">{"address":{"addressLocality":"Austin","addressRegion":"TX"}}</script>
+      <p>Austin, TX 78701</p>`;
+    expect(extractLocations(html)).toEqual([{ city: "Austin", state: "TX" }]);
+  });
+
+  it("returns nothing for a page with no location signals", () => {
+    expect(extractLocations("<html><body><p>hello world</p></body></html>")).toEqual([]);
+  });
+});
+
+describe("cityNamesEquivalent", () => {
+  it("matches the same locality across case, punctuation and abbreviations", () => {
+    expect(cityNamesEquivalent("Austin", "austin")).toBe(true);
+    expect(cityNamesEquivalent("St. Louis", "Saint Louis")).toBe(true);
+    expect(cityNamesEquivalent("St Louis", "saint louis")).toBe(true);
+    expect(cityNamesEquivalent("Ft Worth", "Fort Worth")).toBe(true);
+    expect(cityNamesEquivalent("Mt Pleasant", "Mount Pleasant")).toBe(true);
+  });
+
+  it("never substring-matches a different locality", () => {
+    expect(cityNamesEquivalent("York", "New York")).toBe(false);
+    expect(cityNamesEquivalent("Port", "Portland")).toBe(false);
+    expect(cityNamesEquivalent("Orange", "West Orange")).toBe(false);
+    expect(cityNamesEquivalent("Portland", "Portsmouth")).toBe(false);
+    expect(cityNamesEquivalent("", "Austin")).toBe(false);
   });
 });

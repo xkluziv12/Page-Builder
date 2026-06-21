@@ -328,7 +328,13 @@ export const GetSeoIntelResponse = zod.object({
   "peopleAlsoAsk": zod.array(zod.string()),
   "fetchedAt": zod.string(),
   "sources": zod.array(zod.string())
-}).describe('Live per-URL SEO intelligence pulled from SerpAPI (+ DataForSEO when configured) at run-create time. Replaces the quarterly SEO spreadsheet.')
+}).describe('Live per-URL SEO intelligence pulled from SerpAPI (+ DataForSEO when configured) at run-create time. Replaces the quarterly SEO spreadsheet.'),
+  "locationSource": zod.enum(['url', 'page']).optional().describe('Whether the final city\/state came from the URL slug or the fetched page.'),
+  "locationVerified": zod.boolean().optional().describe('True when the live page corroborated or corrected the URL location.'),
+  "detectedLocations": zod.array(zod.object({
+  "city": zod.string().nullable(),
+  "state": zod.string().nullable()
+}).describe('A city\/state location signal extracted from a fetched page.')).optional().describe('City\/state signals scraped from the fetched page.')
 }).describe('Everything the server derives from a target URL for a run.')
 
 

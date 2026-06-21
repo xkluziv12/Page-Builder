@@ -13,6 +13,7 @@ export {
   estimateWordCount,
   LIGHT_TOUCH_WORD_FLOOR,
 } from "./classify";
+export { extractLocations, cityNamesEquivalent } from "./location";
 export { deriveCompetition } from "./competition";
 export type { CompetitionSignals, CompetitionResult } from "./competition";
 export { fetchSerp, parseSerp, SERPAPI_BASE } from "./serpapi";

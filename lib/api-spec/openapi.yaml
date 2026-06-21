@@ -913,6 +913,30 @@ components:
           enum: [LOW, MEDIUM, HIGH]
         seoIntel:
           $ref: "#/components/schemas/SeoIntel"
+        locationSource:
+          type: string
+          description: Whether the final city/state came from the URL slug or the fetched page.
+          enum: [url, page]
+        locationVerified:
+          type: boolean
+          description: True when the live page corroborated or corrected the URL location.
+        detectedLocations:
+          type: array
+          description: City/state signals scraped from the fetched page.
+          items:
+            $ref: "#/components/schemas/ExtractedLocation"
+
+    ExtractedLocation:
+      type: object
+      description: A city/state location signal extracted from a fetched page.
+      required: [city, state]
+      properties:
+        city:
+          type: string
+          nullable: true
+        state:
+          type: string
+          nullable: true
 
     DashboardSummary:
       type: object
