@@ -17,6 +17,10 @@ import { z } from "zod/v4";
  */
 export const mcRunsTable = pgTable("mc_runs", {
   id: serial("id").primaryKey(),
+  /** Name of the VA who created the run (DB tracking of who built each page). */
+  vaName: text("va_name").notNull().default(""),
+  /** The target page URL the run was created from (drives city/state/SEO derivation). */
+  url: text("url"),
   city: text("city").notNull(),
   state: text("state").notNull(),
   track: text("track").notNull().default("page"),
@@ -33,6 +37,8 @@ export const mcRunsTable = pgTable("mc_runs", {
   designBibleHash: text("design_bible_hash"),
   blogTopic: text("blog_topic"),
   researchBrief: jsonb("research_brief").$type<Record<string, unknown> | null>(),
+  /** Live per-URL SEO intelligence (SerpAPI + DataForSEO); replaces the manual SEO sheet. */
+  seoIntel: jsonb("seo_intel").$type<Record<string, unknown> | null>(),
   pageHtml: text("page_html"),
   generatedSchema: text("generated_schema"),
   joomlaMeta: jsonb("joomla_meta").$type<Record<string, unknown> | null>(),

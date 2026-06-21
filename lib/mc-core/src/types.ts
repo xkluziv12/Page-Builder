@@ -1,3 +1,5 @@
+import type { SeoIntel } from "./seo/types";
+
 export type PhaseName = "research" | "build" | "audit" | "schema" | "publish";
 
 export type Track = "page" | "blog";
@@ -129,5 +131,11 @@ export interface RunContext {
   designBibleHash: string | null;
   blogTopic: string | null;
   researchBrief: ResearchBrief | null;
+  /**
+   * Live SEO intelligence gathered per-URL (SerpAPI + DataForSEO). Replaces the
+   * quarterly "SEO Data 2026" spreadsheet VAs used to upload by hand. Null until
+   * gathered (or when intel could not be resolved).
+   */
+  seoIntel: SeoIntel | null;
   registry: UrlRegistry;
 }

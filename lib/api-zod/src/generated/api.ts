@@ -22,6 +22,8 @@ export const HealthCheckResponse = zod.object({
  */
 export const ListRunsResponseItem = zod.object({
   "id": zod.number(),
+  "vaName": zod.string().describe('Name of the VA who created the run.'),
+  "url": zod.string().nullish().describe('Target page URL the run was derived from.'),
   "city": zod.string(),
   "state": zod.string(),
   "track": zod.enum(['page', 'blog']),
@@ -49,6 +51,34 @@ export const ListRunsResponseItem = zod.object({
 })).optional(),
   "raw": zod.string().nullish()
 }),zod.null()]).optional(),
+  "seoIntel": zod.union([zod.object({
+  "query": zod.string(),
+  "location": zod.string(),
+  "competition": zod.enum(['LOW', 'MEDIUM', 'HIGH']),
+  "competitionScore": zod.number(),
+  "primaryKeyword": zod.union([zod.object({
+  "keyword": zod.string(),
+  "searchVolume": zod.number().nullish(),
+  "difficulty": zod.number().nullish(),
+  "competition": zod.string().nullish()
+}),zod.null()]).optional(),
+  "relatedKeywords": zod.array(zod.object({
+  "keyword": zod.string(),
+  "searchVolume": zod.number().nullish(),
+  "difficulty": zod.number().nullish(),
+  "competition": zod.string().nullish()
+})),
+  "topCompetitors": zod.array(zod.object({
+  "title": zod.string(),
+  "link": zod.string(),
+  "position": zod.number().nullish()
+})),
+  "localPackCount": zod.number(),
+  "adsCount": zod.number(),
+  "peopleAlsoAsk": zod.array(zod.string()),
+  "fetchedAt": zod.string(),
+  "sources": zod.array(zod.string())
+}).describe('Live per-URL SEO intelligence pulled from SerpAPI (+ DataForSEO when configured) at run-create time. Replaces the quarterly SEO spreadsheet.'),zod.null()]).optional(),
   "pageHtml": zod.string().nullish(),
   "generatedSchema": zod.string().nullish(),
   "joomlaMeta": zod.union([zod.object({
@@ -115,26 +145,20 @@ export const ListRunsResponse = zod.array(ListRunsResponseItem)
 
 export const createRunBodyTrackDefault = `page`;
 export const createRunBodyEngineDefault = `claude`;
-export const createRunBodyClassificationDefault = `NEW_BUILD`;
-export const createRunBodyNicheDefault = `general`;
-export const createRunBodyCompetitionDefault = `LOW`;
 export const createRunBodyPageTypeDefault = `SPOKE`;
 
 export const CreateRunBody = zod.object({
-  "city": zod.string().min(1),
-  "state": zod.string().min(1),
+  "vaName": zod.string().min(1).describe('Name of the VA creating this run (tracked in the DB).'),
+  "url": zod.string().min(1).describe('Target page URL; city\/state and SEO data are derived from it.'),
   "track": zod.enum(['page', 'blog']).default(createRunBodyTrackDefault),
   "engine": zod.enum(['claude', 'replit']).default(createRunBodyEngineDefault),
-  "classification": zod.enum(['NEW_BUILD', 'REVAMP', 'LIGHT_TOUCH']).default(createRunBodyClassificationDefault),
-  "niche": zod.string().default(createRunBodyNicheDefault),
-  "competition": zod.enum(['LOW', 'MEDIUM', 'HIGH']).default(createRunBodyCompetitionDefault),
   "pageType": zod.enum(['HUB', 'SPOKE', 'NATIONAL']).default(createRunBodyPageTypeDefault),
   "existingUrls": zod.array(zod.string()).optional(),
   "handoff": zod.string().nullish(),
   "verifiedCid": zod.string().nullish(),
   "designBibleHash": zod.string().nullish(),
   "blogTopic": zod.string().nullish()
-})
+}).describe('Simplified New Build form. The VA supplies who they are (vaName) and the target page URL; the server derives city\/state, classification, competition and live SEO intel from the URL.')
 
 
 /**
@@ -148,6 +172,8 @@ export const GetSummaryResponse = zod.object({
 })),
   "recent": zod.array(zod.object({
   "id": zod.number(),
+  "vaName": zod.string().describe('Name of the VA who created the run.'),
+  "url": zod.string().nullish().describe('Target page URL the run was derived from.'),
   "city": zod.string(),
   "state": zod.string(),
   "track": zod.enum(['page', 'blog']),
@@ -175,6 +201,34 @@ export const GetSummaryResponse = zod.object({
 })).optional(),
   "raw": zod.string().nullish()
 }),zod.null()]).optional(),
+  "seoIntel": zod.union([zod.object({
+  "query": zod.string(),
+  "location": zod.string(),
+  "competition": zod.enum(['LOW', 'MEDIUM', 'HIGH']),
+  "competitionScore": zod.number(),
+  "primaryKeyword": zod.union([zod.object({
+  "keyword": zod.string(),
+  "searchVolume": zod.number().nullish(),
+  "difficulty": zod.number().nullish(),
+  "competition": zod.string().nullish()
+}),zod.null()]).optional(),
+  "relatedKeywords": zod.array(zod.object({
+  "keyword": zod.string(),
+  "searchVolume": zod.number().nullish(),
+  "difficulty": zod.number().nullish(),
+  "competition": zod.string().nullish()
+})),
+  "topCompetitors": zod.array(zod.object({
+  "title": zod.string(),
+  "link": zod.string(),
+  "position": zod.number().nullish()
+})),
+  "localPackCount": zod.number(),
+  "adsCount": zod.number(),
+  "peopleAlsoAsk": zod.array(zod.string()),
+  "fetchedAt": zod.string(),
+  "sources": zod.array(zod.string())
+}).describe('Live per-URL SEO intelligence pulled from SerpAPI (+ DataForSEO when configured) at run-create time. Replaces the quarterly SEO spreadsheet.'),zod.null()]).optional(),
   "pageHtml": zod.string().nullish(),
   "generatedSchema": zod.string().nullish(),
   "joomlaMeta": zod.union([zod.object({
@@ -235,6 +289,50 @@ export const GetSummaryResponse = zod.object({
 
 
 /**
+ * @summary Live SEO intel derived from a target URL
+ */
+export const GetSeoIntelQueryParams = zod.object({
+  "url": zod.coerce.string()
+})
+
+export const GetSeoIntelResponse = zod.object({
+  "city": zod.string(),
+  "state": zod.string(),
+  "niche": zod.string(),
+  "classification": zod.enum(['NEW_BUILD', 'REVAMP', 'LIGHT_TOUCH']),
+  "competition": zod.enum(['LOW', 'MEDIUM', 'HIGH']),
+  "seoIntel": zod.object({
+  "query": zod.string(),
+  "location": zod.string(),
+  "competition": zod.enum(['LOW', 'MEDIUM', 'HIGH']),
+  "competitionScore": zod.number(),
+  "primaryKeyword": zod.union([zod.object({
+  "keyword": zod.string(),
+  "searchVolume": zod.number().nullish(),
+  "difficulty": zod.number().nullish(),
+  "competition": zod.string().nullish()
+}),zod.null()]).optional(),
+  "relatedKeywords": zod.array(zod.object({
+  "keyword": zod.string(),
+  "searchVolume": zod.number().nullish(),
+  "difficulty": zod.number().nullish(),
+  "competition": zod.string().nullish()
+})),
+  "topCompetitors": zod.array(zod.object({
+  "title": zod.string(),
+  "link": zod.string(),
+  "position": zod.number().nullish()
+})),
+  "localPackCount": zod.number(),
+  "adsCount": zod.number(),
+  "peopleAlsoAsk": zod.array(zod.string()),
+  "fetchedAt": zod.string(),
+  "sources": zod.array(zod.string())
+}).describe('Live per-URL SEO intelligence pulled from SerpAPI (+ DataForSEO when configured) at run-create time. Replaces the quarterly SEO spreadsheet.')
+}).describe('Everything the server derives from a target URL for a run.')
+
+
+/**
  * @summary The locked URL/image/link safeguard registry
  */
 export const GetRegistryResponse = zod.object({
@@ -268,6 +366,8 @@ export const GetRunParams = zod.object({
 
 export const GetRunResponse = zod.object({
   "id": zod.number(),
+  "vaName": zod.string().describe('Name of the VA who created the run.'),
+  "url": zod.string().nullish().describe('Target page URL the run was derived from.'),
   "city": zod.string(),
   "state": zod.string(),
   "track": zod.enum(['page', 'blog']),
@@ -295,6 +395,34 @@ export const GetRunResponse = zod.object({
 })).optional(),
   "raw": zod.string().nullish()
 }),zod.null()]).optional(),
+  "seoIntel": zod.union([zod.object({
+  "query": zod.string(),
+  "location": zod.string(),
+  "competition": zod.enum(['LOW', 'MEDIUM', 'HIGH']),
+  "competitionScore": zod.number(),
+  "primaryKeyword": zod.union([zod.object({
+  "keyword": zod.string(),
+  "searchVolume": zod.number().nullish(),
+  "difficulty": zod.number().nullish(),
+  "competition": zod.string().nullish()
+}),zod.null()]).optional(),
+  "relatedKeywords": zod.array(zod.object({
+  "keyword": zod.string(),
+  "searchVolume": zod.number().nullish(),
+  "difficulty": zod.number().nullish(),
+  "competition": zod.string().nullish()
+})),
+  "topCompetitors": zod.array(zod.object({
+  "title": zod.string(),
+  "link": zod.string(),
+  "position": zod.number().nullish()
+})),
+  "localPackCount": zod.number(),
+  "adsCount": zod.number(),
+  "peopleAlsoAsk": zod.array(zod.string()),
+  "fetchedAt": zod.string(),
+  "sources": zod.array(zod.string())
+}).describe('Live per-URL SEO intelligence pulled from SerpAPI (+ DataForSEO when configured) at run-create time. Replaces the quarterly SEO spreadsheet.'),zod.null()]).optional(),
   "pageHtml": zod.string().nullish(),
   "generatedSchema": zod.string().nullish(),
   "joomlaMeta": zod.union([zod.object({
@@ -371,6 +499,8 @@ export const RunPhaseParams = zod.object({
 
 export const RunPhaseResponse = zod.object({
   "id": zod.number(),
+  "vaName": zod.string().describe('Name of the VA who created the run.'),
+  "url": zod.string().nullish().describe('Target page URL the run was derived from.'),
   "city": zod.string(),
   "state": zod.string(),
   "track": zod.enum(['page', 'blog']),
@@ -398,6 +528,34 @@ export const RunPhaseResponse = zod.object({
 })).optional(),
   "raw": zod.string().nullish()
 }),zod.null()]).optional(),
+  "seoIntel": zod.union([zod.object({
+  "query": zod.string(),
+  "location": zod.string(),
+  "competition": zod.enum(['LOW', 'MEDIUM', 'HIGH']),
+  "competitionScore": zod.number(),
+  "primaryKeyword": zod.union([zod.object({
+  "keyword": zod.string(),
+  "searchVolume": zod.number().nullish(),
+  "difficulty": zod.number().nullish(),
+  "competition": zod.string().nullish()
+}),zod.null()]).optional(),
+  "relatedKeywords": zod.array(zod.object({
+  "keyword": zod.string(),
+  "searchVolume": zod.number().nullish(),
+  "difficulty": zod.number().nullish(),
+  "competition": zod.string().nullish()
+})),
+  "topCompetitors": zod.array(zod.object({
+  "title": zod.string(),
+  "link": zod.string(),
+  "position": zod.number().nullish()
+})),
+  "localPackCount": zod.number(),
+  "adsCount": zod.number(),
+  "peopleAlsoAsk": zod.array(zod.string()),
+  "fetchedAt": zod.string(),
+  "sources": zod.array(zod.string())
+}).describe('Live per-URL SEO intelligence pulled from SerpAPI (+ DataForSEO when configured) at run-create time. Replaces the quarterly SEO spreadsheet.'),zod.null()]).optional(),
   "pageHtml": zod.string().nullish(),
   "generatedSchema": zod.string().nullish(),
   "joomlaMeta": zod.union([zod.object({
@@ -471,6 +629,8 @@ export const RunReplitPhaseBody = zod.object({
 
 export const RunReplitPhaseResponse = zod.object({
   "id": zod.number(),
+  "vaName": zod.string().describe('Name of the VA who created the run.'),
+  "url": zod.string().nullish().describe('Target page URL the run was derived from.'),
   "city": zod.string(),
   "state": zod.string(),
   "track": zod.enum(['page', 'blog']),
@@ -498,6 +658,34 @@ export const RunReplitPhaseResponse = zod.object({
 })).optional(),
   "raw": zod.string().nullish()
 }),zod.null()]).optional(),
+  "seoIntel": zod.union([zod.object({
+  "query": zod.string(),
+  "location": zod.string(),
+  "competition": zod.enum(['LOW', 'MEDIUM', 'HIGH']),
+  "competitionScore": zod.number(),
+  "primaryKeyword": zod.union([zod.object({
+  "keyword": zod.string(),
+  "searchVolume": zod.number().nullish(),
+  "difficulty": zod.number().nullish(),
+  "competition": zod.string().nullish()
+}),zod.null()]).optional(),
+  "relatedKeywords": zod.array(zod.object({
+  "keyword": zod.string(),
+  "searchVolume": zod.number().nullish(),
+  "difficulty": zod.number().nullish(),
+  "competition": zod.string().nullish()
+})),
+  "topCompetitors": zod.array(zod.object({
+  "title": zod.string(),
+  "link": zod.string(),
+  "position": zod.number().nullish()
+})),
+  "localPackCount": zod.number(),
+  "adsCount": zod.number(),
+  "peopleAlsoAsk": zod.array(zod.string()),
+  "fetchedAt": zod.string(),
+  "sources": zod.array(zod.string())
+}).describe('Live per-URL SEO intelligence pulled from SerpAPI (+ DataForSEO when configured) at run-create time. Replaces the quarterly SEO spreadsheet.'),zod.null()]).optional(),
   "pageHtml": zod.string().nullish(),
   "generatedSchema": zod.string().nullish(),
   "joomlaMeta": zod.union([zod.object({
@@ -566,6 +754,8 @@ export const ApprovePhaseParams = zod.object({
 
 export const ApprovePhaseResponse = zod.object({
   "id": zod.number(),
+  "vaName": zod.string().describe('Name of the VA who created the run.'),
+  "url": zod.string().nullish().describe('Target page URL the run was derived from.'),
   "city": zod.string(),
   "state": zod.string(),
   "track": zod.enum(['page', 'blog']),
@@ -593,6 +783,34 @@ export const ApprovePhaseResponse = zod.object({
 })).optional(),
   "raw": zod.string().nullish()
 }),zod.null()]).optional(),
+  "seoIntel": zod.union([zod.object({
+  "query": zod.string(),
+  "location": zod.string(),
+  "competition": zod.enum(['LOW', 'MEDIUM', 'HIGH']),
+  "competitionScore": zod.number(),
+  "primaryKeyword": zod.union([zod.object({
+  "keyword": zod.string(),
+  "searchVolume": zod.number().nullish(),
+  "difficulty": zod.number().nullish(),
+  "competition": zod.string().nullish()
+}),zod.null()]).optional(),
+  "relatedKeywords": zod.array(zod.object({
+  "keyword": zod.string(),
+  "searchVolume": zod.number().nullish(),
+  "difficulty": zod.number().nullish(),
+  "competition": zod.string().nullish()
+})),
+  "topCompetitors": zod.array(zod.object({
+  "title": zod.string(),
+  "link": zod.string(),
+  "position": zod.number().nullish()
+})),
+  "localPackCount": zod.number(),
+  "adsCount": zod.number(),
+  "peopleAlsoAsk": zod.array(zod.string()),
+  "fetchedAt": zod.string(),
+  "sources": zod.array(zod.string())
+}).describe('Live per-URL SEO intelligence pulled from SerpAPI (+ DataForSEO when configured) at run-create time. Replaces the quarterly SEO spreadsheet.'),zod.null()]).optional(),
   "pageHtml": zod.string().nullish(),
   "generatedSchema": zod.string().nullish(),
   "joomlaMeta": zod.union([zod.object({
@@ -706,6 +924,8 @@ export const OverrideLinkAuditBody = zod.object({
 
 export const OverrideLinkAuditResponse = zod.object({
   "id": zod.number(),
+  "vaName": zod.string().describe('Name of the VA who created the run.'),
+  "url": zod.string().nullish().describe('Target page URL the run was derived from.'),
   "city": zod.string(),
   "state": zod.string(),
   "track": zod.enum(['page', 'blog']),
@@ -733,6 +953,34 @@ export const OverrideLinkAuditResponse = zod.object({
 })).optional(),
   "raw": zod.string().nullish()
 }),zod.null()]).optional(),
+  "seoIntel": zod.union([zod.object({
+  "query": zod.string(),
+  "location": zod.string(),
+  "competition": zod.enum(['LOW', 'MEDIUM', 'HIGH']),
+  "competitionScore": zod.number(),
+  "primaryKeyword": zod.union([zod.object({
+  "keyword": zod.string(),
+  "searchVolume": zod.number().nullish(),
+  "difficulty": zod.number().nullish(),
+  "competition": zod.string().nullish()
+}),zod.null()]).optional(),
+  "relatedKeywords": zod.array(zod.object({
+  "keyword": zod.string(),
+  "searchVolume": zod.number().nullish(),
+  "difficulty": zod.number().nullish(),
+  "competition": zod.string().nullish()
+})),
+  "topCompetitors": zod.array(zod.object({
+  "title": zod.string(),
+  "link": zod.string(),
+  "position": zod.number().nullish()
+})),
+  "localPackCount": zod.number(),
+  "adsCount": zod.number(),
+  "peopleAlsoAsk": zod.array(zod.string()),
+  "fetchedAt": zod.string(),
+  "sources": zod.array(zod.string())
+}).describe('Live per-URL SEO intelligence pulled from SerpAPI (+ DataForSEO when configured) at run-create time. Replaces the quarterly SEO spreadsheet.'),zod.null()]).optional(),
   "pageHtml": zod.string().nullish(),
   "generatedSchema": zod.string().nullish(),
   "joomlaMeta": zod.union([zod.object({
@@ -800,6 +1048,8 @@ export const RevokeLinkAuditOverrideParams = zod.object({
 
 export const RevokeLinkAuditOverrideResponse = zod.object({
   "id": zod.number(),
+  "vaName": zod.string().describe('Name of the VA who created the run.'),
+  "url": zod.string().nullish().describe('Target page URL the run was derived from.'),
   "city": zod.string(),
   "state": zod.string(),
   "track": zod.enum(['page', 'blog']),
@@ -827,6 +1077,34 @@ export const RevokeLinkAuditOverrideResponse = zod.object({
 })).optional(),
   "raw": zod.string().nullish()
 }),zod.null()]).optional(),
+  "seoIntel": zod.union([zod.object({
+  "query": zod.string(),
+  "location": zod.string(),
+  "competition": zod.enum(['LOW', 'MEDIUM', 'HIGH']),
+  "competitionScore": zod.number(),
+  "primaryKeyword": zod.union([zod.object({
+  "keyword": zod.string(),
+  "searchVolume": zod.number().nullish(),
+  "difficulty": zod.number().nullish(),
+  "competition": zod.string().nullish()
+}),zod.null()]).optional(),
+  "relatedKeywords": zod.array(zod.object({
+  "keyword": zod.string(),
+  "searchVolume": zod.number().nullish(),
+  "difficulty": zod.number().nullish(),
+  "competition": zod.string().nullish()
+})),
+  "topCompetitors": zod.array(zod.object({
+  "title": zod.string(),
+  "link": zod.string(),
+  "position": zod.number().nullish()
+})),
+  "localPackCount": zod.number(),
+  "adsCount": zod.number(),
+  "peopleAlsoAsk": zod.array(zod.string()),
+  "fetchedAt": zod.string(),
+  "sources": zod.array(zod.string())
+}).describe('Live per-URL SEO intelligence pulled from SerpAPI (+ DataForSEO when configured) at run-create time. Replaces the quarterly SEO spreadsheet.'),zod.null()]).optional(),
   "pageHtml": zod.string().nullish(),
   "generatedSchema": zod.string().nullish(),
   "joomlaMeta": zod.union([zod.object({

@@ -14,9 +14,17 @@ import type { MissionRunStatus } from './missionRunStatus';
 import type { MissionRunTrack } from './missionRunTrack';
 import type { PhaseState } from './phaseState';
 import type { ResearchBrief } from './researchBrief';
+import type { SeoIntel } from './seoIntel';
 
 export interface MissionRun {
   id: number;
+  /** Name of the VA who created the run. */
+  vaName: string;
+  /**
+     * Target page URL the run was derived from.
+     * @nullable
+     */
+  url?: string | null;
   city: string;
   state: string;
   track: MissionRunTrack;
@@ -37,6 +45,7 @@ export interface MissionRun {
   /** @nullable */
   blogTopic?: string | null;
   researchBrief?: ResearchBrief | null;
+  seoIntel?: SeoIntel | null;
   /** @nullable */
   pageHtml?: string | null;
   /** @nullable */

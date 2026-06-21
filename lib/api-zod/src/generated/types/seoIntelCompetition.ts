@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type RunInputCompetition = typeof RunInputCompetition[keyof typeof RunInputCompetition];
+export type SeoIntelCompetition = typeof SeoIntelCompetition[keyof typeof SeoIntelCompetition];
 
 
-export const RunInputCompetition = {
+export const SeoIntelCompetition = {
   LOW: 'LOW',
   MEDIUM: 'MEDIUM',
   HIGH: 'HIGH',

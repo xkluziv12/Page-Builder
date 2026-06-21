@@ -21,6 +21,7 @@ import {
   type PhaseName,
 } from "@workspace/mc-core";
 import {
+  deriveRunInputs,
   engineFor,
   replitEngineFor,
   initialPhases,
@@ -210,8 +211,10 @@ router.get("/mc/runs", async (_req, res) => {
 // POST /mc/runs — create
 router.post("/mc/runs", async (req, res) => {
   const body = req.body ?? {};
-  if (!body.city || !body.state) {
-    res.status(400).json({ error: "city and state are required" });
+  const vaName = typeof body.vaName === "string" ? body.vaName.trim() : "";
+  const url = typeof body.url === "string" ? body.url.trim() : "";
+  if (!vaName || !url) {
+    res.status(400).json({ error: "vaName and url are required" });
     return;
   }
   const engine = body.engine ?? "claude";
@@ -221,6 +224,21 @@ router.post("/mc/runs", async (req, res) => {
     });
     return;
   }
+
+  // Derive city/state, classification, competition and the live SEO intel from
+  // the target URL alone — the form no longer asks for them. SerpAPI failures and
+  // unparseable URLs fail loudly here so the VA fixes the input rather than the
+  // pipeline building on missing SEO data.
+  let derived;
+  try {
+    derived = await deriveRunInputs(url);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to derive run inputs from the URL.";
+    req.log.warn({ err, url }, "deriveRunInputs failed");
+    res.status(400).json({ error: message });
+    return;
+  }
+
   // Replit-mode runs are operator-driven, so they are created "queued" and wait
   // for a human operator to pick them up via the run-book — the server never
   // auto-runs them. Dashboard (claude) runs start "running" and execute Research
@@ -229,19 +247,22 @@ router.post("/mc/runs", async (req, res) => {
   const [row] = await db
     .insert(mcRunsTable)
     .values({
-      city: String(body.city),
-      state: String(body.state),
+      vaName,
+      url,
+      city: derived.city,
+      state: derived.state,
       track: body.track ?? "page",
       engine,
-      classification: body.classification ?? "NEW_BUILD",
-      niche: body.niche ?? "general",
-      competition: body.competition ?? "LOW",
+      classification: derived.classification,
+      niche: derived.niche,
+      competition: derived.competition,
       pageType: body.pageType ?? "SPOKE",
       existingUrls: Array.isArray(body.existingUrls) ? body.existingUrls : [],
       handoff: body.handoff ?? null,
       verifiedCid: body.verifiedCid ?? null,
       designBibleHash: body.designBibleHash ?? null,
       blogTopic: body.blogTopic ?? null,
+      seoIntel: derived.seoIntel as unknown as Record<string, unknown>,
       status: isReplit ? "queued" : "running",
       currentPhase: "research",
       phases: initialPhases() as unknown as Record<string, unknown>[],
@@ -258,6 +279,26 @@ router.post("/mc/runs", async (req, res) => {
   // first review gate. Subsequent phases auto-run on approval (see approve).
   const result = await executePhase(row!, "research");
   res.status(201).json(serializeRun(result.run));
+});
+
+// GET /mc/seo-intel?url= — reusable live SEO lookup for a target URL. Returns
+// the same derived data a run would use (city/state, classification, competition,
+// and the full SEO intel), so other tools can consume live SEO data instead of a
+// manual spreadsheet without creating a run.
+router.get("/mc/seo-intel", async (req, res) => {
+  const url = typeof req.query.url === "string" ? req.query.url.trim() : "";
+  if (!url) {
+    res.status(400).json({ error: "A 'url' query parameter is required." });
+    return;
+  }
+  try {
+    const derived = await deriveRunInputs(url);
+    res.json(derived);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : "Failed to gather SEO intel for the URL.";
+    req.log.warn({ err, url }, "seo-intel lookup failed");
+    res.status(400).json({ error: message });
+  }
 });
 
 // GET /mc/summary — dashboard counts + recent

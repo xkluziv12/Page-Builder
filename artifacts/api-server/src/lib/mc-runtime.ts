@@ -4,13 +4,23 @@ import {
   ReplitEngine,
   createJoomlaPublisher,
   buildRegistry,
+  deriveClassification,
+  fetchSeoIntel,
+  isPrivateHostname,
+  normalizeTargetUrl,
+  parseCityState,
+  probeTargetPage,
   DEFAULT_SACRED_LINKS,
   DEFAULT_IMAGE_LIBRARY,
   DEFAULT_INDUSTRY_LINKS,
   DEFAULT_URL_ALLOWLIST,
   type AIEngine,
+  type Classification,
+  type Competition,
   type RegistryLink,
   type RunContext,
+  type SeoCredentials,
+  type SeoIntel,
   type UrlRegistry,
 } from "@workspace/mc-core";
 import { logger } from "./logger";
@@ -175,7 +185,78 @@ export function toRunContext(run: McRun, registry: UrlRegistry): RunContext {
     designBibleHash: run.designBibleHash,
     blogTopic: run.blogTopic,
     researchBrief: (run.researchBrief as RunContext["researchBrief"]) ?? null,
+    seoIntel: (run.seoIntel as RunContext["seoIntel"]) ?? null,
     registry,
+  };
+}
+
+/** Read the live-SEO credentials from the environment. */
+export function seoCredsFromEnv(): SeoCredentials {
+  return {
+    serpApiKey: process.env.SERPAPI_API_KEY ?? "",
+    dataForSeoLogin: process.env.DATAFORSEO_LOGIN ?? null,
+    dataForSeoPassword: process.env.DATAFORSEO_PASSWORD ?? null,
+  };
+}
+
+/** Everything the create handler derives from a target URL. */
+export interface DerivedRunInputs {
+  city: string;
+  state: string;
+  niche: string;
+  classification: Classification;
+  competition: Competition;
+  seoIntel: SeoIntel;
+}
+
+/**
+ * Derive every field the simplified New Build form no longer asks for, from the
+ * target URL alone:
+ *   - city/state/niche from the URL slug (loud failure on an unparseable URL),
+ *   - classification by probing whether a real page already exists there,
+ *   - competition + live SEO intel from SerpAPI (+ DataForSEO enrichment).
+ * SerpAPI is required and fails loudly — this intel replaces the quarterly SEO
+ * spreadsheet, so a silent gap is worse than a hard stop.
+ */
+export async function deriveRunInputs(url: string): Promise<DerivedRunInputs> {
+  // Normalize once so parsing and probing inspect the exact same URL, and reject
+  // anything that isn't a public http(s) target (SSRF guard).
+  const normalized = normalizeTargetUrl(url);
+  if (!normalized) {
+    throw new Error(
+      `"${url}" is not a valid http(s) URL. Use a full page URL, e.g. https://stsrecycling.com/electronics-recycling-austin-tx.`,
+    );
+  }
+  if (isPrivateHostname(new URL(normalized).hostname)) {
+    throw new Error(
+      `Refusing to probe "${url}" — it points at a private or internal address.`,
+    );
+  }
+  const loc = parseCityState(normalized);
+  if (!loc) {
+    throw new Error(
+      `Could not parse a city and state from the URL "${url}". Use a local page URL that ends in a city + state, e.g. .../electronics-recycling-austin-tx.`,
+    );
+  }
+  const creds = seoCredsFromEnv();
+  if (!creds.serpApiKey) {
+    throw new Error(
+      "SERPAPI_API_KEY is not configured; cannot gather the live SEO data that replaces the quarterly SEO spreadsheet.",
+    );
+  }
+  const probe = await probeTargetPage(normalized);
+  const classification = deriveClassification(probe);
+  const seoIntel = await fetchSeoIntel(
+    { city: loc.city, state: loc.state, niche: loc.niche },
+    creds,
+  );
+  return {
+    city: loc.city,
+    state: loc.state,
+    niche: loc.niche,
+    classification,
+    competition: seoIntel.competition,
+    seoIntel,
   };
 }
 
@@ -200,6 +281,8 @@ export function nextPhase(phase: PhaseName): PhaseName | null {
 export function serializeRun(run: McRun): Record<string, unknown> {
   return {
     id: run.id,
+    vaName: run.vaName,
+    url: run.url,
     city: run.city,
     state: run.state,
     track: run.track,
@@ -216,6 +299,7 @@ export function serializeRun(run: McRun): Record<string, unknown> {
     designBibleHash: run.designBibleHash,
     blogTopic: run.blogTopic,
     researchBrief: run.researchBrief ?? null,
+    seoIntel: run.seoIntel ?? null,
     pageHtml: run.pageHtml,
     generatedSchema: run.generatedSchema,
     joomlaMeta: run.joomlaMeta ?? null,

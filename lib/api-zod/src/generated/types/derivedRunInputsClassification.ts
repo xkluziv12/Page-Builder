@@ -6,10 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export type RunInputClassification = typeof RunInputClassification[keyof typeof RunInputClassification];
+export type DerivedRunInputsClassification = typeof DerivedRunInputsClassification[keyof typeof DerivedRunInputsClassification];
 
 
-export const RunInputClassification = {
+export const DerivedRunInputsClassification = {
   NEW_BUILD: 'NEW_BUILD',
   REVAMP: 'REVAMP',
   LIGHT_TOUCH: 'LIGHT_TOUCH',

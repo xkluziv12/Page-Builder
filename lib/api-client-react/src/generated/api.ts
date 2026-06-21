@@ -25,7 +25,9 @@ import type {
   ChatMessage,
   CheckerReport,
   DashboardSummary,
+  DerivedRunInputs,
   ErrorResponse,
+  GetSeoIntelParams,
   HealthStatus,
   LinkAuditOverrideRequest,
   MissionRun,
@@ -339,6 +341,90 @@ export function useGetSummary<TData = Awaited<ReturnType<typeof getSummary>>, TE
  ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
 
   const queryOptions = getGetSummaryQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetSeoIntelUrl = (params: GetSeoIntelParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/mc/seo-intel?${stringifiedParams}` : `/api/mc/seo-intel`
+}
+
+/**
+ * @summary Live SEO intel derived from a target URL
+ */
+export const getSeoIntel = async (params: GetSeoIntelParams, options?: RequestInit): Promise<DerivedRunInputs> => {
+
+  return customFetch<DerivedRunInputs>(getGetSeoIntelUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetSeoIntelQueryKey = (params?: GetSeoIntelParams,) => {
+    return [
+    `/api/mc/seo-intel`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getGetSeoIntelQueryOptions = <TData = Awaited<ReturnType<typeof getSeoIntel>>, TError = ErrorType<ErrorResponse>>(params: GetSeoIntelParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSeoIntel>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetSeoIntelQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getSeoIntel>>> = ({ signal }) => getSeoIntel(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getSeoIntel>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetSeoIntelQueryResult = NonNullable<Awaited<ReturnType<typeof getSeoIntel>>>
+export type GetSeoIntelQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Live SEO intel derived from a target URL
+ */
+
+export function useGetSeoIntel<TData = Awaited<ReturnType<typeof getSeoIntel>>, TError = ErrorType<ErrorResponse>>(
+ params: GetSeoIntelParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getSeoIntel>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetSeoIntelQueryOptions(params,options)
 
   const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
 

@@ -29,24 +29,6 @@ export const RunInputEngine = {
   replit: 'replit',
 } as const;
 
-export type RunInputClassification = typeof RunInputClassification[keyof typeof RunInputClassification];
-
-
-export const RunInputClassification = {
-  NEW_BUILD: 'NEW_BUILD',
-  REVAMP: 'REVAMP',
-  LIGHT_TOUCH: 'LIGHT_TOUCH',
-} as const;
-
-export type RunInputCompetition = typeof RunInputCompetition[keyof typeof RunInputCompetition];
-
-
-export const RunInputCompetition = {
-  LOW: 'LOW',
-  MEDIUM: 'MEDIUM',
-  HIGH: 'HIGH',
-} as const;
-
 export type RunInputPageType = typeof RunInputPageType[keyof typeof RunInputPageType];
 
 
@@ -56,16 +38,22 @@ export const RunInputPageType = {
   NATIONAL: 'NATIONAL',
 } as const;
 
+/**
+ * Simplified New Build form. The VA supplies who they are (vaName) and the target page URL; the server derives city/state, classification, competition and live SEO intel from the URL.
+ */
 export interface RunInput {
-  /** @minLength 1 */
-  city: string;
-  /** @minLength 1 */
-  state: string;
+  /**
+     * Name of the VA creating this run (tracked in the DB).
+     * @minLength 1
+     */
+  vaName: string;
+  /**
+     * Target page URL; city/state and SEO data are derived from it.
+     * @minLength 1
+     */
+  url: string;
   track?: RunInputTrack;
   engine?: RunInputEngine;
-  classification?: RunInputClassification;
-  niche?: string;
-  competition?: RunInputCompetition;
   pageType?: RunInputPageType;
   existingUrls?: string[];
   /** @nullable */
@@ -358,8 +346,59 @@ export const MissionRunCurrentPhase = {
   publish: 'publish',
 } as const;
 
+export type SeoIntelCompetition = typeof SeoIntelCompetition[keyof typeof SeoIntelCompetition];
+
+
+export const SeoIntelCompetition = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+} as const;
+
+export interface SeoKeyword {
+  keyword: string;
+  /** @nullable */
+  searchVolume?: number | null;
+  /** @nullable */
+  difficulty?: number | null;
+  /** @nullable */
+  competition?: string | null;
+}
+
+export interface SeoCompetitor {
+  title: string;
+  link: string;
+  /** @nullable */
+  position?: number | null;
+}
+
+/**
+ * Live per-URL SEO intelligence pulled from SerpAPI (+ DataForSEO when configured) at run-create time. Replaces the quarterly SEO spreadsheet.
+ */
+export interface SeoIntel {
+  query: string;
+  location: string;
+  competition: SeoIntelCompetition;
+  competitionScore: number;
+  primaryKeyword?: SeoKeyword | null;
+  relatedKeywords: SeoKeyword[];
+  topCompetitors: SeoCompetitor[];
+  localPackCount: number;
+  adsCount: number;
+  peopleAlsoAsk: string[];
+  fetchedAt: string;
+  sources: string[];
+}
+
 export interface MissionRun {
   id: number;
+  /** Name of the VA who created the run. */
+  vaName: string;
+  /**
+     * Target page URL the run was derived from.
+     * @nullable
+     */
+  url?: string | null;
   city: string;
   state: string;
   track: MissionRunTrack;
@@ -380,6 +419,7 @@ export interface MissionRun {
   /** @nullable */
   blogTopic?: string | null;
   researchBrief?: ResearchBrief | null;
+  seoIntel?: SeoIntel | null;
   /** @nullable */
   pageHtml?: string | null;
   /** @nullable */
@@ -392,6 +432,36 @@ export interface MissionRun {
   createdAt?: string | null;
   /** @nullable */
   updatedAt?: string | null;
+}
+
+export type DerivedRunInputsClassification = typeof DerivedRunInputsClassification[keyof typeof DerivedRunInputsClassification];
+
+
+export const DerivedRunInputsClassification = {
+  NEW_BUILD: 'NEW_BUILD',
+  REVAMP: 'REVAMP',
+  LIGHT_TOUCH: 'LIGHT_TOUCH',
+} as const;
+
+export type DerivedRunInputsCompetition = typeof DerivedRunInputsCompetition[keyof typeof DerivedRunInputsCompetition];
+
+
+export const DerivedRunInputsCompetition = {
+  LOW: 'LOW',
+  MEDIUM: 'MEDIUM',
+  HIGH: 'HIGH',
+} as const;
+
+/**
+ * Everything the server derives from a target URL for a run.
+ */
+export interface DerivedRunInputs {
+  city: string;
+  state: string;
+  niche: string;
+  classification: DerivedRunInputsClassification;
+  competition: DerivedRunInputsCompetition;
+  seoIntel: SeoIntel;
 }
 
 export interface StatusCount {
@@ -418,4 +488,8 @@ export interface RegistryInfo {
   allowlist: RegistryLink[];
   wordCountFloor?: number;
 }
+
+export type GetSeoIntelParams = {
+url: string;
+};
 

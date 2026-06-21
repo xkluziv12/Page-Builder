@@ -5,22 +5,26 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
-import type { RunInputClassification } from './runInputClassification';
-import type { RunInputCompetition } from './runInputCompetition';
 import type { RunInputEngine } from './runInputEngine';
 import type { RunInputPageType } from './runInputPageType';
 import type { RunInputTrack } from './runInputTrack';
 
+/**
+ * Simplified New Build form. The VA supplies who they are (vaName) and the target page URL; the server derives city/state, classification, competition and live SEO intel from the URL.
+ */
 export interface RunInput {
-  /** @minLength 1 */
-  city: string;
-  /** @minLength 1 */
-  state: string;
+  /**
+     * Name of the VA creating this run (tracked in the DB).
+     * @minLength 1
+     */
+  vaName: string;
+  /**
+     * Target page URL; city/state and SEO data are derived from it.
+     * @minLength 1
+     */
+  url: string;
   track?: RunInputTrack;
   engine?: RunInputEngine;
-  classification?: RunInputClassification;
-  niche?: string;
-  competition?: RunInputCompetition;
   pageType?: RunInputPageType;
   existingUrls?: string[];
   /** @nullable */

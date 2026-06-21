@@ -72,6 +72,31 @@ paths:
               schema:
                 $ref: "#/components/schemas/DashboardSummary"
 
+  /mc/seo-intel:
+    get:
+      operationId: getSeoIntel
+      tags: [mission-control]
+      summary: Live SEO intel derived from a target URL
+      parameters:
+        - name: url
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Derived run inputs (city/state, classification, competition, SEO intel)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DerivedRunInputs"
+        "400":
+          description: Bad or unparseable URL, or SEO provider failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /mc/registry:
     get:
       operationId: getRegistry
@@ -341,14 +366,20 @@ components:
 
     RunInput:
       type: object
-      required: [city, state]
+      description: >-
+        Simplified New Build form. The VA supplies who they are (vaName) and the
+        target page URL; the server derives city/state, classification,
+        competition and live SEO intel from the URL.
+      required: [vaName, url]
       properties:
-        city:
+        vaName:
           type: string
           minLength: 1
-        state:
+          description: Name of the VA creating this run (tracked in the DB).
+        url:
           type: string
           minLength: 1
+          description: Target page URL; city/state and SEO data are derived from it.
         track:
           type: string
           enum: [page, blog]
@@ -357,17 +388,6 @@ components:
           type: string
           enum: [claude, replit]
           default: claude
-        classification:
-          type: string
-          enum: [NEW_BUILD, REVAMP, LIGHT_TOUCH]
-          default: NEW_BUILD
-        niche:
-          type: string
-          default: general
-        competition:
-          type: string
-          enum: [LOW, MEDIUM, HIGH]
-          default: LOW
         pageType:
           type: string
           enum: [HUB, SPOKE, NATIONAL]
@@ -727,10 +747,16 @@ components:
 
     MissionRun:
       type: object
-      required: [id, city, state, track, engine, status, currentPhase, phases]
+      required: [id, vaName, city, state, track, engine, status, currentPhase, phases]
       properties:
         id:
           type: integer
+        vaName:
+          type: string
+          description: Name of the VA who created the run.
+        url:
+          type: ["string", "null"]
+          description: Target page URL the run was derived from.
         city:
           type: string
         state:
@@ -771,6 +797,10 @@ components:
           oneOf:
             - $ref: "#/components/schemas/ResearchBrief"
             - type: "null"
+        seoIntel:
+          oneOf:
+            - $ref: "#/components/schemas/SeoIntel"
+            - type: "null"
         pageHtml:
           type: ["string", "null"]
         generatedSchema:
@@ -795,6 +825,94 @@ components:
           type: ["string", "null"]
         updatedAt:
           type: ["string", "null"]
+
+    SeoKeyword:
+      type: object
+      required: [keyword]
+      properties:
+        keyword:
+          type: string
+        searchVolume:
+          type: ["integer", "null"]
+        difficulty:
+          type: ["integer", "null"]
+        competition:
+          type: ["string", "null"]
+
+    SeoCompetitor:
+      type: object
+      required: [title, link]
+      properties:
+        title:
+          type: string
+        link:
+          type: string
+        position:
+          type: ["integer", "null"]
+
+    SeoIntel:
+      type: object
+      description: >-
+        Live per-URL SEO intelligence pulled from SerpAPI (+ DataForSEO when
+        configured) at run-create time. Replaces the quarterly SEO spreadsheet.
+      required:
+        [query, location, competition, competitionScore, relatedKeywords, topCompetitors, localPackCount, adsCount, peopleAlsoAsk, fetchedAt, sources]
+      properties:
+        query:
+          type: string
+        location:
+          type: string
+        competition:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+        competitionScore:
+          type: number
+        primaryKeyword:
+          oneOf:
+            - $ref: "#/components/schemas/SeoKeyword"
+            - type: "null"
+        relatedKeywords:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeoKeyword"
+        topCompetitors:
+          type: array
+          items:
+            $ref: "#/components/schemas/SeoCompetitor"
+        localPackCount:
+          type: integer
+        adsCount:
+          type: integer
+        peopleAlsoAsk:
+          type: array
+          items:
+            type: string
+        fetchedAt:
+          type: string
+        sources:
+          type: array
+          items:
+            type: string
+
+    DerivedRunInputs:
+      type: object
+      description: Everything the server derives from a target URL for a run.
+      required: [city, state, niche, classification, competition, seoIntel]
+      properties:
+        city:
+          type: string
+        state:
+          type: string
+        niche:
+          type: string
+        classification:
+          type: string
+          enum: [NEW_BUILD, REVAMP, LIGHT_TOUCH]
+        competition:
+          type: string
+          enum: [LOW, MEDIUM, HIGH]
+        seoIntel:
+          $ref: "#/components/schemas/SeoIntel"
 
     DashboardSummary:
       type: object

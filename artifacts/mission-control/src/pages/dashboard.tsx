@@ -22,31 +22,28 @@ export default function Dashboard() {
   
   const createRun = useCreateRun();
 
-  const [city, setCity] = useState("");
-  const [state, setState] = useState("");
+  const [vaName, setVaName] = useState("");
+  const [url, setUrl] = useState("");
   const [track, setTrack] = useState<"page"|"blog">("page");
   const [engine, setEngine] = useState<"claude"|"replit">("claude");
-  const [classification, setClassification] = useState<"NEW_BUILD"|"REVAMP"|"LIGHT_TOUCH">("NEW_BUILD");
-  const [competition, setCompetition] = useState<"LOW"|"MEDIUM"|"HIGH">("MEDIUM");
 
   const handleLaunch = () => {
-    if (!city || !state) {
-      toast({ title: "Validation Error", description: "City and State are required.", variant: "destructive" });
+    if (!vaName.trim() || !url.trim()) {
+      toast({ title: "Validation Error", description: "VA Name and URL are required.", variant: "destructive" });
       return;
     }
-    
+
     createRun.mutate(
-      { data: { city, state, track, engine, classification, competition } },
+      { data: { vaName: vaName.trim(), url: url.trim(), track, engine } },
       {
         onSuccess: () => {
-          setCity("");
-          setState("");
+          setUrl("");
           toast({
             title: engine === "replit" ? "Queued for Replit" : "Run Launched",
             description:
               engine === "replit"
-                ? `${city}, ${state} is queued for a Replit operator to pick up.`
-                : `Build for ${city}, ${state} started.`,
+                ? `${url} is queued for a Replit operator to pick up.`
+                : `Build for ${url} started.`,
           });
           queryClient.invalidateQueries({ queryKey: getListRunsQueryKey() });
           queryClient.invalidateQueries({ queryKey: getGetSummaryQueryKey() });
@@ -103,17 +100,17 @@ export default function Dashboard() {
               </CardTitle>
             </CardHeader>
             <CardContent className="p-6 space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">City</label>
-                  <Input value={city} onChange={e => setCity(e.target.value)} placeholder="e.g. Austin" />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">State</label>
-                  <Input value={state} onChange={e => setState(e.target.value)} placeholder="e.g. TX" />
-                </div>
+              <div className="space-y-2">
+                <label className="text-sm font-medium">VA Name</label>
+                <Input value={vaName} onChange={e => setVaName(e.target.value)} placeholder="Who's building this?" />
               </div>
-              
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium">URL</label>
+                <Input value={url} onChange={e => setUrl(e.target.value)} placeholder="e.g. https://stsrecycling.com/electronics-recycling-austin-tx" />
+                <p className="text-xs text-muted-foreground">City, classification &amp; live SEO data are pulled from this URL automatically.</p>
+              </div>
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Track</label>
@@ -132,31 +129,6 @@ export default function Dashboard() {
                     <SelectContent>
                       <SelectItem value="claude">Claude (Dashboard)</SelectItem>
                       <SelectItem value="replit">Replit (Agent)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Classification</label>
-                  <Select value={classification} onValueChange={(v: any) => setClassification(v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="NEW_BUILD">New Build</SelectItem>
-                      <SelectItem value="REVAMP">Revamp</SelectItem>
-                      <SelectItem value="LIGHT_TOUCH">Light Touch</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Competition</label>
-                  <Select value={competition} onValueChange={(v: any) => setCompetition(v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="LOW">Low</SelectItem>
-                      <SelectItem value="MEDIUM">Medium</SelectItem>
-                      <SelectItem value="HIGH">High</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -192,6 +164,7 @@ export default function Dashboard() {
                       <tr>
                         <th className="px-6 py-3 font-medium">ID</th>
                         <th className="px-6 py-3 font-medium">Target</th>
+                        <th className="px-6 py-3 font-medium">VA</th>
                         <th className="px-6 py-3 font-medium">Engine</th>
                         <th className="px-6 py-3 font-medium">Status</th>
                         <th className="px-6 py-3 font-medium">Phase</th>
@@ -203,6 +176,7 @@ export default function Dashboard() {
                         <tr key={run.id} className="hover:bg-muted/20 transition-colors">
                           <td className="px-6 py-4 font-mono text-muted-foreground">#{run.id}</td>
                           <td className="px-6 py-4 font-medium">{run.city}, {run.state}</td>
+                          <td className="px-6 py-4 text-muted-foreground">{run.vaName || "—"}</td>
                           <td className="px-6 py-4">
                             <Badge variant={run.engine === 'replit' ? 'default' : 'outline'} className="uppercase">
                               {run.engine}
