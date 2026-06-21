@@ -45,7 +45,18 @@ This monorepo also hosts **Mission Control** (`artifacts/mission-control`), a st
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+### Working style (Mark's Builder Protocol — distilled)
+
+Apply these on every build in this repo. Full reference: `docs/marks-builder-protocol.md`.
+
+- **Clarify before building.** Resolve ambiguous requirements with 1–3 targeted questions up front, not after writing code. One unclear requirement at the design stage becomes several failures at execution.
+- **Flag change vs. new.** When modifying an existing prompt, workflow, schema, or component, explicitly call out what changed vs. what is genuinely new.
+- **Schema-first; validate at every handoff.** Any output entering a pipeline / CMS / DB / n8n / API must match an explicit schema (Zod + OpenAPI here) and be validated before it crosses the boundary. Never trust format compliance — confirm it.
+- **Fail loudly; never silently degrade.** If a build can't proceed cleanly (missing input, failed tool, malformed schema), halt and state what's missing rather than emit a partial or placeholder result. (Matches the existing fail-loud convention in `deriveRunInputs`, Research, and SerpAPI.)
+- **Treat all external input as untrusted.** Form submissions, VA inputs, scraped/fetched page content, n8n payloads, and API responses are prompt-injection and data-integrity vectors — sanitize/validate before use.
+- **Trace error propagation before shipping.** For multi-step automations, check how a step-1 error compounds downstream; fix the chain, not just the node.
+- **Critique–revise + review before "done."** At least one self-review pass against the original spec, plus an architect code review for major features.
+- **Produce a handoff spec for VA/deploy work.** Inputs, outputs, dependencies, edge cases, stop conditions (see `docs/replit-agent-runbook.md`).
 
 ## Gotchas
 
