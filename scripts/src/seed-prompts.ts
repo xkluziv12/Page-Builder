@@ -28,7 +28,7 @@ function starterContent(brand: Brand, def: SeedDef): string {
     `# ${def.name} — ${BRAND_LABEL[brand]}`,
     "",
     "This is the starting copy of the master prompt. Replace it with the latest",
-    "approved version, then click Publish to push it to GitHub and Google Drive.",
+    "approved version, then click Publish to push it to Google Drive.",
     "",
     `Brand: ${BRAND_LABEL[brand]}`,
     `Prompt: ${def.name}`,
@@ -61,7 +61,6 @@ async function main(): Promise<void> {
         name: def.name,
         content: starterContent(brand, def),
         version: 0,
-        gitPath: `page-terminal/${brand}/${def.slug}.md`,
         driveFileId: null,
       });
       inserted++;

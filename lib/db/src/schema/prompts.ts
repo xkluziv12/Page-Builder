@@ -23,7 +23,6 @@ export const promptsTable = pgTable(
     version: integer("version").notNull().default(0),
     publishedContent: text("published_content"),
     publishedVersion: integer("published_version"),
-    gitPath: text("git_path").notNull(),
     driveFileId: text("drive_file_id"),
     // Path of the read-only source-of-truth file in GITHUB_SOURCE_REPO
     // (e.g. "sts-dcd/page-builder.md"). When set, auto-sync pulls this file's

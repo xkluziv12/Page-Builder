@@ -109,8 +109,9 @@ copies:
 
 ## How real content was loaded (one-off)
 The Drive "(4.7)" docs (folder "MY STS PROMPTS") were exported and imported into
-the 9 matching rows, then published. Each row publishes to
-`page-terminal/<brand>/<slug>.md` in `git_path`.
+the 9 matching rows, then published (publish writes to Google Drive only). NOTE:
+the old `git_path` column (the defunct backup-repo path) has since been dropped;
+the only path field now is `git_source_path` (the read-only upstream sync source).
 - **CRITICAL — never point `drive_file_id` at the user's original Doc.** Publish
   WRITES to `drive_file_id`; pointing at a "(4.7)" source id would overwrite the
   user's master. Leave it null → app creates its own copy in "M.A.R.K. Prompts".
@@ -119,6 +120,6 @@ the 9 matching rows, then published. Each row publishes to
 `code_execution` can't `import('@workspace/db')`. Pattern that works: export the
 Drive docs to disk from the sandbox (Drive token via `listConnections`), then run
 a loader in the `scripts` package (`scripts/src/load-real-prompts.ts`, reads
-`PROMPT_CONTENT_DIR`) that writes `content` + normalizes `git_path`. Publish via
+`PROMPT_CONTENT_DIR`) that writes `content`. Publish via
 `POST /api/prompts/:id/publish` with `Authorization: Bearer $ADMIN_TOKEN` (the
 server holds the connector auth; the bash shell has `$ADMIN_TOKEN`).

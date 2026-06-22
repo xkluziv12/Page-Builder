@@ -1590,7 +1590,7 @@ export const ListPromptsResponseItem = zod.object({
   "version": zod.number(),
   "publishedContent": zod.string().nullish(),
   "publishedVersion": zod.number().nullish(),
-  "gitPath": zod.string(),
+  "gitSourcePath": zod.string().nullish(),
   "driveFileId": zod.string().nullish(),
   "updatedAt": zod.coerce.date(),
   "lastPublishedAt": zod.coerce.date().nullish()
@@ -1615,7 +1615,7 @@ export const GetPromptResponse = zod.object({
   "version": zod.number(),
   "publishedContent": zod.string().nullish(),
   "publishedVersion": zod.number().nullish(),
-  "gitPath": zod.string(),
+  "gitSourcePath": zod.string().nullish(),
   "driveFileId": zod.string().nullish(),
   "updatedAt": zod.coerce.date(),
   "lastPublishedAt": zod.coerce.date().nullish()
@@ -1644,7 +1644,7 @@ export const UpdatePromptResponse = zod.object({
   "version": zod.number(),
   "publishedContent": zod.string().nullish(),
   "publishedVersion": zod.number().nullish(),
-  "gitPath": zod.string(),
+  "gitSourcePath": zod.string().nullish(),
   "driveFileId": zod.string().nullish(),
   "updatedAt": zod.coerce.date(),
   "lastPublishedAt": zod.coerce.date().nullish()
@@ -1674,7 +1674,7 @@ export const PublishPromptResponse = zod.object({
   "version": zod.number(),
   "publishedContent": zod.string().nullish(),
   "publishedVersion": zod.number().nullish(),
-  "gitPath": zod.string(),
+  "gitSourcePath": zod.string().nullish(),
   "driveFileId": zod.string().nullish(),
   "updatedAt": zod.coerce.date(),
   "lastPublishedAt": zod.coerce.date().nullish()

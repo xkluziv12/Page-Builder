@@ -227,7 +227,9 @@ export default function PromptManager() {
                         : ""}
                     </span>
                   </div>
-                  <code className="pm-ref">{selected.gitPath}</code>
+                  {selected.gitSourcePath ? (
+                    <code className="pm-ref">{selected.gitSourcePath}</code>
+                  ) : null}
                 </div>
 
                 <textarea

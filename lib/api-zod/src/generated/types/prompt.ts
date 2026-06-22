@@ -16,7 +16,7 @@ export interface Prompt {
   version: number;
   publishedContent?: string | null;
   publishedVersion?: number | null;
-  gitPath: string;
+  gitSourcePath?: string | null;
   driveFileId?: string | null;
   updatedAt: Date;
   lastPublishedAt?: Date | null;
