@@ -22,6 +22,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
   ArrowLeft,
   Play,
   Check,
@@ -36,8 +41,23 @@ import {
   ShieldAlert,
   Gauge,
   History,
+  Copy,
+  Monitor,
+  Tablet,
+  Smartphone,
+  ChevronDown,
+  ExternalLink,
+  Rocket,
+  MessageSquare,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+type PreviewMode = "desktop" | "tablet" | "mobile";
+const PREVIEW_WIDTH: Record<PreviewMode, string> = {
+  desktop: "100%",
+  tablet: "820px",
+  mobile: "390px",
+};
 
 type Phase = "research" | "build" | "audit" | "schema" | "publish";
 const PHASES: Phase[] = ["research", "build", "audit", "schema", "publish"];
@@ -99,6 +119,7 @@ export default function RunDetail() {
   const [message, setMessage] = useState("");
   const [overrideBy, setOverrideBy] = useState("");
   const [overrideReason, setOverrideReason] = useState("");
+  const [previewMode, setPreviewMode] = useState<PreviewMode>("desktop");
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: getGetRunQueryKey(id) });
@@ -279,6 +300,54 @@ export default function RunDetail() {
         },
       },
     );
+  };
+
+  const handleExport = async () => {
+    if (!run) return;
+    const lines: string[] = [];
+    lines.push(`Mission Control Run #${run.id} — ${run.city}, ${run.state}`);
+    lines.push(
+      `Engine: ${run.engine} · Track: ${run.track} · Type: ${run.pageType} · Status: ${run.status}`,
+    );
+    if (run.url) lines.push(`Target URL: ${run.url}`);
+    lines.push("");
+    lines.push("PIPELINE");
+    for (const p of PHASES) {
+      const st = phaseState(p);
+      lines.push(
+        `  - ${p}: ${(st?.status ?? "locked").toUpperCase()}` +
+          (st?.summary ? ` — ${st.summary}` : "") +
+          (st?.error ? ` [error: ${st.error}]` : ""),
+      );
+    }
+    if (report) {
+      lines.push("");
+      lines.push(
+        `CHECKERS: ${report.passed ? "PASS" : "FAIL"} — ${report.errorCount ?? 0} error(s), ${
+          report.warningCount ?? 0
+        } warning(s), ${report.wordCount ?? 0} words`,
+      );
+    }
+    const latestQc = qcResults?.[0];
+    if (latestQc) {
+      lines.push(`POST-PUBLISH QC: ${latestQc.passed ? "PASS" : "FAIL"} — ${latestQc.url}`);
+    }
+    lines.push("");
+    lines.push("=== CURRENT PAGE HTML ===");
+    lines.push(extractPreviewHtml(run.pageHtml) || "(no HTML built yet)");
+    const text = lines.join("\n");
+    try {
+      await navigator.clipboard.writeText(text);
+      toast({ title: "Copied", description: "Run status + current HTML copied to clipboard." });
+    } catch {
+      const blob = new Blob([text], { type: "text/plain" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `mc-run-${run.id}-${run.city}.txt`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast({ title: "Exported", description: "Clipboard unavailable — saved a snapshot file." });
+    }
   };
 
   return (
