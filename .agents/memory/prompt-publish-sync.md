@@ -82,9 +82,11 @@ the DB so the tools/VA library always reflect the latest master logic.
 ## Repo boundary (agreed with the parallel dashboard project)
 `xkluziv12/master-prompts` and `xkluziv12/framework` are owned by the SolveMy.AI
 Prompts Dashboard. Page Terminal must NEVER write to them (no push/rename/delete/
-history-rewrite); read-only is fine. Page Terminal's own prompt backup repo is
-**`xkluziv12/page-terminal-prompts`** (private). Commits use the `xkluziv12`
-account via the GitHub connector — never the `solve-my-ai-bot` identity/token.
+history-rewrite); read-only is fine — and that inbound read-only sync is now the
+ONLY GitHub interaction the app makes. The old app-written backup repo
+(`xkluziv12/page-terminal-prompts`) is **defunct** (outbound publish removed). Any
+GitHub read uses the `xkluziv12` account via the connector — never the
+`solve-my-ai-bot` identity/token.
 
 ## Agreed source-of-truth model (RENDER, don't fork) — future direction
 The operator-approved model is **render-from-shared-template**, NOT owning forked

@@ -45,5 +45,4 @@ channel = "stable-25_05"
 [userenv]
 
 [userenv.shared]
-GITHUB_PROMPTS_REPO = "xkluziv12/page-terminal-prompts"
 GITHUB_SOURCE_REPO = "xkluziv12/master-prompts"
