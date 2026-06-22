@@ -16,7 +16,7 @@ import {
   makeClaudeComplete,
   makeGeminiComplete,
   makeOpenAIComplete,
-  makeOpenRouterComplete,
+  makeGrokComplete,
   type CompleteFn,
 } from "./providers.js";
 import { generateSharedGrounding, researchProviderFor, type SharedGrounding } from "./grounding.js";
@@ -176,7 +176,7 @@ async function main(): Promise<void> {
   const openaiComplete = makeOpenAIComplete(OPENAI_MODEL);
   const grokModel = await discoverNewestGrok();
   console.log(`Discovered newest Grok tag: ${grokModel}`);
-  const grokComplete = makeOpenRouterComplete(grokModel);
+  const grokComplete = makeGrokComplete(grokModel);
 
   const referenceHtml = await readFile(REFERENCE_HTML_PATH, "utf8");
   console.log(`Loaded reference page (${referenceHtml.length} chars) for closeness scoring.`);
@@ -190,7 +190,7 @@ async function main(): Promise<void> {
     { id: "claude", label: "Claude Sonnet 4.6", provider: "Anthropic", model: CLAUDE_MODEL, complete: claudeComplete },
     { id: "gemini", label: "Gemini 3.1 Pro", provider: "Google", model: GEMINI_MODEL, complete: geminiComplete },
     { id: "openai", label: `OpenAI ${OPENAI_MODEL.toUpperCase()}`, provider: "OpenAI", model: OPENAI_MODEL, complete: openaiComplete },
-    { id: "grok", label: "Grok (xAI)", provider: "xAI via OpenRouter", model: grokModel, complete: grokComplete },
+    { id: "grok", label: "Grok (xAI)", provider: "xAI", model: grokModel, complete: grokComplete },
   ];
 
   // Seed the working scenario set from any prior (resumable) results.

@@ -11,16 +11,24 @@ import type { EngineResult } from "@workspace/mc-core";
  *
  * These adapters live here in the scripts package, NOT in `lib/mc-core`, so the
  * shipped pipeline engine stays Claude-only.
+ *
+ * Every adapter calls the provider DIRECTLY with STS's own API key — Claude via
+ * ANTHROPIC_API_KEY, Gemini via GEMINI_API_KEY, OpenAI via OPENAI_API_KEY, and
+ * Grok via XAI_API_KEY against xAI's own endpoint. No Replit AI-Integrations
+ * proxy and no OpenRouter are used anywhere in the bake-off.
  */
 export type CompleteFn = (system: string, user: string) => Promise<EngineResult>;
 
 /** Generous output budget — full SEO pages run well past the default limits. */
 const MAX_OUTPUT_TOKENS = 32000;
 
+/** xAI's OpenAI-compatible endpoint. */
+const XAI_BASE_URL = "https://api.x.ai/v1";
+
 function requireEnv(name: string): string {
   const v = process.env[name];
   if (!v || !v.trim()) {
-    throw new Error(`${name} is not set; provision the AI integration before running the bake-off.`);
+    throw new Error(`${name} is not set; add STS's own API key before running the bake-off.`);
   }
   return v;
 }
@@ -32,12 +40,9 @@ function unfence(raw: string): string {
   return raw.trim();
 }
 
-/** Claude through the Replit AI Integrations Anthropic proxy. */
+/** Claude direct, with STS's own ANTHROPIC_API_KEY. */
 export function makeClaudeComplete(model: string): CompleteFn {
-  const client = new Anthropic({
-    apiKey: requireEnv("AI_INTEGRATIONS_ANTHROPIC_API_KEY"),
-    baseURL: requireEnv("AI_INTEGRATIONS_ANTHROPIC_BASE_URL"),
-  });
+  const client = new Anthropic({ apiKey: requireEnv("ANTHROPIC_API_KEY") });
   return async (system, user) => {
     // Stream: the Anthropic SDK refuses non-streaming requests whose token
     // budget could push the call past 10 minutes (full SEO pages are large).
@@ -58,15 +63,9 @@ export function makeClaudeComplete(model: string): CompleteFn {
   };
 }
 
-/** Gemini through the Replit AI Integrations Gemini proxy. */
+/** Gemini direct, with STS's own GEMINI_API_KEY. */
 export function makeGeminiComplete(model: string): CompleteFn {
-  const ai = new GoogleGenAI({
-    apiKey: requireEnv("AI_INTEGRATIONS_GEMINI_API_KEY"),
-    httpOptions: {
-      apiVersion: "",
-      baseUrl: requireEnv("AI_INTEGRATIONS_GEMINI_BASE_URL"),
-    },
-  });
+  const ai = new GoogleGenAI({ apiKey: requireEnv("GEMINI_API_KEY") });
   return async (system, user) => {
     const resp = await ai.models.generateContent({
       model,
@@ -80,16 +79,12 @@ export function makeGeminiComplete(model: string): CompleteFn {
 }
 
 /**
- * OpenAI flagship general model through the Replit AI Integrations OpenAI proxy.
+ * OpenAI flagship general model direct, with STS's own OPENAI_API_KEY.
  * The gpt-5 series rejects `temperature` and uses `max_completion_tokens`
- * instead of `max_tokens`. The proxy does not expose `/models`, so the flagship
- * tag is pinned by the caller (general model, NOT Codex).
+ * instead of `max_tokens`. The caller pins the flagship general tag (NOT Codex).
  */
 export function makeOpenAIComplete(model: string): CompleteFn {
-  const client = new OpenAI({
-    apiKey: requireEnv("AI_INTEGRATIONS_OPENAI_API_KEY"),
-    baseURL: requireEnv("AI_INTEGRATIONS_OPENAI_BASE_URL"),
-  });
+  const client = new OpenAI({ apiKey: requireEnv("OPENAI_API_KEY") });
   return async (system, user) => {
     const resp = await client.chat.completions.create({
       model,
@@ -105,12 +100,9 @@ export function makeOpenAIComplete(model: string): CompleteFn {
   };
 }
 
-/** Any OpenRouter chat model (here: xAI Grok) through the OpenRouter proxy. */
-export function makeOpenRouterComplete(model: string): CompleteFn {
-  const client = new OpenAI({
-    apiKey: requireEnv("AI_INTEGRATIONS_OPENROUTER_API_KEY"),
-    baseURL: requireEnv("AI_INTEGRATIONS_OPENROUTER_BASE_URL"),
-  });
+/** Grok direct via xAI's OpenAI-compatible endpoint, with STS's own XAI_API_KEY. */
+export function makeGrokComplete(model: string): CompleteFn {
+  const client = new OpenAI({ apiKey: requireEnv("XAI_API_KEY"), baseURL: XAI_BASE_URL });
   return async (system, user) => {
     const resp = await client.chat.completions.create({
       model,
@@ -127,21 +119,29 @@ export function makeOpenRouterComplete(model: string): CompleteFn {
 }
 
 /**
- * Discover the newest general xAI Grok tag on OpenRouter at runtime. Picks the
- * most-recently-created `x-ai/grok-<version>` id, excluding specialized variants
- * (multi-agent / build). Fails loudly if none exist rather than guessing a tag.
+ * Discover the newest general xAI Grok tag from xAI's own /models endpoint at
+ * runtime. Picks the most-recently-created `grok-<version>` id, excluding
+ * specialized variants (reasoning / non-reasoning / multi-agent / build /
+ * imagine / image / video / code). Fails loudly if none exist rather than
+ * guessing a tag.
  */
 export async function discoverNewestGrok(): Promise<string> {
-  const res = await fetch("https://openrouter.ai/api/v1/models");
+  const res = await fetch(`${XAI_BASE_URL}/models`, {
+    headers: { Authorization: `Bearer ${requireEnv("XAI_API_KEY")}` },
+  });
   if (!res.ok) {
-    throw new Error(`OpenRouter models list failed (${res.status} ${res.statusText}).`);
+    throw new Error(`xAI models list failed (${res.status} ${res.statusText}).`);
   }
   const data = (await res.json()) as { data: Array<{ id: string; created: number }> };
   const candidates = data.data
-    .filter((m) => /^x-ai\/grok-\d/.test(m.id) && !/(multi-agent|build)/i.test(m.id))
-    .sort((a, b) => b.created - a.created);
+    .filter(
+      (m) =>
+        /^grok-\d/.test(m.id) &&
+        !/(multi-agent|build|imagine|image|video|reasoning|code)/i.test(m.id),
+    )
+    .sort((a, b) => (b.created ?? 0) - (a.created ?? 0));
   if (candidates.length === 0) {
-    throw new Error("No x-ai/grok model is available on OpenRouter.");
+    throw new Error("No general grok model is available from xAI.");
   }
   return candidates[0]!.id;
 }

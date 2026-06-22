@@ -112,12 +112,11 @@ export async function visionRating(
   refPng: Buffer,
   model = "claude-sonnet-4-6",
 ): Promise<number | null> {
-  const apiKey = process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
-  const baseURL = process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
-  if (!apiKey?.trim() || !baseURL?.trim()) return null;
+  const apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey?.trim()) return null;
 
   try {
-    const client = new Anthropic({ apiKey, baseURL });
+    const client = new Anthropic({ apiKey });
     const message = await client.messages.create({
       model,
       max_tokens: 200,
