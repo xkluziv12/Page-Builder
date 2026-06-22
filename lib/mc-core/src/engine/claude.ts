@@ -16,10 +16,29 @@ function textFrom(message: Anthropic.Message): string {
     .trim();
 }
 
-/** Strip a leading/trailing ```html / ```json code fence if present. */
-function unfence(raw: string): string {
-  const fence = raw.match(/^```[a-z]*\n([\s\S]*?)\n```$/i);
-  if (fence && fence[1]) return fence[1].trim();
+/**
+ * Extract the usable artifact (HTML or JSON) from a model response. The
+ * page-builder and SEO-audit prompts return a long human-readable report (gate
+ * checklist, deltas, Joomla META) FOLLOWED by the final artifact, so the whole
+ * response is NOT the artifact. Without this, the report text was being stored
+ * as the page HTML and rendered on top of the live preview. Preference order:
+ *   1. Contents of the first fenced code block (```html / ```json / ```), where
+ *      the prompts place the final artifact.
+ *   2. A raw HTML document sliced from <!doctype html> (or <html>) through
+ *      </html>, for responses that emit the document without a fence.
+ *   3. The trimmed raw text (e.g. bare JSON schema with no fence).
+ */
+export function extractContent(raw: string): string {
+  const fence = raw.match(/```[a-z]*[ \t]*\r?\n?([\s\S]*?)```/i);
+  if (fence && fence[1] && fence[1].trim()) return fence[1].trim();
+
+  const docStart = raw.search(/<!doctype html|<html[\s>]/i);
+  if (docStart !== -1) {
+    const closeIdx = raw.toLowerCase().lastIndexOf("</html>");
+    const end = closeIdx !== -1 ? closeIdx + "</html>".length : raw.length;
+    return raw.slice(docStart, end).trim();
+  }
+
   return raw.trim();
 }
 
@@ -46,7 +65,7 @@ export class ClaudeEngine implements AIEngine {
       messages: [{ role: "user", content: user }],
     });
     const raw = textFrom(message);
-    return { content: unfence(raw), raw };
+    return { content: extractContent(raw), raw };
   }
 
   buildPage(ctx: RunContext): Promise<EngineResult> {

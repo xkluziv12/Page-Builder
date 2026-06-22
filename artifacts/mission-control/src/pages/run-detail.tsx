@@ -42,6 +42,26 @@ import { useToast } from "@/hooks/use-toast";
 type Phase = "research" | "build" | "audit" | "schema" | "publish";
 const PHASES: Phase[] = ["research", "build", "audit", "schema", "publish"];
 
+/**
+ * Display-time safeguard for the Live Preview. Mirrors the server's engine
+ * extractor: pages built before the engine fix have the model's full report
+ * (gate checklist, deltas, Joomla META) stored in front of the actual HTML, so
+ * the raw value would render that text on top of the page. Prefer a fenced code
+ * block, else slice from <!doctype>/<html>, else fall back to the raw value.
+ */
+function extractPreviewHtml(raw: string | null | undefined): string {
+  if (!raw) return "";
+  const fence = raw.match(/```[a-z]*[ \t]*\r?\n?([\s\S]*?)```/i);
+  if (fence && fence[1] && fence[1].trim()) return fence[1].trim();
+  const docStart = raw.search(/<!doctype html|<html[\s>]/i);
+  if (docStart !== -1) {
+    const closeIdx = raw.toLowerCase().lastIndexOf("</html>");
+    const end = closeIdx !== -1 ? closeIdx + "</html>".length : raw.length;
+    return raw.slice(docStart, end).trim();
+  }
+  return raw.trim();
+}
+
 const STATUS_STYLE: Record<string, string> = {
   locked: "text-muted-foreground",
   ready: "text-secondary",
@@ -691,7 +711,7 @@ export default function RunDetail() {
             {run.pageHtml ? (
               <iframe
                 title="Page preview"
-                srcDoc={run.pageHtml}
+                srcDoc={extractPreviewHtml(run.pageHtml)}
                 className="w-full h-full min-h-[600px] border-0 bg-white"
                 sandbox=""
               />
