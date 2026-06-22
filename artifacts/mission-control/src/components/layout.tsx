@@ -12,11 +12,21 @@ import {
 import { Link, useLocation } from "wouter";
 import { LayoutDashboard, Rocket, BookOpen, Table2 } from "lucide-react";
 
+// SidebarProvider writes the open/collapsed state to the `sidebar_state` cookie
+// on every toggle but never reads it back on mount. This is a client-rendered
+// SPA, so we read the cookie at render time and seed `defaultOpen` from it — that
+// makes the collapse preference survive a full page reload / new session.
+function readSidebarPreference(): boolean {
+  if (typeof document === "undefined") return true;
+  const match = document.cookie.match(/(?:^|;\s*)sidebar_state=(true|false)/);
+  return match ? match[1] === "true" : true;
+}
+
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
 
   return (
-    <SidebarProvider>
+    <SidebarProvider defaultOpen={readSidebarPreference()}>
       <div className="flex min-h-screen w-full bg-background">
         <Sidebar
           collapsible="icon"
