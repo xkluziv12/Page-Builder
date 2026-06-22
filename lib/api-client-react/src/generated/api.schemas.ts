@@ -71,6 +71,11 @@ export interface ChatInput {
   message: string;
 }
 
+export interface SaveHtmlInput {
+  /** @minLength 1 */
+  html: string;
+}
+
 /**
  * Operator/Agent-produced artifact for a Replit-mode phase. Build and Audit require `html`; Schema requires `schema`. Research and Publish need no body (they reuse the shared research fetch and publisher).
  */

@@ -859,6 +859,22 @@ router.post("/mc/runs/:id/chat", async (req, res) => {
     return;
   }
 
+  // Pull the prior conversation BEFORE inserting this turn so the engine gets
+  // real memory of earlier edits/intent (not just the current HTML). Cap the
+  // window so the prompt stays bounded on long-running runs.
+  const priorRows = await db
+    .select()
+    .from(mcChatMessagesTable)
+    .where(eq(mcChatMessagesTable.runId, id))
+    .orderBy(mcChatMessagesTable.createdAt);
+  // Assistant rows are auto-generated status lines ("Applied your edit. Checks:
+  // …", "Manual edit saved. …", "Edit failed: …") — they carry no semantic
+  // intent, so drop them and feed the model only the user's prior instructions.
+  const history = priorRows
+    .filter((r) => r.role !== "assistant")
+    .slice(-10)
+    .map((r) => ({ role: "user" as const, content: r.content }));
+
   await db.insert(mcChatMessagesTable).values({ runId: id, role: "user", content: message });
 
   const registry = await loadRegistry(run.handoff ? [run.handoff] : [], run.existingUrls ?? []);
@@ -866,7 +882,7 @@ router.post("/mc/runs/:id/chat", async (req, res) => {
   const engine = await engineFor(run.engine);
 
   try {
-    const result = await engine.chatEdit(ctx, run.pageHtml, message);
+    const result = await engine.chatEdit(ctx, run.pageHtml, message, history);
     const report = runCheckers({
       html: result.content,
       registry,
@@ -909,6 +925,60 @@ router.post("/mc/runs/:id/chat", async (req, res) => {
       .values({ runId: id, role: "assistant", content: `Edit failed: ${errMessage}` });
     res.status(400).json({ error: errMessage });
   }
+});
+
+// PUT /mc/runs/:id/html — deterministic manual edit (NO AI). For instant minor
+// tweaks (text, phone, CTA label) that must not risk model drift: the client
+// sends the edited HTML, we persist it and re-run the SAME checker suite. Unlike
+// the chat route this never calls an engine, so it works in any engine mode.
+router.put("/mc/runs/:id/html", async (req, res) => {
+  const id = Number(req.params.id);
+  const html = req.body?.html;
+  if (!html || typeof html !== "string") {
+    res.status(400).json({ error: "html is required" });
+    return;
+  }
+  const run = await loadRun(id);
+  if (!run) {
+    res.status(404).json({ error: "Run not found" });
+    return;
+  }
+
+  const registry = await loadRegistry(run.handoff ? [run.handoff] : [], run.existingUrls ?? []);
+  const report = runCheckers({
+    html,
+    registry,
+    pageType: run.pageType as never,
+    track: run.track === "blog" ? "blog" : "page",
+    classification: run.classification as never,
+    city: run.city,
+    designBibleHash: run.designBibleHash,
+    afterAudit: true,
+    schema: run.generatedSchema,
+    verifiedCid: run.verifiedCid,
+    businessName: "STS Electronic Recycling",
+    entities: (run.researchBrief as { entities?: Record<string, unknown>[] } | null)?.entities,
+  });
+  const reply = `Manual edit saved. Checks: ${report.errorCount} error(s), ${report.warningCount} warning(s), ${report.wordCount} words.`;
+  await db.insert(mcChatMessagesTable).values({ runId: id, role: "assistant", content: reply });
+  await db.insert(mcPageVersionsTable).values({
+    runId: id,
+    phase: "edit",
+    html,
+    schema: run.generatedSchema ?? null,
+  });
+  await db
+    .update(mcRunsTable)
+    .set({
+      pageHtml: html,
+      checkerReport: report as unknown as Record<string, unknown>,
+      // A manual edit changes the page, so any prior link-audit override is now
+      // stale and is dropped — a fresh decision is required against new HTML.
+      linkAuditOverride: null,
+      updatedAt: new Date(),
+    })
+    .where(eq(mcRunsTable.id, id));
+  res.json({ reply, pageHtml: html, report });
 });
 
 export default router;

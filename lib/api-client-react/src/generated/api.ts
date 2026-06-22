@@ -44,6 +44,7 @@ import type {
   RegistryInfo,
   ReplitPhaseInput,
   RunInput,
+  SaveHtmlInput,
   SeoSnapshot,
   SheetsSyncResult,
   SitemapReconciliation,
@@ -1254,6 +1255,78 @@ export const useRunQc = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getRunQcMutationOptions(options));
+    }
+
+export const getSaveRunHtmlUrl = (id: number,) => {
+
+
+
+
+  return `/api/mc/runs/${id}/html`
+}
+
+/**
+ * @summary Save a manual, deterministic edit of the page HTML (no AI) and re-run checkers
+ */
+export const saveRunHtml = async (id: number,
+    saveHtmlInput: SaveHtmlInput, options?: RequestInit): Promise<ChatEditResult> => {
+
+  return customFetch<ChatEditResult>(getSaveRunHtmlUrl(id),
+  {
+    ...options,
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      saveHtmlInput,)
+  }
+);}
+
+
+
+
+export const getSaveRunHtmlMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveRunHtml>>, TError,{id: number;data: BodyType<SaveHtmlInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof saveRunHtml>>, TError,{id: number;data: BodyType<SaveHtmlInput>}, TContext> => {
+
+const mutationKey = ['saveRunHtml'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof saveRunHtml>>, {id: number;data: BodyType<SaveHtmlInput>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  saveRunHtml(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SaveRunHtmlMutationResult = NonNullable<Awaited<ReturnType<typeof saveRunHtml>>>
+    export type SaveRunHtmlMutationBody = BodyType<SaveHtmlInput>
+    export type SaveRunHtmlMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Save a manual, deterministic edit of the page HTML (no AI) and re-run checkers
+ */
+export const useSaveRunHtml = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof saveRunHtml>>, TError,{id: number;data: BodyType<SaveHtmlInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof saveRunHtml>>,
+        TError,
+        {id: number;data: BodyType<SaveHtmlInput>},
+        TContext
+      > => {
+      return useMutation(getSaveRunHtmlMutationOptions(options));
     }
 
 export const getGetChatHistoryUrl = (id: number,) => {

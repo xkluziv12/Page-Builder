@@ -1291,6 +1291,58 @@ export const RunQcResponse = zod.object({
 
 
 /**
+ * @summary Save a manual, deterministic edit of the page HTML (no AI) and re-run checkers
+ */
+export const SaveRunHtmlParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+
+
+
+export const SaveRunHtmlBody = zod.object({
+  "html": zod.string().min(1)
+})
+
+export const SaveRunHtmlResponse = zod.object({
+  "reply": zod.string(),
+  "pageHtml": zod.string().nullish(),
+  "report": zod.object({
+  "passed": zod.boolean(),
+  "errorCount": zod.number().optional(),
+  "warningCount": zod.number().optional(),
+  "wordCount": zod.number().optional(),
+  "ranAt": zod.string().nullish(),
+  "checks": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "severity": zod.enum(['error', 'warning', 'info']),
+  "passed": zod.boolean(),
+  "message": zod.string(),
+  "details": zod.array(zod.string()).optional()
+})),
+  "linkAudit": zod.object({
+  "passed": zod.boolean(),
+  "errorCount": zod.number(),
+  "offendingLinks": zod.array(zod.object({
+  "checkId": zod.string(),
+  "label": zod.string(),
+  "detail": zod.string()
+})),
+  "checks": zod.array(zod.object({
+  "id": zod.string(),
+  "label": zod.string(),
+  "severity": zod.enum(['error', 'warning', 'info']),
+  "passed": zod.boolean(),
+  "message": zod.string(),
+  "details": zod.array(zod.string()).optional()
+}))
+})
+}).optional()
+})
+
+
+/**
  * @summary Get the AI edit chat history for a run
  */
 export const GetChatHistoryParams = zod.object({

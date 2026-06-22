@@ -2,7 +2,7 @@ import type Anthropic from "@anthropic-ai/sdk";
 import type { RunContext } from "../types";
 import { pageBuilderPrompt, schemaGeneratorPrompt, seoAuditPrompt } from "../prompts";
 import { describeContext } from "./context";
-import type { AIEngine, EngineResult } from "./types";
+import type { AIEngine, ChatTurn, EngineResult } from "./types";
 
 const DEFAULT_MODEL = "claude-sonnet-4-5";
 const MAX_TOKENS = 16000;
@@ -93,12 +93,22 @@ export class ClaudeEngine implements AIEngine {
     );
   }
 
-  chatEdit(ctx: RunContext, currentHtml: string, instruction: string): Promise<EngineResult> {
+  chatEdit(
+    ctx: RunContext,
+    currentHtml: string,
+    instruction: string,
+    history: ChatTurn[] = [],
+  ): Promise<EngineResult> {
+    const convo = history.length
+      ? `\n\nConversation so far (most recent last — use it as memory of prior edits and intent):\n${history
+          .map((m) => `${m.role.toUpperCase()}: ${m.content}`)
+          .join("\n")}`
+      : "";
     return this.complete(
       pageBuilderPrompt,
       `Apply this edit instruction to the page and return the full updated HTML.\n\nInstruction:\n${instruction}\n\nContext:\n${describeContext(
         ctx,
-      )}\n\nCurrent HTML:\n${currentHtml}`,
+      )}${convo}\n\nCurrent HTML:\n${currentHtml}`,
     );
   }
 }

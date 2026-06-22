@@ -302,6 +302,33 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /mc/runs/{id}/html:
+    put:
+      operationId: saveRunHtml
+      tags:
+        - mission-control
+      summary: Save a manual, deterministic edit of the page HTML (no AI) and re-run checkers
+      parameters:
+        - $ref: "#/components/parameters/RunId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SaveHtmlInput"
+      responses:
+        "200":
+          description: Edit result with the refreshed checker report
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatEditResult"
+        "400":
+          description: Invalid HTML payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /mc/runs/{id}/chat:
     get:
       operationId: getChatHistory
@@ -741,6 +768,14 @@ components:
         - message
       properties:
         message:
+          type: string
+          minLength: 1
+    SaveHtmlInput:
+      type: object
+      required:
+        - html
+      properties:
+        html:
           type: string
           minLength: 1
     ReplitPhaseInput:

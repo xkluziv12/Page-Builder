@@ -63,6 +63,7 @@ export * from './runInput';
 export * from './runInputEngine';
 export * from './runInputPageType';
 export * from './runInputTrack';
+export * from './saveHtmlInput';
 export * from './seoCompetitor';
 export * from './seoDelta';
 export * from './seoIntel';
