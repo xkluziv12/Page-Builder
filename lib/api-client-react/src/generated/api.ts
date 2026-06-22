@@ -26,13 +26,18 @@ import type {
   CheckerReport,
   DashboardSummary,
   DerivedRunInputs,
+  Error,
   ErrorResponse,
   GetSeoIntelParams,
   GscPullResult,
   HealthStatus,
   LinkAuditOverrideRequest,
+  ListPromptsParams,
   ListWorkLogParams,
   MissionRun,
+  Prompt,
+  PublishPromptRequest,
+  PublishResult,
   QcResultRecord,
   QcRunInput,
   ReconcileSitemapParams,
@@ -42,6 +47,7 @@ import type {
   SeoSnapshot,
   SheetsSyncResult,
   SitemapReconciliation,
+  UpdatePromptRequest,
   WorkLogImportInput,
   WorkLogImportResult,
   WorkLogInput,
@@ -1930,5 +1936,315 @@ export const usePullSearchConsole = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getPullSearchConsoleMutationOptions(options));
+    }
+
+export const getListPromptsUrl = (params?: ListPromptsParams,) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? 'null' : value.toString())
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0 ? `/api/prompts?${stringifiedParams}` : `/api/prompts`
+}
+
+/**
+ * List all prompts, optionally filtered by brand. Returns public fields only.
+ * @summary List prompts
+ */
+export const listPrompts = async (params?: ListPromptsParams, options?: RequestInit): Promise<Prompt[]> => {
+
+  return customFetch<Prompt[]>(getListPromptsUrl(params),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getListPromptsQueryKey = (params?: ListPromptsParams,) => {
+    return [
+    `/api/prompts`, ...(params ? [params] : [])
+    ] as const;
+    }
+
+
+export const getListPromptsQueryOptions = <TData = Awaited<ReturnType<typeof listPrompts>>, TError = ErrorType<unknown>>(params?: ListPromptsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPrompts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getListPromptsQueryKey(params);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof listPrompts>>> = ({ signal }) => listPrompts(params, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof listPrompts>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type ListPromptsQueryResult = NonNullable<Awaited<ReturnType<typeof listPrompts>>>
+export type ListPromptsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List prompts
+ */
+
+export function useListPrompts<TData = Awaited<ReturnType<typeof listPrompts>>, TError = ErrorType<unknown>>(
+ params?: ListPromptsParams, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof listPrompts>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getListPromptsQueryOptions(params,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetPromptUrl = (id: number,) => {
+
+
+
+
+  return `/api/prompts/${id}`
+}
+
+/**
+ * Get a single prompt with its full content by id.
+ * @summary Get a prompt
+ */
+export const getPrompt = async (id: number, options?: RequestInit): Promise<Prompt> => {
+
+  return customFetch<Prompt>(getGetPromptUrl(id),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetPromptQueryKey = (id: number,) => {
+    return [
+    `/api/prompts/${id}`
+    ] as const;
+    }
+
+
+export const getGetPromptQueryOptions = <TData = Awaited<ReturnType<typeof getPrompt>>, TError = ErrorType<Error>>(id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPrompt>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPromptQueryKey(id);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPrompt>>> = ({ signal }) => getPrompt(id, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPrompt>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetPromptQueryResult = NonNullable<Awaited<ReturnType<typeof getPrompt>>>
+export type GetPromptQueryError = ErrorType<Error>
+
+
+/**
+ * @summary Get a prompt
+ */
+
+export function useGetPrompt<TData = Awaited<ReturnType<typeof getPrompt>>, TError = ErrorType<Error>>(
+ id: number, options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPrompt>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetPromptQueryOptions(id,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getUpdatePromptUrl = (id: number,) => {
+
+
+
+
+  return `/api/prompts/${id}`
+}
+
+/**
+ * Update a prompt's content. Requires admin bearer token. Saves to the DB only; does not publish.
+ * @summary Update a prompt (admin)
+ */
+export const updatePrompt = async (id: number,
+    updatePromptRequest: UpdatePromptRequest, options?: RequestInit): Promise<Prompt> => {
+
+  return customFetch<Prompt>(getUpdatePromptUrl(id),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      updatePromptRequest,)
+  }
+);}
+
+
+
+
+export const getUpdatePromptMutationOptions = <TError = ErrorType<Error>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updatePrompt>>, TError,{id: number;data: BodyType<UpdatePromptRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updatePrompt>>, TError,{id: number;data: BodyType<UpdatePromptRequest>}, TContext> => {
+
+const mutationKey = ['updatePrompt'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updatePrompt>>, {id: number;data: BodyType<UpdatePromptRequest>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  updatePrompt(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdatePromptMutationResult = NonNullable<Awaited<ReturnType<typeof updatePrompt>>>
+    export type UpdatePromptMutationBody = BodyType<UpdatePromptRequest>
+    export type UpdatePromptMutationError = ErrorType<Error>
+
+    /**
+ * @summary Update a prompt (admin)
+ */
+export const useUpdatePrompt = <TError = ErrorType<Error>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updatePrompt>>, TError,{id: number;data: BodyType<UpdatePromptRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updatePrompt>>,
+        TError,
+        {id: number;data: BodyType<UpdatePromptRequest>},
+        TContext
+      > => {
+      return useMutation(getUpdatePromptMutationOptions(options));
+    }
+
+export const getPublishPromptUrl = (id: number,) => {
+
+
+
+
+  return `/api/prompts/${id}/publish`
+}
+
+/**
+ * Persist the prompt content to the DB, then commit it to GitHub and write it to Google Drive. Each target reports its own success/failure status. Requires admin bearer token.
+
+ * @summary Publish a prompt (admin)
+ */
+export const publishPrompt = async (id: number,
+    publishPromptRequest?: PublishPromptRequest, options?: RequestInit): Promise<PublishResult> => {
+
+  return customFetch<PublishResult>(getPublishPromptUrl(id),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      publishPromptRequest,)
+  }
+);}
+
+
+
+
+export const getPublishPromptMutationOptions = <TError = ErrorType<Error>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof publishPrompt>>, TError,{id: number;data?: BodyType<PublishPromptRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof publishPrompt>>, TError,{id: number;data?: BodyType<PublishPromptRequest>}, TContext> => {
+
+const mutationKey = ['publishPrompt'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof publishPrompt>>, {id: number;data?: BodyType<PublishPromptRequest>}> = (props) => {
+          const {id,data} = props ?? {};
+
+          return  publishPrompt(id,data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PublishPromptMutationResult = NonNullable<Awaited<ReturnType<typeof publishPrompt>>>
+    export type PublishPromptMutationBody = BodyType<PublishPromptRequest> | undefined
+    export type PublishPromptMutationError = ErrorType<Error>
+
+    /**
+ * @summary Publish a prompt (admin)
+ */
+export const usePublishPrompt = <TError = ErrorType<Error>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof publishPrompt>>, TError,{id: number;data?: BodyType<PublishPromptRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof publishPrompt>>,
+        TError,
+        {id: number;data?: BodyType<PublishPromptRequest>},
+        TContext
+      > => {
+      return useMutation(getPublishPromptMutationOptions(options));
     }
 

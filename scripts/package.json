@@ -9,21 +9,24 @@
     "system-map": "tsx ./src/system-map.ts",
     "bakeoff": "tsx ./src/bakeoff/run.ts",
     "bakeoff:rescore": "tsx ./src/bakeoff/rescore-visual.ts",
+    "seed-prompts": "tsx ./src/seed-prompts.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
-  },
-  "devDependencies": {
-    "@types/node": "catalog:",
-    "@types/pngjs": "^6.0.5",
-    "tsx": "catalog:"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.78.0",
     "@google/genai": "^1.44.0",
+    "@workspace/db": "workspace:*",
     "@workspace/mc-core": "workspace:*",
+    "drizzle-orm": "catalog:",
     "openai": "^6.27.0",
     "pixelmatch": "^7.2.0",
     "playwright-core": "^1.61.0",
     "pngjs": "^7.0.0",
     "yaml": "^2.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/pngjs": "^6.0.5",
+    "tsx": "catalog:"
   }
 }

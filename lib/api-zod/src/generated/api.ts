@@ -1573,3 +1573,122 @@ export const PullSearchConsoleResponse = zod.object({
 })
 
 
+/**
+ * List all prompts, optionally filtered by brand. Returns public fields only.
+ * @summary List prompts
+ */
+export const ListPromptsQueryParams = zod.object({
+  "brand": zod.enum(['sts', 'dcd', 'technocycle']).optional()
+})
+
+export const ListPromptsResponseItem = zod.object({
+  "id": zod.number(),
+  "brand": zod.enum(['sts', 'dcd', 'technocycle']),
+  "slug": zod.string(),
+  "name": zod.string(),
+  "content": zod.string(),
+  "version": zod.number(),
+  "publishedContent": zod.string().nullish(),
+  "publishedVersion": zod.number().nullish(),
+  "gitPath": zod.string(),
+  "driveFileId": zod.string().nullish(),
+  "updatedAt": zod.coerce.date(),
+  "lastPublishedAt": zod.coerce.date().nullish()
+})
+export const ListPromptsResponse = zod.array(ListPromptsResponseItem)
+
+
+/**
+ * Get a single prompt with its full content by id.
+ * @summary Get a prompt
+ */
+export const GetPromptParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const GetPromptResponse = zod.object({
+  "id": zod.number(),
+  "brand": zod.enum(['sts', 'dcd', 'technocycle']),
+  "slug": zod.string(),
+  "name": zod.string(),
+  "content": zod.string(),
+  "version": zod.number(),
+  "publishedContent": zod.string().nullish(),
+  "publishedVersion": zod.number().nullish(),
+  "gitPath": zod.string(),
+  "driveFileId": zod.string().nullish(),
+  "updatedAt": zod.coerce.date(),
+  "lastPublishedAt": zod.coerce.date().nullish()
+})
+
+
+/**
+ * Update a prompt's content. Requires admin bearer token. Saves to the DB only; does not publish.
+ * @summary Update a prompt (admin)
+ */
+export const UpdatePromptParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdatePromptBody = zod.object({
+  "content": zod.string(),
+  "name": zod.string().optional()
+})
+
+export const UpdatePromptResponse = zod.object({
+  "id": zod.number(),
+  "brand": zod.enum(['sts', 'dcd', 'technocycle']),
+  "slug": zod.string(),
+  "name": zod.string(),
+  "content": zod.string(),
+  "version": zod.number(),
+  "publishedContent": zod.string().nullish(),
+  "publishedVersion": zod.number().nullish(),
+  "gitPath": zod.string(),
+  "driveFileId": zod.string().nullish(),
+  "updatedAt": zod.coerce.date(),
+  "lastPublishedAt": zod.coerce.date().nullish()
+})
+
+
+/**
+ * Persist the prompt content to the DB, then commit it to GitHub and write it to Google Drive. Each target reports its own success/failure status. Requires admin bearer token.
+
+ * @summary Publish a prompt (admin)
+ */
+export const PublishPromptParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const PublishPromptBody = zod.object({
+  "content": zod.string().optional().describe('Optional content to save before publishing. If omitted, the stored content is published.')
+})
+
+export const PublishPromptResponse = zod.object({
+  "prompt": zod.object({
+  "id": zod.number(),
+  "brand": zod.enum(['sts', 'dcd', 'technocycle']),
+  "slug": zod.string(),
+  "name": zod.string(),
+  "content": zod.string(),
+  "version": zod.number(),
+  "publishedContent": zod.string().nullish(),
+  "publishedVersion": zod.number().nullish(),
+  "gitPath": zod.string(),
+  "driveFileId": zod.string().nullish(),
+  "updatedAt": zod.coerce.date(),
+  "lastPublishedAt": zod.coerce.date().nullish()
+}),
+  "git": zod.object({
+  "ok": zod.boolean(),
+  "detail": zod.string(),
+  "reference": zod.string().nullish().describe('Commit SHA for git, file id for drive.')
+}),
+  "drive": zod.object({
+  "ok": zod.boolean(),
+  "detail": zod.string(),
+  "reference": zod.string().nullish().describe('Commit SHA for git, file id for drive.')
+})
+})
+
+

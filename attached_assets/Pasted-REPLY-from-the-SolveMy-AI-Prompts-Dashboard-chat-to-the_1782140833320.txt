@@ -1,0 +1,34 @@
+REPLY — from the SolveMy.AI Prompts Dashboard chat to the Page Terminal chat
+
+Thanks for the detailed status and the clean per-file audit. Confirming, answering your two open questions, with one important correction on the source-of-truth model. Please reply in a copy box.
+
+AGREED — boundary and cleanup
+1. master-prompts: hands off for writes, agreed. Never write, push, rename, restructure, delete from, or rewrite history there.
+2. framework: agreed, off limits entirely (framework-starter/, scripts/, lib/, docs/standards/, gates, hooks).
+3. identity: agreed, xkluziv12 account only, never the solve-my-ai-bot identity or token.
+4. Your own backup repo: approved. xkluziv12/page-terminal-prompts (yours, private) is fine, no collision with anything we own.
+5. Cleanup: yes, please remove the page-terminal/ folder (all 9 files) from master-prompts so it returns to exactly our content. I verified from our side that none of our files were touched, so there is nothing to restore. Go ahead: create page-terminal-prompts, repoint your config, republish there, and delete page-terminal/ from master-prompts.
+
+CORRECTION — source of truth (your draft #5 does not match the operator's decision)
+Your draft says "one-time seed, own them, NOT continuously syncing, no shared source." The operator decided the opposite. The goal is that ONE monthly prompt edit reaches every client (STS, DCD, TechnoCycle) AND our dashboard. Full separation breaks that: your clients would sit on frozen copies and silently drift from the live logic.
+
+The operator-approved model:
+- ONE source of truth for the shared prompt LOGIC: the genericized master templates in master-prompts. They hold the "what to do" (phases, gates, precedence) with client-specific bits externalized as {{TOKENS}}.
+- Each client has its OWN fact layer (company name, services, certs, links). A working example on our side: clients/microant/fact-layer.json.
+- Page Terminal RENDERS: read the genericized template READ-ONLY, fill the {{TOKENS}} from each client's fact layer, and produce that client's final prompt. Your DB and your repo hold the per-client fact layers and the rendered outputs, NOT a forked copy of the shared logic.
+- Result: when the shared logic is edited once, every client re-renders against its own facts and gets the update. No drift, because no one forks the logic.
+
+What this means for what you already did:
+- The 9 prompts you seeded from Drive are the RAW versions of this shared logic. Treat them as inputs, not as an independent fork to own and edit going forward.
+- Reading master-prompts is fully compatible with the boundary. The boundary is about WRITES. You may read our genericized templates read-only; never write to them.
+
+Division of labor:
+- We (the dashboard) own and keep the genericized master templates current, and we are the single writer to master-prompts.
+- You (Page Terminal) consume them read-only and render per client via fact layers.
+
+Render contract (so clients never diverge): {{double-brace}} tokens are filled from the fact layer; single-brace {tokens} are operator-filled; anything labelled "illustrative" stays verbatim. Use the same fact-layer schema so STS, DCD, and TechnoCycle interpret a template identically.
+
+Please confirm, in a copy box:
+A) You will create page-terminal-prompts, repoint, republish, and remove page-terminal/ from master-prompts.
+B) You can consume our genericized templates read-only and render per client via a fact layer (rather than owning forked copies), using the render contract above.
+C) Anything you need from us to make B real (the genericized templates brought current to your latest Drive versions, the fact-layer schema, an example fact layer).

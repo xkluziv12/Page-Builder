@@ -1,6 +1,5 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
   description: API specification
@@ -12,11 +11,14 @@ tags:
     description: Health operations
   - name: mission-control
     description: Mission Control page-builder pipeline
+  - name: prompts
+    description: Prompt manager operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
-      tags: [health]
+      tags:
+        - health
       summary: Health check
       description: Returns server health status
       responses:
@@ -26,11 +28,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
-
   /mc/runs:
     get:
       operationId: listRuns
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: List all build runs
       responses:
         "200":
@@ -43,7 +45,8 @@ paths:
                   $ref: "#/components/schemas/MissionRun"
     post:
       operationId: createRun
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: Create a new build run
       requestBody:
         required: true
@@ -58,11 +61,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/MissionRun"
-
   /mc/summary:
     get:
       operationId: getSummary
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: Dashboard summary (counts and recent activity)
       responses:
         "200":
@@ -71,11 +74,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/DashboardSummary"
-
   /mc/seo-intel:
     get:
       operationId: getSeoIntel
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: Live SEO intel derived from a target URL
       parameters:
         - name: url
@@ -96,11 +99,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
   /mc/registry:
     get:
       operationId: getRegistry
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: The locked URL/image/link safeguard registry
       responses:
         "200":
@@ -109,11 +112,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/RegistryInfo"
-
   /mc/runs/{id}:
     get:
       operationId: getRun
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: Get a single run with full state
       parameters:
         - $ref: "#/components/parameters/RunId"
@@ -132,18 +135,19 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
     delete:
       operationId: deleteRun
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: Delete a run
       parameters:
         - $ref: "#/components/parameters/RunId"
       responses:
         "204":
           description: Deleted
-
   /mc/runs/{id}/phases/{phase}/run:
     post:
       operationId: runPhase
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: Execute a pipeline phase
       parameters:
         - $ref: "#/components/parameters/RunId"
@@ -161,11 +165,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
   /mc/runs/{id}/phases/{phase}/replit:
     post:
       operationId: runReplitPhase
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: Submit an operator/Agent-produced artifact and execute the phase (Replit mode)
       parameters:
         - $ref: "#/components/parameters/RunId"
@@ -189,11 +193,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
   /mc/runs/{id}/phases/{phase}/approve:
     post:
       operationId: approvePhase
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: Approve a completed phase and unlock the next
       parameters:
         - $ref: "#/components/parameters/RunId"
@@ -205,11 +209,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/MissionRun"
-
   /mc/runs/{id}/check:
     post:
       operationId: runCheckers
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: Run the checker suite against the current page HTML
       parameters:
         - $ref: "#/components/parameters/RunId"
@@ -220,11 +224,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/CheckerReport"
-
   /mc/runs/{id}/link-audit/override:
     post:
       operationId: overrideLinkAudit
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: Record a human override of a failing link audit so publish can proceed
       parameters:
         - $ref: "#/components/parameters/RunId"
@@ -243,7 +247,8 @@ paths:
                 $ref: "#/components/schemas/MissionRun"
     delete:
       operationId: revokeLinkAuditOverride
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: Revoke a previously recorded link-audit override
       parameters:
         - $ref: "#/components/parameters/RunId"
@@ -254,11 +259,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/MissionRun"
-
   /mc/runs/{id}/qc:
     get:
       operationId: getQcResults
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: List post-publish QC results for a run (most recent first)
       parameters:
         - $ref: "#/components/parameters/RunId"
@@ -273,7 +278,8 @@ paths:
                   $ref: "#/components/schemas/QcResultRecord"
     post:
       operationId: runQc
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: Run the post-publish QC suite (GTmetrix speed + JSON-LD scan) against the live URL
       parameters:
         - $ref: "#/components/parameters/RunId"
@@ -296,11 +302,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
   /mc/runs/{id}/chat:
     get:
       operationId: getChatHistory
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: Get the AI edit chat history for a run
       parameters:
         - $ref: "#/components/parameters/RunId"
@@ -315,7 +321,8 @@ paths:
                   $ref: "#/components/schemas/ChatMessage"
     post:
       operationId: chatEdit
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: Request a surgical AI edit to the page via chat
       parameters:
         - $ref: "#/components/parameters/RunId"
@@ -332,15 +339,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ChatEditResult"
-
   /mc/work-log:
     get:
       operationId: listWorkLog
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: List the canonical work-log (every page/blog, all sources)
-      description: >-
-        Returns every work-log row with its latest SEO snapshot delta embedded.
-        Optional filters narrow by company, VA, status, type, and month.
+      description: Returns every work-log row with its latest SEO snapshot delta embedded. Optional filters narrow by company, VA, status, type, and month.
       parameters:
         - name: company
           in: query
@@ -365,7 +370,7 @@ paths:
         - name: month
           in: query
           required: false
-          description: "Filter by completion month, format YYYY-MM."
+          description: Filter by completion month, format YYYY-MM.
           schema:
             type: string
       responses:
@@ -379,12 +384,10 @@ paths:
                   $ref: "#/components/schemas/WorkLogRecord"
     post:
       operationId: upsertWorkLog
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: Upsert a work-log record (natural-keyed by normalized URL)
-      description: >-
-        Idempotent on the normalized URL: re-logging the same page updates the
-        existing row instead of creating a duplicate. Used by the old static VA
-        tools and Mission Control alike.
+      description: "Idempotent on the normalized URL: re-logging the same page updates the existing row instead of creating a duplicate. Used by the old static VA tools and Mission Control alike."
       requestBody:
         required: true
         content:
@@ -404,11 +407,11 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
   /mc/work-log/{id}/snapshots:
     get:
       operationId: getWorkLogSnapshots
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: List the dated SEO snapshots for a work-log page (newest first)
       parameters:
         - $ref: "#/components/parameters/WorkLogId"
@@ -421,16 +424,13 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/SeoSnapshot"
-
   /mc/work-log/import:
     post:
       operationId: importWorkLog
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: One-time historical import of legacy master-list rows
-      description: >-
-        Ingests an array of messy legacy rows, maps them to the canonical schema,
-        de-duplicates by normalized URL (upsert), and flags rows that cannot be
-        cleanly mapped for manual review rather than dropping them.
+      description: Ingests an array of messy legacy rows, maps them to the canonical schema, de-duplicates by normalized URL (upsert), and flags rows that cannot be cleanly mapped for manual review rather than dropping them.
       requestBody:
         required: true
         content:
@@ -444,16 +444,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/WorkLogImportResult"
-
   /mc/sitemap-reconcile:
     get:
       operationId: reconcileSitemap
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: Reconcile the work-log against the live production sitemap
-      description: >-
-        Fetches the live sitemap.xml, compares it against the work-log, and
-        returns per-page status (live / tracked-but-not-live / live-but-untracked)
-        plus a summary. Optionally persists the in-sitemap flag onto each row.
+      description: Fetches the live sitemap.xml, compares it against the work-log, and returns per-page status (live / tracked-but-not-live / live-but-untracked) plus a summary. Optionally persists the in-sitemap flag onto each row.
       parameters:
         - name: persist
           in: query
@@ -475,17 +472,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
   /mc/sheets/sync:
     post:
       operationId: syncSheets
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: Push the work-log out to the fresh Google Sheet (one-way mirror)
-      description: >-
-        Overwrites the standardized tabs (Pages, Blogs, Sitemap Status, By VA,
-        Monthly) on the configured Google Sheet from the canonical work-log. The
-        app is the source of truth; the sheet is a read-mirror. Fails loudly when
-        the Google Sheets connection or target sheet is not configured.
+      description: Overwrites the standardized tabs (Pages, Blogs, Sitemap Status, By VA, Monthly) on the configured Google Sheet from the canonical work-log. The app is the source of truth; the sheet is a read-mirror. Fails loudly when the Google Sheets connection or target sheet is not configured.
       responses:
         "200":
           description: Sync result
@@ -499,17 +492,13 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
   /mc/gsc/pull:
     post:
       operationId: pullSearchConsole
-      tags: [mission-control]
+      tags:
+        - mission-control
       summary: Pull dated SEO snapshots from Google Search Console for tracked pages
-      description: >-
-        Runs the internal Search Console pull (also invoked by the monthly
-        scheduled job): records a dated snapshot per tracked page (top keyword
-        positions, impressions, clicks, avg position). Fails loudly when GSC
-        credentials are not configured.
+      description: "Runs the internal Search Console pull (also invoked by the monthly scheduled job): records a dated snapshot per tracked page (top keyword positions, impressions, clicks, avg position). Fails loudly when GSC credentials are not configured."
       responses:
         "200":
           description: Pull result
@@ -523,7 +512,134 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
-
+  /prompts:
+    get:
+      operationId: listPrompts
+      tags:
+        - prompts
+      summary: List prompts
+      description: List all prompts, optionally filtered by brand. Returns public fields only.
+      parameters:
+        - name: brand
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/Brand"
+      responses:
+        "200":
+          description: List of prompts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Prompt"
+  /prompts/{id}:
+    get:
+      operationId: getPrompt
+      tags:
+        - prompts
+      summary: Get a prompt
+      description: Get a single prompt with its full content by id.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: The prompt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Prompt"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    patch:
+      operationId: updatePrompt
+      tags:
+        - prompts
+      summary: Update a prompt (admin)
+      description: Update a prompt's content. Requires admin bearer token. Saves to the DB only; does not publish.
+      security:
+        - adminToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePromptRequest"
+      responses:
+        "200":
+          description: The updated prompt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Prompt"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+  /prompts/{id}/publish:
+    post:
+      operationId: publishPrompt
+      tags:
+        - prompts
+      summary: Publish a prompt (admin)
+      description: |
+        Persist the prompt content to the DB, then commit it to GitHub and write it to Google Drive. Each target reports its own success/failure status. Requires admin bearer token.
+      security:
+        - adminToken: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PublishPromptRequest"
+      responses:
+        "200":
+          description: Publish result with per-target status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PublishResult"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
 components:
   parameters:
     RunId:
@@ -538,7 +654,12 @@ components:
       required: true
       schema:
         type: string
-        enum: [research, build, audit, schema, publish]
+        enum:
+          - research
+          - build
+          - audit
+          - schema
+          - publish
     WorkLogId:
       name: id
       in: path
@@ -553,21 +674,19 @@ components:
           type: string
       required:
         - status
-
     ErrorResponse:
       type: object
-      required: [error]
+      required:
+        - error
       properties:
         error:
           type: string
-
     RunInput:
       type: object
-      description: >-
-        Simplified New Build form. The VA supplies who they are (vaName) and the
-        target page URL; the server derives city/state, classification,
-        competition and live SEO intel from the URL.
-      required: [vaName, url]
+      description: Simplified New Build form. The VA supplies who they are (vaName) and the target page URL; the server derives city/state, classification, competition and live SEO intel from the URL.
+      required:
+        - vaName
+        - url
       properties:
         vaName:
           type: string
@@ -579,43 +698,54 @@ components:
           description: Target page URL; city/state and SEO data are derived from it.
         track:
           type: string
-          enum: [page, blog]
+          enum:
+            - page
+            - blog
           default: page
         engine:
           type: string
-          enum: [claude, replit]
+          enum:
+            - claude
+            - replit
           default: claude
         pageType:
           type: string
-          enum: [HUB, SPOKE, NATIONAL]
+          enum:
+            - HUB
+            - SPOKE
+            - NATIONAL
           default: SPOKE
         existingUrls:
           type: array
           items:
             type: string
         handoff:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         verifiedCid:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         designBibleHash:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         blogTopic:
-          type: ["string", "null"]
-
+          type:
+            - string
+            - "null"
     ChatInput:
       type: object
-      required: [message]
+      required:
+        - message
       properties:
         message:
           type: string
           minLength: 1
-
     ReplitPhaseInput:
       type: object
-      description: >-
-        Operator/Agent-produced artifact for a Replit-mode phase. Build and Audit
-        require `html`; Schema requires `schema`. Research and Publish need no
-        body (they reuse the shared research fetch and publisher).
+      description: Operator/Agent-produced artifact for a Replit-mode phase. Build and Audit require `html`; Schema requires `schema`. Research and Publish need no body (they reuse the shared research fetch and publisher).
       properties:
         html:
           type: string
@@ -623,29 +753,53 @@ components:
         schema:
           type: string
           description: JSON-LD produced by the Replit Agent (Schema phase).
-
     PhaseState:
       type: object
-      required: [phase, status]
+      required:
+        - phase
+        - status
       properties:
         phase:
           type: string
-          enum: [research, build, audit, schema, publish]
+          enum:
+            - research
+            - build
+            - audit
+            - schema
+            - publish
         status:
           type: string
-          enum: [locked, ready, running, review, approved, failed]
+          enum:
+            - locked
+            - ready
+            - running
+            - review
+            - approved
+            - failed
         summary:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         error:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         startedAt:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         completedAt:
-          type: ["string", "null"]
-
+          type:
+            - string
+            - "null"
     CheckResult:
       type: object
-      required: [id, label, severity, passed, message]
+      required:
+        - id
+        - label
+        - severity
+        - passed
+        - message
       properties:
         id:
           type: string
@@ -653,7 +807,10 @@ components:
           type: string
         severity:
           type: string
-          enum: [error, warning, info]
+          enum:
+            - error
+            - warning
+            - info
         passed:
           type: boolean
         message:
@@ -662,10 +819,12 @@ components:
           type: array
           items:
             type: string
-
     LinkAuditIssue:
       type: object
-      required: [checkId, label, detail]
+      required:
+        - checkId
+        - label
+        - detail
       properties:
         checkId:
           type: string
@@ -673,10 +832,13 @@ components:
           type: string
         detail:
           type: string
-
     LinkAuditResult:
       type: object
-      required: [passed, errorCount, offendingLinks, checks]
+      required:
+        - passed
+        - errorCount
+        - offendingLinks
+        - checks
       properties:
         passed:
           type: boolean
@@ -690,30 +852,37 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/CheckResult"
-
     LinkAuditOverride:
       type: object
-      required: [by, at]
+      required:
+        - by
+        - at
       properties:
         by:
           type: string
         at:
           type: string
         reason:
-          type: ["string", "null"]
-
+          type:
+            - string
+            - "null"
     LinkAuditOverrideRequest:
       type: object
-      required: [by]
+      required:
+        - by
       properties:
         by:
           type: string
         reason:
-          type: ["string", "null"]
-
+          type:
+            - string
+            - "null"
     CheckerReport:
       type: object
-      required: [passed, checks, linkAudit]
+      required:
+        - passed
+        - checks
+        - linkAudit
       properties:
         passed:
           type: boolean
@@ -724,17 +893,21 @@ components:
         wordCount:
           type: integer
         ranAt:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         checks:
           type: array
           items:
             $ref: "#/components/schemas/CheckResult"
         linkAudit:
           $ref: "#/components/schemas/LinkAuditResult"
-
     EntityFlag:
       type: object
-      required: [name, field, issue]
+      required:
+        - name
+        - field
+        - issue
       properties:
         name:
           type: string
@@ -744,13 +917,14 @@ components:
           type: string
         verified:
           type: boolean
-
     ResearchBrief:
       type: object
       additionalProperties: true
       properties:
         summary:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         entities:
           type: array
           items:
@@ -765,50 +939,74 @@ components:
           items:
             $ref: "#/components/schemas/EntityFlag"
         raw:
-          type: ["string", "null"]
-
+          type:
+            - string
+            - "null"
     JoomlaMeta:
       type: object
       properties:
         title:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         description:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         keywords:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         alias:
-          type: ["string", "null"]
-
+          type:
+            - string
+            - "null"
     QcRunInput:
       type: object
       properties:
         url:
           type: string
           description: Override the live URL to QC. Defaults to the run's base domain + alias.
-
     GtmetrixMetrics:
       type: object
       properties:
         performanceScore:
-          type: ["number", "null"]
+          type:
+            - number
+            - "null"
         structureScore:
-          type: ["number", "null"]
+          type:
+            - number
+            - "null"
         lcp:
-          type: ["number", "null"]
+          type:
+            - number
+            - "null"
         tbt:
-          type: ["number", "null"]
+          type:
+            - number
+            - "null"
         cls:
-          type: ["number", "null"]
+          type:
+            - number
+            - "null"
         ttfb:
-          type: ["number", "null"]
+          type:
+            - number
+            - "null"
         fullyLoadedTime:
-          type: ["number", "null"]
+          type:
+            - number
+            - "null"
         reportUrl:
-          type: ["string", "null"]
-
+          type:
+            - string
+            - "null"
     GtmetrixCheck:
       type: object
-      required: [ran, passed]
+      required:
+        - ran
+        - passed
       properties:
         ran:
           type: boolean
@@ -823,11 +1021,16 @@ components:
           items:
             type: string
         error:
-          type: ["string", "null"]
-
+          type:
+            - string
+            - "null"
     JsonLdBlock:
       type: object
-      required: [index, valid, types, ids]
+      required:
+        - index
+        - valid
+        - types
+        - ids
       properties:
         index:
           type: integer
@@ -842,11 +1045,15 @@ components:
           items:
             type: string
         error:
-          type: ["string", "null"]
-
+          type:
+            - string
+            - "null"
     JsonLdScan:
       type: object
-      required: [ran, passed, blockCount]
+      required:
+        - ran
+        - passed
+        - blockCount
       properties:
         ran:
           type: boolean
@@ -875,11 +1082,17 @@ components:
           items:
             type: string
         error:
-          type: ["string", "null"]
-
+          type:
+            - string
+            - "null"
     QcReport:
       type: object
-      required: [url, ranAt, passed, gtmetrix, jsonLd]
+      required:
+        - url
+        - ranAt
+        - passed
+        - gtmetrix
+        - jsonLd
       properties:
         url:
           type: string
@@ -891,10 +1104,16 @@ components:
           $ref: "#/components/schemas/GtmetrixCheck"
         jsonLd:
           $ref: "#/components/schemas/JsonLdScan"
-
     QcResultRecord:
       type: object
-      required: [id, runId, city, state, url, passed, report]
+      required:
+        - id
+        - runId
+        - city
+        - state
+        - url
+        - passed
+        - report
       properties:
         id:
           type: integer
@@ -909,86 +1128,125 @@ components:
         passed:
           type: boolean
         gtmetrixPassed:
-          type: ["boolean", "null"]
+          type:
+            - boolean
+            - "null"
         jsonLdPassed:
-          type: ["boolean", "null"]
+          type:
+            - boolean
+            - "null"
         report:
           $ref: "#/components/schemas/QcReport"
         createdAt:
-          type: ["string", "null"]
-
+          type:
+            - string
+            - "null"
     ChatMessage:
       type: object
-      required: [id, role, content]
+      required:
+        - id
+        - role
+        - content
       properties:
         id:
           type: integer
         role:
           type: string
-          enum: [user, assistant]
+          enum:
+            - user
+            - assistant
         content:
           type: string
         createdAt:
-          type: ["string", "null"]
-
+          type:
+            - string
+            - "null"
     ChatEditResult:
       type: object
-      required: [reply]
+      required:
+        - reply
       properties:
         reply:
           type: string
         pageHtml:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         report:
           $ref: "#/components/schemas/CheckerReport"
-
     KeywordPosition:
       type: object
-      required: [keyword]
+      required:
+        - keyword
       properties:
         keyword:
           type: string
         position:
-          type: ["number", "null"]
-
+          type:
+            - number
+            - "null"
     KeywordMovement:
       type: object
-      required: [keyword]
+      required:
+        - keyword
       properties:
         keyword:
           type: string
         previous:
-          type: ["number", "null"]
+          type:
+            - number
+            - "null"
         latest:
-          type: ["number", "null"]
+          type:
+            - number
+            - "null"
         delta:
-          type: ["number", "null"]
-
+          type:
+            - number
+            - "null"
     SeoDelta:
       type: object
       properties:
         latestDate:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         previousDate:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         latestImpressions:
-          type: ["number", "null"]
+          type:
+            - number
+            - "null"
         previousImpressions:
-          type: ["number", "null"]
+          type:
+            - number
+            - "null"
         impressionsPctChange:
-          type: ["number", "null"]
+          type:
+            - number
+            - "null"
         latestClicks:
-          type: ["number", "null"]
+          type:
+            - number
+            - "null"
         latestAvgPosition:
-          type: ["number", "null"]
+          type:
+            - number
+            - "null"
         keywordMovement:
           type: array
           items:
             $ref: "#/components/schemas/KeywordMovement"
-
     SeoSnapshot:
       type: object
-      required: [id, workLogId, normalizedUrl, snapshotDate, source]
+      required:
+        - id
+        - workLogId
+        - normalizedUrl
+        - snapshotDate
+        - source
       properties:
         id:
           type: integer
@@ -1001,28 +1259,37 @@ components:
         source:
           type: string
         impressions:
-          type: ["number", "null"]
+          type:
+            - number
+            - "null"
         clicks:
-          type: ["number", "null"]
+          type:
+            - number
+            - "null"
         avgPosition:
-          type: ["number", "null"]
+          type:
+            - number
+            - "null"
         keywords:
           type: array
           items:
             $ref: "#/components/schemas/KeywordPosition"
         createdAt:
-          type: ["string", "null"]
-
+          type:
+            - string
+            - "null"
     WorkLogInput:
       type: object
-      description: >-
-        Upsert payload for the canonical work-log. A usable URL (newUrl or
-        oldUrl) is required — it forms the natural key.
-      required: [newUrl]
+      description: Upsert payload for the canonical work-log. A usable URL (newUrl or oldUrl) is required — it forms the natural key.
+      required:
+        - newUrl
       properties:
         company:
           type: string
-          enum: [STS, DCD, TechnoCycle]
+          enum:
+            - STS
+            - DCD
+            - TechnoCycle
           default: STS
         city:
           type: string
@@ -1031,35 +1298,63 @@ components:
         pageName:
           type: string
         oldUrl:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         newUrl:
           type: string
           minLength: 1
         pageType:
           type: string
-          enum: [city, service, hub, spoke, blog]
+          enum:
+            - city
+            - service
+            - hub
+            - spoke
+            - blog
         tier:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         vaName:
           type: string
         source:
           type: string
-          enum: [old-tool, mission-control, import]
+          enum:
+            - old-tool
+            - mission-control
+            - import
           default: old-tool
         status:
           type: string
-          enum: [done, in_progress, not_started]
+          enum:
+            - done
+            - in_progress
+            - not_started
           default: done
         runId:
-          type: ["integer", "null"]
+          type:
+            - integer
+            - "null"
         dateCompleted:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         notes:
-          type: ["string", "null"]
-
+          type:
+            - string
+            - "null"
     WorkLogRecord:
       type: object
-      required: [id, normalizedUrl, company, city, state, pageType, status, source]
+      required:
+        - id
+        - normalizedUrl
+        - company
+        - city
+        - state
+        - pageType
+        - status
+        - source
       properties:
         id:
           type: integer
@@ -1074,13 +1369,19 @@ components:
         pageName:
           type: string
         oldUrl:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         newUrl:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         pageType:
           type: string
         tier:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         vaName:
           type: string
         source:
@@ -1088,29 +1389,44 @@ components:
         status:
           type: string
         inSitemap:
-          type: ["boolean", "null"]
+          type:
+            - boolean
+            - "null"
         runId:
-          type: ["integer", "null"]
+          type:
+            - integer
+            - "null"
         dateCompleted:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         notes:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         createdAt:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         updatedAt:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         seoDelta:
           oneOf:
             - $ref: "#/components/schemas/SeoDelta"
             - type: "null"
-
     WorkLogImportInput:
       type: object
-      required: [rows]
+      required:
+        - rows
       properties:
         defaultCompany:
           type: string
-          enum: [STS, DCD, TechnoCycle]
+          enum:
+            - STS
+            - DCD
+            - TechnoCycle
           default: STS
         rows:
           type: array
@@ -1118,20 +1434,23 @@ components:
           items:
             type: object
             additionalProperties: true
-
     WorkLogImportFlag:
       type: object
-      required: [reason]
+      required:
+        - reason
       properties:
         reason:
           type: string
         row:
           type: object
           additionalProperties: true
-
     WorkLogImportResult:
       type: object
-      required: [imported, updated, flagged, total]
+      required:
+        - imported
+        - updated
+        - flagged
+        - total
       properties:
         total:
           type: integer
@@ -1143,24 +1462,39 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/WorkLogImportFlag"
-
     SitemapPageStatus:
       type: object
-      required: [normalizedUrl, status]
+      required:
+        - normalizedUrl
+        - status
       properties:
         normalizedUrl:
           type: string
         status:
           type: string
-          enum: [live, tracked-not-live, live-not-tracked]
+          enum:
+            - live
+            - tracked-not-live
+            - live-not-tracked
         workLogId:
-          type: ["integer", "null"]
+          type:
+            - integer
+            - "null"
         pageName:
-          type: ["string", "null"]
-
+          type:
+            - string
+            - "null"
     SitemapReconciliation:
       type: object
-      required: [sitemapUrl, ranAt, totalSitemap, totalTracked, live, trackedNotLive, liveNotTracked, pages]
+      required:
+        - sitemapUrl
+        - ranAt
+        - totalSitemap
+        - totalTracked
+        - live
+        - trackedNotLive
+        - liveNotTracked
+        - pages
       properties:
         sitemapUrl:
           type: string
@@ -1182,17 +1516,21 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/SitemapPageStatus"
-
     SheetsSyncResult:
       type: object
-      required: [ok, spreadsheetId, tabs]
+      required:
+        - ok
+        - spreadsheetId
+        - tabs
       properties:
         ok:
           type: boolean
         spreadsheetId:
           type: string
         spreadsheetUrl:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         tabs:
           type: array
           items:
@@ -1201,10 +1539,12 @@ components:
           type: integer
         syncedAt:
           type: string
-
     GscPullResult:
       type: object
-      required: [ok, pagesChecked, snapshotsRecorded]
+      required:
+        - ok
+        - pagesChecked
+        - snapshotsRecorded
       properties:
         ok:
           type: boolean
@@ -1214,10 +1554,18 @@ components:
           type: integer
         ranAt:
           type: string
-
     MissionRun:
       type: object
-      required: [id, vaName, city, state, track, engine, status, currentPhase, phases]
+      required:
+        - id
+        - vaName
+        - city
+        - state
+        - track
+        - engine
+        - status
+        - currentPhase
+        - phases
       properties:
         id:
           type: integer
@@ -1225,7 +1573,9 @@ components:
           type: string
           description: Name of the VA who created the run.
         url:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
           description: Target page URL the run was derived from.
         city:
           type: string
@@ -1233,16 +1583,33 @@ components:
           type: string
         track:
           type: string
-          enum: [page, blog]
+          enum:
+            - page
+            - blog
         engine:
           type: string
-          enum: [claude, replit]
+          enum:
+            - claude
+            - replit
         status:
           type: string
-          enum: [draft, queued, running, review, approved, publishing, published, failed]
+          enum:
+            - draft
+            - queued
+            - running
+            - review
+            - approved
+            - publishing
+            - published
+            - failed
         currentPhase:
           type: string
-          enum: [research, build, audit, schema, publish]
+          enum:
+            - research
+            - build
+            - audit
+            - schema
+            - publish
         classification:
           type: string
         niche:
@@ -1256,13 +1623,21 @@ components:
           items:
             type: string
         handoff:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         verifiedCid:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         designBibleHash:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         blogTopic:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         researchBrief:
           oneOf:
             - $ref: "#/components/schemas/ResearchBrief"
@@ -1272,9 +1647,13 @@ components:
             - $ref: "#/components/schemas/SeoIntel"
             - type: "null"
         pageHtml:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         generatedSchema:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         joomlaMeta:
           oneOf:
             - $ref: "#/components/schemas/JoomlaMeta"
@@ -1292,41 +1671,61 @@ components:
           items:
             $ref: "#/components/schemas/PhaseState"
         createdAt:
-          type: ["string", "null"]
+          type:
+            - string
+            - "null"
         updatedAt:
-          type: ["string", "null"]
-
+          type:
+            - string
+            - "null"
     SeoKeyword:
       type: object
-      required: [keyword]
+      required:
+        - keyword
       properties:
         keyword:
           type: string
         searchVolume:
-          type: ["integer", "null"]
+          type:
+            - integer
+            - "null"
         difficulty:
-          type: ["integer", "null"]
+          type:
+            - integer
+            - "null"
         competition:
-          type: ["string", "null"]
-
+          type:
+            - string
+            - "null"
     SeoCompetitor:
       type: object
-      required: [title, link]
+      required:
+        - title
+        - link
       properties:
         title:
           type: string
         link:
           type: string
         position:
-          type: ["integer", "null"]
-
+          type:
+            - integer
+            - "null"
     SeoIntel:
       type: object
-      description: >-
-        Live per-URL SEO intelligence pulled from SerpAPI (+ DataForSEO when
-        configured) at run-create time. Replaces the quarterly SEO spreadsheet.
+      description: Live per-URL SEO intelligence pulled from SerpAPI (+ DataForSEO when configured) at run-create time. Replaces the quarterly SEO spreadsheet.
       required:
-        [query, location, competition, competitionScore, relatedKeywords, topCompetitors, localPackCount, adsCount, peopleAlsoAsk, fetchedAt, sources]
+        - query
+        - location
+        - competition
+        - competitionScore
+        - relatedKeywords
+        - topCompetitors
+        - localPackCount
+        - adsCount
+        - peopleAlsoAsk
+        - fetchedAt
+        - sources
       properties:
         query:
           type: string
@@ -1334,7 +1733,10 @@ components:
           type: string
         competition:
           type: string
-          enum: [LOW, MEDIUM, HIGH]
+          enum:
+            - LOW
+            - MEDIUM
+            - HIGH
         competitionScore:
           type: number
         primaryKeyword:
@@ -1363,11 +1765,16 @@ components:
           type: array
           items:
             type: string
-
     DerivedRunInputs:
       type: object
       description: Everything the server derives from a target URL for a run.
-      required: [city, state, niche, classification, competition, seoIntel]
+      required:
+        - city
+        - state
+        - niche
+        - classification
+        - competition
+        - seoIntel
       properties:
         city:
           type: string
@@ -1377,16 +1784,24 @@ components:
           type: string
         classification:
           type: string
-          enum: [NEW_BUILD, REVAMP, LIGHT_TOUCH]
+          enum:
+            - NEW_BUILD
+            - REVAMP
+            - LIGHT_TOUCH
         competition:
           type: string
-          enum: [LOW, MEDIUM, HIGH]
+          enum:
+            - LOW
+            - MEDIUM
+            - HIGH
         seoIntel:
           $ref: "#/components/schemas/SeoIntel"
         locationSource:
           type: string
           description: Whether the final city/state came from the URL slug or the fetched page.
-          enum: [url, page]
+          enum:
+            - url
+            - page
         locationVerified:
           type: boolean
           description: True when the live page corroborated or corrected the URL location.
@@ -1395,11 +1810,12 @@ components:
           description: City/state signals scraped from the fetched page.
           items:
             $ref: "#/components/schemas/ExtractedLocation"
-
     ExtractedLocation:
       type: object
       description: A city/state location signal extracted from a fetched page.
-      required: [city, state]
+      required:
+        - city
+        - state
       properties:
         city:
           type: string
@@ -1407,10 +1823,12 @@ components:
         state:
           type: string
           nullable: true
-
     DashboardSummary:
       type: object
-      required: [total, byStatus, recent]
+      required:
+        - total
+        - byStatus
+        - recent
       properties:
         total:
           type: integer
@@ -1422,28 +1840,33 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/MissionRun"
-
     StatusCount:
       type: object
-      required: [status, count]
+      required:
+        - status
+        - count
       properties:
         status:
           type: string
         count:
           type: integer
-
     RegistryLink:
       type: object
-      required: [label, url]
+      required:
+        - label
+        - url
       properties:
         label:
           type: string
         url:
           type: string
-
     RegistryInfo:
       type: object
-      required: [sacredLinks, imageLibrary, industryLinks, allowlist]
+      required:
+        - sacredLinks
+        - imageLibrary
+        - industryLinks
+        - allowlist
       properties:
         baseDomain:
           type: string
@@ -1465,3 +1888,104 @@ components:
             $ref: "#/components/schemas/RegistryLink"
         wordCountFloor:
           type: integer
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+    Brand:
+      type: string
+      enum:
+        - sts
+        - dcd
+        - technocycle
+    Prompt:
+      type: object
+      properties:
+        id:
+          type: integer
+        brand:
+          $ref: "#/components/schemas/Brand"
+        slug:
+          type: string
+        name:
+          type: string
+        content:
+          type: string
+        version:
+          type: integer
+        publishedContent:
+          type: string
+          nullable: true
+        publishedVersion:
+          type: integer
+          nullable: true
+        gitPath:
+          type: string
+        driveFileId:
+          type: string
+          nullable: true
+        updatedAt:
+          type: string
+          format: date-time
+        lastPublishedAt:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - id
+        - brand
+        - slug
+        - name
+        - content
+        - version
+        - gitPath
+        - updatedAt
+    UpdatePromptRequest:
+      type: object
+      properties:
+        content:
+          type: string
+        name:
+          type: string
+      required:
+        - content
+    PublishPromptRequest:
+      type: object
+      properties:
+        content:
+          type: string
+          description: Optional content to save before publishing. If omitted, the stored content is published.
+    TargetStatus:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        detail:
+          type: string
+        reference:
+          type: string
+          nullable: true
+          description: Commit SHA for git, file id for drive.
+      required:
+        - ok
+        - detail
+    PublishResult:
+      type: object
+      properties:
+        prompt:
+          $ref: "#/components/schemas/Prompt"
+        git:
+          $ref: "#/components/schemas/TargetStatus"
+        drive:
+          $ref: "#/components/schemas/TargetStatus"
+      required:
+        - prompt
+        - git
+        - drive
+  securitySchemes:
+    adminToken:
+      type: http
+      scheme: bearer

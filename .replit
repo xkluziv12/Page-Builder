@@ -13,6 +13,7 @@ env = { "CI" = "true" }
 [agent]
 stack = "PNPM_WORKSPACE"
 expertMode = true
+integrations = ["github:1.0.0", "google-drive:1.0.0"]
 
 [postMerge]
 path = "scripts/post-merge.sh"
@@ -40,3 +41,9 @@ externalPort = 3001
 
 [nix]
 channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+GITHUB_PROMPTS_REPO = "xkluziv12/page-terminal-prompts"
+GITHUB_SOURCE_REPO = "xkluziv12/master-prompts"

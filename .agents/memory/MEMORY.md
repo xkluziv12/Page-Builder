@@ -8,3 +8,5 @@
 - [Multi-LLM Bake-Off harness](bakeoff-harness.md) — out-of-tree faithful MC pipeline across models; never special-case a model; two scenarios (no-gmb/gmb) share one grounding; OpenAI (5.4 & 5.5) refuses no-gmb but builds gmb; resumable run.
 - [Bake-off visual judge](bakeoff-visual-judge.md) — renders pages to screenshots (Nix chromium + playwright-core, fixed viewport) and scores perceptual + vision-LLM; rescore reuses saved HTML, don't re-run LLMs.
 - [Background process reaping](background-process-reaping.md) — detached bash processes die when the launching tool call returns; run long one-shot jobs as a console workflow and make them resumable.
+- [Prompt Manager publish/sync](prompt-publish-sync.md) — publish fans out to DB+GitHub+Drive via the Replit connectors proxy; no auto-publish, per-target status, drive.file scope quirk.
+- [Replit config guard during rebase](replit-config-rebase-guard.md) — git can't write .replit/replit.nix during rebase (guard); use keep-ours merge driver, then materialize union via verifyAndReplaceDotReplit.

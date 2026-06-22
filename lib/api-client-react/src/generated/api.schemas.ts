@@ -739,6 +739,57 @@ export interface RegistryInfo {
   wordCountFloor?: number;
 }
 
+export interface Error {
+  message: string;
+}
+
+export type Brand = typeof Brand[keyof typeof Brand];
+
+
+export const Brand = {
+  sts: 'sts',
+  dcd: 'dcd',
+  technocycle: 'technocycle',
+} as const;
+
+export interface Prompt {
+  id: number;
+  brand: Brand;
+  slug: string;
+  name: string;
+  content: string;
+  version: number;
+  publishedContent?: string | null;
+  publishedVersion?: number | null;
+  gitPath: string;
+  driveFileId?: string | null;
+  updatedAt: string;
+  lastPublishedAt?: string | null;
+}
+
+export interface UpdatePromptRequest {
+  content: string;
+  name?: string;
+}
+
+export interface PublishPromptRequest {
+  /** Optional content to save before publishing. If omitted, the stored content is published. */
+  content?: string;
+}
+
+export interface TargetStatus {
+  ok: boolean;
+  detail: string;
+  /** Commit SHA for git, file id for drive. */
+  reference?: string | null;
+}
+
+export interface PublishResult {
+  prompt: Prompt;
+  git: TargetStatus;
+  drive: TargetStatus;
+}
+
 export type GetSeoIntelParams = {
 url: string;
 };
@@ -759,5 +810,9 @@ export type ReconcileSitemapParams = {
  * When true, write the in-sitemap flag back onto each work-log row.
  */
 persist?: boolean;
+};
+
+export type ListPromptsParams = {
+brand?: Brand;
 };
 
