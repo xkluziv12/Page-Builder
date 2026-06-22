@@ -396,9 +396,13 @@
         "wordCount": 30,
         "speed": 100,
         "htmlMatch": 64,
-        "visualMatch": 7,
-        "composite": 59
-      }
+        "visualMatch": 47,
+        "visualPixel": 65,
+        "visualLlm": 28,
+        "visualTokens": 7,
+        "composite": 67
+      },
+      "screenshot": "screenshots/grok.png"
     },
     {
       "id": "gemini",
@@ -803,9 +807,13 @@
         "wordCount": 73,
         "speed": 53,
         "htmlMatch": 60,
-        "visualMatch": 7,
-        "composite": 58
-      }
+        "visualMatch": 45,
+        "visualPixel": 67,
+        "visualLlm": 22,
+        "visualTokens": 7,
+        "composite": 65
+      },
+      "screenshot": "screenshots/gemini.png"
     },
     {
       "id": "claude",
@@ -1242,9 +1250,13 @@
         "wordCount": 100,
         "speed": 12,
         "htmlMatch": 60,
-        "visualMatch": 4,
-        "composite": 51
-      }
+        "visualMatch": 35,
+        "visualPixel": 67,
+        "visualLlm": 2,
+        "visualTokens": 4,
+        "composite": 57
+      },
+      "screenshot": "screenshots/claude.png"
     },
     {
       "id": "openai",
@@ -1270,7 +1282,9 @@
         }
       ],
       "totalMs": 3091,
-      "scores": null
+      "scores": null,
+      "screenshot": null
     }
-  ]
+  ],
+  "referenceScreenshot": "screenshots/reference.png"
 }

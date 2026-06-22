@@ -6,3 +6,4 @@
 - [Unified work-log tracker](worklog-tracker.md) — one canonical mc_work_log keyed by normalized URL (www/slash collapse); old tools + MC + import all upsert into it; Master Grid surfaces it; Sheets/GSC syncs gated + fail-loud.
 - [Verify integrations by exercising them](env-visibility-verify-by-exercising.md) — secret/viewEnvVars listing misses some live runtime keys; confirm external calls by hitting them, not by reading the list.
 - [Multi-LLM Bake-Off harness](bakeoff-harness.md) — out-of-tree faithful MC pipeline across models; never special-case a model; Anthropic needs streaming for big token budgets; GPT-5.4 refuses the no-page_url prod context.
+- [Bake-off visual judge](bakeoff-visual-judge.md) — renders pages to screenshots (Nix chromium + playwright-core, fixed viewport) and scores perceptual + vision-LLM; rescore reuses saved HTML, don't re-run LLMs.

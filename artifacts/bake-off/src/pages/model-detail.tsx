@@ -4,10 +4,16 @@ import { useParams } from "wouter";
 import NotFound from "./not-found";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, CheckCircle2, Clock, Code2, Database, LayoutTemplate, Link as LinkIcon, ShieldAlert, FileText } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, Code2, Database, LayoutTemplate, Link as LinkIcon, ShieldAlert, FileText, Image as ImageIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const results = resultsData as BakeoffResults;
+
+/** Resolve a screenshot path stored in results.json against the app's base URL. */
+function shotUrl(path: string | null | undefined): string | null {
+  if (!path) return null;
+  return `${import.meta.env.BASE_URL}${path}`;
+}
 
 export default function ModelDetail() {
   const { id } = useParams();
@@ -68,7 +74,7 @@ export default function ModelDetail() {
       {model.scores && (
         <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-8">
           <ScoreCell label="HTML Match" value={model.scores.htmlMatch} hint="vs real page" />
-          <ScoreCell label="Visual" value={model.scores.visualMatch} hint="design tokens" />
+          <ScoreCell label="Visual" value={model.scores.visualMatch} hint="rendered look" />
           <ScoreCell label="Audit" value={model.scores.audit} />
           <ScoreCell label="Structure" value={model.scores.structure} />
           <ScoreCell label="Schema" value={model.scores.schema} />
@@ -83,6 +89,10 @@ export default function ModelDetail() {
           <TabsTrigger value="preview" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-6 flex gap-2">
             <LayoutTemplate className="w-4 h-4" />
             Output Preview
+          </TabsTrigger>
+          <TabsTrigger value="visual" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-6 flex gap-2">
+            <ImageIcon className="w-4 h-4" />
+            Visual Match
           </TabsTrigger>
           <TabsTrigger value="checker" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-6 flex gap-2">
             <ShieldAlert className="w-4 h-4" />
@@ -119,6 +129,51 @@ export default function ModelDetail() {
               />
             </div>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="visual" className="mt-0">
+          {(() => {
+            const modelShot = shotUrl(model.screenshot);
+            const refShot = shotUrl(results.referenceScreenshot);
+            if (!modelShot || !refShot) {
+              return (
+                <Card className="border-dashed">
+                  <CardContent className="p-8 text-center text-sm text-muted-foreground">
+                    No rendered screenshots are available for this run. Run{" "}
+                    <code className="font-mono">pnpm --filter @workspace/scripts run bakeoff:rescore</code>{" "}
+                    to render the pages and score the visual match.
+                  </CardContent>
+                </Card>
+              );
+            }
+            return (
+              <div className="space-y-6">
+                {model.scores && (
+                  <div className="grid grid-cols-3 gap-3">
+                    <ScoreCell label="Visual (overall)" value={model.scores.visualMatch} hint="pixel + vision" />
+                    <ScoreCell
+                      label="Perceptual"
+                      value={model.scores.visualPixel ?? 0}
+                      hint={model.scores.visualPixel == null ? "n/a" : "pixel diff"}
+                    />
+                    <ScoreCell
+                      label="Vision-LLM"
+                      value={model.scores.visualLlm ?? 0}
+                      hint={model.scores.visualLlm == null ? "not run" : "how close it looks"}
+                    />
+                  </div>
+                )}
+                <p className="text-sm text-muted-foreground">
+                  Each page is rendered to a screenshot with a headless browser, then compared to the real
+                  published page — a true visual judge, not just CSS token overlap.
+                </p>
+                <div className="grid gap-6 md:grid-cols-2">
+                  <ShotPanel title="Real Published Page" subtitle={results.target.url} src={refShot} />
+                  <ShotPanel title={`${model.label} — Rendered`} subtitle={model.model} src={modelShot} />
+                </div>
+              </div>
+            );
+          })()}
         </TabsContent>
 
         <TabsContent value="checker" className="mt-0">
@@ -269,6 +324,20 @@ export default function ModelDetail() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+function ShotPanel({ title, subtitle, src }: { title: string; subtitle: string; src: string }) {
+  return (
+    <Card className="overflow-hidden border-border bg-white rounded-lg shadow-xl shadow-black/5 dark:shadow-none flex flex-col">
+      <div className="px-4 py-2.5 border-b bg-muted flex items-center justify-between gap-3">
+        <span className="text-sm font-semibold truncate">{title}</span>
+        <span className="text-[11px] text-muted-foreground font-mono truncate">{subtitle}</span>
+      </div>
+      <div className="bg-white overflow-auto max-h-[640px]">
+        <img src={src} alt={title} className="w-full block" loading="lazy" />
+      </div>
+    </Card>
   );
 }
 

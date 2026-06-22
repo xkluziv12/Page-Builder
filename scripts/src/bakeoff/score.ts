@@ -1,5 +1,6 @@
 import { extractStructuralSignals, type CheckerReport } from "@workspace/mc-core";
 import type { ModelResult, ModelScores } from "./types";
+import type { VisualVerdict } from "./visual.js";
 
 const clamp = (n: number): number => Math.max(0, Math.min(100, Math.round(n)));
 
@@ -105,8 +106,12 @@ function designTokens(html: string): Set<string> {
   return tokens;
 }
 
-/** Visual / design-language closeness vs the real page (0-100). */
-function visualMatchScore(modelHtml: string, refHtml: string): number {
+/**
+ * Legacy design-token proxy (0-100): colors/CSS vars/fonts/class-name overlap.
+ * Kept only as a secondary, transparency signal — the headline visual score now
+ * comes from rendered screenshots (see {@link VisualVerdict} / `visual.ts`).
+ */
+function visualTokensScore(modelHtml: string, refHtml: string): number {
   return clamp(jaccard(designTokens(modelHtml), designTokens(refHtml)) * 100);
 }
 
@@ -125,14 +130,27 @@ const WEIGHTS = {
  * Score every successful model. Speed is relative to the fastest successful run
  * (fastest = 100). htmlMatch / visualMatch compare each final page against the
  * real published page. Failed models are left unscored.
+ *
+ * `visualVerdicts` carries the rendered-screenshot visual judge (perceptual
+ * pixel-diff + optional vision-LLM rating), keyed by model id. When a model has
+ * a verdict, `visualMatch` is the headline screenshot score; when it doesn't
+ * (e.g. the browser wasn't run), `visualMatch` falls back to the design-token
+ * proxy so the pipeline never silently loses the metric.
  */
-export function scoreModels(models: ModelResult[], wordCountFloor: number, referenceHtml: string): void {
+export function scoreModels(
+  models: ModelResult[],
+  wordCountFloor: number,
+  referenceHtml: string,
+  visualVerdicts?: Map<string, VisualVerdict>,
+): void {
   const ok = models.filter((m) => m.status === "ok" && m.checkerReport && m.html);
   const fastestMs = Math.min(...ok.map((m) => m.totalMs).filter((n) => n > 0), Infinity);
 
   for (const m of ok) {
     const report = m.checkerReport!;
     const speed = fastestMs === Infinity || m.totalMs <= 0 ? 0 : clamp((fastestMs / m.totalMs) * 100);
+    const visualTokens = visualTokensScore(m.html!, referenceHtml);
+    const verdict = visualVerdicts?.get(m.id) ?? null;
     const partial: Omit<ModelScores, "composite"> = {
       audit: auditScore(report),
       structure: structureScore(m.html!),
@@ -141,7 +159,10 @@ export function scoreModels(models: ModelResult[], wordCountFloor: number, refer
       wordCount: wordCountScore(report, wordCountFloor),
       speed,
       htmlMatch: htmlMatchScore(m.html!, referenceHtml),
-      visualMatch: visualMatchScore(m.html!, referenceHtml),
+      visualMatch: verdict ? verdict.combined : visualTokens,
+      visualPixel: verdict ? verdict.pixel : null,
+      visualLlm: verdict ? verdict.llm : null,
+      visualTokens,
     };
     const composite = clamp(
       partial.audit * WEIGHTS.audit +

@@ -24,8 +24,18 @@ export interface ModelScores {
   speed: number;
   /** Closeness to the real published page: tag structure + visible-text overlap. */
   htmlMatch: number;
-  /** Design-language closeness to the real page: colors/CSS vars/fonts/classes. */
+  /**
+   * Headline visual closeness to the real page (0-100). When screenshots are
+   * available this is the rendered-image verdict (mean of pixel + vision-LLM);
+   * otherwise it falls back to the design-token proxy.
+   */
   visualMatch: number;
+  /** Perceptual pixel-diff similarity of the rendered screenshots, or null. */
+  visualPixel: number | null;
+  /** Vision-LLM "how close does it look" rating (0-100), or null if unavailable. */
+  visualLlm: number | null;
+  /** Legacy design-token proxy (colors/CSS vars/fonts/classes) — kept for transparency. */
+  visualTokens: number;
   /** Weighted overall (0-100). */
   composite: number;
 }
@@ -46,6 +56,8 @@ export interface ModelResult {
   timings: PhaseTiming[];
   totalMs: number;
   scores: ModelScores | null;
+  /** Relative path (under the viewer's public dir) to this model's rendered screenshot. */
+  screenshot: string | null;
 }
 
 export interface BakeoffResults {
@@ -62,4 +74,6 @@ export interface BakeoffResults {
   grounding: { source: string; content: string };
   notes: string[];
   models: ModelResult[];
+  /** Relative path (under the viewer's public dir) to the real reference page screenshot. */
+  referenceScreenshot: string | null;
 }

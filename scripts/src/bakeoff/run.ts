@@ -20,6 +20,7 @@ import {
 } from "./providers.js";
 import { generateSharedGrounding, researchProviderFor, type SharedGrounding } from "./grounding.js";
 import { scoreModels } from "./score.js";
+import { judgeVisual } from "./visual.js";
 import type { BakeoffResults, ModelResult, PhaseTiming } from "./types.js";
 
 const TARGET = {
@@ -41,6 +42,9 @@ const PHASES: PhaseName[] = ["research", "build", "audit", "schema"];
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OUTPUT_PATH = resolve(HERE, "../../../artifacts/bake-off/src/data/results.json");
 const REFERENCE_HTML_PATH = resolve(HERE, "../../src/bakeoff/reference/billings-mt.html");
+/** Screenshots are written into the viewer's public dir so it can serve them. */
+const SCREENSHOT_DIR = resolve(HERE, "../../../artifacts/bake-off/public/screenshots");
+const SCREENSHOT_PREFIX = "screenshots";
 
 interface ModelSpec {
   id: string;
@@ -136,7 +140,17 @@ async function main(): Promise<void> {
     }),
   );
 
-  scoreModels(results, ctx.registry.wordCountFloor, referenceHtml);
+  console.log("Rendering screenshots and running the visual judge (headless Chromium)...");
+  const visual = await judgeVisual(results, referenceHtml, {
+    outDir: SCREENSHOT_DIR,
+    pathPrefix: SCREENSHOT_PREFIX,
+    vision: true,
+  });
+  for (const m of results) {
+    m.screenshot = visual.screenshots.get(m.id) ?? null;
+  }
+
+  scoreModels(results, ctx.registry.wordCountFloor, referenceHtml, visual.verdicts);
   results.sort((a, b) => (b.scores?.composite ?? -1) - (a.scores?.composite ?? -1));
 
   const output: BakeoffResults = {
@@ -147,11 +161,12 @@ async function main(): Promise<void> {
       "Each model runs the OLD No-GMB checklist exactly as a VA would: Page Builder (MASTER PAGE BUILDER v3.5) → SEO Audit (MASTER SEO AUDIT v10.12.3) → deterministic Schema (No-GMB: city/state targeting, NO CID, NO street address) → checker/link-audit verify. Joomla publish is intentionally NOT run.",
       "All four models run through the Replit AI Integrations proxy (no raw provider keys).",
       "Schema is generated deterministically (identical across models) — exactly what the VA's 'Auto-Generate Schema' button does in No-GMB mode — so it is not a model differentiator.",
-      "htmlMatch / visualMatch score each model's final page against the real published Billings, MT page (scripts/src/bakeoff/reference/billings-mt.html): htmlMatch = tag-structure cosine + visible-text overlap; visualMatch = design-token (colors/CSS vars/fonts/layout-class) overlap.",
+      "htmlMatch / visualMatch score each model's final page against the real published Billings, MT page (scripts/src/bakeoff/reference/billings-mt.html). htmlMatch = tag-structure cosine + visible-text overlap. visualMatch is now a TRUE visual judge: each model's HTML and the real page are rendered to screenshots with headless Chromium, then scored by perceptual pixel-diff (pixelmatch) plus an optional vision-LLM 'how close does it look?' rating. The old design-token overlap is kept only as the secondary visualTokens signal.",
       "Research grounding is a single shared model-authored brief — live web grounding (Perplexity/SerpAPI) is not configured in this environment.",
       "A model failing a phase is isolated and does not abort the others.",
     ],
     models: results,
+    referenceScreenshot: visual.referenceScreenshot,
   };
 
   await mkdir(dirname(OUTPUT_PATH), { recursive: true });
@@ -184,6 +199,7 @@ async function runOneModelWith(
     timings: [],
     totalMs: 0,
     scores: null,
+    screenshot: null,
   };
   const publisher = new StubJoomlaPublisher();
   let state: PhaseState = {

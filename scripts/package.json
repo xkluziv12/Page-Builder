@@ -8,10 +8,12 @@
     "mc": "tsx ./src/mc.ts",
     "system-map": "tsx ./src/system-map.ts",
     "bakeoff": "tsx ./src/bakeoff/run.ts",
+    "bakeoff:rescore": "tsx ./src/bakeoff/rescore-visual.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@types/node": "catalog:",
+    "@types/pngjs": "^6.0.5",
     "tsx": "catalog:"
   },
   "dependencies": {
@@ -19,6 +21,9 @@
     "@google/genai": "^1.44.0",
     "@workspace/mc-core": "workspace:*",
     "openai": "^6.27.0",
+    "pixelmatch": "^7.2.0",
+    "playwright-core": "^1.61.0",
+    "pngjs": "^7.0.0",
     "yaml": "^2.9.0"
   }
 }
