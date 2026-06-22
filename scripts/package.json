@@ -7,6 +7,7 @@
     "hello": "tsx ./src/hello.ts",
     "mc": "tsx ./src/mc.ts",
     "system-map": "tsx ./src/system-map.ts",
+    "bakeoff": "tsx ./src/bakeoff/run.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "devDependencies": {
@@ -14,6 +15,10 @@
     "tsx": "catalog:"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
+    "@google/genai": "^1.44.0",
+    "@workspace/mc-core": "workspace:*",
+    "openai": "^6.27.0",
     "yaml": "^2.9.0"
   }
 }
