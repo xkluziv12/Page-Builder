@@ -28,20 +28,25 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             </Link>
           </nav>
 
-          <div className="px-3">
-            <h4 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-3">Models</h4>
-            <nav className="flex flex-col gap-1">
-              {results.models.map(model => (
-                <Link key={model.id} href={`/model/${model.id}`} className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${location === `/model/${model.id}` ? 'bg-secondary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-secondary/5 hover:text-foreground'}`}>
-                  <FileText className="w-4 h-4" />
-                  <span className="truncate">{model.label}</span>
-                  {model.status === 'error' && (
-                    <span className="ml-auto w-2 h-2 rounded-full bg-destructive shrink-0" />
-                  )}
-                </Link>
-              ))}
-            </nav>
-          </div>
+          {results.scenarios.map((scenario) => (
+            <div className="px-3" key={scenario.id}>
+              <h4 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-3">{scenario.label}</h4>
+              <nav className="flex flex-col gap-1">
+                {scenario.models.map((model) => {
+                  const href = `/model/${scenario.id}/${model.id}`;
+                  return (
+                    <Link key={model.id} href={href} className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${location === href ? 'bg-secondary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-secondary/5 hover:text-foreground'}`}>
+                      <FileText className="w-4 h-4" />
+                      <span className="truncate">{model.label}</span>
+                      {model.status === 'error' && (
+                        <span className="ml-auto w-2 h-2 rounded-full bg-destructive shrink-0" />
+                      )}
+                    </Link>
+                  );
+                })}
+              </nav>
+            </div>
+          ))}
 
           <div className="px-3 mt-auto mb-4">
             <div className="bg-secondary/5 border border-secondary/10 rounded-lg p-3 text-xs">

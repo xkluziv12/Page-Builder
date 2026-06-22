@@ -85,6 +85,14 @@ export interface ModelResult {
   screenshot: string | null;
 }
 
+export interface ScenarioResult {
+  id: string;
+  label: string;
+  description: string;
+  notes: string[];
+  models: ModelResult[];
+}
+
 export interface BakeoffResults {
   ranAt: string;
   target: {
@@ -97,8 +105,7 @@ export interface BakeoffResults {
     competition: string;
   };
   grounding: { source: string; content: string };
-  notes: string[];
-  models: ModelResult[];
+  scenarios: ScenarioResult[];
   /** Relative path (under public/) to the real reference page screenshot. */
   referenceScreenshot: string | null;
 }

@@ -5,5 +5,6 @@
 - [Mission Control post-publish QC](mission-control-qc.md) — dashboard-only GTmetrix + JSON-LD checks; keys off run's published alias URL so it's universal across GMB/non-GMB, blog/page, hub/spoke — no per-variant branching.
 - [Unified work-log tracker](worklog-tracker.md) — one canonical mc_work_log keyed by normalized URL (www/slash collapse); old tools + MC + import all upsert into it; Master Grid surfaces it; Sheets/GSC syncs gated + fail-loud.
 - [Verify integrations by exercising them](env-visibility-verify-by-exercising.md) — secret/viewEnvVars listing misses some live runtime keys; confirm external calls by hitting them, not by reading the list.
-- [Multi-LLM Bake-Off harness](bakeoff-harness.md) — out-of-tree faithful MC pipeline across models; never special-case a model; Anthropic needs streaming for big token budgets; GPT-5.4 refuses the no-page_url prod context.
+- [Multi-LLM Bake-Off harness](bakeoff-harness.md) — out-of-tree faithful MC pipeline across models; never special-case a model; two scenarios (no-gmb/gmb) share one grounding; OpenAI (5.4 & 5.5) refuses no-gmb but builds gmb; resumable run.
 - [Bake-off visual judge](bakeoff-visual-judge.md) — renders pages to screenshots (Nix chromium + playwright-core, fixed viewport) and scores perceptual + vision-LLM; rescore reuses saved HTML, don't re-run LLMs.
+- [Background process reaping](background-process-reaping.md) — detached bash processes die when the launching tool call returns; run long one-shot jobs as a console workflow and make them resumable.

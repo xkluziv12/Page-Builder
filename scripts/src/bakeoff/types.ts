@@ -60,6 +60,23 @@ export interface ModelResult {
   screenshot: string | null;
 }
 
+/**
+ * One bake-off scenario: the same four models run against the SAME grounding,
+ * differing only by the context they are handed. The "no-gmb" scenario uses the
+ * exact production context (which omits an explicit page_url / GMB block); the
+ * "gmb" scenario hands every model an identical enriched context (explicit
+ * page_url + GMB data block). Keeping them as sibling scenarios — rather than
+ * patching only OpenAI's prompt — preserves the apples-to-apples comparison.
+ */
+export interface ScenarioResult {
+  id: string;
+  label: string;
+  /** One-line explanation of what context this scenario fed the models. */
+  description: string;
+  notes: string[];
+  models: ModelResult[];
+}
+
 export interface BakeoffResults {
   ranAt: string;
   target: {
@@ -72,8 +89,7 @@ export interface BakeoffResults {
     competition: string;
   };
   grounding: { source: string; content: string };
-  notes: string[];
-  models: ModelResult[];
+  scenarios: ScenarioResult[];
   /** Relative path (under the viewer's public dir) to the real reference page screenshot. */
   referenceScreenshot: string | null;
 }

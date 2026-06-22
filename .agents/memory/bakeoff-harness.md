@@ -27,16 +27,34 @@ With a high `max_tokens` budget (we use 32000 for full SEO pages) the SDK throws
 **Fix:** use `client.messages.stream({...})` then `await stream.finalMessage()`.
 **How to apply:** any Anthropic call with a large token budget must stream.
 
-## Finding: GPT-5.4 refuses the production context; Claude/Gemini/Grok don't
+## Finding: OpenAI refuses the No-GMB production context; the others build it
 Production `describeContext` (in mc-core, shared by the shipped ClaudeEngine)
 deliberately omits an explicit `page_url`/GMB block — it derives the page from
-city + base domain. Under that identical context, GPT-5.4 refused to build,
-listing page_url/gmb_url/gmb-data as "critical blockers", while Claude, Gemini,
-and Grok all produced full pages. This is a real model-behavior difference, not
-a harness bug; do not "fix" it by injecting inputs only OpenAI wants.
+city + base domain. Under that identical No-GMB context BOTH GPT-5.4 and the
+newer GPT-5.5 refuse to build, returning a "⛔ Build blocked / required inputs
+missing" stub that lists page_url + GMB data as blockers, while Claude, Gemini,
+and Grok all produce full pages. This is a real model-behavior difference, not a
+harness bug; do not "fix" it by injecting inputs only OpenAI wants.
 
-## Operational note: run as a one-shot console workflow, not bash
-The full 4-model run takes ~11 min (Claude streaming alone ~660s), well past the
-2-min bash cap and the ~10-min code_execution sandbox cap. Run via a temporary
-`configureWorkflow({outputType:"console"})`, poll `getWorkflowStatus`, then
-`removeWorkflow` when finished.
+## Design: two scenarios, ONE shared grounding, enrichment is the only variable
+The harness runs the same models twice as `scenarios` (`no-gmb`, `gmb`). The GMB
+scenario appends an experimental page_url + GMB block (`gmb.ts`) to the SAME
+`describeContext` via an in-harness engine suffix (never the prod path) and swaps
+the deterministic schema for the GMB-aware one. Both scenarios reuse ONE shared
+grounding so the enrichment — not research — is the only difference. Result: the
+same OpenAI model that refuses No-GMB builds a full page under GMB (the "fair
+re-run"). Grok is flaky here — it intermittently returns a chatty "✅ … final-
+html.html" stub instead of HTML, recorded faithfully as an extraction ERROR.
+
+## Operational note: run as a RESUMABLE one-shot console workflow, not bash
+The full run takes ~11 min PER scenario (Claude streaming alone ~660s), well past
+the 2-min bash cap and the code_execution sandbox cap. Detached bash processes
+(`setsid`/`nohup`/`&`) are REAPED the moment the launching tool call returns — see
+`background-process-reaping.md`. Run via a temporary
+`configureWorkflow({outputType:"console"})`, poll `getWorkflowStatus` +
+`results.json`, then `removeWorkflow`. `run.ts` is resumable: it loads prior
+`results.json`, skips any already-recorded (scenario,model) pair, runs models
+sequentially (low peak memory), and persists after EVERY model — so a reaped or
+restarted run continues instead of starting over. It also migrates the legacy
+single-`models[]` file into the `no-gmb` scenario, dropping only OpenAI so it
+re-runs on the newer model.

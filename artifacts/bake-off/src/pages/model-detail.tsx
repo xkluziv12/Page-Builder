@@ -16,15 +16,17 @@ function shotUrl(path: string | null | undefined): string | null {
 }
 
 export default function ModelDetail() {
-  const { id } = useParams();
-  const model = results.models.find(m => m.id === id);
+  const { scenarioId, id } = useParams();
+  const scenario = results.scenarios.find(s => s.id === scenarioId);
+  const model = scenario?.models.find(m => m.id === id);
 
-  if (!model) return <NotFound />;
+  if (!scenario || !model) return <NotFound />;
 
   if (model.status === "error") {
     return (
       <div className="p-8 max-w-4xl mx-auto">
         <header className="mb-8">
+          <Badge variant="outline" className="mb-2">{scenario.label}</Badge>
           <h1 className="text-3xl font-bold mb-2">{model.label}</h1>
           <p className="text-muted-foreground font-mono text-sm">{model.model} • {model.provider}</p>
         </header>
@@ -47,6 +49,7 @@ export default function ModelDetail() {
     <div className="p-6 md:p-8 max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
       <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
+          <Badge variant="outline" className="mb-2">{scenario.label}</Badge>
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-3xl font-bold">{model.label}</h1>
             <Badge variant="outline" className="font-mono">{model.model}</Badge>

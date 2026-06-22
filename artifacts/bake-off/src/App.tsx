@@ -13,7 +13,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
-      <Route path="/model/:id" component={ModelDetail} />
+      <Route path="/model/:scenarioId/:id" component={ModelDetail} />
       <Route component={NotFound} />
     </Switch>
   );

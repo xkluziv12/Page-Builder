@@ -1,0 +1,125 @@
+import type { RunContext } from "@workspace/mc-core";
+
+/**
+ * The "GMB-enriched" scenario for the bake-off.
+ *
+ * In the production (No-GMB) context, the run context deliberately omits an
+ * explicit page_url and any Google Business Profile (GMB) data — STS spoke
+ * pages target a service-area city, not a verified physical storefront. Three
+ * of the four models build anyway under that context; GPT refused, asking for
+ * the page_url + GMB block before it would build.
+ *
+ * This module supplies a SECOND, symmetric experiment: hand EVERY model the
+ * exact same enriched context (explicit page_url + a GMB data block) so we can
+ * see whether the refusing model builds well once given the inputs it demands —
+ * a fair re-run, not an OpenAI-only prompt hack.
+ *
+ * The GMB values below are EXPERIMENTAL / illustrative for this comparison, not
+ * verified ground truth. They are labelled as such in the context block so the
+ * fail-loud / no-fabrication convention is respected: the experiment measures
+ * build behaviour given a well-formed GMB block, it does not assert these are
+ * STS's real verified location details. The phone uses the reserved-fictional
+ * 555-01xx range; the CID and street address are placeholders.
+ */
+export interface GmbProfile {
+  pageUrl: string;
+  gmbUrl: string;
+  cid: string;
+  businessName: string;
+  street: string;
+  city: string;
+  state: string;
+  zip: string;
+  county: string;
+  phone: string;
+  neighborhoods: string[];
+  landmark: string;
+  lat: number;
+  lng: number;
+  hours: string;
+}
+
+export const BILLINGS_GMB: GmbProfile = {
+  pageUrl: "https://www.stselectronicrecyclinginc.com/billings-mt",
+  gmbUrl: "https://www.google.com/maps?cid=12127465100000000000",
+  cid: "cid:12127465100000000000",
+  businessName: "STS Electronic Recycling — Billings",
+  street: "1234 Industrial Ave",
+  city: "Billings",
+  state: "MT",
+  zip: "59101",
+  county: "Yellowstone County",
+  phone: "(406) 555-0142",
+  neighborhoods: ["Downtown Billings", "Billings Heights", "West End"],
+  landmark: "near Billings Logan International Airport",
+  lat: 45.7833,
+  lng: -108.5007,
+  hours: "Mon-Fri 8:00-17:00",
+};
+
+/**
+ * The enriched-context suffix appended AFTER the production `describeContext`
+ * output. It is added only inside the harness — the shipped `describeContext`
+ * prod path is never modified — so the No-GMB scenario stays a faithful
+ * reproduction of production while this scenario adds the explicit page_url +
+ * GMB block on top.
+ */
+export function gmbContextSuffix(p: GmbProfile): string {
+  return [
+    "",
+    "",
+    "[EXPERIMENTAL ENRICHED CONTEXT — explicit page_url + Google Business Profile (GMB) block.",
+    "These GMB details are illustrative inputs for a fair, symmetric re-run comparison, NOT verified",
+    "ground-truth location data. Every model in this scenario receives this identical block.]",
+    "",
+    `page_url: ${p.pageUrl}`,
+    `gmb_url: ${p.gmbUrl}`,
+    `gmb_cid: ${p.cid}`,
+    "GMB data:",
+    `- Business name: ${p.businessName}`,
+    `- Address: ${p.street}, ${p.city}, ${p.state} ${p.zip}`,
+    `- County: ${p.county}`,
+    `- Phone: ${p.phone}`,
+    `- Neighborhoods: ${p.neighborhoods.join(", ")}`,
+    `- Landmark: ${p.landmark}`,
+    `- Coordinates: ${p.lat}, ${p.lng}`,
+    `- Hours: ${p.hours}`,
+  ].join("\n");
+}
+
+/**
+ * GMB-aware deterministic LocalBusiness JSON-LD for the enriched scenario.
+ * Mirrors `generateLocalBusinessSchema` but, because this scenario has a GMB
+ * block, it can emit the full PostalAddress (street + ZIP), the verified CID
+ * identifier, telephone, geo coordinates and a `hasMap`/`sameAs` ?cid= URL —
+ * exactly what a HUB/GMB schema carries that a No-GMB spoke schema cannot.
+ * Still deterministic and identical across models, so it is not a model
+ * differentiator.
+ */
+export function generateGmbSchema(ctx: RunContext, p: GmbProfile): string {
+  const schema = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    name: p.businessName,
+    url: p.pageUrl,
+    identifier: p.cid,
+    telephone: p.phone,
+    areaServed: { "@type": "City", name: p.city },
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: p.street,
+      addressLocality: p.city,
+      addressRegion: p.state,
+      postalCode: p.zip,
+      addressCountry: "US",
+    },
+    geo: { "@type": "GeoCoordinates", latitude: p.lat, longitude: p.lng },
+    hasMap: p.gmbUrl,
+    sameAs: [p.gmbUrl],
+    makesOffer: ctx.registry.sacredLinks.map((l) => ({
+      "@type": "Offer",
+      itemOffered: { "@type": "Service", name: l.label, url: l.url },
+    })),
+  };
+  return JSON.stringify(schema, null, 2);
+}

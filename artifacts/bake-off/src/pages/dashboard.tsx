@@ -1,5 +1,6 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { BakeoffResults, ModelResult } from "@/types";
+import { BakeoffResults, ModelResult, ScenarioResult } from "@/types";
 import resultsData from "@/data/results.json";
 import { Link } from "wouter";
 import { ChevronRight, Clock, AlertTriangle, CheckCircle2 } from "lucide-react";
@@ -8,8 +9,16 @@ import { Badge } from "@/components/ui/badge";
 const results = resultsData as BakeoffResults;
 
 export default function Dashboard() {
+  const [activeId, setActiveId] = useState(results.scenarios[0]?.id ?? "");
+  const scenario =
+    results.scenarios.find((s) => s.id === activeId) ?? results.scenarios[0];
+
+  if (!scenario) {
+    return <div className="p-8 text-muted-foreground">No scenarios recorded.</div>;
+  }
+
   // Sort models by composite score descending, putting errors at the bottom
-  const sortedModels = [...results.models].sort((a, b) => {
+  const sortedModels = [...scenario.models].sort((a, b) => {
     if (a.status === "error" && b.status !== "error") return 1;
     if (b.status === "error" && a.status !== "error") return -1;
     const scoreA = a.scores?.composite ?? -1;
@@ -19,39 +28,66 @@ export default function Dashboard() {
 
   return (
     <div className="p-8 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <header className="mb-10">
+      <header className="mb-8">
         <h1 className="text-4xl font-bold tracking-tight mb-2">Model Leaderboard</h1>
         <p className="text-muted-foreground">
           Comparing LLM performance for page generation against {results.target.city}, {results.target.state}
         </p>
       </header>
 
+      {/* Scenario switcher */}
+      <div className="mb-6">
+        <div className="inline-flex p-1 rounded-lg bg-card/60 border border-border/60 gap-1">
+          {results.scenarios.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => setActiveId(s.id)}
+              className={`px-4 py-2 text-sm rounded-md transition-colors font-medium ${
+                s.id === scenario.id
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/10"
+              }`}
+              data-testid={`scenario-tab-${s.id}`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
+        <p className="text-sm text-muted-foreground mt-3 max-w-3xl">{scenario.description}</p>
+      </div>
+
       <div className="grid gap-6">
         {sortedModels.map((model, index) => (
-          <ModelRankCard key={model.id} model={model} rank={index + 1} />
+          <ModelRankCard key={model.id} model={model} rank={index + 1} scenarioId={scenario.id} />
         ))}
       </div>
 
-      <div className="mt-12 pt-8 border-t border-border">
-        <h3 className="text-lg font-semibold mb-4">Run Caveats & Notes</h3>
-        <div className="grid gap-3">
-          {results.notes.map((note, i) => (
-            <div key={i} className="flex gap-3 items-start text-sm text-muted-foreground bg-card/50 p-3 rounded-md border border-border/50">
-              <span className="text-primary font-mono mt-0.5 shrink-0">{i + 1}.</span>
-              <p>{note}</p>
-            </div>
-          ))}
-        </div>
+      <ScenarioNotes scenario={scenario} />
+    </div>
+  );
+}
+
+function ScenarioNotes({ scenario }: { scenario: ScenarioResult }) {
+  return (
+    <div className="mt-12 pt-8 border-t border-border">
+      <h3 className="text-lg font-semibold mb-4">Run Caveats & Notes</h3>
+      <div className="grid gap-3">
+        {scenario.notes.map((note, i) => (
+          <div key={i} className="flex gap-3 items-start text-sm text-muted-foreground bg-card/50 p-3 rounded-md border border-border/50">
+            <span className="text-primary font-mono mt-0.5 shrink-0">{i + 1}.</span>
+            <p>{note}</p>
+          </div>
+        ))}
       </div>
     </div>
   );
 }
 
-function ModelRankCard({ model, rank }: { model: ModelResult, rank: number }) {
+function ModelRankCard({ model, rank, scenarioId }: { model: ModelResult; rank: number; scenarioId: string }) {
   const isError = model.status === "error";
 
   return (
-    <Link href={`/model/${model.id}`} className="block group">
+    <Link href={`/model/${scenarioId}/${model.id}`} className="block group">
       <Card className={`relative overflow-hidden transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 bg-card/40 backdrop-blur-sm border-border/50 ${isError ? 'opacity-80' : ''}`}>
         
         {/* Rank Badge */}
