@@ -147,8 +147,8 @@ export default function PromptManager() {
         <div>
           <h1 className="pm-title">Prompt Manager</h1>
           <p className="pm-subtitle">
-            Edit a master prompt and publish it to the database, GitHub, and
-            Google Drive in one click.
+            Edit a master prompt and publish it to the database and Google Drive
+            in one click.
           </p>
         </div>
         <button
@@ -284,9 +284,8 @@ export default function PromptManager() {
                       Published v{publishResult.prompt.version} — per-target
                       status
                     </h4>
-                    <StatusRow label="GitHub" status={publishResult.git} />
                     <StatusRow label="Google Drive" status={publishResult.drive} />
-                    {(!publishResult.git.ok || !publishResult.drive.ok) && (
+                    {!publishResult.drive.ok && (
                       <p className="pm-muted">
                         The database copy is saved. Fix the failing target and
                         click Publish again to retry it.

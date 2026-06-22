@@ -10,6 +10,5 @@ import type { TargetStatus } from './targetStatus';
 
 export interface PublishResult {
   prompt: Prompt;
-  git: TargetStatus;
   drive: TargetStatus;
 }

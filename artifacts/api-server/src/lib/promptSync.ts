@@ -1,7 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db, promptsTable, promptPublishesTable } from "@workspace/db";
 import type { Prompt } from "@workspace/db";
-import { commitPromptFile } from "./github";
 import { writePromptFile } from "./googleDrive";
 
 export type TargetResult = {
@@ -12,37 +11,30 @@ export type TargetResult = {
 
 export type PublishOutcome = {
   prompt: Prompt;
-  git: TargetResult;
   drive: TargetResult;
 };
 
 /**
- * Publish a prompt to both durable masters (GitHub + Google Drive).
+ * Publish a prompt to the durable master (Google Drive).
  *
  * The DB row is assumed to already hold the content to publish and the bumped
- * version. Git and Drive are treated as fully independent targets: each runs
- * regardless of the other's outcome, neither can throw, and a per-target status
- * is returned so the UI can surface partial success without a silent fallback.
- * A successful Drive write persists the (possibly new) file id mapping, and the
+ * version. Drive runs as an independent target: it never throws, and a status
+ * is returned so the UI can surface failure without a silent fallback. A
+ * successful Drive write persists the (possibly new) file id mapping, and the
  * attempt is recorded in the publish history.
+ *
+ * NOTE: prompts are authored upstream in GITHUB_SOURCE_REPO and pulled into the
+ * DB read-only by the git auto-sync. There is intentionally no outbound GitHub
+ * publish here — the source repo is the durable git master.
  */
 export async function publishPromptTargets(
   prompt: Prompt,
 ): Promise<PublishOutcome> {
-  const commitMessage = `${brandLabel(prompt.brand)} — ${prompt.name} (v${prompt.version})`;
-
-  const [git, drive] = await Promise.all([
-    commitPromptFile({
-      path: prompt.gitPath,
-      content: prompt.content,
-      message: commitMessage,
-    }).catch((err: unknown) => failure(err)),
-    writePromptFile({
-      fileId: prompt.driveFileId,
-      name: `${brandLabel(prompt.brand)} — ${prompt.name}.md`,
-      content: prompt.content,
-    }).catch((err: unknown) => failure(err)),
-  ]);
+  const drive = await writePromptFile({
+    fileId: prompt.driveFileId,
+    name: `${brandLabel(prompt.brand)} — ${prompt.name}.md`,
+    content: prompt.content,
+  }).catch((err: unknown) => failure(err));
 
   let updated = prompt;
 
@@ -56,8 +48,8 @@ export async function publishPromptTargets(
     if (row) updated = row;
   }
 
-  // Stamp last published time when at least one master succeeded.
-  if (git.ok || drive.ok) {
+  // Stamp last published time when the master succeeded.
+  if (drive.ok) {
     const [row] = await db
       .update(promptsTable)
       .set({ lastPublishedAt: new Date() })
@@ -69,15 +61,12 @@ export async function publishPromptTargets(
   await db.insert(promptPublishesTable).values({
     promptId: prompt.id,
     version: prompt.version,
-    gitStatus: git.ok ? "ok" : "failed",
-    gitDetail: git.detail,
-    gitCommitSha: git.reference,
     driveStatus: drive.ok ? "ok" : "failed",
     driveDetail: drive.detail,
     driveFileId: drive.reference ?? prompt.driveFileId,
   });
 
-  return { prompt: updated, git, drive };
+  return { prompt: updated, drive };
 }
 
 function failure(err: unknown): TargetResult {

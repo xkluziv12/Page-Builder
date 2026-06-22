@@ -1,22 +1,31 @@
 ---
 name: Prompt Manager publish/sync
-description: How the Prompt Manager publishes to its three targets (DB, GitHub, Google Drive) and the Replit connector proxy pattern it relies on.
+description: How the Prompt Manager publishes (DB + Google Drive; outbound GitHub backup removed) and the Replit connector proxy pattern it relies on.
 ---
 
-# Prompt Manager — Publish to 3 targets
+# Prompt Manager — Publish to DB + Drive
 
-Publishing a prompt fans out to three independent targets: the app database,
-a private GitHub repo (versioned), and a Google Drive folder (VA-facing copies).
+Publishing a prompt writes to the app database and a Google Drive folder
+(VA-facing copies).
+
+**Outbound GitHub "backup repo" publish was REMOVED.** Prompts are authored
+upstream in `GITHUB_SOURCE_REPO` (`xkluziv12/master-prompts`) and pulled into the
+DB read-only by the inbound auto-sync — that source repo IS the durable git
+master, so a second app-written backup repo (`page-terminal-prompts`) was
+redundant. The whole outbound commit path + `GITHUB_PROMPTS_REPO`/`_BRANCH` env
+were removed (`commitPromptFile` gone; `PublishOutcome`/`PublishResult` are
+`{ prompt, drive }`; `prompt_publishes` dropped its `git_*` columns).
+**Why:** single source of truth lives upstream; an app-pushed copy only invited
+drift and a write-boundary risk toward the parallel dashboard's repos.
 
 ## Design rules (keep these)
-- **No auto-publish.** Nothing ever syncs to GitHub/Drive on its own. A push
-  only happens when an admin clicks **Publish** (admin-token gated). Saving edits
-  and publishing are separate, deliberate actions.
-- **DB first, then fan out.** The row is saved and its version bumped before the
-  external targets run. git + drive run in parallel and are fully independent:
-  neither can throw (failures are caught into a per-target status), so a partial
-  failure never aborts the others and is always retryable. No silent fallback —
-  the UI shows per-target ok/fail.
+- **No auto-publish.** Nothing ever syncs to Drive on its own. A push only
+  happens when an admin clicks **Publish** (admin-token gated). Saving edits and
+  publishing are separate, deliberate actions.
+- **DB first, then publish.** The row is saved and its version bumped before the
+  Drive write runs. Drive can't throw (failures are caught into a per-target
+  status), so a failure never loses the DB copy and is always retryable. No
+  silent fallback — the UI shows the Drive ok/fail status.
 - A new Drive file's id is persisted back to the prompt row (`driveFileId`) so
   future publishes update in place instead of creating duplicates.
 
@@ -34,14 +43,10 @@ vendor SDKs directly. Install `@replit/connectors-sdk` and call:
 - Note: the connected google-drive connector actually has **broader-than-`drive.file`
   read** scope — it CAN list/export the user's pre-existing Docs (used to import
   the real master content). The app still creates its own copies for publishing.
-- GitHub commit = GET contents for the existing blob SHA (404 = new file), then
-  PUT `/contents/{path}` with base64 content + branch (+ sha when updating).
+- GitHub is now used **read-only** (inbound source sync only — see below). There
+  is no outbound GitHub commit path anymore.
 
 ## Config (env)
-- `GITHUB_PROMPTS_REPO` = WRITE/backup target. **MUST be `xkluziv12/page-terminal-prompts`
-  (ours, private). NEVER `xkluziv12/master-prompts`** — that repo + `xkluziv12/framework`
-  belong to the parallel SolveMy.AI dashboard project; writing to them is a hard
-  boundary violation (reads are OK). Branch auto via `GITHUB_PROMPTS_BRANCH`.
 - `GITHUB_SOURCE_REPO` = READ-ONLY source of truth (`xkluziv12/master-prompts`),
   branch via `GITHUB_SOURCE_BRANCH` (default main). Inbound auto-sync reads from here.
 - `GIT_SYNC_INTERVAL_MS` poll interval (default 10s, min 3s).

@@ -780,13 +780,12 @@ export interface PublishPromptRequest {
 export interface TargetStatus {
   ok: boolean;
   detail: string;
-  /** Commit SHA for git, file id for drive. */
+  /** Google Drive file id. */
   reference?: string | null;
 }
 
 export interface PublishResult {
   prompt: Prompt;
-  git: TargetStatus;
   drive: TargetStatus;
 }
 

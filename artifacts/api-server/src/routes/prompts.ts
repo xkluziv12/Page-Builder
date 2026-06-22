@@ -197,7 +197,6 @@ router.post(
     res.json(
       PublishPromptResponse.parse({
         prompt: outcome.prompt,
-        git: outcome.git,
         drive: outcome.drive,
       }),
     );

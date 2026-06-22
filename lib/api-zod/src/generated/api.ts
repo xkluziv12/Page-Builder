@@ -1652,7 +1652,7 @@ export const UpdatePromptResponse = zod.object({
 
 
 /**
- * Persist the prompt content to the DB, then commit it to GitHub and write it to Google Drive. Each target reports its own success/failure status. Requires admin bearer token.
+ * Persist the prompt content to the DB, then write it to Google Drive. The Drive target reports its own success/failure status. Requires admin bearer token.
 
  * @summary Publish a prompt (admin)
  */
@@ -1679,15 +1679,10 @@ export const PublishPromptResponse = zod.object({
   "updatedAt": zod.coerce.date(),
   "lastPublishedAt": zod.coerce.date().nullish()
 }),
-  "git": zod.object({
-  "ok": zod.boolean(),
-  "detail": zod.string(),
-  "reference": zod.string().nullish().describe('Commit SHA for git, file id for drive.')
-}),
   "drive": zod.object({
   "ok": zod.boolean(),
   "detail": zod.string(),
-  "reference": zod.string().nullish().describe('Commit SHA for git, file id for drive.')
+  "reference": zod.string().nullish().describe('Google Drive file id.')
 })
 })
 

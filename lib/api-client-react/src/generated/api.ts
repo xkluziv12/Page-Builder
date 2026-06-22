@@ -2183,7 +2183,7 @@ export const getPublishPromptUrl = (id: number,) => {
 }
 
 /**
- * Persist the prompt content to the DB, then commit it to GitHub and write it to Google Drive. Each target reports its own success/failure status. Requires admin bearer token.
+ * Persist the prompt content to the DB, then write it to Google Drive. The Drive target reports its own success/failure status. Requires admin bearer token.
 
  * @summary Publish a prompt (admin)
  */

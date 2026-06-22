@@ -47,9 +47,6 @@ export const promptPublishesTable = pgTable("prompt_publishes", {
     .notNull()
     .references(() => promptsTable.id, { onDelete: "cascade" }),
   version: integer("version").notNull(),
-  gitStatus: text("git_status").notNull(),
-  gitDetail: text("git_detail"),
-  gitCommitSha: text("git_commit_sha"),
   driveStatus: text("drive_status").notNull(),
   driveDetail: text("drive_detail"),
   driveFileId: text("drive_file_id"),
