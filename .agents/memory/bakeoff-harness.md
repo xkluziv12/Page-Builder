@@ -40,9 +40,36 @@ stale and re-run:
   markdown "EXECUTION CHECKLIST" narration instead of an HTML document, so the
   harness failed loudly at HTML extraction. Who balks flipped purely from the
   credential set, with the same prompts.
-This is real model behavior, not a harness bug; never "fix" it by injecting inputs
-or coaxing one model. Each phase (Build/Audit/Schema) must return the contracted
-HTML; commentary/checklist output is a legitimate ERROR.
+WHO balks is real model behavior — never "fix" it by injecting inputs or coaxing
+one model. But the Gemini AUDIT narration specifically is root-caused below
+(chat-UI delivery directives in the shared master prompt) and DOES have a
+legitimate uniform fix — see "Root cause: audit narration" — because it neutralizes
+a headless-incompatible directive for ALL models equally, not for one model.
+
+## Root cause: audit narration = master prompt's chat-UI delivery directives, not a model defect
+The shared production `seoAuditPrompt`'s `<PHASE_3_OUTPUT>` was authored for
+Claude's chat + artifacts UI: it mandates "display an EXECUTION CHECKLIST in chat
+BEFORE presenting files" and "Use present_files to deliver HTML". The bake-off is
+a headless API call with NO `present_files` tool and NO chat surface, so a model
+that follows the SYSTEM prompt literally emits the checklist as its whole reply
+and never inlines `<!DOCTYPE html>` → `extractHtmlDocument` throws. This is what
+"Gemini narrated instead of returning HTML" actually was — and it is
+**non-deterministic**: the same Gemini call sometimes inlines a full doc,
+sometimes emits the checklist/HARD-STOP text bare (verified live — repeated runs
+flip between ✓ HTML and ✗ narration on the identical prompt). Models weight
+system-vs-user instructions differently, so the mini-prompt's own "output only
+HTML" user rule does NOT reliably beat the system prompt.
+**Fix (uniform, apples-to-apples):** a `HEADLESS_DELIVERY_CONTRACT` appended to
+every build+audit user message in `engine.ts` for ALL models/scenarios — the
+SAME faithful "chat-UI rule → API intent" translation already used for the
+"CREATE AS ARTIFACT" rule. This is NOT per-model coaxing and NOT injecting
+inputs, so it stays a fair comparison.
+**Why not edit the prompt:** `seoAuditPrompt`/`pageBuilderPrompt` are shared
+mc-core prod prompts used by the shipped ClaudeEngine; neutralize the chat-UI
+directives at the harness boundary, never in mc-core.
+**Re-run note:** the recorded `results.json` snapshot was generated WITHOUT the
+contract; keep snapshots internally consistent — a full re-run with the contract
+applies it to every model at once, never mix contracted + non-contracted results.
 
 ## Gotcha: HTML extraction must anchor on the REAL doc, not the page-builder comment
 `extractHtmlDocument` (`scripts/src/bakeoff/extract.ts`) slices from a start

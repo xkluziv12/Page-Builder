@@ -17,6 +17,36 @@ import type { CompleteFn } from "./providers";
  * GMB block — can be handed identically to every model. `schemaFn` overrides
  * the deterministic No-GMB schema for scenarios that carry GMB data.
  */
+/**
+ * Headless delivery contract — appended IDENTICALLY to every build/audit user
+ * message, for every model and every scenario. The shared production master
+ * prompts (`pageBuilderPrompt` / `seoAuditPrompt`) were authored for Claude's
+ * chat + artifacts UI: the SEO Audit prompt's `<PHASE_3_OUTPUT>` mandates
+ * "display an EXECUTION CHECKLIST in chat BEFORE presenting files" and "Use
+ * present_files to deliver HTML". This API harness has no `present_files` tool
+ * and no chat surface, so a model that follows the SYSTEM prompt literally emits
+ * the checklist narration as its whole reply and never inlines the document —
+ * which is exactly how Gemini failed the No-GMB audit (XML-comment + markdown
+ * "EXECUTION CHECKLIST" narration, no `<!DOCTYPE html>`, so extraction threw).
+ *
+ * Models weight system-vs-user instructions differently, so the mini prompt's
+ * own "output only HTML" rule does not reliably win against the master prompt's
+ * chat-UI directives. This contract neutralizes those directives at the harness
+ * boundary — the SAME faithful "chat-UI rule → API intent" translation already
+ * applied to the "CREATE AS ARTIFACT, never paste code in chat" rule. It is
+ * appended uniformly to all models and both scenarios, so the comparison stays
+ * apples-to-apples: the controlled variable (the prompt) changes identically for
+ * everyone, never per-model.
+ */
+const HEADLESS_DELIVERY_CONTRACT = `
+
+────────────────────────────────────────
+HEADLESS OUTPUT CONTRACT (overrides any conflicting delivery instruction above):
+- There is NO present_files tool, NO file attachment, and NO chat surface here, so any instruction to "display a checklist in chat", "present files", or "use present_files" cannot apply — do NOT attempt it.
+- Do NOT emit an execution checklist, status report, Joomla meta block, summary line, or any prose/narration.
+- Your ENTIRE response must BE the complete HTML document itself: the very first character is the "<" of <!DOCTYPE html> and the very last characters are </html>.
+- No markdown, no code fences, no XML or tool-call wrapper around the document.`;
+
 export interface EngineScenarioOptions {
   contextSuffix?: string;
   schemaFn?: (ctx: RunContext) => string;
@@ -72,18 +102,21 @@ export class GenericLlmEngine implements AIEngine {
 
   async buildPage(ctx: RunContext): Promise<EngineResult> {
     const context = this.describe(ctx);
-    const user = this.buildUser
-      ? this.buildUser(ctx, context)
-      : `Build the page for the following job:\n\n${context}`;
+    const user =
+      (this.buildUser
+        ? this.buildUser(ctx, context)
+        : `Build the page for the following job:\n\n${context}`) + HEADLESS_DELIVERY_CONTRACT;
     const r = await this.complete(pageBuilderPrompt, user);
     return { content: extractHtmlDocument(r.raw, `${this.name} build`), raw: r.raw };
   }
 
   async auditPage(ctx: RunContext, currentHtml: string): Promise<EngineResult> {
     const context = this.describe(ctx);
-    const user = this.auditUser
-      ? this.auditUser(ctx, context, currentHtml)
-      : `Audit and improve the following page. Return the full corrected HTML.\n\nContext:\n${context}\n\nCurrent HTML:\n${currentHtml}`;
+    const user =
+      (this.auditUser
+        ? this.auditUser(ctx, context, currentHtml)
+        : `Audit and improve the following page. Return the full corrected HTML.\n\nContext:\n${context}\n\nCurrent HTML:\n${currentHtml}`) +
+      HEADLESS_DELIVERY_CONTRACT;
     const r = await this.complete(seoAuditPrompt, user);
     return { content: extractHtmlDocument(r.raw, `${this.name} audit`), raw: r.raw };
   }
