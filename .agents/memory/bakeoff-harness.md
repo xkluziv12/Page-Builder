@@ -27,14 +27,68 @@ With a high `max_tokens` budget (we use 32000 for full SEO pages) the SDK throws
 **Fix:** use `client.messages.stream({...})` then `await stream.finalMessage()`.
 **How to apply:** any Anthropic call with a large token budget must stream.
 
-## Finding: OpenAI refuses the No-GMB production context; the others build it
+## Finding: which model "refuses/fails" No-GMB is NOT stable — re-run, don't assume
 Production `describeContext` (in mc-core, shared by the shipped ClaudeEngine)
 deliberately omits an explicit `page_url`/GMB block — it derives the page from
-city + base domain. Under that identical No-GMB context BOTH GPT-5.4 and the
-newer GPT-5.5 refuse to build, returning a "⛔ Build blocked / required inputs
-missing" stub that lists page_url + GMB data as blockers, while Claude, Gemini,
-and Grok all produce full pages. This is a real model-behavior difference, not a
-harness bug; do not "fix" it by injecting inputs only OpenAI wants.
+city + base domain. WHICH model balks under this identical No-GMB context shifts
+with the model version AND the credential set, so treat any past leaderboard as
+stale and re-run:
+- On the OLD shared/proxy keys: both GPT-5.4 and GPT-5.5 refused No-GMB with a
+  "⛔ Build blocked / required inputs missing" stub, while Claude/Gemini/Grok built.
+- On the user's OWN direct keys: that same OpenAI model instead BUILT No-GMB,
+  while **Gemini became the ERROR** — its AUDIT phase returned an XML-comment +
+  markdown "EXECUTION CHECKLIST" narration instead of an HTML document, so the
+  harness failed loudly at HTML extraction. Who balks flipped purely from the
+  credential set, with the same prompts.
+This is real model behavior, not a harness bug; never "fix" it by injecting inputs
+or coaxing one model. Each phase (Build/Audit/Schema) must return the contracted
+HTML; commentary/checklist output is a legitimate ERROR.
+
+## Gotcha: HTML extraction must anchor on the REAL doc, not the page-builder comment
+`extractHtmlDocument` (`scripts/src/bakeoff/extract.ts`) slices from a start
+marker to the last `</html>`. Claude echoes the `<!-- PAGE_BUILDER_V3 -->`
+directive at the TOP of its phase-by-phase narration, then writes ~tens-of-KB of
+"## PHASE 0A…" prose BEFORE the real `<!DOCTYPE html>`. If the page-builder
+comment is a primary start marker, the slice anchors on it and stores all that
+narration as the "page" — the viewer iframe then renders prose, and every
+content score (htmlMatch/wordCount/structure/visual) is computed on the polluted
+HTML (dragged Claude's composite ~12 pts low).
+**Fix/rule:** prefer real document markers (`<!doctype html`/`<html`); use the
+`<!-- page_builder` comment only as a FALLBACK when no real doc marker exists.
+Keep this uniform across all models (no per-model special-casing).
+**Recovery without re-running the LLM:** the real document is fully contained in
+the stored html, so re-slicing recovers it — but pipeline-derived scores
+(audit/links/schema) come from the run, so cleanest is to delete just that
+model's entry and resume (grounding is persisted + reused, so it stays
+apples-to-apples), then re-run the visual rescore.
+
+## The real VA workflow forces per-phase "mini prompts" the prod pipeline dropped
+The old checklist tool (`artifacts/page-terminal/public/tools/no-gmb.html`,
+`copyPrompt()`) is the source of truth for how a VA actually drives Claude: at
+EACH phase the VA pastes a "mini prompt" ALONGSIDE the master prompt (which is an
+uploaded FILE). The mini prompt carries (a) a forced-execution prefix
+("CRITICAL SYSTEM INSTRUCTION: Execute ALL steps… Do NOT summarize… Do NOT skip"),
+(b) the NO-GMB rules + hero/form/Master-Design execution instructions, and
+(c) the narration-killer "CREATE AS ARTIFACT, never paste code in chat".
+The production `mc-core` pipeline AND the original bake-off both DROPPED these —
+they sent only the master prompt as system + a generic "Build the page…" user
+msg. That omission is why models narrated and the design drifted.
+**Fix:** ported the mini prompts into `scripts/src/bakeoff/miniPrompts.ts`,
+forced via `EngineScenarioOptions.buildUser/auditUser` (engine falls back to the
+generic msg when unset), wired to the no-gmb scenario in `run.ts`. Two faithful,
+UNIFORM adaptations (no per-model special-casing): the chat-UI "create as
+artifact" → API "return ONLY the complete HTML document, no commentary"; the
+Claude-only model-check is dropped. The seo-verify checklist is folded into the
+audit step (no extra phase). Since the harness is stateless one-shot per phase,
+the intro's session RULES are repeated in every step.
+**Why it matters:** forcing these flipped outcomes — Gemini went from a hard
+ERROR (audit returned a markdown checklist) to a clean build, while Claude scored
+LOWER (it obeys "minor tweaks only", changing less → low audit score). That's the
+point: the comparison now measures models *under the rules the real tool forces*.
+**Open gap:** production `mc-core` engines still don't force these mini prompts;
+only the bake-off no-gmb scenario does. The Master Design (Tier 2) file the intro
+uploads is NOT in this repo, so design fidelity is bounded by the page-builder
+master prompt's inline design rules.
 
 ## Design: two scenarios, ONE shared grounding, enrichment is the only variable
 The harness runs the same models twice as `scenarios` (`no-gmb`, `gmb`). The GMB

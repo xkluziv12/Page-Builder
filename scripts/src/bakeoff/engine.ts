@@ -20,6 +20,16 @@ import type { CompleteFn } from "./providers";
 export interface EngineScenarioOptions {
   contextSuffix?: string;
   schemaFn?: (ctx: RunContext) => string;
+  /**
+   * Per-phase "mini prompt" the VA pastes alongside the master prompt in the
+   * real checklist tool (forced-execution wrapper + "output only the HTML"
+   * rule). When set, it replaces the generic phase instruction as the engine's
+   * `user` message. Applied identically to every model in the scenario, so the
+   * comparison stays apples-to-apples. Falls back to the generic instruction
+   * when unset.
+   */
+  buildUser?: (ctx: RunContext, context: string) => string;
+  auditUser?: (ctx: RunContext, context: string, currentHtml: string) => string;
 }
 
 /**
@@ -39,12 +49,20 @@ export class GenericLlmEngine implements AIEngine {
   private readonly complete: CompleteFn;
   private readonly contextSuffix: string;
   private readonly schemaFn: (ctx: RunContext) => string;
+  private readonly buildUser?: (ctx: RunContext, context: string) => string;
+  private readonly auditUser?: (
+    ctx: RunContext,
+    context: string,
+    currentHtml: string,
+  ) => string;
 
   constructor(name: string, complete: CompleteFn, opts: EngineScenarioOptions = {}) {
     this.name = name;
     this.complete = complete;
     this.contextSuffix = opts.contextSuffix ?? "";
     this.schemaFn = opts.schemaFn ?? generateLocalBusinessSchema;
+    this.buildUser = opts.buildUser;
+    this.auditUser = opts.auditUser;
   }
 
   /** Production context plus any scenario-specific enrichment suffix. */
@@ -53,20 +71,20 @@ export class GenericLlmEngine implements AIEngine {
   }
 
   async buildPage(ctx: RunContext): Promise<EngineResult> {
-    const r = await this.complete(
-      pageBuilderPrompt,
-      `Build the page for the following job:\n\n${this.describe(ctx)}`,
-    );
+    const context = this.describe(ctx);
+    const user = this.buildUser
+      ? this.buildUser(ctx, context)
+      : `Build the page for the following job:\n\n${context}`;
+    const r = await this.complete(pageBuilderPrompt, user);
     return { content: extractHtmlDocument(r.raw, `${this.name} build`), raw: r.raw };
   }
 
   async auditPage(ctx: RunContext, currentHtml: string): Promise<EngineResult> {
-    const r = await this.complete(
-      seoAuditPrompt,
-      `Audit and improve the following page. Return the full corrected HTML.\n\nContext:\n${this.describe(
-        ctx,
-      )}\n\nCurrent HTML:\n${currentHtml}`,
-    );
+    const context = this.describe(ctx);
+    const user = this.auditUser
+      ? this.auditUser(ctx, context, currentHtml)
+      : `Audit and improve the following page. Return the full corrected HTML.\n\nContext:\n${context}\n\nCurrent HTML:\n${currentHtml}`;
+    const r = await this.complete(seoAuditPrompt, user);
     return { content: extractHtmlDocument(r.raw, `${this.name} audit`), raw: r.raw };
   }
 

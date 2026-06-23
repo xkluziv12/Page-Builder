@@ -21,6 +21,7 @@ import {
 } from "./providers.js";
 import { generateSharedGrounding, researchProviderFor, type SharedGrounding } from "./grounding.js";
 import { BILLINGS_GMB, gmbContextSuffix, generateGmbSchema } from "./gmb.js";
+import { noGmbBuildUser, noGmbAuditUser } from "./miniPrompts.js";
 import { scoreModels } from "./score.js";
 import { judgeVisual, type VisualVerdict } from "./visual.js";
 import type { BakeoffResults, ModelResult, ScenarioResult } from "./types.js";
@@ -95,9 +96,16 @@ const SCENARIOS: ScenarioSpec[] = [
     label: "No-GMB (production context)",
     description:
       "The exact production context a VA runs today: city/state targeting only, NO explicit page_url and NO GMB block.",
-    engineOptions: {},
+    engineOptions: {
+      // Force the real checklist's per-phase mini prompts (forced-execution
+      // wrapper + "output only the HTML" rule) alongside each master prompt —
+      // identical for every model, so it stays apples-to-apples.
+      buildUser: noGmbBuildUser,
+      auditUser: noGmbAuditUser,
+    },
     buildContext: baseContext,
     notes: [
+      "Each phase forces the old checklist's mini prompt ALONGSIDE the master prompt: the 'CRITICAL SYSTEM INSTRUCTION: execute all steps…' forced-execution wrapper, the NO-GMB rules, and the 'return ONLY the complete HTML document, no commentary' rule (the API-faithful translation of the tool's 'create as artifact, never paste code in chat'). Identical for every model — apples-to-apples.",
       "This is the faithful production reproduction. The context deliberately omits an explicit page_url and any Google Business Profile (GMB) block — STS spoke pages target a service-area city, not a verified storefront.",
       "Schema is the deterministic No-GMB LocalBusiness (city/state only, NO CID, NO street address) — exactly what the VA's 'Auto-Generate Schema' button emits in No-GMB mode.",
       "If a model refuses to build under this context (asking for page_url / GMB data first), that refusal is recorded faithfully as an ERROR — it is NOT patched away, because special-casing one model's prompt would break the apples-to-apples comparison.",
@@ -120,6 +128,22 @@ const SCENARIOS: ScenarioSpec[] = [
     ],
   },
 ];
+
+/**
+ * Optional scenario filter (comma-separated scenario ids, e.g. `no-gmb`). When
+ * set via `BAKEOFF_SCENARIOS`, only the listed scenarios are run/persisted; the
+ * default runs every scenario. This only narrows WHICH scenarios run — it never
+ * changes a scenario's context, prompts, or schema, so each scenario stays a
+ * faithful reproduction. Fails loudly if a filter names no known scenario.
+ */
+const SCENARIO_FILTER = (process.env.BAKEOFF_SCENARIOS ?? "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+const ACTIVE_SCENARIOS = SCENARIO_FILTER.length
+  ? SCENARIOS.filter((s) => SCENARIO_FILTER.includes(s.id))
+  : SCENARIOS;
 
 /**
  * Resumable per-model run state, loaded from a prior results.json. The harness
@@ -170,6 +194,13 @@ async function loadPrior(): Promise<Prior> {
 async function main(): Promise<void> {
   console.log(`Bake-Off target: ${TARGET.city}, ${TARGET.state} — ${TARGET.url}`);
 
+  if (SCENARIO_FILTER.length && ACTIVE_SCENARIOS.length === 0) {
+    throw new Error(
+      `BAKEOFF_SCENARIOS=${SCENARIO_FILTER.join(",")} matched no known scenario (have: ${SCENARIOS.map((s) => s.id).join(", ")}).`,
+    );
+  }
+  console.log(`Active scenario(s): ${ACTIVE_SCENARIOS.map((s) => s.id).join(", ")}`);
+
   const prior = await loadPrior();
   const claudeComplete = makeClaudeComplete(CLAUDE_MODEL);
   const geminiComplete = makeGeminiComplete(GEMINI_MODEL);
@@ -194,7 +225,7 @@ async function main(): Promise<void> {
   ];
 
   // Seed the working scenario set from any prior (resumable) results.
-  const scenarios: ScenarioResult[] = SCENARIOS.map((spec) => ({
+  const scenarios: ScenarioResult[] = ACTIVE_SCENARIOS.map((spec) => ({
     id: spec.id,
     label: spec.label,
     description: spec.description,
@@ -237,7 +268,7 @@ async function main(): Promise<void> {
 
   // Run sequentially (low peak memory) and persist after EVERY model so the run
   // is fully resumable. Skip any model already recorded for a scenario.
-  for (const spec of SCENARIOS) {
+  for (const spec of ACTIVE_SCENARIOS) {
     const scenario = scenarios.find((s) => s.id === spec.id)!;
     const ctx = spec.buildContext();
     for (const m of models) {

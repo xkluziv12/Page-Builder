@@ -7,22 +7,35 @@
  *    block whose `content` field is a JSON-escaped HTML string.
  *  - Any model may fence the page in ```html / ```xml / ```json.
  *
- * Strategy: locate the actual document by its markers (`<!DOCTYPE`, `<html`, or
- * the page-builder `<!-- PAGE_BUILDER` comment) through the closing `</html>`.
- * If markers aren't found in the raw text, try to unescape a JSON `content`
- * field (the create_file wrapper) and look again. Fail loudly if no document is
- * present rather than storing chatter as if it were a page.
+ * Strategy: locate the actual document by its real markers (`<!DOCTYPE`/`<html`)
+ * through the closing `</html>`. ONLY when neither real marker is present do we
+ * fall back to the page-builder `<!-- PAGE_BUILDER` comment — otherwise a model
+ * that echoes that directive at the TOP of its phase narration (Claude does this:
+ * `<!-- PAGE_BUILDER_V3` followed by ~39KB of "## PHASE 0A…" prose before the real
+ * `<!DOCTYPE html>`) would anchor the slice on the comment and capture all the
+ * chatter as if it were the page. If markers aren't found in the raw text, try to
+ * unescape a JSON `content` field (the create_file wrapper) and look again. Fail
+ * loudly if no document is present rather than storing chatter as if it were a page.
  */
 
-const START_MARKERS = ["<!doctype html", "<html", "<!-- page_builder", "<!-- page builder"];
+const PRIMARY_MARKERS = ["<!doctype html", "<html"];
+const FALLBACK_MARKERS = ["<!-- page_builder", "<!-- page builder"];
 
-function sliceDocument(text: string): string | null {
-  const lower = text.toLowerCase();
+function earliestMarker(lower: string, markers: string[]): number {
   let start = -1;
-  for (const marker of START_MARKERS) {
+  for (const marker of markers) {
     const idx = lower.indexOf(marker);
     if (idx !== -1 && (start === -1 || idx < start)) start = idx;
   }
+  return start;
+}
+
+function sliceDocument(text: string): string | null {
+  const lower = text.toLowerCase();
+  // Prefer the real document markers; only fall back to the page-builder comment
+  // when no real `<!DOCTYPE>`/`<html>` exists, so leading narration is never kept.
+  let start = earliestMarker(lower, PRIMARY_MARKERS);
+  if (start === -1) start = earliestMarker(lower, FALLBACK_MARKERS);
   if (start === -1) return null;
   const end = lower.lastIndexOf("</html>");
   if (end === -1 || end <= start) return null;
