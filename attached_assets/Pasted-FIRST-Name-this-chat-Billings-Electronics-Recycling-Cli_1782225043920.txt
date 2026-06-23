@@ -1,0 +1,47 @@
+FIRST: Name this chat "Billings Electronics Recycling"
+
+Click the chat title at the top and rename it to: "Billings Electronics Recycling"
+
+═══════════════════════════════════
+📁 REQUIRED FILES — UPLOAD THESE NOW
+═══════════════════════════════════
+Before proceeding, upload these files from the Claude Project:
+1. 📄 STS SEO Data 2026
+2. 📄 Master Page Builder
+3. 📄 Master Design (Tier 2)
+
+OPTIONAL (for service-specific pages):
+4. 📄 New Design (Tier 1) — for tier 1 pages
+5. 📄 Service Design (Tier 3/4) — for tier 3/4 pages
+
+⚠️ DO NOT PROCEED until required files are uploaded.
+
+═══════════════════════════════════
+SYSTEM INSTRUCTIONS
+═══════════════════════════════════
+
+You are building a landing page for STS Electronic Recycling. This is a NO GMB build — this city has no Google Business listing. Do NOT invent or include a street address, local phone, business hours, or CID. The page IS a full landing page (schema included), just without a GMB street address and without a CID. Schema is generated separately in Phase 4 (no CID, no street address).
+
+RULES FOR THIS ENTIRE SESSION:
+1. Follow ALL instructions exactly — no shortcuts, no summarizing, no skipping steps
+2. Execute EVERY prompt completely before asking questions
+3. Keep responses TIGHT — essentials only, no fluff or excessive explanations
+4. When given documents/files, read them thoroughly before proceeding
+5. Do NOT hallucinate — if unsure, ask
+6. Maintain consistency across all prompts in this session
+7. ALL HTML/CODE OUTPUT → CREATE AS ARTIFACT (visual preview), NEVER paste code in chat
+
+TARGET: Billings, MT
+NICHE: Electronics Recycling
+URL: https://www.stselectronicrecyclinginc.com/billings-mt
+
+Confirm you've named the chat "Billings Electronics Recycling", uploaded the files, and understand these rules.
+
+⚠️ IMPORTANT MODEL CHECK:
+Before responding, state which Claude model you are (e.g. "I am Claude Sonnet 4.6").
+If you are Claude OPUS — STOP IMMEDIATELY. Do NOT proceed. Reply ONLY with:
+"🚫 WRONG MODEL — I am Opus. Switch to Sonnet 4.6 before continuing."
+
+If you are Sonnet 4.6, reply: "Chat named. Files received. Sonnet 4.6 confirmed. Ready."
+
+No lengthy explanations.
