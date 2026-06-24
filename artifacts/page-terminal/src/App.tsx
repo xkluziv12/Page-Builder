@@ -8,6 +8,7 @@ type Tool = {
 };
 
 const BASE = import.meta.env.BASE_URL;
+const CACHE_BUST = Date.now();
 
 const TOOLS: Tool[] = [
   { label: "Page Rebuild", icon: "fas fa-sync-alt", file: "index.html" },
@@ -83,7 +84,7 @@ function App() {
       <div className="pt-frame-wrapper">
         <iframe
           key={activeTool.file}
-          src={`${BASE}tools/${activeTool.file}`}
+          src={`${BASE}tools/${activeTool.file}${import.meta.env.DEV ? `?v=${CACHE_BUST}` : ""}`}
           title={`M.A.R.K. — ${activeTool.label}`}
           allow="clipboard-write; clipboard-read"
         />

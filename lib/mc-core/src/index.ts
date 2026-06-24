@@ -14,6 +14,14 @@ export { runEntityQualityGate } from "./research/entity-gate";
 export { logBlogEntry, MARK_BLOG_LOG_WEBHOOK } from "./research/blog-log";
 export type { BlogLogEntry } from "./research/blog-log";
 export * from "./seo";
+export { researchMeta, extractPageContent } from "./meta";
+export type {
+  MetaResearchInput,
+  MetaResearchDeps,
+  MetaResearchResult,
+  NicheConfidence,
+  ExtractedPageContent,
+} from "./meta";
 export {
   computeStructuralHash,
   extractStructuralSignals,

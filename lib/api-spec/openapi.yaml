@@ -667,6 +667,32 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Error"
+  /mc/meta-research:
+    post:
+      operationId: researchMeta
+      tags:
+        - mission-control
+      summary: Research-backed best-of-the-best meta for a single page
+      description: Live-fetches the target URL, detects the actual niche from the page content (not the URL slug), pulls the live SERP for that niche + city, and synthesizes the winning title/description/keywords.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MetaResearchRequest"
+      responses:
+        "200":
+          description: Researched meta
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MetaResearchResult"
+        "400":
+          description: Bad URL, missing config, or research failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 components:
   parameters:
     RunId:
@@ -707,6 +733,123 @@ components:
         - error
       properties:
         error:
+          type: string
+    MetaResearchRequest:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
+          minLength: 1
+          description: Full http(s) URL of the page being rebuilt.
+        county:
+          type: string
+          nullable: true
+          description: Optional county; enables the "free pickup" line in the description.
+    MetaCompetitor:
+      type: object
+      required:
+        - title
+        - link
+        - position
+      properties:
+        title:
+          type: string
+        link:
+          type: string
+        position:
+          type: integer
+          nullable: true
+    MetaResearchResult:
+      type: object
+      required:
+        - url
+        - city
+        - state
+        - stateName
+        - county
+        - detectedNiche
+        - services
+        - nicheConfidence
+        - nicheReasoning
+        - browserPageTitle
+        - metaDescription
+        - keywords
+        - keywordList
+        - rationale
+        - competitors
+        - peopleAlsoAsk
+        - relatedKeywords
+        - competition
+        - locationVerified
+        - locationSource
+        - sources
+        - fetchedAt
+      properties:
+        url:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        stateName:
+          type: string
+        county:
+          type: string
+          nullable: true
+        detectedNiche:
+          type: string
+        services:
+          type: array
+          items:
+            type: string
+        nicheConfidence:
+          type: string
+          enum:
+            - high
+            - medium
+            - low
+        nicheReasoning:
+          type: string
+        browserPageTitle:
+          type: string
+        metaDescription:
+          type: string
+        keywords:
+          type: string
+        keywordList:
+          type: array
+          items:
+            type: string
+        rationale:
+          type: string
+        competitors:
+          type: array
+          items:
+            $ref: "#/components/schemas/MetaCompetitor"
+        peopleAlsoAsk:
+          type: array
+          items:
+            type: string
+        relatedKeywords:
+          type: array
+          items:
+            type: string
+        competition:
+          type: string
+        locationVerified:
+          type: boolean
+        locationSource:
+          type: string
+          enum:
+            - url
+            - page
+        sources:
+          type: array
+          items:
+            type: string
+        fetchedAt:
           type: string
     RunInput:
       type: object

@@ -12,6 +12,7 @@ import {
 import {
   BASE_DOMAIN,
   deriveLinkAudit,
+  researchMeta,
   runCheckers,
   runPhase,
   runPostPublishQc,
@@ -23,12 +24,14 @@ import {
 import {
   deriveRunInputs,
   engineFor,
+  getAnthropic,
   replitEngineFor,
   initialPhases,
   loadRegistry,
   nextPhase,
   publisher,
   researchProviderFromEnv,
+  seoCredsFromEnv,
   serializeRun,
   toRunContext,
   PHASE_ORDER,
@@ -309,6 +312,34 @@ router.get("/mc/seo-intel", async (req, res) => {
   } catch (err) {
     const message = err instanceof Error ? err.message : "Failed to gather SEO intel for the URL.";
     req.log.warn({ err, url }, "seo-intel lookup failed");
+    res.status(400).json({ error: message });
+  }
+});
+
+// POST /mc/meta-research — research-backed "best of the best" meta for a single
+// page. Live-fetches the target URL, detects the ACTUAL niche from the page
+// content (not the URL slug), pulls the live SERP for that niche + city, and
+// synthesizes the winning title/description/keywords. Fails loud on any missing
+// input or malformed model output (no partial/placeholder result).
+router.post("/mc/meta-research", async (req, res) => {
+  const body = (req.body ?? {}) as Record<string, unknown>;
+  const url = typeof body.url === "string" ? body.url.trim() : "";
+  const county =
+    typeof body.county === "string" && body.county.trim() ? body.county.trim() : null;
+  if (!url) {
+    res.status(400).json({ error: "A 'url' field is required." });
+    return;
+  }
+  try {
+    const anthropic = await getAnthropic();
+    const creds = seoCredsFromEnv();
+    const result = await researchMeta({ url, county }, { anthropic, creds });
+    req.log.info({ url, niche: result.detectedNiche }, "meta-research ok");
+    res.json(result);
+  } catch (err) {
+    const message =
+      err instanceof Error ? err.message : "Failed to research meta for the URL.";
+    req.log.warn({ err, url }, "meta-research failed");
     res.status(400).json({ error: message });
   }
 });

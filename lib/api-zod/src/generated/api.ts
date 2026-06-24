@@ -1739,3 +1739,45 @@ export const PublishPromptResponse = zod.object({
 })
 
 
+/**
+ * Live-fetches the target URL, detects the actual niche from the page content (not the URL slug), pulls the live SERP for that niche + city, and synthesizes the winning title/description/keywords.
+ * @summary Research-backed best-of-the-best meta for a single page
+ */
+
+
+
+export const ResearchMetaBody = zod.object({
+  "url": zod.string().min(1).describe('Full http(s) URL of the page being rebuilt.'),
+  "county": zod.string().nullish().describe('Optional county; enables the \"free pickup\" line in the description.')
+})
+
+export const ResearchMetaResponse = zod.object({
+  "url": zod.string(),
+  "city": zod.string(),
+  "state": zod.string(),
+  "stateName": zod.string(),
+  "county": zod.string().nullable(),
+  "detectedNiche": zod.string(),
+  "services": zod.array(zod.string()),
+  "nicheConfidence": zod.enum(['high', 'medium', 'low']),
+  "nicheReasoning": zod.string(),
+  "browserPageTitle": zod.string(),
+  "metaDescription": zod.string(),
+  "keywords": zod.string(),
+  "keywordList": zod.array(zod.string()),
+  "rationale": zod.string(),
+  "competitors": zod.array(zod.object({
+  "title": zod.string(),
+  "link": zod.string(),
+  "position": zod.number().nullable()
+})),
+  "peopleAlsoAsk": zod.array(zod.string()),
+  "relatedKeywords": zod.array(zod.string()),
+  "competition": zod.string(),
+  "locationVerified": zod.boolean(),
+  "locationSource": zod.enum(['url', 'page']),
+  "sources": zod.array(zod.string()),
+  "fetchedAt": zod.string()
+})
+
+

@@ -13,6 +13,64 @@ export interface ErrorResponse {
   error: string;
 }
 
+export interface MetaResearchRequest {
+  /**
+     * Full http(s) URL of the page being rebuilt.
+     * @minLength 1
+     */
+  url: string;
+  /** Optional county; enables the "free pickup" line in the description. */
+  county?: string | null;
+}
+
+export interface MetaCompetitor {
+  title: string;
+  link: string;
+  position: number | null;
+}
+
+export type MetaResearchResultNicheConfidence = typeof MetaResearchResultNicheConfidence[keyof typeof MetaResearchResultNicheConfidence];
+
+
+export const MetaResearchResultNicheConfidence = {
+  high: 'high',
+  medium: 'medium',
+  low: 'low',
+} as const;
+
+export type MetaResearchResultLocationSource = typeof MetaResearchResultLocationSource[keyof typeof MetaResearchResultLocationSource];
+
+
+export const MetaResearchResultLocationSource = {
+  url: 'url',
+  page: 'page',
+} as const;
+
+export interface MetaResearchResult {
+  url: string;
+  city: string;
+  state: string;
+  stateName: string;
+  county: string | null;
+  detectedNiche: string;
+  services: string[];
+  nicheConfidence: MetaResearchResultNicheConfidence;
+  nicheReasoning: string;
+  browserPageTitle: string;
+  metaDescription: string;
+  keywords: string;
+  keywordList: string[];
+  rationale: string;
+  competitors: MetaCompetitor[];
+  peopleAlsoAsk: string[];
+  relatedKeywords: string[];
+  competition: string;
+  locationVerified: boolean;
+  locationSource: MetaResearchResultLocationSource;
+  sources: string[];
+  fetchedAt: string;
+}
+
 export type RunInputTrack = typeof RunInputTrack[keyof typeof RunInputTrack];
 
 

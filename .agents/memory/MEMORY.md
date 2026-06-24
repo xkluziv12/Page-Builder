@@ -1,4 +1,5 @@
 - [Page Terminal (M.A.R.K.) architecture](page-terminal-architecture.md) — React shell hosts self-contained static HTML tools via iframe; do not rewrite tools into React.
+- [No-GMB meta/schema source of truth](no-gmb-meta-source-of-truth.md) — deterministic R2/NAID/ITAD templates via buildNoGmbPayloads; any feature emitting No-GMB meta must reuse it, never improvise.
 - [Mission Control architecture](mission-control-architecture.md) — page-builder pipeline app; reusable mc-core engine behind AIEngine seam, /api/mc/* on shared server, research gated by external n8n webhook.
 - [MC location verification](mc-location-verification.md) — page-content city/state cross-check: never block, correct STATE not CITY, equivalence-only city match (no substrings).
 - [Replit-Agent engine mode + toggle](replit-engine-mode.md) — second engine = operator-driven ReplitEngine reusing the same orchestrator/checkers; replit runs queue, don't auto-run, parity gate is automatic.
@@ -10,3 +11,4 @@
 - [Background process reaping](background-process-reaping.md) — detached bash processes die when the launching tool call returns; run long one-shot jobs as a console workflow and make them resumable.
 - [Prompt Manager publish/sync](prompt-publish-sync.md) — publish fans out to DB+GitHub+Drive via the Replit connectors proxy; no auto-publish, per-target status, drive.file scope quirk.
 - [Replit config guard during rebase](replit-config-rebase-guard.md) — git can't write .replit/replit.nix during rebase (guard); use keep-ours merge driver, then materialize union via verifyAndReplaceDotReplit.
+- [Meta research location resolution](meta-research-location.md) — trust the model's page-read city/state over the URL slug; "in"→Indiana + STS HQ footer poison parseCityState/extractLocations.

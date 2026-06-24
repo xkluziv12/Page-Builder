@@ -42,7 +42,7 @@ type AnthropicClient = ConstructorParameters<typeof ClaudeEngine>[0];
  * are mounted unconditionally alongside unrelated endpoints.
  */
 let cachedAnthropic: AnthropicClient | null = null;
-async function getAnthropic(): Promise<AnthropicClient> {
+export async function getAnthropic(): Promise<AnthropicClient> {
   if (cachedAnthropic === null) {
     const mod = await import("@workspace/integrations-anthropic-ai");
     cachedAnthropic = mod.anthropic as AnthropicClient;

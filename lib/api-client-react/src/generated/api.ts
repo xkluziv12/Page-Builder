@@ -34,6 +34,8 @@ import type {
   LinkAuditOverrideRequest,
   ListPromptsParams,
   ListWorkLogParams,
+  MetaResearchRequest,
+  MetaResearchResult,
   MissionRun,
   Prompt,
   PublishPromptRequest,
@@ -2319,5 +2321,77 @@ export const usePublishPrompt = <TError = ErrorType<Error>,
         TContext
       > => {
       return useMutation(getPublishPromptMutationOptions(options));
+    }
+
+export const getResearchMetaUrl = () => {
+
+
+
+
+  return `/api/mc/meta-research`
+}
+
+/**
+ * Live-fetches the target URL, detects the actual niche from the page content (not the URL slug), pulls the live SERP for that niche + city, and synthesizes the winning title/description/keywords.
+ * @summary Research-backed best-of-the-best meta for a single page
+ */
+export const researchMeta = async (metaResearchRequest: MetaResearchRequest, options?: RequestInit): Promise<MetaResearchResult> => {
+
+  return customFetch<MetaResearchResult>(getResearchMetaUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      metaResearchRequest,)
+  }
+);}
+
+
+
+
+export const getResearchMetaMutationOptions = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof researchMeta>>, TError,{data: BodyType<MetaResearchRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof researchMeta>>, TError,{data: BodyType<MetaResearchRequest>}, TContext> => {
+
+const mutationKey = ['researchMeta'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof researchMeta>>, {data: BodyType<MetaResearchRequest>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  researchMeta(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type ResearchMetaMutationResult = NonNullable<Awaited<ReturnType<typeof researchMeta>>>
+    export type ResearchMetaMutationBody = BodyType<MetaResearchRequest>
+    export type ResearchMetaMutationError = ErrorType<ErrorResponse>
+
+    /**
+ * @summary Research-backed best-of-the-best meta for a single page
+ */
+export const useResearchMeta = <TError = ErrorType<ErrorResponse>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof researchMeta>>, TError,{data: BodyType<MetaResearchRequest>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof researchMeta>>,
+        TError,
+        {data: BodyType<MetaResearchRequest>},
+        TContext
+      > => {
+      return useMutation(getResearchMetaMutationOptions(options));
     }
 
