@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "YK0SL_fX0uHD_X635rBO_"
+uri = "file://exports/bake-off-bundle.tar.gz"
+type = "unspecified"
+title = "Bake-Off bundle (app + harness + mc-core)"
