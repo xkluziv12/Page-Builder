@@ -7,6 +7,7 @@ import {
   runCheckers,
   type RunContext,
 } from "@workspace/mc-core";
+import { schemaPrompt, gmbSchemaPrompt, type PromptVars } from "./miniPrompts.js";
 import {
   discoverNewestGrok,
   makeClaudeComplete,
@@ -19,7 +20,7 @@ import { loadDesignFixtures, type DesignFixtures } from "./fixtures.js";
 import { estimateCost } from "./cost.js";
 import { runConversation } from "./conversation.js";
 import { generateSharedGrounding, type SharedGrounding } from "./grounding.js";
-import { BILLINGS_GMB, gmbContextSuffix, generateGmbSchema, generateNoGmbSchema } from "./gmb.js";
+import { BILLINGS_GMB, gmbContextSuffix } from "./gmb.js";
 import { scoreModels } from "./score.js";
 import { judgeVisual, type VisualVerdict } from "./visual.js";
 import type { BakeoffResults, ModelResult, ScenarioResult } from "./types.js";
@@ -72,8 +73,8 @@ interface ScenarioSpec {
   notes: string[];
   /** Extra intro block handed identically to every model (empty for No-GMB). */
   introEnrichment: string;
-  /** Deterministic schema generator for this scenario. */
-  schemaFn: (ctx: RunContext) => string;
+  /** Per-scenario schema prompt for the Phase-4 AI schema turn (No-GMB or GMB). */
+  schemaPromptFor: (vars: PromptVars) => string;
   /** Build the run context for this scenario. */
   buildContext: () => RunContext;
   /** CID the schema checker enforces against (null for No-GMB). */
@@ -107,13 +108,13 @@ const SCENARIOS: ScenarioSpec[] = [
     description:
       "The exact human No-GMB checklist a VA runs today, one continuous chat per model: verbatim copyPrompt() prompts, the real uploaded design files inlined, city/state targeting only, NO explicit page_url and NO GMB block.",
     introEnrichment: "",
-    schemaFn: generateNoGmbSchema,
+    schemaPromptFor: (vars) => schemaPrompt(vars),
     buildContext: baseContext,
     verifiedCid: null,
     notes: [
-      "Every model runs the IDENTICAL No-GMB checklist in ONE stateful conversation: intro (files uploaded + rules + model check) → build → design gate / force-rebuild loop → SEO audit → SEO verification → schema (deterministic) → link verification. The prompt text is the tool's verbatim copyPrompt() output; the real uploaded design files are inlined as the API-faithful stand-in for file uploads.",
+      "Every model runs the IDENTICAL No-GMB checklist in ONE stateful conversation: intro (files uploaded + rules + model check) → build → design gate / force-rebuild loop → SEO audit → SEO verification → schema (Schema Generator AI turn) → link verification. The prompt text is the tool's verbatim copyPrompt() output; the real uploaded design files are inlined as the API-faithful stand-in for file uploads.",
       "This is the faithful production reproduction. The context deliberately omits an explicit page_url and any Google Business Profile (GMB) block — STS spoke pages target a service-area city, not a verified storefront.",
-      "Schema is the deterministic No-GMB LocalBusiness (city/state only, with telephone = the STS HQ backup line 844-699-2913, NO CID, NO street address). It wraps the production city/state schema and is generated deterministically with no AI turn; the HQ telephone fallback is a bake-off-only addition so a No-GMB page still carries a phone instead of nothing.",
+      "Schema is a real AI turn running the uploaded Master Schema Generator (v1.4.1) under the No-GMB overrides (city/state only, NO CID, NO street address). The model must emit a <script type=\"application/ld+json\">…</script> block; the harness extracts and validates the JSON-LD inside it (fail loud otherwise).",
       "If a model refuses to build under this context (asking for page_url / GMB data first) it surfaces as no HTML and is recorded faithfully as an ERROR — it is NOT patched away, because special-casing one model would break the apples-to-apples comparison.",
     ],
   },
@@ -123,13 +124,23 @@ const SCENARIOS: ScenarioSpec[] = [
     description:
       "The SAME checklist and prompts as No-GMB, with one identical enrichment handed to every model: an explicit page_url plus a Google Business Profile (GMB) data block in the intro.",
     introEnrichment: gmbContextSuffix(BILLINGS_GMB),
-    schemaFn: (ctx) => generateGmbSchema(ctx, BILLINGS_GMB),
+    schemaPromptFor: (vars) =>
+      gmbSchemaPrompt(vars, {
+        cid: BILLINGS_GMB.cid,
+        gmbUrl: BILLINGS_GMB.gmbUrl,
+        businessName: BILLINGS_GMB.businessName,
+        street: BILLINGS_GMB.street,
+        zip: BILLINGS_GMB.zip,
+        phone: BILLINGS_GMB.phone,
+        lat: BILLINGS_GMB.lat,
+        lng: BILLINGS_GMB.lng,
+      }),
     buildContext: () => ({ ...baseContext(), verifiedCid: BILLINGS_GMB.cid }),
     verifiedCid: BILLINGS_GMB.cid,
     notes: [
       "A fair, symmetric re-run: every model receives the IDENTICAL enriched intro (explicit page_url + GMB block), so we can see whether a model that refused under No-GMB builds well once given the inputs it demanded.",
       "The GMB values (CID, street address, phone, coordinates) are EXPERIMENTAL / illustrative inputs for this comparison, NOT verified ground-truth location data — they are labelled as such in the intro block, and the block tells the model it MAY use them.",
-      "Schema here is the GMB-aware deterministic LocalBusiness (full PostalAddress + CID identifier + telephone + geo + ?cid= map URL), still identical across models so it is not a model differentiator.",
+      "Schema here is a real AI turn running the uploaded Master Schema Generator (v1.4.1) with the verified CID + full address block, so the emitted JSON-LD carries the identifier/PostalAddress/geo/?cid= map URL a GMB page requires. The model must emit a <script type=\"application/ld+json\">…</script> block, validated by the harness.",
     ],
   },
 ];
@@ -413,7 +424,7 @@ async function runOneModel(
       fixtures,
       grounding: grounding.content,
       introEnrichment: scenario.introEnrichment,
-      schemaFn: scenario.schemaFn,
+      schemaPromptFor: scenario.schemaPromptFor,
     });
 
     // Record the shared grounding as this model's research brief (every model
@@ -451,8 +462,9 @@ async function runOneModel(
       introEnrichment: scenario.introEnrichment,
     });
 
-    // Validate the deterministic schema and run the full checker suite over the
-    // final page (afterAudit: the SEO phase has run).
+    // Validate the AI-generated schema (the harness already confirmed it was a
+    // valid <script type="application/ld+json"> block and stored the raw JSON) and
+    // run the full checker suite over the final page (afterAudit: SEO has run).
     const parsedSchema = parseSchema(outcome.schema);
     base.schemaValid = parsedSchema != null;
 

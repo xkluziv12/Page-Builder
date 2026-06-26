@@ -1,6 +1,7 @@
 import { BakeoffResults } from "@/types";
 import currentData from "@/data/results.json";
 import oldData from "@/data/old-bakeoff.json";
+import produceData from "@/data/produce.json";
 
 export interface Dataset {
   id: string;
@@ -29,6 +30,13 @@ export const DATASETS: Dataset[] = [
     blurb:
       "Earlier full-adherence run — Claude Sonnet 4.6, GPT-5.5, Gemini 3.1 Pro, Grok 4.3.",
     results: oldData as BakeoffResults,
+  },
+  {
+    id: "produce",
+    label: "Produced Page",
+    blurb:
+      "Production builder — \"run this through 1 llm\" (single engine) or \"run this through the multi llm\" (main-per-phase routing with a GPT-5.4 backup).",
+    results: produceData as BakeoffResults,
   },
 ];
 

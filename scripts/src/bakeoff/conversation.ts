@@ -1,11 +1,12 @@
 import { describeContext, type RunContext } from "@workspace/mc-core";
 import type { ChatMessage, CompleteFn } from "./providers.js";
 import type { DesignFixtures } from "./fixtures.js";
-import { extractHtmlDocument, tryExtractHtmlDocument } from "./extract.js";
+import { extractHtmlDocument, extractSchemaJson, tryExtractHtmlDocument } from "./extract.js";
 import { evaluateDesignGate } from "./designGate.js";
 import {
   ARTIFACT_TO_INLINE,
   ARTIFACT_TO_INLINE_OPTIONAL,
+  SCHEMA_TO_INLINE,
   buildPrompt,
   introPrompt,
   rebuildPrompt,
@@ -22,7 +23,7 @@ const RULE = "══════════════════════
 /**
  * One full No-GMB checklist conversation, run identically for every model. The
  * driver carries the FULL message history across all turns (intro → build →
- * design-gate/rebuild loop → seo → seo-verify → schema(deterministic) →
+ * design-gate/rebuild loop → seo → seo-verify → schema (Schema Generator AI turn) →
  * verify-links), so the model works exactly as a VA's continuous Claude.ai chat
  * does — not a stateless fresh call per phase. The real uploaded design files
  * are inlined into the chat turns (the API has no file-attachment surface), and
@@ -40,8 +41,10 @@ export interface ConversationDeps {
    * Empty for the faithful No-GMB scenario.
    */
   introEnrichment: string;
-  /** Deterministic schema generator for this scenario (No-GMB or GMB-aware). */
-  schemaFn: (ctx: RunContext) => string;
+  /** Per-scenario schema prompt for the Phase-4 AI schema turn (No-GMB or
+   * GMB-aware). The harness sends this with the Master Schema Generator file
+   * inlined — it is NOT a deterministic generator. */
+  schemaPromptFor: (vars: PromptVars) => string;
   /** Max design-gate rebuild attempts before failing loudly. */
   rebuildCap?: number;
 }
@@ -62,7 +65,7 @@ export interface ConversationOutcome {
   totalMs: number;
 }
 
-function promptVars(ctx: RunContext): PromptVars {
+export function promptVars(ctx: RunContext): PromptVars {
   // No Hub+Spoke handoff is configured for this target (existingUrls empty), so
   // the build/seo prompts omit the linking section — exactly as the tool does
   // when its Hub+Spoke field is blank. Required sacred equipment links are still
@@ -100,17 +103,17 @@ function lastMatchIndex(text: string, re: RegExp): number {
  * quoted rubric doesn't override the model's final line), or null when neither
  * marker is found. Same patterns for every model — no per-model special-casing.
  */
-function readVerdict(raw: string, pass: RegExp, fail: RegExp): "passed" | "failed" | null {
+export function readVerdict(raw: string, pass: RegExp, fail: RegExp): "passed" | "failed" | null {
   const passIdx = lastMatchIndex(raw, pass);
   const failIdx = lastMatchIndex(raw, fail);
   if (passIdx === -1 && failIdx === -1) return null;
   return failIdx > passIdx ? "failed" : "passed";
 }
 
-const SEO_VERDICT_PASS = /seo verification passed/i;
-const SEO_VERDICT_FAIL = /seo verification failed/i;
-const LINKS_VERDICT_PASS = /links verified/i;
-const LINKS_VERDICT_FAIL = /links failed/i;
+export const SEO_VERDICT_PASS = /seo verification passed/i;
+export const SEO_VERDICT_FAIL = /seo verification failed/i;
+export const LINKS_VERDICT_PASS = /links verified/i;
+export const LINKS_VERDICT_FAIL = /links failed/i;
 
 /**
  * Validate the intro handshake. The tool's only HARD stop is the wrong-model
@@ -150,7 +153,7 @@ function assertIntroNotBlocked(raw: string): void {
 }
 
 /** A labelled "uploaded file" block, the API-faithful stand-in for a file upload. */
-function fileBlock(name: string, body: string): string {
+export function fileBlock(name: string, body: string): string {
   return `${RULE}\n📄 UPLOADED FILE: ${name}\n${RULE}\n${body.trim()}\n`;
 }
 
@@ -184,12 +187,21 @@ export async function runConversation(deps: ConversationDeps): Promise<Conversat
   const turns: ConversationTurn[] = [];
   let totalMs = 0;
 
-  /** Send one user turn, append both sides to history, time it. */
-  const send = async (phase: string, user: string, summary: string): Promise<string> => {
+  /** Send one user turn, append both sides to history, time it. The optional
+   * `webSearch` switches on the provider's native web-search tool for THIS turn
+   * only (used by the SEO-verify turn, whose prompt mandates a live web search). */
+  const send = async (
+    phase: string,
+    user: string,
+    summary: string,
+    webSearch = false,
+  ): Promise<string> => {
     messages.push({ role: "user", content: user });
-    console.log(`    → ${phase}: sending (${messages.length} msgs in history)…`);
+    console.log(
+      `    → ${phase}: sending (${messages.length} msgs in history)${webSearch ? " [web-search]" : ""}…`,
+    );
     const t0 = Date.now();
-    const res = await complete(messages);
+    const res = await complete(messages, undefined, webSearch ? { webSearch: true } : undefined);
     const ms = Date.now() - t0;
     totalMs += ms;
     messages.push({ role: "assistant", content: res.raw });
@@ -249,8 +261,9 @@ export async function runConversation(deps: ConversationDeps): Promise<Conversat
     pass: RegExp,
     fail: RegExp,
     summary: string,
+    webSearch = false,
   ): Promise<void> => {
-    let raw = await send(phase, prompt + ARTIFACT_TO_INLINE_OPTIONAL, summary);
+    let raw = await send(phase, prompt + ARTIFACT_TO_INLINE_OPTIONAL, summary, webSearch);
     let doc = tryExtractHtmlDocument(raw);
     if (doc) html = doc;
     let verdict = readVerdict(raw, pass, fail);
@@ -265,6 +278,7 @@ export async function runConversation(deps: ConversationDeps): Promise<Conversat
         fixPhase,
         fixPrompt + ARTIFACT_TO_INLINE_OPTIONAL,
         `Corrective re-verify ${fixes}/${cap} after a FAILED ${phase} verdict.`,
+        webSearch,
       );
       doc = tryExtractHtmlDocument(raw);
       if (doc) html = doc;
@@ -279,19 +293,30 @@ export async function runConversation(deps: ConversationDeps): Promise<Conversat
     }
   };
 
-  // 5. SEO verification (gated on the ✅/❌ FINAL VERDICT).
+  // 5. SEO verification (gated on the ✅/❌ FINAL VERDICT). This is the ONE turn
+  // that runs with live web search on — Part 2 of the prompt tells the model to
+  // "search the web for current 2025-2026 SEO best practices", so the capability
+  // is switched on here (and its corrective re-verify turns) for every model
+  // identically. Every other turn stays search-free.
   await runVerification(
     "seo-verify",
     seoVerifyPrompt(vars),
     seoVerifyFixPrompt(),
     SEO_VERDICT_PASS,
     SEO_VERDICT_FAIL,
-    "SEO verification audit (compliance + modern SEO).",
+    "SEO verification audit (compliance + modern SEO, live web search).",
+    true,
   );
 
-  // 6. Schema — DETERMINISTIC, no AI turn (the tool's Auto-Generate Schema path).
-  const schema = deps.schemaFn(ctx);
-  turns.push({ phase: "schema", ms: 0, summary: "Deterministic schema (No-GMB: no CID, no street address)." });
+  // 6. Schema (Phase 4) — a REAL AI turn: the scenario's schema prompt + the
+  // Master Schema Generator file inlined (exactly like the SEO-audit turn uploads
+  // its master file), with SCHEMA_TO_INLINE neutralizing the generator's chat-UI
+  // "schema.txt file" / CID-verify HARD STOPs headlessly. The model must emit a
+  // <script type="application/ld+json">…</script> block; we extract & validate the
+  // JSON inside it (fail loud otherwise) and store the raw JSON.
+  const schemaUser = `${deps.schemaPromptFor(vars)}\n\n${fileBlock("Schema Generator", deps.fixtures.schemaGenerator)}${SCHEMA_TO_INLINE}`;
+  const schemaRaw = await send("schema", schemaUser, "Generate JSON-LD schema (Schema Generator file inlined).");
+  const schema = extractSchemaJson(schemaRaw, "schema");
 
   // 7. Final link verification (gated on the ✅/❌ LINKS verdict).
   await runVerification(

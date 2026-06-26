@@ -79,3 +79,42 @@ export function extractHtmlDocument(raw: string, label = "model"): string {
       `First 200 chars: ${raw.slice(0, 200).replace(/\s+/g, " ")}`,
   );
 }
+
+/**
+ * Pull the JSON-LD payload out of a model's schema reply. The Schema Generator
+ * contract REQUIRES the output to be a `<script type="application/ld+json">…
+ * </script>` block (it is pasted verbatim into the page <head>), so we anchor on
+ * the LAST such block (a model may quote the rule before emitting the real one)
+ * and return the JSON text INSIDE it. Fail loud — schema-first — when no script
+ * block is present or its contents aren't valid JSON, rather than storing prose
+ * or a bare object as if it were the schema. The returned value is the inner
+ * JSON string; callers re-wrap it in `<script>` tags for display/copy.
+ */
+const SCHEMA_SCRIPT_RE =
+  /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+
+export function extractSchemaJson(raw: string, label = "schema"): string {
+  let inner: string | null = null;
+  let m: RegExpExecArray | null;
+  SCHEMA_SCRIPT_RE.lastIndex = 0;
+  while ((m = SCHEMA_SCRIPT_RE.exec(raw)) !== null) {
+    if (m[1] && m[1].trim()) inner = m[1].trim();
+  }
+  if (inner == null) {
+    throw new Error(
+      `${label} returned no <script type="application/ld+json">…</script> block. ` +
+        `The Schema Generator must emit the JSON-LD wrapped in a script tag. ` +
+        `First 200 chars: ${raw.slice(0, 200).replace(/\s+/g, " ")}`,
+    );
+  }
+  try {
+    JSON.parse(inner);
+  } catch (err) {
+    throw new Error(
+      `${label} script block did not contain valid JSON ` +
+        `(${err instanceof Error ? err.message : String(err)}). ` +
+        `First 200 chars of payload: ${inner.slice(0, 200).replace(/\s+/g, " ")}`,
+    );
+  }
+  return inner;
+}

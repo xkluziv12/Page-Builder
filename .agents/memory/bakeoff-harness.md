@@ -261,6 +261,60 @@ built from `archive/.../full-adherence`, no-gmb only, screenshots copied to
 the detail page treats the URL's datasetId as source of truth and syncs the shared
 switcher. Both ModelResult types (harness + viewer) carry `costEstimate`.
 
+## Live web search is switched on for the seo-verify turn ONLY (native per-provider tools)
+The seo-verify prompt's Part 2 says "search the web for current 2025-2026 SEO
+best practices"; that turn now actually fetches live results. A per-turn
+`webSearch` flag rides on the `CompleteFn` (`CompleteOptions` in `providers.ts`),
+threaded through `send`/`runVerification` in `conversation.ts` and turned on for
+the seo-verify turn + its corrective re-verify turns ONLY — every other turn
+(intro/build/rebuild/seo-audit/verify-links) stays search-free. It's the
+capability analogue of `ARTIFACT_TO_INLINE`: uniform across all four models, same
+flag, same turn, so the comparison stays apples-to-apples (only each provider's
+own search impl differs).
+**Native tool per provider:** Claude `web_search_20250305` (stream; still read
+text blocks only), Gemini `tools:[{googleSearch:{}}]`, OpenAI Responses
+`tools:[{type:"web_search"}]` (coexists with background poll). 
+**Gotcha (Grok):** xAI's old Live Search (`search_parameters`) is DEPRECATED →
+410 "switch to the Agent Tools API". `chat/completions` rejects the web_search
+tool (422: only `function`/`live_search`). The working path is xAI's
+OpenAI-compatible **Responses** endpoint with `tools:[{type:"web_search"}]`, so
+the Grok adapter routes the flagged turn through `responses` and keeps plain
+`chat/completions` for every other turn.
+**Cost caveat:** provider per-search fees are billed separately and are NOT in
+the token-based `estimateCost` (noted in its `basis` string).
+**Cheap verification:** `pnpm --filter @workspace/scripts run bakeoff:seo-verify-demo`
+(`SEO_DEMO_MODEL=claude|gemini|openai|grok`, `SEO_DEMO_HTML=…`) runs JUST the
+seo-verify turn against an existing HTML file — proves live search without a full
+sweep. Confirmed live: models cite fresh 2026-dated facts, not training recall.
+
+## Two ADDITIVE production modes layered on the comparison harness (single / routed)
+Beyond the 6-model comparison (`run.ts`, the operator's "all of them"), the tool
+now PRODUCES one real page two ways, driven by plain-language requests:
+- "run this through 1 llm" → SINGLE engine: one chosen model runs every phase via
+  the faithful continuous-chat `runConversation` (no new engine — reuse).
+- "run this through the multi llm" → ROUTED: a MAIN model per phase + an
+  auto-failover BACKUP (OpenAI GPT-5.4 everywhere) in `routed.ts`. Routing table
+  in `routing.ts` (`ROUTING_TABLE`): build/seo/grounding→Claude, seo-verify→Gemini
+  (web search), schema/verify-links→Grok. Backup steps in when the main throws,
+  refuses, or emits invalid output (no HTML / invalid JSON-LD).
+**Why routed differs from single's chat:** different models can't share one chat,
+so routed is STORE-AND-HANDOFF — each phase is a fresh call to its model seeded
+with the shared grounding + build context + current HTML; intro is folded into
+the build turn. Single keeps the stateful growing-history chat.
+**Invariants to preserve (do NOT break):** (1) the existing `run.ts` comparison is
+untouched; (2) NEVER import `run.ts` — it runs `main()` on import, so model
+constants are intentionally duplicated in `routing.ts`; (3) no per-model coaxing —
+fallback is structural (error/refusal/invalid), not prompt hacks; (4) GPT-5.4 (the
+build backup) historically REFUSES No-GMB builds, so under No-GMB a Claude-build
+failure that falls to 5.4 can fail loud — that's correct, not a bug.
+**Where it surfaces:** `produce.ts` (env-driven entry: `BAKEOFF_PRODUCE_MODE`,
+`BAKEOFF_MODEL`, `BAKEOFF_SCENARIO`, target + `BAKEOFF_GMB_JSON`) writes a SEPARATE
+`artifacts/bake-off/src/data/produce.json` (never clobbers `results.json`), shown
+in the viewer as the "Produced Page" dataset. Scores are null (arbitrary target,
+no reference to compare); the city-aware checker report is the quality signal.
+Scripts: `bakeoff:single` / `bakeoff:multi`. A NEW GMB page MUST supply its
+verified GMB block via `BAKEOFF_GMB_JSON` (fail loud — never invent CID/address).
+
 ## Verify-turn gating: act on PASSED/FAILED, with a bounded corrective loop
 seo-verify and verify-links turns parse the model's ✅/❌ verdict (`readVerdict`,
 later match wins so an echoed rubric doesn't false-positive). FAILED drives a

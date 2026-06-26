@@ -80,6 +80,34 @@ export const ARTIFACT_TO_INLINE_OPTIONAL =
   "document). Still produce your full report and END your reply with the explicit " +
   "✅/❌ VERDICT line the instructions specify — do NOT omit the verdict.]";
 
+/**
+ * The schema-turn counterpart of `ARTIFACT_TO_INLINE`. The Master Schema
+ * Generator (uploaded as the `Schema Generator` file) is an interactive,
+ * chat-UI document: it tells the operator to "output schema.txt file + meta data
+ * in chat boxes" and contains HARD STOPs that pause to ask a human to verify a
+ * Google CID before continuing. Headless, there is no file surface and no human
+ * to answer — so, IDENTICALLY for every model, we translate those medium-bound
+ * directives into: emit ONLY the JSON-LD wrapped in a single
+ * `<script type="application/ld+json">…</script>` block, never pause to ask, and
+ * use the values present in this conversation (or omit them) rather than halting.
+ * A uniform medium shim, NOT per-model special-casing.
+ */
+export const SCHEMA_TO_INLINE =
+  "\n\n[API EXECUTION NOTE — applies to every model identically: this is an API " +
+  "session with NO file / chat-box / canvas surface and NO human available to " +
+  "answer mid-run. The uploaded Schema Generator describes a chat-UI workflow " +
+  '(it says to output a "schema.txt file" and "meta data in chat boxes", and it ' +
+  "contains HARD STOPs that ask a person to verify a Google CID). Do NOT pause, " +
+  "do NOT ask any question, and do NOT stop to request verification — proceed " +
+  "non-interactively using ONLY the data already in this conversation (research " +
+  "brief, the current HTML, and the build context above); if a value such as a " +
+  "CID, street address, phone, or coordinates is not present here, OMIT it rather " +
+  "than inventing it or halting. Your ENTIRE reply must be exactly ONE " +
+  '<script type="application/ld+json"> … </script> block — it MUST start with ' +
+  "`<script` and end with `</script>`, contain valid JSON-LD, and include NO " +
+  "prose, no meta-data boxes, no markdown fences, and no commentary before or " +
+  "after it.]";
+
 /** intro — name the chat, upload files, session rules, model check. */
 export function introPrompt(v: PromptVars): string {
   const chatName = `${v.city} ${v.niche}`;
@@ -426,9 +454,12 @@ Your SEO VERIFICATION AUDIT returned ❌ SEO VERIFICATION FAILED.
 No lengthy explanations.`;
 }
 
-/** schema — the tool's AI schema prompt. Retained verbatim for reference; the
- * harness generates schema DETERMINISTICALLY instead of sending this (no AI
- * turn), exactly as the tool's "Auto-Generate Schema" button does. */
+/** schema (No-GMB) — the Phase-4 schema turn. The harness SENDS this as a real
+ * AI turn with the Master Schema Generator file inlined (see SCHEMA_TO_INLINE),
+ * exactly like the SEO-audit turn uploads its master file — NOT the old
+ * deterministic "Auto-Generate Schema" shortcut. The No-GMB overrides below sit
+ * on top of the uploaded generator: city/state targeting only, no CID, no street
+ * address, no local phone. */
 export function schemaPrompt(v: PromptVars): string {
   return `${FORCE_PREFIX}TASK: GENERATE SCHEMA (JSON-LD) — NO GMB
 
@@ -459,6 +490,63 @@ REQUIREMENTS:
 6. Wrap in <script type="application/ld+json"> tags
 7. Do NOT include aggregateRating/reviews
 8. Do NOT include any CID, identifier, hasMap, or Google Maps link
+
+Output the complete schema script block. No lengthy explanations.`;
+}
+
+/** The GMB inputs the GMB-scenario schema turn hands the model. Mirrors the
+ * fields the GMB-enriched intro already supplies, so the schema turn can carry
+ * the verified CID + full PostalAddress a HUB/GMB schema requires. */
+export interface SchemaGmbInputs {
+  cid: string;
+  gmbUrl: string;
+  businessName: string;
+  street: string;
+  zip: string;
+  phone: string;
+  lat: number;
+  lng: number;
+}
+
+/** schema (GMB-enriched) — the Phase-4 schema turn for the GMB scenario. Same
+ * uploaded Master Schema Generator file + SCHEMA_TO_INLINE shim as the No-GMB
+ * variant, but it hands the model the verified CID + full address block so the
+ * emitted JSON-LD carries the identifier/PostalAddress/geo/?cid= map URL that a
+ * GMB page must have. Kept symmetric with `schemaPrompt` — the ONLY difference is
+ * the GMB data the scenario already established, not per-model special-casing. */
+export function gmbSchemaPrompt(v: PromptVars, g: SchemaGmbInputs): string {
+  return `${FORCE_PREFIX}TASK: GENERATE SCHEMA (JSON-LD) — GMB
+
+═══════════════════════════════════
+📁 REQUIRED FILE — UPLOAD NOW
+═══════════════════════════════════
+Upload: 📄 Schema Generator
+⚠️ DO NOT PROCEED until file is uploaded.
+═══════════════════════════════════
+
+City: ${v.city}
+State: ${v.state || "[STATE]"}
+Niche: ${v.niche}
+Website: https://www.stselectronicrecyclinginc.com
+
+✅ GMB MODE — verified Google Business Profile data for this page (use it exactly, do NOT invent anything beyond it):
+- Business name: ${g.businessName}
+- CID: ${g.cid}
+- Google Maps URL (?cid=): ${g.gmbUrl}
+- Street address: ${g.street}
+- Postal code: ${g.zip}
+- Phone: ${g.phone}
+- Coordinates: ${g.lat}, ${g.lng}
+
+REQUIREMENTS:
+1. Type: LocalBusiness (or RecyclingCenter)
+2. identifier: "${g.cid}" (CID format exactly — do NOT use gMapsUrl)
+3. Full PostalAddress: streetAddress "${g.street}", addressLocality "${v.city}", addressRegion "${v.state || "[STATE]"}", postalCode "${g.zip}", addressCountry "US"
+4. telephone "${g.phone}", geo GeoCoordinates ${g.lat}/${g.lng}
+5. hasMap and sameAs using the ?cid= URL above
+6. Include "Electronic Recycling" in the name and description, and the website URL
+7. Do NOT include aggregateRating/reviews or individual reviews
+8. Do NOT invent neighborhoods, ratings, or any value not given above
 
 Output the complete schema script block. No lengthy explanations.`;
 }

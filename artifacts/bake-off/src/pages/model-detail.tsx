@@ -1,9 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "wouter";
 import NotFound from "./not-found";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, CheckCircle2, Clock, Database, LayoutTemplate, Link as LinkIcon, ShieldAlert, FileText, Image as ImageIcon, DollarSign } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, Copy, Check, Database, LayoutTemplate, Link as LinkIcon, ShieldAlert, FileText, Image as ImageIcon, DollarSign } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useDataset } from "@/contexts/dataset-context";
 import { getDataset } from "@/data/datasets";
@@ -12,6 +12,49 @@ import { getDataset } from "@/data/datasets";
 function shotUrl(path: string | null | undefined): string | null {
   if (!path) return null;
   return `${import.meta.env.BASE_URL}${path}`;
+}
+
+/**
+ * Render a stored schema as a copy-ready JSON-LD <script> block. The harness
+ * stores the raw JSON, but the dashboard's "Copy schema" box must START and END
+ * with <script> (it is pasted straight into the page <head>). Accepts either a
+ * bare JSON string (current data) or an already-wrapped block (defensive), and
+ * always returns `<script type="application/ld+json">…</script>`.
+ */
+function toSchemaScript(raw: string): string {
+  let json = raw.trim();
+  const m = json.match(/<script\b[^>]*>([\s\S]*?)<\/script>/i);
+  if (m && m[1]) json = m[1].trim();
+  try {
+    json = JSON.stringify(JSON.parse(json), null, 2);
+  } catch {
+    /* leave as-is — invalid JSON still shows so the issue is visible */
+  }
+  return `<script type="application/ld+json">\n${json}\n</script>`;
+}
+
+/** A small clipboard button with a transient "Copied" confirmation. */
+function CopyButton({ text, label = "Copy", disabled }: { text: string; label?: string; disabled?: boolean }) {
+  const [copied, setCopied] = useState(false);
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={async () => {
+        try {
+          await navigator.clipboard.writeText(text);
+          setCopied(true);
+          setTimeout(() => setCopied(false), 1500);
+        } catch {
+          /* clipboard unavailable — no-op */
+        }
+      }}
+      className="inline-flex items-center gap-1.5 rounded-md border border-border bg-background px-2.5 py-1 text-xs font-medium transition-colors hover:bg-muted disabled:opacity-50 disabled:pointer-events-none"
+    >
+      {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
+      {copied ? "Copied" : label}
+    </button>
+  );
 }
 
 export default function ModelDetail() {
@@ -140,6 +183,7 @@ export default function ModelDetail() {
               <div className="mx-auto bg-background/50 text-xs px-3 py-1 rounded text-muted-foreground font-mono">
                 {results.target.url}
               </div>
+              <CopyButton text={model.html || ""} label="Copy HTML" disabled={!model.html} />
             </div>
             <div className="flex-1 bg-white relative">
               <iframe 
@@ -256,16 +300,22 @@ export default function ModelDetail() {
                 <CardTitle className="flex items-center gap-2">
                   <Database className="w-5 h-5" />
                   JSON-LD Schema
-                  {model.schemaValid ? (
-                    <Badge variant="outline" className="ml-auto bg-emerald-500/10 text-emerald-500 border-emerald-500/20">Valid</Badge>
-                  ) : (
-                    <Badge variant="outline" className="ml-auto bg-destructive/10 text-destructive border-destructive/20">Invalid</Badge>
-                  )}
+                  <div className="ml-auto flex items-center gap-2">
+                    {model.schema && <CopyButton text={toSchemaScript(model.schema)} label="Copy schema" />}
+                    {model.schemaValid ? (
+                      <Badge variant="outline" className="bg-emerald-500/10 text-emerald-500 border-emerald-500/20">Valid</Badge>
+                    ) : (
+                      <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20">Invalid</Badge>
+                    )}
+                  </div>
                 </CardTitle>
               </CardHeader>
               <CardContent>
+                <p className="text-xs text-muted-foreground mb-2">
+                  Copy-ready JSON-LD — starts and ends with <code className="font-mono">&lt;script&gt;</code>, paste straight into the page <code className="font-mono">&lt;head&gt;</code>.
+                </p>
                 <pre className="p-4 rounded-md bg-zinc-950 text-zinc-50 overflow-x-auto text-xs font-mono">
-                  {model.schema ? JSON.stringify(JSON.parse(model.schema), null, 2) : "No schema generated."}
+                  {model.schema ? toSchemaScript(model.schema) : "No schema generated."}
                 </pre>
               </CardContent>
             </Card>

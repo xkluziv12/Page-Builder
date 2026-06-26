@@ -13,6 +13,9 @@ import { fileURLToPath } from "node:url";
  *  - `sts-seo-data-2026.tsv`     — the "STS SEO Data 2026" GSC pages report
  *                                  (uploaded .xlsx)
  *  - `master-seo-audit.txt`      — the "Master SEO Audit" doc (uploaded .txt)
+ *  - `master-schema-generator.txt` — the "Schema Generator" doc (MASTER SCHEMA
+ *                                  GENERATOR v1.4.1 PRODUCTION), uploaded for the
+ *                                  Phase-4 schema turn
  *
  * These are loaded ONCE and inlined into the conversation as the equivalent of
  * the VA's file uploads (the API has no file-attachment surface). Missing or
@@ -24,6 +27,7 @@ export interface DesignFixtures {
   designTier2: string;
   seoData: string;
   seoAudit: string;
+  schemaGenerator: string;
 }
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -57,5 +61,6 @@ export function loadDesignFixtures(): DesignFixtures {
     designTier2: loadFixture("master-design-tier2.html", "Master Design (Tier 2)"),
     seoData: loadFixture("sts-seo-data-2026.tsv", "STS SEO Data 2026"),
     seoAudit: loadFixture("master-seo-audit.txt", "Master SEO Audit"),
+    schemaGenerator: loadFixture("master-schema-generator.txt", "Schema Generator"),
   };
 }

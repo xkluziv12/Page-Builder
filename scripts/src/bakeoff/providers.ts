@@ -33,9 +33,24 @@ export interface ChatMessage {
  * GEMINI_API_KEY, OpenAI via OPENAI_API_KEY, Grok via XAI_API_KEY against xAI's
  * own endpoint. No Replit AI-Integrations proxy and no OpenRouter are used.
  */
+/**
+ * Per-turn knobs applied to a SINGLE completion call. Today the only knob is
+ * `webSearch`: when set, the adapter attaches the provider's NATIVE web-search
+ * tool for THAT call only. It is the capability analogue of `ARTIFACT_TO_INLINE`
+ * — switched on uniformly for one specific turn (the SEO-verify turn, whose
+ * prompt explicitly says "search the web for current 2025-2026 SEO best
+ * practices") and off everywhere else, so the prompts/history/turn order stay
+ * byte-identical and the comparison stays apples-to-apples. Off by default, so
+ * every existing call site is unchanged.
+ */
+export interface CompleteOptions {
+  webSearch?: boolean;
+}
+
 export type CompleteFn = (
   messages: ChatMessage[],
   system?: string,
+  opts?: CompleteOptions,
 ) => Promise<EngineResult>;
 
 /** Generous output budget — full SEO pages run well past the default limits. */
@@ -107,7 +122,11 @@ async function withTimeout<T>(work: Promise<T>, ms: number, label: string): Prom
 }
 
 /** Raw, single-attempt completion an adapter implements. */
-type RawComplete = (messages: ChatMessage[], system?: string) => Promise<EngineResult>;
+type RawComplete = (
+  messages: ChatMessage[],
+  system?: string,
+  opts?: CompleteOptions,
+) => Promise<EngineResult>;
 
 /**
  * Wrap a raw completion with a per-request timeout + small bounded retry. This
@@ -117,11 +136,11 @@ type RawComplete = (messages: ChatMessage[], system?: string) => Promise<EngineR
  * only thrown transport/empty-response failures are.
  */
 function guarded(model: string, fn: RawComplete): CompleteFn {
-  return async (messages, system) => {
+  return async (messages, system, opts) => {
     let lastErr: unknown;
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       try {
-        return await withTimeout(fn(messages, system), WALL_CLOCK_MS, `${model} completion`);
+        return await withTimeout(fn(messages, system, opts), WALL_CLOCK_MS, `${model} completion`);
       } catch (err) {
         lastErr = err;
         const msg = err instanceof Error ? err.message : String(err);
@@ -151,13 +170,19 @@ export function makeClaudeComplete(model: string): CompleteFn {
     timeout: REQUEST_TIMEOUT_MS,
     maxRetries: 0,
   });
-  return guarded(model, async (messages, system) => {
+  return guarded(model, async (messages, system, opts) => {
     // Stream: the Anthropic SDK refuses non-streaming requests whose token
     // budget could push the call past 10 minutes (full SEO pages are large).
     const stream = client.messages.stream({
       model,
       max_tokens: MAX_OUTPUT_TOKENS,
       ...(system ? { system } : {}),
+      // Native web_search server tool, attached ONLY on the flagged turn. Claude
+      // runs the search itself and folds the results into its answer; we still
+      // read only the text blocks below, so search/tool-result blocks are ignored.
+      ...(opts?.webSearch
+        ? { tools: [{ type: "web_search_20250305" as const, name: "web_search" as const }] }
+        : {}),
       messages: messages.map((m) => ({ role: m.role, content: m.content })),
     });
     const message = await stream.finalMessage();
@@ -177,7 +202,7 @@ export function makeGeminiComplete(model: string): CompleteFn {
     apiKey: requireEnv("GEMINI_API_KEY"),
     httpOptions: { timeout: REQUEST_TIMEOUT_MS },
   });
-  return guarded(model, async (messages, system) => {
+  return guarded(model, async (messages, system, opts) => {
     const resp = await ai.models.generateContent({
       model,
       // Gemini uses "model" for the assistant role and a `parts` array.
@@ -188,6 +213,10 @@ export function makeGeminiComplete(model: string): CompleteFn {
       config: {
         ...(system ? { systemInstruction: system } : {}),
         maxOutputTokens: MAX_OUTPUT_TOKENS,
+        // Google Search grounding, attached ONLY on the flagged turn. Gemini
+        // grounds its answer in live results; `resp.text` still aggregates the
+        // model's text, so extraction is unchanged.
+        ...(opts?.webSearch ? { tools: [{ googleSearch: {} }] } : {}),
       },
     });
     const raw = (resp.text ?? "").trim();
@@ -228,7 +257,7 @@ export function makeOpenAIComplete(model: string): CompleteFn {
   // run at the API default with no reasoning override. This only tunes HOW HARD a
   // pro model thinks; prompts, history, and turn order are identical everywhere.
   const isPro = /\bpro\b/i.test(model) || model.toLowerCase().includes("-pro");
-  return guarded(model, async (messages, system) => {
+  return guarded(model, async (messages, system, opts) => {
     // Submit as a BACKGROUND job and poll to completion. The synchronous Responses
     // endpoint enforces a server-side processing window (~minutes) that the
     // ultra-heavy "pro" tier routinely exceeds on the full page-build turn — it
@@ -242,6 +271,10 @@ export function makeOpenAIComplete(model: string): CompleteFn {
       background: true,
       ...(isPro ? { reasoning: { effort: OPENAI_REASONING_EFFORT } } : {}),
       ...(system ? { instructions: system } : {}),
+      // Responses web_search tool, attached ONLY on the flagged turn. It coexists
+      // with background poll mode; `resp.output_text` still aggregates the final
+      // text once the run completes, so extraction below is unchanged.
+      ...(opts?.webSearch ? { tools: [{ type: "web_search" as const }] } : {}),
       input: messages.map((m) => ({ role: m.role, content: m.content })),
     });
     while (resp.status === "queued" || resp.status === "in_progress") {
@@ -269,7 +302,38 @@ export function makeGrokComplete(model: string): CompleteFn {
     timeout: REQUEST_TIMEOUT_MS,
     maxRetries: 0,
   });
-  return guarded(model, async (messages, system) => {
+  return guarded(model, async (messages, system, opts) => {
+    // Native web search, attached ONLY on the flagged turn. xAI's old Live Search
+    // (`search_parameters`) is deprecated (410 → "switch to the Agent Tools API"),
+    // so the current native path is the `web_search` Agent Tool, which xAI serves
+    // on its OpenAI-compatible RESPONSES endpoint (chat/completions rejects the
+    // tool). We therefore route the flagged turn through `responses` with the
+    // web_search tool; every other turn stays on plain chat/completions. The full
+    // history is re-sent as `input` items, identical to the OpenAI adapter, so the
+    // turn/prompt sequence is unchanged.
+    if (opts?.webSearch) {
+      let resp = await client.responses.create({
+        model,
+        max_output_tokens: MAX_OUTPUT_TOKENS,
+        tools: [{ type: "web_search" as const }],
+        ...(system ? { instructions: system } : {}),
+        input: messages.map((m) => ({ role: m.role, content: m.content })),
+      });
+      while (resp.status === "queued" || resp.status === "in_progress") {
+        await new Promise((r) => setTimeout(r, 5_000));
+        resp = await client.responses.retrieve(resp.id);
+      }
+      if (resp.status && resp.status !== "completed") {
+        throw new Error(
+          `${model} web-search run ended as ${resp.status}: ${
+            resp.error?.message ?? resp.incomplete_details?.reason ?? "no detail"
+          }`,
+        );
+      }
+      const raw = (resp.output_text ?? "").trim();
+      if (!raw) throw new Error(`${model} returned an empty response.`);
+      return { content: unfence(raw), raw };
+    }
     const resp = await client.chat.completions.create({
       model,
       max_tokens: MAX_OUTPUT_TOKENS,

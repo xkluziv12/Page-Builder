@@ -2,9 +2,11 @@ import { buildRegistry, describeContext, type RunContext } from "@workspace/mc-c
 import {
   ARTIFACT_TO_INLINE,
   ARTIFACT_TO_INLINE_OPTIONAL,
+  SCHEMA_TO_INLINE,
   buildPrompt,
   introPrompt,
   rebuildPrompt,
+  schemaPrompt,
   seoPrompt,
   seoVerifyFixPrompt,
   seoVerifyPrompt,
@@ -152,7 +154,14 @@ function userCharsForPhase(
   if (phase === "verify-links") return (verifyLinksPrompt() + ARTIFACT_TO_INLINE_OPTIONAL).length;
   if (phase.startsWith("verify-links-fix"))
     return (verifyLinksFixPrompt() + ARTIFACT_TO_INLINE_OPTIONAL).length;
-  if (phase === "schema") return 0; // deterministic, no API call
+  if (phase === "schema")
+    // A real AI turn now: the No-GMB schema prompt + the inlined Master Schema
+    // Generator file + the SCHEMA_TO_INLINE shim. The GMB variant is within a few
+    // hundred chars of this, so the No-GMB form is a faithful size proxy.
+    return (
+      `${schemaPrompt(vars)}\n\n${fileBlock("Schema Generator", fixtures.schemaGenerator)}${SCHEMA_TO_INLINE}`
+        .length
+    );
   return 0;
 }
 
@@ -164,7 +173,7 @@ function assistantCharsForPhase(phase: string, htmlChars: number): number {
   if (phase === "build" || phase.startsWith("rebuild") || phase === "seo") return htmlChars;
   if (phase === "seo-verify" || phase.startsWith("seo-verify-fix")) return 2500;
   if (phase === "verify-links" || phase.startsWith("verify-links-fix")) return 1200;
-  if (phase === "schema") return 0; // no AI turn
+  if (phase === "schema") return 1800; // one JSON-LD <script> block (no HTML doc)
   return 800;
 }
 
@@ -194,7 +203,6 @@ export function estimateCost(args: EstimateCostArgs): CostEstimate {
   let outputChars = 0;
 
   for (const t of timings) {
-    if (t.phase === "schema") continue; // deterministic turn — no API call
     const userChars = userCharsForPhase(t.phase, ctx, fixtures, grounding, introEnrichment);
     // This call sends the whole accumulated history plus the new user message.
     billedInputChars += historyChars + userChars;
@@ -222,7 +230,8 @@ export function estimateCost(args: EstimateCostArgs): CostEstimate {
       `Estimate — token usage was not captured at run time. Reconstructed from the verbatim prompts + ` +
       `inlined design files re-sent every turn (~4 chars/token), priced at ${tier.label} list rates ` +
       `($${tier.inputPerM}/$${tier.outputPerM} per 1M in/out), no prompt-caching discount and excluding ` +
-      `hidden reasoning tokens.`,
+      `hidden reasoning tokens. The SEO-verify turn runs the provider's native web search, whose ` +
+      `per-search fees are billed separately by the provider and are NOT included in this token-based estimate.`,
   };
 }
 
