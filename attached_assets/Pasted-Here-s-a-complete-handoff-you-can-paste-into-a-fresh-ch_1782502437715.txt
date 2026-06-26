@@ -1,0 +1,83 @@
+Here's a complete handoff you can paste into a fresh chat once everything's merged.
+
+Handoff — Task #69: GMB Schema Variant from a Pasted Google Maps Location
+The one-line goal
+Add a GMB-enriched page variant to the Bake-Off harness, sourced the way a VA actually works: paste a Google Maps place URL + the raw maps info dump, deterministically extract the real local signals, and emit a complete, publish-ready GMB JSON-LD schema — gated so it fails loud if key local fields are missing.
+
+⚠️ Critical coordination context (read first)
+Another chat shipped overlapping GMB work to main while this task was assigned. That work added (in its own environment):
+
+BAKEOFF_GMB_JSON — pass a verified GMB block as JSON
+BAKEOFF_SCENARIO=gmb (singular) + BAKEOFF_CITY / BAKEOFF_STATE / BAKEOFF_NICHE / BAKEOFF_PAGE_URL — parameterize the target (any city, not just Billings)
+Fail-loud on any missing required GMB field (never invents CID/address/phone)
+A "Produced Page" tab in the Bake-Off viewer where the built page lands
+Run instructions from that chat: for a real GMB run, pass the verified block via BAKEOFF_GMB_JSON, set BAKEOFF_SCENARIO=gmb, plus BAKEOFF_CITY/STATE/NICHE/PAGE_URL.
+
+The decision we made: hold off and let those changes land in main first, then build #69 on top of them — not duplicate them.
+
+→ First action in the new chat: survey what already exists for GMB (search for BAKEOFF_GMB_JSON, BAKEOFF_SCENARIO, Produced Page, and re-read scripts/src/bakeoff/gmb.ts + run.ts). Only build the genuinely-missing parts of #69 (see "Still likely missing" below).
+
+The test location (the URL + GMB data)
+Use the Regus – Portland – Liberty Centre Google Maps listing as a stand-in for an STS Portland, OR location at page path /portland-or. Per the user's instruction: "pretend that's our location" — keep the real phone, address, and hours as-is, and swap only the website to stselectronicrecyclinginc.com.
+
+Confirmed CID parse (this is the tricky bit):
+
+Maps URL data segment: !1s0x5495a0b27175b345:0x8ac16143d1506315
+Take the hex after the colon: 0x8ac16143d1506315
+Convert to decimal: 9998379591641621269
+Final map URL: https://www.google.com/maps?cid=9998379591641621269
+Geo coordinates come from the !3d<lat>!4d<lng> pin in the URL. The parser must also extract street/city/state/zip, phone, 7-day hours (including 24-hour days), and plus code — and fail loud on any missing/unparseable required field rather than inventing it.
+
+Decisions locked with the user
+Schema mechanism: enrich the existing deterministic generator (identical across all models, no per-model AI schema turn). Do NOT add a 4-model schema-generation demo.
+Parser scope: build a reusable GMB paste-box parser inside the bake-off package, written cleanly so Mission Control can adopt it later. Do NOT wire it into Mission Control's UI in this task.
+Completeness gate: fail loud when a publish-bound, GMB-typed page is missing telephone, openingHoursSpecification, or local streetAddress.
+What the enriched GMB schema must contain
+A publish-bound GMB page's JSON-LD must carry the full local signal set:
+
+@type ordered most-specific first: ["RecyclingCenter","LocalBusiness"]
+telephone
+openingHoursSpecification (built from parsed hours, incl. 24-hour days)
+real local streetAddress + postalCode on the LocalBusiness node
+identifier (the CID)
+geo (lat/lng)
+hasMap / sameAs → the ?cid= map URL
+copy/paste-ready into a Joomla <head> as <script type="application/ld+json">…</script>
+"Done" looks like
+Reusable parser: paste URL + maps dump → structured GMB profile (decimal CID, address parts, phone, 7-day hours, geo, plus code, website overridden to STS). Fails loud on missing required fields.
+The Portland/Regus profile drives the GMB scenario, replacing the fictional BILLINGS_GMB placeholder as the scenario's source of truth (kept honestly labeled as a test/illustrative location in the model-facing context block).
+Deterministic GMB schema includes all fields listed above.
+Schema-completeness gate halts/marks-failed any publish-bound GMB page missing telephone, opening hours, or street address — integrated into the existing checker/validation flow so the AI (not a human) catches it.
+GMB tests assert the new required fields are present (mirroring how the No-GMB tests assert they're absent) — this folds in the separate "Guard the GMB schema fields" task.
+The cheap GMB scenario only has been re-run (scenario-filtered, resumable) via a console workflow (reasoning-model calls exceed the bash time limit), results viewable in the dashboard next to the No-GMB baseline.
+Regression check: model-detail "Copy schema" still returns a <script type="application/ld+json">…</script> block; "Copy HTML" copies raw HTML.
+Out of scope
+Wiring the paste-box parser into Mission Control's run-creation UI (deferred; just build it reusable).
+A per-model schema-generation demo (schema stays deterministic).
+Re-running the full multi-scenario sweep or other cities — GMB scenario only.
+Changing the No-GMB path, prompts, or generateNoGmbSchema (those stay byte-for-byte intact; GMB changes are additive).
+Relevant files
+scripts/src/bakeoff/gmb.ts — GMB profile, schema generator, parser goes here
+scripts/src/bakeoff/gmb.test.ts — parser + schema contract tests
+scripts/src/bakeoff/run.ts — scenario definitions, run loop, checker integration (runCheckers call ~line 459)
+scripts/src/bakeoff/miniPrompts.ts — HQ_PHONE, schemaPrompt
+scripts/src/bakeoff/providers.ts — model adapters (no change expected)
+scripts/src/bakeoff/cost.ts — billingsNoGmbContext test helper
+scripts/src/bakeoff/reference/billings-mt-schema.txt — real production schema reference
+artifacts/bake-off/src/pages/model-detail.tsx — viewer (schema/HTML copy buttons, "Produced Page" tab)
+scripts/package.json — bakeoff / bakeoff:rescore scripts
+lib/mc-core/src/seo/ — generateLocalBusinessSchema source of truth (read-only reference, do not modify)
+Environment / run notes
+Run the GMB scenario via a console workflow, not inline bash — detached bash processes get reaped when the tool call returns, and reasoning-model calls exceed the bash time limit. Make it resumable.
+Requires STS's own API keys (ANTHROPIC_API_KEY, OPENAI_API_KEY, GEMINI_API_KEY, XAI_API_KEY) — verify by exercising the call, the env-listing can miss live runtime keys.
+Working protocol (from replit.md): clarify before building, flag change-vs-new, schema-first + validate at every handoff, fail loud, self-review + architect review before "done."
+Still likely missing after the merge (the actual #69 work)
+Assuming the other chat already did the env-param + JSON-block + viewer-tab plumbing, the parts that are probably still yours to build:
+
+The reusable paste-box parser (URL + raw dump → profile, incl. CID hex→decimal and !3d/!4d geo) with unit tests for CID extraction + malformed inputs.
+The Portland/Regus profile as the GMB scenario's real source of truth (replacing the fictional Billings placeholder).
+The enriched deterministic schema (RecyclingCenter-first @type, opening hours, street/postal, CID, geo, ?cid=).
+The schema-completeness gate in the checker flow.
+GMB tests asserting the new fields are present.
+Re-run the cheap GMB scenario + regression-check the copy buttons.
+That's the full picture. Nothing's been changed in this environment, so you're safe to close this chat and start fresh once the other work is in main.
