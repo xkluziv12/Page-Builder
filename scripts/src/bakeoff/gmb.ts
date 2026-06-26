@@ -1,4 +1,5 @@
-import type { RunContext } from "@workspace/mc-core";
+import { generateLocalBusinessSchema, type RunContext } from "@workspace/mc-core";
+import { HQ_PHONE } from "./miniPrompts.js";
 
 /**
  * The "GMB-enriched" scenario for the bake-off.
@@ -122,4 +123,28 @@ export function generateGmbSchema(ctx: RunContext, p: GmbProfile): string {
     })),
   };
   return JSON.stringify(schema, null, 2);
+}
+
+/**
+ * No-GMB deterministic schema for the bake-off, BAKE-OFF ONLY.
+ *
+ * Wraps the production city/state `generateLocalBusinessSchema` (the source of
+ * truth, left untouched in `lib/mc-core`) and adds ONLY a `telephone` set to the
+ * STS HQ backup line. There is still NO `streetAddress`, NO `postalCode`, NO
+ * CID/identifier, and NO `hasMap` — those remain GMB-only. This is what the
+ * No-GMB scenario's `schemaFn` emits so the schema turn carries the HQ phone.
+ */
+export function generateNoGmbSchema(ctx: RunContext): string {
+  const base = JSON.parse(generateLocalBusinessSchema(ctx)) as Record<string, unknown>;
+  const withPhone = {
+    "@context": base["@context"],
+    "@type": base["@type"],
+    name: base.name,
+    url: base.url,
+    telephone: HQ_PHONE,
+    areaServed: base.areaServed,
+    address: base.address,
+    makesOffer: base.makesOffer,
+  };
+  return JSON.stringify(withPhone, null, 2);
 }

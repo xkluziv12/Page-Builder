@@ -3,7 +3,6 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   buildRegistry,
-  generateLocalBusinessSchema,
   parseSchema,
   runCheckers,
   type RunContext,
@@ -20,7 +19,7 @@ import { loadDesignFixtures, type DesignFixtures } from "./fixtures.js";
 import { estimateCost } from "./cost.js";
 import { runConversation } from "./conversation.js";
 import { generateSharedGrounding, type SharedGrounding } from "./grounding.js";
-import { BILLINGS_GMB, gmbContextSuffix, generateGmbSchema } from "./gmb.js";
+import { BILLINGS_GMB, gmbContextSuffix, generateGmbSchema, generateNoGmbSchema } from "./gmb.js";
 import { scoreModels } from "./score.js";
 import { judgeVisual, type VisualVerdict } from "./visual.js";
 import type { BakeoffResults, ModelResult, ScenarioResult } from "./types.js";
@@ -108,13 +107,13 @@ const SCENARIOS: ScenarioSpec[] = [
     description:
       "The exact human No-GMB checklist a VA runs today, one continuous chat per model: verbatim copyPrompt() prompts, the real uploaded design files inlined, city/state targeting only, NO explicit page_url and NO GMB block.",
     introEnrichment: "",
-    schemaFn: generateLocalBusinessSchema,
+    schemaFn: generateNoGmbSchema,
     buildContext: baseContext,
     verifiedCid: null,
     notes: [
       "Every model runs the IDENTICAL No-GMB checklist in ONE stateful conversation: intro (files uploaded + rules + model check) → build → design gate / force-rebuild loop → SEO audit → SEO verification → schema (deterministic) → link verification. The prompt text is the tool's verbatim copyPrompt() output; the real uploaded design files are inlined as the API-faithful stand-in for file uploads.",
       "This is the faithful production reproduction. The context deliberately omits an explicit page_url and any Google Business Profile (GMB) block — STS spoke pages target a service-area city, not a verified storefront.",
-      "Schema is the deterministic No-GMB LocalBusiness (city/state only, NO CID, NO street address) — exactly what the VA's 'Auto-Generate Schema' button emits in No-GMB mode. It is generated deterministically with no AI turn.",
+      "Schema is the deterministic No-GMB LocalBusiness (city/state only, with telephone = the STS HQ backup line 844-699-2913, NO CID, NO street address). It wraps the production city/state schema and is generated deterministically with no AI turn; the HQ telephone fallback is a bake-off-only addition so a No-GMB page still carries a phone instead of nothing.",
       "If a model refuses to build under this context (asking for page_url / GMB data first) it surfaces as no HTML and is recorded faithfully as an ERROR — it is NOT patched away, because special-casing one model would break the apples-to-apples comparison.",
     ],
   },

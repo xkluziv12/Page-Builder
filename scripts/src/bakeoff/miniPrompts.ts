@@ -29,6 +29,22 @@ export const FORCE_PREFIX =
   "CRITICAL SYSTEM INSTRUCTION: Execute ALL steps exhaustively. Do NOT summarize. Do NOT skip any section. Do NOT take shortcuts. Complete every single requirement. Stop and alert if errors occur.\n\n";
 
 /**
+ * The STS HQ main line — the SINGLE source of truth for the No-GMB backup phone.
+ *
+ * Bake-off ONLY. In a No-GMB build there is no verified local phone, so instead
+ * of telling models to ship a page with NO phone at all (a negative,
+ * input-starved framing that pushed at least one model to treat the absent
+ * phone/address as "required inputs missing" and refuse to build), the harness
+ * falls back to this HQ main line for call buttons, on-page contact, and the
+ * schema `telephone`. It is a hardcoded backup that applies ONLY in the No-GMB
+ * case; the GMB scenario keeps its own GMB phone. Production (`lib/mc-core`, the
+ * shipped `no-gmb.html` tool) is untouched.
+ */
+export const HQ_PHONE = "844-699-2913";
+/** The same number as a working `tel:` href for call buttons. */
+export const HQ_PHONE_TEL = "tel:+18446992913";
+
+/**
  * The ONE medium-translation the harness applies, IDENTICALLY for every model,
  * to the turns that must yield a page. The verbatim prompts tell the model to
  * "create an artifact" and "never paste code in chat" — but this is an API
@@ -142,7 +158,7 @@ NICHE: ${v.niche}
 ═══════════════════════════════════
 
 ⚠️ NO GMB BUILD:
-This city has no Google Business listing. Do NOT include or invent a street address, local phone number, business hours, CID, or Google Maps embed/CID link. Do NOT invent an address. Schema is generated separately in Phase 4 (no CID, no street address) — this is otherwise a standard landing page.
+This city has no Google Business listing — but PROCEED NORMALLY and build the full landing page. For the call buttons and on-page contact, use the STS HQ main line ${HQ_PHONE} as the backup phone, wired as a working tel: link (${HQ_PHONE_TEL}). Do NOT invent a LOCAL phone number, street address, business hours, CID, or Google Maps embed/CID link for this city. Schema is generated separately in Phase 4 (telephone = the HQ backup line; no CID, no street address) — this is otherwise a standard landing page.
 ${hubSpokeSection}
 EXECUTION INSTRUCTIONS:
 1. Use Master Page Builder logic - follow EVERY step
@@ -150,7 +166,7 @@ EXECUTION INSTRUCTIONS:
 3. Hero section MUST have city "${v.city}" + niche "${v.niche}" in H1, form on RIGHT
 4. Mobile responsive - images must NOT squeeze text
 5. Do NOT include Schema yet (built separately in Phase 4 — no CID, no GMB address)
-6. Do NOT include a footer NAP block (no local address/phone for this city)
+6. Footer/contact: use the STS HQ main line ${HQ_PHONE} (tel: link) for call buttons — do NOT add a local street address or invent a local-branch phone for this city
 7. Facility mentions: Say "serving ${v.city} from our 600,000 sq ft facility" — NOT "our ${v.city} facility"
 ${v.hubSpoke ? "8. Include 3-4 internal links from Hub+Spoke handoff in rows 4+ (NOT hero)" : ""}
 
@@ -174,7 +190,7 @@ INSTRUCTIONS:
 4. Fix the specific issue mentioned above
 5. Ensure Hero has city in H1, form on RIGHT
 6. Ensure mobile view works - no image squeeze
-7. NO GMB: do not invent a street address, local phone, hours, or CID
+7. NO GMB: build normally; use the STS HQ main line ${HQ_PHONE} (tel: link) for call buttons; do NOT invent a local street address, local-branch phone, hours, or CID
 
 ⚠️ CRITICAL OUTPUT REQUIREMENT:
 CREATE A NEW ARTIFACT with the complete rebuilt HTML code. Do NOT paste code in chat.
@@ -193,7 +209,7 @@ Scan the HTML and verify:
 2. ALL contact/quote buttons = https://www.stselectronicrecyclinginc.com/CONTACT-STS-PAGE
 3. NO made-up URLs (LLMs invent URLs!)
 4. NO example.com or placeholder links
-5. NO invented phone numbers or addresses (NO GMB build)
+5. NO invented LOCAL phone numbers or street addresses (NO GMB build) — but the STS HQ main line ${HQ_PHONE} (tel: link) IS the allowed backup phone: KEEP it, do NOT treat it as invented.
 
 VERDICT:
 If ALL links correct: ✅ LINKS VERIFIED — Proceed to next phase
@@ -217,7 +233,7 @@ Your link verification returned ❌ LINKS FAILED.
    - ALL email links = mailto:recycle@stsrecycle.com
    - ALL contact/quote buttons = https://www.stselectronicrecyclinginc.com/CONTACT-STS-PAGE
    - Remove any made-up / example.com / placeholder URLs
-   - Remove any invented phone numbers or addresses (NO GMB build)
+   - Remove any invented LOCAL phone numbers or street addresses (NO GMB build) — but KEEP the STS HQ main line ${HQ_PHONE} (the allowed backup phone)
 2. Re-scan ALL links in the corrected page.
 3. End your reply with the FINAL VERDICT, exactly one of:
    ✅ LINKS VERIFIED — Proceed to next phase
@@ -243,7 +259,7 @@ CRITICAL RULES:
 - The first 2 rows (Hero section) = MINOR tweaks only, no major changes
 - STRIP/REMOVE all existing Schema (rebuilt separately in Phase 4)
 - Verify emails = mailto:recycle@stsrecycle.com
-- NO GMB: do NOT add or invent a street address, local phone, hours, or CID
+- NO GMB: keep the STS HQ main line ${HQ_PHONE} on the call buttons (tel: link); do NOT add or invent a local street address, local-branch phone, hours, or CID
 ${v.hubSpoke ? "- Verify 3-4 internal links exist in content sections (rows 4+, NOT hero)" : ""}
 
 Complete the ENTIRE audit. Do not stop early. Do not summarize.
@@ -295,22 +311,32 @@ LOCAL SEO:
 ════════════════════════════════════════════════════════
 🔴 NO GMB CHECK
 ════════════════════════════════════════════════════════
-This is a NO GMB build. Search the HTML for any invented local data.
+This is a NO GMB build. It SHOULD still have working call buttons that use the
+STS HQ main line ${HQ_PHONE} as a tel: link — that HQ backup number is EXPECTED
+and allowed, it is NOT invented local data. Confirm it is present and wired to the
+call buttons. Then search the HTML for any invented LOCAL data.
+
+EXPECTED (do NOT flag these):
+✅ The STS HQ main line ${HQ_PHONE} on the call buttons / contact (tel: link)
+✅ telephone "${HQ_PHONE}" in the schema
 
 WRONG (fix these):
 ❌ A street address for this city (including streetAddress in schema)
-❌ A local phone number presented as this city's location
+❌ A LOCAL / local-branch phone number presented as this city's own line (any phone OTHER than the HQ backup ${HQ_PHONE})
 ❌ Business hours for a local branch
 ❌ A CID anywhere (identifier "cid:...", hasMap, or sameAs Google Maps CID link)
 ❌ A Google Maps embed or CID link
 
-NOTE: Schema itself is FINE and expected — only a CID or invented street address is wrong.
+NOTE: Schema itself is FINE and expected — telephone "${HQ_PHONE}" is correct; only a CID, an invented street address, or a local-branch phone is wrong.
 
-ACTION: If any invented local data found → REMOVE IT and output:
-🔴 REMOVED: [show what was removed]
+ACTION:
+- If the HQ number ${HQ_PHONE} is MISSING from the call buttons → ADD it (tel: link) and output:
+  🔴 ADDED: HQ backup phone wired to call buttons
+- If any invented local data found → REMOVE IT and output:
+  🔴 REMOVED: [show what was removed]
 
-If clean → output:
-✅ NO GMB: Clean (no invented local data)
+If clean and the HQ number is present → output:
+✅ NO GMB: Clean (HQ backup phone present, no invented local data)
 
 ════════════════════════════════════════════════════════
 🔴 FACILITY LANGUAGE CHECK
@@ -422,16 +448,17 @@ Website: https://www.stselectronicrecyclinginc.com
 This city has NO Google Business listing. Generate schema EXACTLY like a standard build EXCEPT:
 - NO CID anywhere — do NOT add an "identifier" with "cid:...", NO "hasMap", and NO "sameAs" Google Maps CID link (https://www.google.com/maps?cid=...)
 - NO GMB street address — do NOT include "streetAddress" or a postal code. Do NOT invent an address.
-- NO local phone number for this city.
+- Telephone: use the STS HQ main line "${HQ_PHONE}" as the backup "telephone". Do NOT invent a LOCAL phone number for this city.
 
 REQUIREMENTS:
 1. Type: LocalBusiness (or RecyclingCenter) / Organization
 2. Use CITY + STATE targeting only — "address" may include addressLocality "${v.city}" and addressRegion "${v.state || "[STATE]"}" plus addressCountry "US", and/or "areaServed": "${v.city}, ${v.state || "[STATE]"}". NO streetAddress, NO postalCode.
 3. Include "Electronic Recycling" in the name and description
 4. Include the website URL
-5. Wrap in <script type="application/ld+json"> tags
-6. Do NOT include aggregateRating/reviews
-7. Do NOT include any CID, identifier, hasMap, or Google Maps link
+5. Include "telephone": "${HQ_PHONE}" (the HQ backup line)
+6. Wrap in <script type="application/ld+json"> tags
+7. Do NOT include aggregateRating/reviews
+8. Do NOT include any CID, identifier, hasMap, or Google Maps link
 
 Output the complete schema script block. No lengthy explanations.`;
 }
