@@ -1,0 +1,36 @@
+Handoff — GMB (location-based) schema variant + re-run demo
+Goal: Add a GMB / location-based schema variant that includes the local signals the No-GMB version strips, then re-run the cheap 4-model demo to compare it against (a) the No-GMB outputs and (b) the live /houston page.
+
+What "done" looks like: each model emits a publish-complete JSON-LD block that matches the live production /houston schema 1:1 on local signals — copy/paste-ready into a Joomla page <head>.
+
+What to add (GMB delta vs. the existing No-GMB prompt)
+The live /houston LocalBusiness node proves the target shape:
+
+telephone (e.g. +1-844-699-2913)
+openingHoursSpecification (M–F 09:00–17:00)
+A real local streetAddress + postalCode on the LocalBusiness node (e.g. 4801 Woodway Drive, Suite 300 East, Houston, TX 77056) — NOT just the HQ on Organization
+@type ordered ["RecyclingCenter","LocalBusiness"] — most-specific subtype first (No-GMB keeps RecyclingCenter in additionalType)
+Still missing even on the live page (optional stretch): geo GeoCoordinates (≥5 decimals), priceRange
+Flag change vs. new: this is a new variant of an existing prompt — keep the No-GMB path intact; add GMB as a sibling, don't overwrite.
+
+How to build & run (reuse, don't reinvent)
+Starting point: scripts/src/bakeoff/schema-demo.ts (the working No-GMB demo) + scripts/src/bakeoff/miniPrompts.ts (schemaPrompt, SCHEMA_TO_INLINE, PromptVars). Add a GMB prompt variant alongside schemaPrompt.
+Reference page input: the GMB build needs local address/phone/hours as inputs — source them from the live /houston page or pass via PromptVars. Don't let the model invent them (fail loud if missing).
+Run it CHEAP — single-turn demo only, NOT the full bakeoff sweep. The user is cost-conscious.
+Run via a temporary console workflow, not inline bash — 4 reasoning-model calls exceed the 120s bash limit and tail buffers until exit. Use configureWorkflow({ outputType:"console", autoStart:true }) writing to a logfile, poll the log, then removeWorkflow. (See memory: background-process-reaping.md.)
+Model lineup (locked): GPT-5.4 (gpt-5.4), Claude Sonnet 4.6 (claude-sonnet-4-6), newest Grok (discoverNewestGrok), Gemini 3.1 Pro (gemini-3.1-pro-preview).
+Critical gotcha (will waste a run if missed)
+Anthropic model ids are display-masked. The real Sonnet literal is claude-sonnet-4-6; if you copy the on-screen masked form (n-4-6) into code it 404s. Import from lib/mc-core's Claude engine or use the real literal. (Memory: model-id-display-redaction.md.)
+
+Baselines to compare against
+No-GMB outputs: scripts/src/bakeoff/output/schema-demo/{openai-54,claude,grok,gemini}.txt
+Live /houston: main graph is block 2 (25,143 chars) — same template (20 Service / 20 Offer / 8 FAQ / 6 HowTo), plus telephone + openingHours + real local address + RecyclingCenter-first @type.
+Optional stretch (the "better than a VA" piece)
+Wire a schema-completeness gate: when a page is publish-bound and GMB-typed, the gate fails loud / halts if telephone, openingHoursSpecification, or local streetAddress are missing — so the AI catches the omission, not a human.
+
+Verify the copy buttons still hold
+artifacts/bake-off/src/pages/model-detail.tsx → toSchemaScript() must keep returning a block that starts and ends with <script type="application/ld+json">…</script> (Copy schema), and Copy HTML copies raw HTML. Already correct — just don't regress it.
+
+Suggested opening line for the new chat:
+
+"Build the GMB (location-based) schema variant — add telephone, opening hours, and a real local street address on the LocalBusiness node, with RecyclingCenter as the primary @type — then re-run the cheap 4-model schema demo (not the full sweep) so I can compare it against the No-GMB outputs and the live /houston page."
