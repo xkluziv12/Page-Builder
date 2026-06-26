@@ -53,15 +53,26 @@ function unescapeJsonContent(text: string): string | null {
   }
 }
 
-export function extractHtmlDocument(raw: string, label = "model"): string {
+/**
+ * Non-throwing variant: return the HTML document if one is present, else null.
+ * Used for turns where HTML output is OPTIONAL (seo-verify, verify-links) — the
+ * model may only return a report, in which case we keep the prior page rather
+ * than failing the run.
+ */
+export function tryExtractHtmlDocument(raw: string): string | null {
   const direct = sliceDocument(raw);
   if (direct) return direct;
-
   const unescaped = unescapeJsonContent(raw);
   if (unescaped) {
     const fromJson = sliceDocument(unescaped);
     if (fromJson) return fromJson;
   }
+  return null;
+}
+
+export function extractHtmlDocument(raw: string, label = "model"): string {
+  const doc = tryExtractHtmlDocument(raw);
+  if (doc) return doc;
 
   throw new Error(
     `${label} returned no HTML document (no <!DOCTYPE>/<html>…</html> found). ` +

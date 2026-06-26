@@ -1,12 +1,11 @@
 import { Link, useLocation } from "wouter";
 import { Info, Home, FileText } from "lucide-react";
-import resultsData from "@/data/results.json";
-import { BakeoffResults } from "@/types";
-
-const results = resultsData as BakeoffResults;
+import { useDataset } from "@/contexts/dataset-context";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
+  const { dataset, activeId: datasetId } = useDataset();
+  const results = dataset.results;
 
   return (
     <div className="flex h-screen w-full bg-background overflow-hidden selection:bg-primary selection:text-primary-foreground">
@@ -33,7 +32,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <h4 className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-3">{scenario.label}</h4>
               <nav className="flex flex-col gap-1">
                 {scenario.models.map((model) => {
-                  const href = `/model/${scenario.id}/${model.id}`;
+                  const href = `/model/${datasetId}/${scenario.id}/${model.id}`;
                   return (
                     <Link key={model.id} href={href} className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${location === href ? 'bg-secondary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-secondary/5 hover:text-foreground'}`}>
                       <FileText className="w-4 h-4" />

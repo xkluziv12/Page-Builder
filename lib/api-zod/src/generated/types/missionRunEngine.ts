@@ -11,5 +11,7 @@ export type MissionRunEngine = typeof MissionRunEngine[keyof typeof MissionRunEn
 
 export const MissionRunEngine = {
   claude: 'claude',
+  openai: 'openai',
+  gemini: 'gemini',
   replit: 'replit',
 } as const;

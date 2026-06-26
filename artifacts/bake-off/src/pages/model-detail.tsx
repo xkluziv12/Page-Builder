@@ -1,13 +1,12 @@
-import { BakeoffResults } from "@/types";
-import resultsData from "@/data/results.json";
+import { useEffect } from "react";
 import { useParams } from "wouter";
 import NotFound from "./not-found";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, CheckCircle2, Clock, Code2, Database, LayoutTemplate, Link as LinkIcon, ShieldAlert, FileText, Image as ImageIcon } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Clock, Database, LayoutTemplate, Link as LinkIcon, ShieldAlert, FileText, Image as ImageIcon, DollarSign } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-
-const results = resultsData as BakeoffResults;
+import { useDataset } from "@/contexts/dataset-context";
+import { getDataset } from "@/data/datasets";
 
 /** Resolve a screenshot path stored in results.json against the app's base URL. */
 function shotUrl(path: string | null | undefined): string | null {
@@ -16,7 +15,16 @@ function shotUrl(path: string | null | undefined): string | null {
 }
 
 export default function ModelDetail() {
-  const { scenarioId, id } = useParams();
+  const { datasetId, scenarioId, id } = useParams();
+  const { activeId, setActiveId } = useDataset();
+
+  // The URL is the source of truth for which dataset this page shows; keep the
+  // shared switcher (sidebar/dashboard) in sync when navigating directly here.
+  useEffect(() => {
+    if (datasetId && datasetId !== activeId) setActiveId(datasetId);
+  }, [datasetId, activeId, setActiveId]);
+
+  const results = getDataset(datasetId).results;
   const scenario = results.scenarios.find(s => s.id === scenarioId);
   const model = scenario?.models.find(m => m.id === id);
 
@@ -63,6 +71,12 @@ export default function ModelDetail() {
               <FileText className="w-4 h-4" />
               <span>{model.scores?.wordCount ?? 0} words score</span>
             </div>
+            {model.costEstimate && (
+              <div className="flex items-center gap-1.5">
+                <DollarSign className="w-4 h-4" />
+                <span>~${model.costEstimate.totalUsd.toFixed(2)} est. cost</span>
+              </div>
+            )}
           </div>
         </div>
         
@@ -108,6 +122,10 @@ export default function ModelDetail() {
           <TabsTrigger value="timing" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-6 flex gap-2">
             <Clock className="w-4 h-4" />
             Timings
+          </TabsTrigger>
+          <TabsTrigger value="cost" className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-6 flex gap-2">
+            <DollarSign className="w-4 h-4" />
+            Cost
           </TabsTrigger>
         </TabsList>
 
@@ -325,9 +343,45 @@ export default function ModelDetail() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="cost" className="mt-0">
+          {model.costEstimate ? (
+            <div className="space-y-6">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <ScoreCell label="Est. Total" value={`$${model.costEstimate.totalUsd.toFixed(2)}`} hint="input + output" />
+                <ScoreCell label="Input Cost" value={`$${model.costEstimate.inputUsd.toFixed(2)}`} hint={`${formatTokens(model.costEstimate.inputTokens)} tok`} />
+                <ScoreCell label="Output Cost" value={`$${model.costEstimate.outputUsd.toFixed(2)}`} hint={`${formatTokens(model.costEstimate.outputTokens)} tok`} />
+                <ScoreCell label="List Price" value={`$${model.costEstimate.pricePerMInput}/$${model.costEstimate.pricePerMOutput}`} hint="per 1M in/out" />
+              </div>
+              <Card className="border-amber-500/30 bg-amber-500/5">
+                <CardHeader className="pb-3">
+                  <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                    <AlertTriangle className="w-4 h-4" />
+                    How this estimate was derived
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="text-sm text-muted-foreground leading-relaxed">
+                  {model.costEstimate.basis}
+                </CardContent>
+              </Card>
+            </div>
+          ) : (
+            <Card className="border-dashed">
+              <CardContent className="p-8 text-center text-sm text-muted-foreground">
+                No cost estimate is available for this run.
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
       </Tabs>
     </div>
   );
+}
+
+function formatTokens(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(2)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(1)}K`;
+  return String(n);
 }
 
 function ShotPanel({ title, subtitle, src }: { title: string; subtitle: string; src: string }) {
@@ -344,7 +398,7 @@ function ShotPanel({ title, subtitle, src }: { title: string; subtitle: string; 
   );
 }
 
-function ScoreCell({ label, value, hint }: { label: string; value: number; hint?: string }) {
+function ScoreCell({ label, value, hint }: { label: string; value: number | string; hint?: string }) {
   return (
     <Card className="bg-card/40 border-border/50">
       <CardContent className="p-3 flex flex-col items-center text-center gap-0.5">

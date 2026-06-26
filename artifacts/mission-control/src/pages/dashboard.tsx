@@ -25,7 +25,7 @@ export default function Dashboard() {
   const [vaName, setVaName] = useState("");
   const [url, setUrl] = useState("");
   const [track, setTrack] = useState<"page"|"blog">("page");
-  const [engine, setEngine] = useState<"claude"|"replit">("claude");
+  const [engine, setEngine] = useState<"claude"|"openai"|"gemini"|"replit">("claude");
 
   const handleLaunch = () => {
     if (!vaName.trim() || !url.trim()) {
@@ -124,10 +124,12 @@ export default function Dashboard() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Engine</label>
-                  <Select value={engine} onValueChange={(v: "claude"|"replit") => setEngine(v)}>
+                  <Select value={engine} onValueChange={(v: "claude"|"openai"|"gemini"|"replit") => setEngine(v)}>
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="claude">Claude (Dashboard)</SelectItem>
+                      <SelectItem value="claude">Claude (Sonnet 4.6)</SelectItem>
+                      <SelectItem value="openai">OpenAI (GPT-5.4)</SelectItem>
+                      <SelectItem value="gemini">Gemini (3.1 Pro)</SelectItem>
                       <SelectItem value="replit">Replit (Agent)</SelectItem>
                     </SelectContent>
                   </Select>

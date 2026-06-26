@@ -1,8 +1,7 @@
-import { DirectResearchProvider, type ResearchProvider } from "@workspace/mc-core";
-import type { CompleteFn } from "./providers";
+import type { CompleteFn } from "./providers.js";
 
 export interface SharedGrounding {
-  /** The shared research prose every model synthesizes its brief from. */
+  /** The shared local-market research prose every model receives identically. */
   content: string;
   /** Where this grounding came from (for the results transparency record). */
   source: string;
@@ -14,10 +13,11 @@ const GROUNDING_NOTE =
   "shared identically across every model so the page-build comparison is fair.]";
 
 /**
- * Author the single shared research grounding for the target locality. This is
- * generated once (by the production synthesis model) and fed identically into
- * every model's research-synthesis step, isolating the build/audit/schema work
- * as the thing actually being compared.
+ * Author the single shared research grounding for the target locality. Generated
+ * ONCE (by the production synthesis model) and inlined identically into every
+ * model's conversation, so the build/audit/schema work is the thing actually
+ * being compared — not each model's research recall. This is the one place a
+ * `system` instruction is used; the model build conversations carry none.
  */
 export async function generateSharedGrounding(
   complete: CompleteFn,
@@ -37,26 +37,9 @@ export async function generateSharedGrounding(
     `Locality: ${city}, ${state} (USA). Niche: ${niche}.`,
     "Write the local-market research summary now (prose, ~400-600 words).",
   ].join("\n");
-  const res = await complete(system, user);
+  const res = await complete([{ role: "user", content: user }], system);
   if (!res.content.trim()) {
     throw new Error("Shared grounding author returned no content; cannot run the bake-off without grounding.");
   }
   return { content: `${GROUNDING_NOTE}\n\n${res.content.trim()}`, source: "model-knowledge (shared)" };
-}
-
-/**
- * Build a per-model {@link ResearchProvider} that synthesizes a brief from the
- * SAME shared grounding. Each model runs its own synthesis step (the production
- * DirectResearchProvider flow), but the grounding + entity seeds are identical
- * across models.
- */
-export function researchProviderFor(
-  grounding: SharedGrounding,
-  synthesizeComplete: CompleteFn,
-): ResearchProvider {
-  return new DirectResearchProvider({
-    groundedResearch: async () => ({ content: grounding.content, citations: [] }),
-    fetchEntities: async () => [],
-    synthesize: async (system, user) => (await synthesizeComplete(system, user)).content,
-  });
 }

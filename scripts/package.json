@@ -9,6 +9,8 @@
     "system-map": "tsx ./src/system-map.ts",
     "bakeoff": "tsx ./src/bakeoff/run.ts",
     "bakeoff:rescore": "tsx ./src/bakeoff/rescore-visual.ts",
+    "bakeoff:cost": "tsx ./src/bakeoff/backfill-cost.ts",
+    "judge": "tsx ./src/judge/run.ts",
     "seed-prompts": "tsx ./src/seed-prompts.ts",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"

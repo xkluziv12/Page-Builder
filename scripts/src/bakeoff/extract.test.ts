@@ -1,8 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { EngineResult, RunContext } from "@workspace/mc-core";
 import { extractHtmlDocument } from "./extract";
-import { GenericLlmEngine } from "./engine";
-import type { CompleteFn } from "./providers";
+import { ARTIFACT_TO_INLINE } from "./miniPrompts";
 
 describe("extractHtmlDocument", () => {
   it("extracts a real <!DOCTYPE html>…</html> document", () => {
@@ -61,118 +59,24 @@ describe("extractHtmlDocument", () => {
   });
 });
 
-function makeContext(): RunContext {
-  return {
-    city: "Austin",
-    state: "TX",
-    track: "page",
-    classification: "NEW_BUILD",
-    competition: "MEDIUM",
-    pageType: "SPOKE",
-    niche: "electronics recycling",
-    existingUrls: [],
-    handoff: null,
-    verifiedCid: null,
-    designBibleHash: null,
-    blogTopic: null,
-    researchBrief: null,
-    seoIntel: null,
-    registry: {
-      baseDomain: "stselectronicrecyclinginc.com",
-      sacredLinks: [],
-      imageLibrary: [],
-      industryLinks: [],
-      allowlist: [],
-      handoffUrls: [],
-      existingUrls: [],
-      wordCountFloor: 800,
-    },
-  };
-}
+describe("ARTIFACT_TO_INLINE headless output contract", () => {
+  // The verbatim copyPrompt() prompts tell the model to "create an artifact" and
+  // "never paste code in chat". Over the API there is no artifact/canvas surface,
+  // so a model that obeys literally emits no HTML. ARTIFACT_TO_INLINE is the ONE
+  // uniform medium-translation the harness appends to every HTML-yielding turn,
+  // applied identically to every model so the comparison stays apples-to-apples.
 
-const VALID_DOC = "<!DOCTYPE html><html><body><p>page</p></body></html>";
-
-/** A CompleteFn that records every (system, user) pair it is handed. */
-function recordingComplete(): { fn: CompleteFn; calls: Array<{ system: string; user: string }> } {
-  const calls: Array<{ system: string; user: string }> = [];
-  const fn: CompleteFn = async (system, user) => {
-    calls.push({ system, user });
-    return { content: VALID_DOC, raw: VALID_DOC } satisfies EngineResult;
-  };
-  return { fn, calls };
-}
-
-const CONTRACT_MARKER = "HEADLESS OUTPUT CONTRACT";
-
-/**
- * Return the contract suffix (from the marker to end of message). Fails the test
- * if the marker is absent rather than silently returning a tail slice — a bare
- * `indexOf` returns -1 and `.slice(-1)` would yield the last character, letting a
- * "contract missing" regression pass undetected.
- */
-function contractSuffix(user: string): string {
-  const idx = user.indexOf(CONTRACT_MARKER);
-  expect(idx).toBeGreaterThanOrEqual(0);
-  return user.slice(idx);
-}
-
-describe("GenericLlmEngine headless output contract", () => {
-  it("appends the identical headless contract to every model's build message", async () => {
-    const ctx = makeContext();
-    const a = recordingComplete();
-    const b = recordingComplete();
-    const engineA = new GenericLlmEngine("claude", a.fn);
-    const engineB = new GenericLlmEngine("gemini", b.fn);
-
-    await engineA.buildPage(ctx);
-    await engineB.buildPage(ctx);
-
-    const suffixA = contractSuffix(a.calls[0]!.user);
-    const suffixB = contractSuffix(b.calls[0]!.user);
-    expect(suffixA).toBe(suffixB);
+  it("neutralizes the artifact directive and demands the complete HTML inline", () => {
+    expect(ARTIFACT_TO_INLINE).toContain("artifact");
+    expect(ARTIFACT_TO_INLINE).toMatch(/COMPLETE, FINAL HTML document INLINE/);
+    expect(ARTIFACT_TO_INLINE).toMatch(/<!DOCTYPE html> … <\/html>/);
   });
 
-  it("appends the identical headless contract to every model's audit message", async () => {
-    const ctx = makeContext();
-    const a = recordingComplete();
-    const b = recordingComplete();
-    const engineA = new GenericLlmEngine("openai", a.fn);
-    const engineB = new GenericLlmEngine("grok", b.fn);
-
-    await engineA.auditPage(ctx, VALID_DOC);
-    await engineB.auditPage(ctx, VALID_DOC);
-
-    const suffixA = contractSuffix(a.calls[0]!.user);
-    const suffixB = contractSuffix(b.calls[0]!.user);
-    expect(suffixA).toBe(suffixB);
+  it("forbids claiming an artifact is being created instead of emitting HTML", () => {
+    expect(ARTIFACT_TO_INLINE).toMatch(/Do NOT\s+\n?\s*say an artifact is being created/);
   });
 
-  it("appends the same contract regardless of a per-model buildUser mini prompt", async () => {
-    const ctx = makeContext();
-    const generic = recordingComplete();
-    const custom = recordingComplete();
-    const genericEngine = new GenericLlmEngine("claude", generic.fn);
-    const customEngine = new GenericLlmEngine("gemini", custom.fn, {
-      buildUser: (_ctx, context) => `MINI PROMPT WRAPPER\n${context}`,
-    });
-
-    await genericEngine.buildPage(ctx);
-    await customEngine.buildPage(ctx);
-
-    expect(contractSuffix(generic.calls[0]!.user)).toBe(contractSuffix(custom.calls[0]!.user));
-  });
-
-  it("would fail loudly if a message were missing the contract (negative control)", () => {
-    // Proves contractSuffix is a real guard: a base message with no marker must
-    // make the assertion throw, not silently pass via a `.slice(-1)` tail.
-    expect(() => contractSuffix("Build the page for the following job:\n...no contract...")).toThrow();
-  });
-
-  it("uses the headless contract to deliver build output without any network call", async () => {
-    const ctx = makeContext();
-    const { fn } = recordingComplete();
-    const engine = new GenericLlmEngine("claude", fn);
-    const result = await engine.buildPage(ctx);
-    expect(result.content).toBe(VALID_DOC);
+  it("states it applies to every model identically (no per-model special-casing)", () => {
+    expect(ARTIFACT_TO_INLINE).toContain("applies to every model identically");
   });
 });

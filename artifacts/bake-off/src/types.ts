@@ -65,6 +65,17 @@ export interface ModelScores {
   composite: number;
 }
 
+export interface CostEstimate {
+  inputTokens: number;
+  outputTokens: number;
+  inputUsd: number;
+  outputUsd: number;
+  totalUsd: number;
+  pricePerMInput: number;
+  pricePerMOutput: number;
+  basis: string;
+}
+
 export interface ModelResult {
   id: string;
   label: string;
@@ -83,6 +94,8 @@ export interface ModelResult {
   scores: ModelScores | null;
   /** Relative path (under public/) to this model's rendered screenshot. */
   screenshot: string | null;
+  /** Best-effort USD cost estimate for the run (token usage is not captured). */
+  costEstimate?: CostEstimate | null;
 }
 
 export interface ScenarioResult {

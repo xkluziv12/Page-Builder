@@ -1,14 +1,14 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { BakeoffResults, ModelResult, ScenarioResult } from "@/types";
-import resultsData from "@/data/results.json";
+import { ModelResult, ScenarioResult } from "@/types";
 import { Link } from "wouter";
-import { ChevronRight, Clock, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { ChevronRight, Clock, AlertTriangle, CheckCircle2, DollarSign } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-
-const results = resultsData as BakeoffResults;
+import { useDataset } from "@/contexts/dataset-context";
 
 export default function Dashboard() {
+  const { dataset, datasets, activeId: datasetId, setActiveId: setDatasetId } = useDataset();
+  const results = dataset.results;
   const [activeId, setActiveId] = useState(results.scenarios[0]?.id ?? "");
   const scenario =
     results.scenarios.find((s) => s.id === activeId) ?? results.scenarios[0];
@@ -35,6 +35,27 @@ export default function Dashboard() {
         </p>
       </header>
 
+      {/* Dataset switcher */}
+      <div className="mb-6">
+        <div className="inline-flex p-1 rounded-lg bg-card/60 border border-border/60 gap-1">
+          {datasets.map((d) => (
+            <button
+              key={d.id}
+              onClick={() => setDatasetId(d.id)}
+              className={`px-4 py-2 text-sm rounded-md transition-colors font-medium ${
+                d.id === datasetId
+                  ? "bg-secondary/20 text-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/10"
+              }`}
+              data-testid={`dataset-tab-${d.id}`}
+            >
+              {d.label}
+            </button>
+          ))}
+        </div>
+        <p className="text-sm text-muted-foreground mt-3 max-w-3xl">{dataset.blurb}</p>
+      </div>
+
       {/* Scenario switcher */}
       <div className="mb-6">
         <div className="inline-flex p-1 rounded-lg bg-card/60 border border-border/60 gap-1">
@@ -58,7 +79,13 @@ export default function Dashboard() {
 
       <div className="grid gap-6">
         {sortedModels.map((model, index) => (
-          <ModelRankCard key={model.id} model={model} rank={index + 1} scenarioId={scenario.id} />
+          <ModelRankCard
+            key={model.id}
+            model={model}
+            rank={index + 1}
+            scenarioId={scenario.id}
+            datasetId={datasetId}
+          />
         ))}
       </div>
 
@@ -83,11 +110,11 @@ function ScenarioNotes({ scenario }: { scenario: ScenarioResult }) {
   );
 }
 
-function ModelRankCard({ model, rank, scenarioId }: { model: ModelResult; rank: number; scenarioId: string }) {
+function ModelRankCard({ model, rank, scenarioId, datasetId }: { model: ModelResult; rank: number; scenarioId: string; datasetId: string }) {
   const isError = model.status === "error";
 
   return (
-    <Link href={`/model/${scenarioId}/${model.id}`} className="block group">
+    <Link href={`/model/${datasetId}/${scenarioId}/${model.id}`} className="block group">
       <Card className={`relative overflow-hidden transition-all duration-300 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 bg-card/40 backdrop-blur-sm border-border/50 ${isError ? 'opacity-80' : ''}`}>
         
         {/* Rank Badge */}
@@ -117,6 +144,12 @@ function ModelRankCard({ model, rank, scenarioId }: { model: ModelResult; rank: 
                   <Clock className="w-4 h-4" />
                   <span>{(model.totalMs / 1000).toFixed(1)}s</span>
                 </div>
+                {model.costEstimate && (
+                  <div className="flex items-center gap-1.5" title="Estimated cost (token usage not captured)">
+                    <DollarSign className="w-4 h-4" />
+                    <span>~${model.costEstimate.totalUsd.toFixed(2)} est.</span>
+                  </div>
+                )}
                 {model.checkerReport && (
                   <div className="flex items-center gap-1.5">
                     {model.checkerReport.passed ? (

@@ -29,6 +29,15 @@ secondary `visualTokens`. Vision rating fails soft (returns null) if keys/JSON m
 reuses the saved model HTML in `artifacts/bake-off/src/data/results.json`, re-renders +
 re-scores, and rewrites the JSON. The full `bakeoff` run hits 4 live LLM providers — don't
 re-run it just to refresh the visual judge.
-**How to apply:** screenshots are written to `artifacts/bake-off/public/screenshots/` and
-referenced from results.json as relative paths (`screenshots/<id>.png`); the viewer resolves
-them against `import.meta.env.BASE_URL`.
+**How to apply:** screenshots are written to `artifacts/bake-off/public/screenshots/<scenario>/`
+and referenced from results.json as relative paths (`screenshots/<scenario>/<id>.png`); the
+viewer resolves them against `import.meta.env.BASE_URL`.
+
+**Gotcha: outDir must include the scenario subdir, matching pathPrefix.** Both the inline
+visual pass in `run.ts` AND `rescore-visual.ts` must write to
+`outDir = SCREENSHOT_DIR/<scenario.id>` with `pathPrefix = screenshots/<scenario.id>`. If
+`run.ts` writes to the bare `SCREENSHOT_DIR` while recording a `screenshots/<scenario>/...`
+path, every scenario overwrites the SAME top-level files and the recorded paths point at
+files that don't exist → broken images in the viewer (model ids collide across scenarios).
+Keep the two code paths in lockstep; identical model ids in different scenarios MUST land in
+different subdirs.

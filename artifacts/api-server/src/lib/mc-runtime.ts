@@ -1,6 +1,8 @@
 import { db, mcUrlRegistryTable, type McRun } from "@workspace/db";
 import {
   ClaudeEngine,
+  OpenAIEngine,
+  GeminiEngine,
   ReplitEngine,
   DirectResearchProvider,
   N8nResearchProvider,
@@ -33,6 +35,8 @@ import {
 import { logger } from "./logger";
 
 type AnthropicClient = ConstructorParameters<typeof ClaudeEngine>[0];
+type OpenAIClient = ConstructorParameters<typeof OpenAIEngine>[0];
+type GeminiClient = ConstructorParameters<typeof GeminiEngine>[0];
 
 /**
  * Lazily resolve the Anthropic client via dynamic import. The client module
@@ -48,6 +52,45 @@ export async function getAnthropic(): Promise<AnthropicClient> {
     cachedAnthropic = mod.anthropic as AnthropicClient;
   }
   return cachedAnthropic;
+}
+
+/**
+ * Lazily resolve the OpenAI client with STS's own OPENAI_API_KEY (same key the
+ * bake-off uses). Lazy + fail-loud: a missing key fails only the OpenAI-engine
+ * phase that needs it, not the whole server at startup.
+ */
+let cachedOpenAI: OpenAIClient | null = null;
+export async function getOpenAI(): Promise<OpenAIClient> {
+  if (cachedOpenAI === null) {
+    const key = process.env.OPENAI_API_KEY;
+    if (!key || !key.trim()) {
+      throw new Error(
+        "OPENAI_API_KEY is not set; cannot auto-run OpenAI-engine builds. Add STS's own OpenAI key.",
+      );
+    }
+    const { default: OpenAI } = await import("openai");
+    cachedOpenAI = new OpenAI({ apiKey: key });
+  }
+  return cachedOpenAI;
+}
+
+/**
+ * Lazily resolve the Gemini client with STS's own GEMINI_API_KEY (same key the
+ * bake-off uses). Lazy + fail-loud, mirroring {@link getOpenAI}.
+ */
+let cachedGemini: GeminiClient | null = null;
+export async function getGemini(): Promise<GeminiClient> {
+  if (cachedGemini === null) {
+    const key = process.env.GEMINI_API_KEY;
+    if (!key || !key.trim()) {
+      throw new Error(
+        "GEMINI_API_KEY is not set; cannot auto-run Gemini-engine builds. Add STS's own Gemini key.",
+      );
+    }
+    const { GoogleGenAI } = await import("@google/genai");
+    cachedGemini = new GoogleGenAI({ apiKey: key });
+  }
+  return cachedGemini;
 }
 
 const PHASE_ORDER = ["research", "build", "audit", "schema", "publish"] as const;
@@ -80,23 +123,31 @@ export const publisher = createJoomlaPublisher({
  * Engines a run can be created with.
  *
  * - `claude` — Dashboard mode: the server auto-runs each phase by calling the
- *   Anthropic API (a synchronous {@link AIEngine}).
+ *   Anthropic API (Claude Sonnet 4.6) via a synchronous {@link AIEngine}.
+ * - `openai` — Dashboard mode on OpenAI (GPT-5.4), auto-run like Claude.
+ * - `gemini` — Dashboard mode on Google Gemini (3.1 Pro), auto-run like Claude.
  * - `replit` — Replit mode: an operator drives Replit's own Agent, which
  *   produces each artifact; the operator submits it through the Replit phase
  *   endpoint. The server never calls an external model for these runs.
  */
-export const SUPPORTED_ENGINES = ["claude", "replit"] as const;
+export const SUPPORTED_ENGINES = ["claude", "openai", "gemini", "replit"] as const;
 
 /**
- * Resolve the engine used by the server's *auto-run* path (Dashboard mode).
- * Only Claude is auto-runnable: Replit runs are operator-driven and supply their
- * own {@link ReplitEngine} per phase via the Replit submit endpoint, so they
- * never go through this resolver. Calling it for "replit" therefore fails loudly
- * rather than silently mislabeling provenance.
+ * Resolve the engine used by the server's *auto-run* path (Dashboard mode). The
+ * model-backed engines (claude/openai/gemini) are auto-runnable; Replit runs are
+ * operator-driven and supply their own {@link ReplitEngine} per phase via the
+ * Replit submit endpoint, so they never go through this resolver. Calling it for
+ * "replit" therefore fails loudly rather than silently mislabeling provenance.
  */
 export async function engineFor(engine: string): Promise<AIEngine> {
   if (engine === "claude") {
     return new ClaudeEngine(await getAnthropic());
+  }
+  if (engine === "openai") {
+    return new OpenAIEngine(await getOpenAI());
+  }
+  if (engine === "gemini") {
+    return new GeminiEngine(await getGemini());
   }
   if (engine === "replit") {
     throw new Error(

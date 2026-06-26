@@ -1,4 +1,7 @@
 import type { CheckerReport, LinkAuditResult, ResearchBrief } from "@workspace/mc-core";
+import type { CostEstimate } from "./cost.js";
+
+export type { CostEstimate };
 
 export interface PhaseTiming {
   phase: string;
@@ -7,6 +10,13 @@ export interface PhaseTiming {
   errorCount: number;
   warningCount: number;
   wordCount: number;
+  /**
+   * For the gated verification turns (seo-verify / verify-links and their
+   * corrective re-verify turns): the parsed ✅/❌ verdict. "passed" or "failed"
+   * when the model emitted an explicit verdict; null when no verdict line was
+   * found (treated as a non-blocking pass-through). Absent for non-verify turns.
+   */
+  verdict?: "passed" | "failed" | null;
 }
 
 export interface ModelScores {
@@ -58,6 +68,8 @@ export interface ModelResult {
   scores: ModelScores | null;
   /** Relative path (under the viewer's public dir) to this model's rendered screenshot. */
   screenshot: string | null;
+  /** Best-effort USD cost estimate for the run (token usage is not captured). */
+  costEstimate: CostEstimate | null;
 }
 
 /**

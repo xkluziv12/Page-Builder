@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import ModelDetail from "@/pages/model-detail";
 import Layout from "@/components/layout";
+import { DatasetProvider } from "@/contexts/dataset-context";
 
 const queryClient = new QueryClient();
 
@@ -13,7 +14,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
-      <Route path="/model/:scenarioId/:id" component={ModelDetail} />
+      <Route path="/model/:datasetId/:scenarioId/:id" component={ModelDetail} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -23,11 +24,13 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Layout>
-            <Router />
-          </Layout>
-        </WouterRouter>
+        <DatasetProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <Layout>
+              <Router />
+            </Layout>
+          </WouterRouter>
+        </DatasetProvider>
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
