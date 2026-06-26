@@ -45,6 +45,16 @@ export interface ChatMessage {
  */
 export interface CompleteOptions {
   webSearch?: boolean;
+  /**
+   * Override the per-call output-token budget for THIS completion only. Defaults
+   * to the module cap (`MAX_OUTPUT_TOKENS`, or `OPENAI_MAX_OUTPUT_TOKENS` for the
+   * OpenAI adapter) when unset, so every existing call site is unchanged. Used by
+   * out-of-band tooling (e.g. the dossier review) that wants a smaller reservation
+   * so a very large prompt still fits a provider's context window. Like
+   * `webSearch`, this is a transport knob — it never touches prompts/history/turn
+   * order, so the model comparison stays apples-to-apples.
+   */
+  maxOutputTokens?: number;
 }
 
 export type CompleteFn = (
@@ -175,7 +185,7 @@ export function makeClaudeComplete(model: string): CompleteFn {
     // budget could push the call past 10 minutes (full SEO pages are large).
     const stream = client.messages.stream({
       model,
-      max_tokens: MAX_OUTPUT_TOKENS,
+      max_tokens: opts?.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
       ...(system ? { system } : {}),
       // Native web_search server tool, attached ONLY on the flagged turn. Claude
       // runs the search itself and folds the results into its answer; we still
@@ -212,7 +222,7 @@ export function makeGeminiComplete(model: string): CompleteFn {
       })),
       config: {
         ...(system ? { systemInstruction: system } : {}),
-        maxOutputTokens: MAX_OUTPUT_TOKENS,
+        maxOutputTokens: opts?.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
         // Google Search grounding, attached ONLY on the flagged turn. Gemini
         // grounds its answer in live results; `resp.text` still aggregates the
         // model's text, so extraction is unchanged.
@@ -267,7 +277,7 @@ export function makeOpenAIComplete(model: string): CompleteFn {
     // order) applied uniformly to every OpenAI tag, so no model is special-cased.
     let resp = await client.responses.create({
       model,
-      max_output_tokens: OPENAI_MAX_OUTPUT_TOKENS,
+      max_output_tokens: opts?.maxOutputTokens ?? OPENAI_MAX_OUTPUT_TOKENS,
       background: true,
       ...(isPro ? { reasoning: { effort: OPENAI_REASONING_EFFORT } } : {}),
       ...(system ? { instructions: system } : {}),
@@ -314,7 +324,7 @@ export function makeGrokComplete(model: string): CompleteFn {
     if (opts?.webSearch) {
       let resp = await client.responses.create({
         model,
-        max_output_tokens: MAX_OUTPUT_TOKENS,
+        max_output_tokens: opts?.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
         tools: [{ type: "web_search" as const }],
         ...(system ? { instructions: system } : {}),
         input: messages.map((m) => ({ role: m.role, content: m.content })),
@@ -336,7 +346,7 @@ export function makeGrokComplete(model: string): CompleteFn {
     }
     const resp = await client.chat.completions.create({
       model,
-      max_tokens: MAX_OUTPUT_TOKENS,
+      max_tokens: opts?.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
       messages: openAiMessages(messages, system),
     });
     const raw = (resp.choices[0]?.message?.content ?? "").trim();

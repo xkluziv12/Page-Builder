@@ -14,6 +14,8 @@
     "bakeoff:schema-demo": "tsx ./src/bakeoff/schema-demo.ts",
     "bakeoff:rescore": "tsx ./src/bakeoff/rescore-visual.ts",
     "bakeoff:cost": "tsx ./src/bakeoff/backfill-cost.ts",
+    "bakeoff:dossier": "tsx ./src/bakeoff/dossier.ts",
+    "bakeoff:review": "tsx ./src/bakeoff/review.ts",
     "judge": "tsx ./src/judge/run.ts",
     "seed-prompts": "tsx ./src/seed-prompts.ts",
     "test": "vitest run",

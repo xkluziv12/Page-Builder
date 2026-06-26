@@ -24,3 +24,33 @@ id = "RioRUG80Us1KH-5JY8H8l"
 uri = "file://docs/seo-aio-geo-judging-master-findings.md"
 type = "text"
 title = "Master Findings — Cross-Model SEO/AIO/GEO Judging Round"
+
+[[outputs]]
+id = "n34RGb7XlvnaTxn2_7_gI"
+uri = "file://scripts/src/bakeoff/output/reviews/claude.md"
+type = "text"
+title = "Review — Claude Opus 4.8"
+
+[[outputs]]
+id = "egYgS_0DbhiHh5eMMTzas"
+uri = "file://scripts/src/bakeoff/output/reviews/openai-std.md"
+type = "text"
+title = "Review — OpenAI GPT-5.5"
+
+[[outputs]]
+id = "cX8VyEKIVcVI3lNv61yjP"
+uri = "file://scripts/src/bakeoff/output/reviews/gemini.md"
+type = "text"
+title = "Review — Gemini 3.1 Pro"
+
+[[outputs]]
+id = "ySYx0CCc8apy7OTIaD4AP"
+uri = "file://scripts/src/bakeoff/output/reviews/grok.md"
+type = "text"
+title = "Review — Grok (xAI)"
+
+[[outputs]]
+id = "9l5gqqHgvKBbnq2URy_Us"
+uri = "file://exports/bakeoff-dossier.md"
+type = "text"
+title = "Bake-Off Dossier (the document sent to reviewers)"

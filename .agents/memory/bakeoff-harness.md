@@ -9,8 +9,9 @@ Out-of-tree (`scripts/src/bakeoff`) runner that drives the EXACT human No-GMB
 checklist across multiple LLMs on a fixed target (Billings, MT) as ONE
 continuous STATEFUL conversation per (scenario,model): intro (real design files
 uploaded inline + NO-GMB rules + model check) → build → design gate / force-
-rebuild loop → SEO audit → SEO verification → schema (deterministic, no AI turn)
-→ link verification, **stopping before Joomla publish**. Adapters live here, NOT
+rebuild loop → SEO audit → SEO verification → schema (now a REAL AI turn driving
+the Master Schema Generator fixture; the older deterministic gmb.ts path is
+demo/test-only) → link verification, **stopping before Joomla publish**. Adapters live here, NOT
 in mc-core (prod stays Claude-only). The prompt text is the tool's VERBATIM
 `copyPrompt()`, so the model is the only controlled variable.
 
@@ -153,8 +154,8 @@ token as satisfying the hero-form requirement.
 ## Design: two scenarios, ONE shared grounding, enrichment is the only variable
 The harness runs the same models twice as `scenarios` (`no-gmb`, `gmb`). The GMB
 scenario appends an experimental page_url + GMB block (`gmb.ts`) to the SAME
-`describeContext` via an in-harness engine suffix (never the prod path) and swaps
-the deterministic schema for the GMB-aware one. Both scenarios reuse ONE shared
+`describeContext` via an in-harness engine suffix (never the prod path); the
+schema turn (a real AI turn) gets the GMB-aware variant. Both scenarios reuse ONE shared
 grounding so the enrichment — not research — is the only difference. Result: the
 same OpenAI model that refuses No-GMB builds a full page under GMB (the "fair
 re-run"). Grok is flaky here — it intermittently returns a chatty "✅ … final-
@@ -242,8 +243,9 @@ The harness never records the LLM `usage` object, so per-run cost is a documente
 ESTIMATE (`scripts/src/bakeoff/cost.ts`, `estimateCost`): it replays each model's
 recorded turn sequence, re-bills the FULL growing history every turn (the chat is
 stateful — see above), sizes prompts from the verbatim mini-prompts + real inlined
-fixtures (~4 chars/token), prices by model-family list tiers, and SKIPS the schema
-turn (deterministic, no API call).
+fixtures (~4 chars/token), prices by model-family list tiers. NOTE: schema is now
+a real AI turn, so newer runs DO bill it — older estimates that skipped schema as
+"deterministic" under-count; re-run cost after a fresh sweep.
 **Why it reads high for "pro":** hidden reasoning tokens aren't observable, so
 reasoning-heavy tiers are UNDER-counted on output; no prompt-caching discount is
 applied (realistic upper bound). Keep these caveats in the `basis` string the UI
