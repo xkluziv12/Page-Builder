@@ -20,20 +20,14 @@ import { loadDesignFixtures, type DesignFixtures } from "./fixtures.js";
 import { estimateCost } from "./cost.js";
 import { runConversation } from "./conversation.js";
 import { generateSharedGrounding, type SharedGrounding } from "./grounding.js";
-import { BILLINGS_GMB, gmbContextSuffix } from "./gmb.js";
+import { gmbContextSuffix, resolveGmbProfile, type GmbProfile } from "./gmb.js";
+import { loadReferenceHtml, resolveTarget, type BakeoffTarget } from "./target.js";
 import { scoreModels } from "./score.js";
 import { judgeVisual, type VisualVerdict } from "./visual.js";
 import type { BakeoffResults, ModelResult, ScenarioResult } from "./types.js";
 
-const TARGET = {
-  url: "https://www.stselectronicrecyclinginc.com/billings-mt",
-  city: "Billings",
-  state: "MT",
-  niche: "electronics recycling",
-  pageType: "SPOKE" as const,
-  classification: "NEW_BUILD" as const,
-  competition: "MEDIUM" as const,
-};
+/** The build target (city/state/niche/url) — env-driven, defaults to Billings, MT. */
+const TARGET = resolveTarget();
 
 const CLAUDE_MODEL = "claude-opus-4-8";
 const GEMINI_MODEL = "gemini-3.1-pro-preview";
@@ -47,7 +41,6 @@ const BUSINESS_NAME = "STS Electronic Recycling";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const OUTPUT_PATH = resolve(HERE, "../../../artifacts/bake-off/src/data/results.json");
-const REFERENCE_HTML_PATH = resolve(HERE, "../../src/bakeoff/reference/billings-mt.html");
 /** Screenshots are written into the viewer's public dir so it can serve them. */
 const SCREENSHOT_DIR = resolve(HERE, "../../../artifacts/bake-off/public/screenshots");
 const SCREENSHOT_PREFIX = "screenshots";
@@ -101,8 +94,8 @@ function baseContext(): RunContext {
   };
 }
 
-const SCENARIOS: ScenarioSpec[] = [
-  {
+function noGmbScenario(): ScenarioSpec {
+  return {
     id: "no-gmb",
     label: "No-GMB (production context)",
     description:
@@ -117,49 +110,63 @@ const SCENARIOS: ScenarioSpec[] = [
       "Schema is a real AI turn running the uploaded Master Schema Generator (v1.4.1) under the No-GMB overrides (city/state only, NO CID, NO street address). The model must emit a <script type=\"application/ld+json\">…</script> block; the harness extracts and validates the JSON-LD inside it (fail loud otherwise).",
       "If a model refuses to build under this context (asking for page_url / GMB data first) it surfaces as no HTML and is recorded faithfully as an ERROR — it is NOT patched away, because special-casing one model would break the apples-to-apples comparison.",
     ],
-  },
-  {
+  };
+}
+
+function gmbScenario(gmb: GmbProfile): ScenarioSpec {
+  return {
     id: "gmb",
     label: "GMB-enriched context",
     description:
       "The SAME checklist and prompts as No-GMB, with one identical enrichment handed to every model: an explicit page_url plus a Google Business Profile (GMB) data block in the intro.",
-    introEnrichment: gmbContextSuffix(BILLINGS_GMB),
+    introEnrichment: gmbContextSuffix(gmb),
     schemaPromptFor: (vars) =>
       gmbSchemaPrompt(vars, {
-        cid: BILLINGS_GMB.cid,
-        gmbUrl: BILLINGS_GMB.gmbUrl,
-        businessName: BILLINGS_GMB.businessName,
-        street: BILLINGS_GMB.street,
-        zip: BILLINGS_GMB.zip,
-        phone: BILLINGS_GMB.phone,
-        lat: BILLINGS_GMB.lat,
-        lng: BILLINGS_GMB.lng,
+        cid: gmb.cid,
+        gmbUrl: gmb.gmbUrl,
+        businessName: gmb.businessName,
+        street: gmb.street,
+        zip: gmb.zip,
+        phone: gmb.phone,
+        lat: gmb.lat,
+        lng: gmb.lng,
       }),
-    buildContext: () => ({ ...baseContext(), verifiedCid: BILLINGS_GMB.cid }),
-    verifiedCid: BILLINGS_GMB.cid,
+    buildContext: () => ({ ...baseContext(), verifiedCid: gmb.cid }),
+    verifiedCid: gmb.cid,
     notes: [
       "A fair, symmetric re-run: every model receives the IDENTICAL enriched intro (explicit page_url + GMB block), so we can see whether a model that refused under No-GMB builds well once given the inputs it demanded.",
       "The GMB values (CID, street address, phone, coordinates) are EXPERIMENTAL / illustrative inputs for this comparison, NOT verified ground-truth location data — they are labelled as such in the intro block, and the block tells the model it MAY use them.",
       "Schema here is a real AI turn running the uploaded Master Schema Generator (v1.4.1) with the verified CID + full address block, so the emitted JSON-LD carries the identifier/PostalAddress/geo/?cid= map URL a GMB page requires. The model must emit a <script type=\"application/ld+json\">…</script> block, validated by the harness.",
     ],
-  },
-];
+  };
+}
+
+/**
+ * Build the scenario set for a target. The No-GMB scenario is always present
+ * (it's the production-faithful path and needs no location-specific block). The
+ * GMB scenario is included only when a GMB profile is available — for the
+ * Billings smoke target that's the illustrative {@link BILLINGS_GMB}; for any
+ * other city it requires a verified `BAKEOFF_GMB_JSON` block (see
+ * {@link resolveGmbProfile}), so a new-city run without one drops the GMB
+ * scenario rather than inventing location data or aborting the whole run.
+ */
+function buildScenarios(gmb: GmbProfile | null): ScenarioSpec[] {
+  const specs = [noGmbScenario()];
+  if (gmb) specs.push(gmbScenario(gmb));
+  return specs;
+}
 
 /**
  * Optional scenario filter (comma-separated scenario ids, e.g. `no-gmb`). When
  * set via `BAKEOFF_SCENARIOS`, only the listed scenarios are run/persisted; the
- * default runs every scenario. This only narrows WHICH scenarios run — it never
- * changes a scenario's context, prompts, or schema, so each scenario stays a
- * faithful reproduction. Fails loudly if a filter names no known scenario.
+ * default runs every available scenario. This only narrows WHICH scenarios run —
+ * it never changes a scenario's context, prompts, or schema, so each scenario
+ * stays a faithful reproduction. Fails loudly if a filter names no known scenario.
  */
 const SCENARIO_FILTER = (process.env.BAKEOFF_SCENARIOS ?? "")
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
-
-const ACTIVE_SCENARIOS = SCENARIO_FILTER.length
-  ? SCENARIOS.filter((s) => SCENARIO_FILTER.includes(s.id))
-  : SCENARIOS;
 
 /**
  * Optional model filter (comma-separated model ids, e.g. `claude`). Used by the
@@ -211,12 +218,35 @@ async function loadPrior(): Promise<Prior> {
 async function main(): Promise<void> {
   console.log(`Bake-Off target: ${TARGET.city}, ${TARGET.state} — ${TARGET.url}`);
 
-  if (SCENARIO_FILTER.length && ACTIVE_SCENARIOS.length === 0) {
+  // Resolve the GMB profile for the GMB scenario. Available for the Billings
+  // smoke target (illustrative block) or whenever BAKEOFF_GMB_JSON is supplied;
+  // otherwise the GMB scenario is unavailable for this city (no invented data).
+  let gmb: GmbProfile | null = null;
+  let gmbError: string | null = null;
+  try {
+    gmb = resolveGmbProfile(TARGET);
+  } catch (err) {
+    gmbError = err instanceof Error ? err.message : String(err);
+  }
+
+  const allScenarios = buildScenarios(gmb);
+  // An explicit BAKEOFF_SCENARIOS=gmb on a city with no GMB block fails loud —
+  // the operator asked for it specifically, so don't silently drop it.
+  if (SCENARIO_FILTER.includes("gmb") && !gmb) {
+    throw new Error(`BAKEOFF_SCENARIOS requested "gmb" but no GMB block is available: ${gmbError}`);
+  }
+  const activeScenarios = SCENARIO_FILTER.length
+    ? allScenarios.filter((s) => SCENARIO_FILTER.includes(s.id))
+    : allScenarios;
+  if (SCENARIO_FILTER.length && activeScenarios.length === 0) {
     throw new Error(
-      `BAKEOFF_SCENARIOS=${SCENARIO_FILTER.join(",")} matched no known scenario (have: ${SCENARIOS.map((s) => s.id).join(", ")}).`,
+      `BAKEOFF_SCENARIOS=${SCENARIO_FILTER.join(",")} matched no known scenario (have: ${allScenarios.map((s) => s.id).join(", ")}).`,
     );
   }
-  console.log(`Active scenario(s): ${ACTIVE_SCENARIOS.map((s) => s.id).join(", ")}`);
+  if (!gmb && gmbError && !SCENARIO_FILTER.length) {
+    console.log(`Skipping GMB scenario for ${TARGET.city}, ${TARGET.state}: ${gmbError}`);
+  }
+  console.log(`Active scenario(s): ${activeScenarios.map((s) => s.id).join(", ")}`);
 
   // Load the real uploaded design files up front — fail loud before any API call
   // if a fixture is missing or empty.
@@ -235,8 +265,8 @@ async function main(): Promise<void> {
   console.log(`Discovered newest Grok tag: ${grokModel}`);
   const grokComplete = makeGrokComplete(grokModel);
 
-  const referenceHtml = await readFile(REFERENCE_HTML_PATH, "utf8");
-  console.log(`Loaded reference page (${referenceHtml.length} chars) for closeness scoring.`);
+  const reference = await loadReferenceHtml(TARGET);
+  const referenceHtml = reference.html;
 
   // ONE shared grounding feeds BOTH scenarios, so the only difference between
   // them is the GMB enrichment — never the research input. Reuse the grounding
@@ -260,7 +290,7 @@ async function main(): Promise<void> {
   }
 
   // Seed the working scenario set from any prior (resumable) results.
-  const scenarios: ScenarioResult[] = ACTIVE_SCENARIOS.map((spec) => ({
+  const scenarios: ScenarioResult[] = activeScenarios.map((spec) => ({
     id: spec.id,
     label: spec.label,
     description: spec.description,
@@ -318,7 +348,7 @@ async function main(): Promise<void> {
     return persistChain;
   };
 
-  for (const spec of ACTIVE_SCENARIOS) {
+  for (const spec of activeScenarios) {
     const scenario = scenarios.find((s) => s.id === spec.id)!;
     const pending: ModelSpec[] = [];
     for (const m of models) {

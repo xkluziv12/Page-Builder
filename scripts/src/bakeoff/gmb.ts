@@ -59,6 +59,77 @@ export const BILLINGS_GMB: GmbProfile = {
 };
 
 /**
+ * Resolve the GMB block for a GMB-scenario run against a given target. Defaults
+ * to the illustrative {@link BILLINGS_GMB} ONLY for the Billings smoke target;
+ * for any OTHER city a verified block MUST be supplied via `BAKEOFF_GMB_JSON`
+ * (fail loud — never invent a CID, street address, or phone for a real page).
+ */
+export function resolveGmbProfile(target: { city: string; state: string }): GmbProfile {
+  const raw = process.env.BAKEOFF_GMB_JSON;
+  if (!raw) {
+    const isBillings =
+      target.city.toLowerCase() === "billings" && target.state.toUpperCase() === "MT";
+    if (!isBillings) {
+      throw new Error(
+        `GMB scenario for ${target.city}, ${target.state} requires a verified GMB block. ` +
+          `Set BAKEOFF_GMB_JSON to a JSON object with: pageUrl, gmbUrl, cid, businessName, street, ` +
+          `city, state, zip, county, phone, landmark, lat, lng, hours (neighborhoods optional). ` +
+          `Never invent a CID/address/phone for a real page.`,
+      );
+    }
+    return BILLINGS_GMB;
+  }
+  let parsed: Record<string, unknown>;
+  try {
+    parsed = JSON.parse(raw) as Record<string, unknown>;
+  } catch (err) {
+    throw new Error(
+      `BAKEOFF_GMB_JSON is not valid JSON: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+  const required = [
+    "pageUrl",
+    "gmbUrl",
+    "cid",
+    "businessName",
+    "street",
+    "city",
+    "state",
+    "zip",
+    "county",
+    "phone",
+    "landmark",
+    "lat",
+    "lng",
+    "hours",
+  ];
+  for (const key of required) {
+    if (parsed[key] == null || parsed[key] === "") {
+      throw new Error(
+        `BAKEOFF_GMB_JSON is missing required field "${key}". A GMB page must SUPPLY its verified block — no invention.`,
+      );
+    }
+  }
+  return {
+    pageUrl: String(parsed.pageUrl),
+    gmbUrl: String(parsed.gmbUrl),
+    cid: String(parsed.cid),
+    businessName: String(parsed.businessName),
+    street: String(parsed.street),
+    city: String(parsed.city),
+    state: String(parsed.state),
+    zip: String(parsed.zip),
+    county: String(parsed.county),
+    phone: String(parsed.phone),
+    neighborhoods: Array.isArray(parsed.neighborhoods) ? parsed.neighborhoods.map(String) : [],
+    landmark: String(parsed.landmark),
+    lat: Number(parsed.lat),
+    lng: Number(parsed.lng),
+    hours: String(parsed.hours),
+  };
+}
+
+/**
  * The enriched-context suffix appended AFTER the production `describeContext`
  * output. It is added only inside the harness — the shipped `describeContext`
  * prod path is never modified — so the No-GMB scenario stays a faithful

@@ -1,6 +1,4 @@
 import { readFile } from "node:fs/promises";
-import { dirname, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import {
   discoverNewestGrok,
   makeClaudeComplete,
@@ -12,6 +10,7 @@ import {
 } from "./providers.js";
 import { ARTIFACT_TO_INLINE_OPTIONAL, seoVerifyPrompt, type PromptVars } from "./miniPrompts.js";
 import { tryExtractHtmlDocument } from "./extract.js";
+import { loadReferenceHtml, resolveTarget } from "./target.js";
 
 /**
  * Cheap, single-turn DEMO of the live-web-search SEO-verify capability: instead
@@ -25,16 +24,13 @@ import { tryExtractHtmlDocument } from "./extract.js";
  *   pnpm --filter @workspace/scripts run bakeoff:seo-verify-demo
  *   SEO_DEMO_MODEL=gemini SEO_DEMO_HTML=/path/to/page.html pnpm ... run bakeoff:seo-verify-demo
  */
-const HERE = dirname(fileURLToPath(import.meta.url));
-const DEFAULT_HTML = resolve(HERE, "reference/billings-mt.html");
-
-const TARGET = { city: "Billings", state: "MT", niche: "electronics recycling" };
+const TARGET = resolveTarget();
 
 function promptVars(): PromptVars {
   return {
     city: TARGET.city,
     state: TARGET.state,
-    url: `https://www.stselectronicrecyclinginc.com/${TARGET.city.toLowerCase()}-${TARGET.state.toLowerCase()}`,
+    url: TARGET.url,
     niche: TARGET.niche,
     pageName: `${TARGET.city} ${TARGET.niche}`,
     hubSpoke: "",
@@ -60,12 +56,32 @@ async function pickModel(id: string): Promise<{ label: string; complete: Complet
 
 async function main(): Promise<void> {
   const modelId = (process.env.SEO_DEMO_MODEL ?? "claude").trim();
-  const htmlPath = process.env.SEO_DEMO_HTML?.trim() || DEFAULT_HTML;
+  const htmlPath = process.env.SEO_DEMO_HTML?.trim();
 
-  const html = await readFile(htmlPath, "utf8");
+  // The page under review: an explicit SEO_DEMO_HTML wins; otherwise pull the
+  // per-target reference page (checked-in fixture or a live fetch of the target
+  // URL) so the demo works for ANY city, not just the Billings fixture.
+  let html: string;
+  let pageSource: string;
+  if (htmlPath) {
+    html = await readFile(htmlPath, "utf8");
+    pageSource = htmlPath;
+  } else {
+    const reference = await loadReferenceHtml(TARGET);
+    if (!reference.html.trim()) {
+      throw new Error(
+        `No page to review for ${TARGET.city}, ${TARGET.state}: no reference fixture and live fetch of ` +
+          `${TARGET.url} failed. Set SEO_DEMO_HTML=/path/to/page.html to supply one.`,
+      );
+    }
+    html = reference.html;
+    pageSource = `${reference.source} (${TARGET.url})`;
+  }
+
   const { label, complete } = await pickModel(modelId);
   console.log(`SEO-verify demo → ${label}`);
-  console.log(`Page under review: ${htmlPath} (${html.length} chars)`);
+  console.log(`Target: ${TARGET.city}, ${TARGET.state} — ${TARGET.url}`);
+  console.log(`Page under review: ${pageSource} (${html.length} chars)`);
   console.log(`Live web search: ON (this turn only)\n`);
 
   // Seed the chat exactly as the pipeline reaches seo-verify: the built page is

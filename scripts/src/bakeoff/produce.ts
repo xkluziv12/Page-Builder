@@ -13,7 +13,8 @@ import { estimateCost } from "./cost.js";
 import { runConversation } from "./conversation.js";
 import { runRoutedConversation } from "./routed.js";
 import { generateSharedGrounding, type SharedGrounding } from "./grounding.js";
-import { BILLINGS_GMB, gmbContextSuffix, type GmbProfile } from "./gmb.js";
+import { gmbContextSuffix, resolveGmbProfile } from "./gmb.js";
+import { resolveTarget } from "./target.js";
 import {
   buildModelsForIds,
   resolveModelId,
@@ -50,15 +51,7 @@ const MODE = (process.env.BAKEOFF_PRODUCE_MODE ?? "").toLowerCase();
 const SINGLE_MODEL = process.env.BAKEOFF_MODEL ?? "";
 const SCENARIO = (process.env.BAKEOFF_SCENARIO ?? "no-gmb").toLowerCase();
 
-const TARGET = {
-  url: process.env.BAKEOFF_PAGE_URL ?? "https://www.stselectronicrecyclinginc.com/billings-mt",
-  city: process.env.BAKEOFF_CITY ?? "Billings",
-  state: process.env.BAKEOFF_STATE ?? "MT",
-  niche: process.env.BAKEOFF_NICHE ?? "electronics recycling",
-  pageType: "SPOKE" as const,
-  classification: "NEW_BUILD" as const,
-  competition: "MEDIUM" as const,
-};
+const TARGET = resolveTarget();
 
 const BUSINESS_NAME = "STS Electronic Recycling";
 
@@ -82,74 +75,6 @@ function baseContext(): RunContext {
     researchBrief: null,
     seoIntel: null,
     registry: buildRegistry(),
-  };
-}
-
-/**
- * Resolve the GMB block for a GMB-scenario run. Defaults to the illustrative
- * BILLINGS_GMB only for the Billings smoke target; for any OTHER city a verified
- * block MUST be supplied via BAKEOFF_GMB_JSON (fail loud — never invent a CID,
- * street address, or phone for a real new page).
- */
-function resolveGmb(): GmbProfile {
-  const raw = process.env.BAKEOFF_GMB_JSON;
-  if (!raw) {
-    const isBillings = TARGET.city.toLowerCase() === "billings" && TARGET.state.toUpperCase() === "MT";
-    if (!isBillings) {
-      throw new Error(
-        `GMB scenario for ${TARGET.city}, ${TARGET.state} requires a verified GMB block. ` +
-          `Set BAKEOFF_GMB_JSON to a JSON object with: pageUrl, gmbUrl, cid, businessName, street, ` +
-          `city, state, zip, county, phone, landmark, lat, lng, hours (neighborhoods optional). ` +
-          `Never invent a CID/address/phone for a real page.`,
-      );
-    }
-    return BILLINGS_GMB;
-  }
-  let parsed: Record<string, unknown>;
-  try {
-    parsed = JSON.parse(raw) as Record<string, unknown>;
-  } catch (err) {
-    throw new Error(`BAKEOFF_GMB_JSON is not valid JSON: ${err instanceof Error ? err.message : String(err)}`);
-  }
-  const required = [
-    "pageUrl",
-    "gmbUrl",
-    "cid",
-    "businessName",
-    "street",
-    "city",
-    "state",
-    "zip",
-    "county",
-    "phone",
-    "landmark",
-    "lat",
-    "lng",
-    "hours",
-  ];
-  for (const key of required) {
-    if (parsed[key] == null || parsed[key] === "") {
-      throw new Error(
-        `BAKEOFF_GMB_JSON is missing required field "${key}". A GMB page must SUPPLY its verified block — no invention.`,
-      );
-    }
-  }
-  return {
-    pageUrl: String(parsed.pageUrl),
-    gmbUrl: String(parsed.gmbUrl),
-    cid: String(parsed.cid),
-    businessName: String(parsed.businessName),
-    street: String(parsed.street),
-    city: String(parsed.city),
-    state: String(parsed.state),
-    zip: String(parsed.zip),
-    county: String(parsed.county),
-    phone: String(parsed.phone),
-    neighborhoods: Array.isArray(parsed.neighborhoods) ? parsed.neighborhoods.map(String) : [],
-    landmark: String(parsed.landmark),
-    lat: Number(parsed.lat),
-    lng: Number(parsed.lng),
-    hours: String(parsed.hours),
   };
 }
 
@@ -205,7 +130,7 @@ async function main(): Promise<void> {
       `seo-data ${fixtures.seoData.length}, seo-audit ${fixtures.seoAudit.length}, schema-gen ${fixtures.schemaGenerator.length} chars.`,
   );
 
-  const gmb = isGmb ? resolveGmb() : null;
+  const gmb = isGmb ? resolveGmbProfile(TARGET) : null;
   const introEnrichment = isGmb ? gmbContextSuffix(gmb!) : "";
   const schemaPromptFor: (vars: PromptVars) => string = isGmb
     ? (vars) =>
