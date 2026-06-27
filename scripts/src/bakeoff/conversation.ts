@@ -15,6 +15,7 @@ import {
   seoVerifyPrompt,
   verifyLinksFixPrompt,
   verifyLinksPrompt,
+  type PromptGmb,
   type PromptVars,
 } from "./miniPrompts.js";
 
@@ -45,6 +46,18 @@ export interface ConversationDeps {
    * GMB-aware). The harness sends this with the Master Schema Generator file
    * inlined — it is NOT a deterministic generator. */
   schemaPromptFor: (vars: PromptVars) => string;
+  /**
+   * The page's target URL, used VERBATIM for the build/seo/schema prompts. The
+   * GMB scenario passes the GMB `pageUrl`; the No-GMB scenario passes the target
+   * URL. Optional: when absent the URL falls back to the derived city/state slug.
+   */
+  pageUrl?: string;
+  /**
+   * The verified GMB NAP block (per-scenario, NOT per-model) that switches the
+   * build/seo/verify prompts to their GMB-aware branches. Null for the faithful
+   * No-GMB path (prompts stay byte-identical).
+   */
+  gmb?: PromptGmb | null;
   /** Max design-gate rebuild attempts before failing loudly. */
   rebuildCap?: number;
 }
@@ -65,7 +78,20 @@ export interface ConversationOutcome {
   totalMs: number;
 }
 
-export function promptVars(ctx: RunContext): PromptVars {
+/**
+ * Build the prompt variables for a model's conversation. `pageUrl`, when a
+ * non-empty string, is used VERBATIM as the page's target URL (the dead-simple
+ * "give me a URL" input); otherwise the URL falls back to the derived
+ * `${baseDomain}/${city}-${state}` slug (the faithful No-GMB default). `gmb`,
+ * when supplied, switches the build/seo/verify prompts to their GMB-aware
+ * branches. This function is intentionally DUPLICATED in `cost.ts` as a private
+ * mirror — keep the two in lockstep.
+ */
+export function promptVars(
+  ctx: RunContext,
+  pageUrl?: string,
+  gmb?: PromptGmb | null,
+): PromptVars {
   // No Hub+Spoke handoff is configured for this target (existingUrls empty), so
   // the build/seo prompts omit the linking section — exactly as the tool does
   // when its Hub+Spoke field is blank. Required sacred equipment links are still
@@ -76,10 +102,14 @@ export function promptVars(ctx: RunContext): PromptVars {
   return {
     city: ctx.city,
     state: ctx.state,
-    url: `${ctx.registry.baseDomain.replace(/\/$/, "")}/${ctx.city.toLowerCase().replace(/\s+/g, "-")}-${ctx.state.toLowerCase()}`,
+    url:
+      pageUrl && pageUrl.trim()
+        ? pageUrl.trim()
+        : `${ctx.registry.baseDomain.replace(/\/$/, "")}/${ctx.city.toLowerCase().replace(/\s+/g, "-")}-${ctx.state.toLowerCase()}`,
     niche: ctx.niche,
     pageName: `${ctx.city} ${ctx.niche}`,
     hubSpoke,
+    gmb: gmb ?? null,
   };
 }
 
@@ -133,16 +163,32 @@ export const LINKS_VERDICT_FAIL = /links failed/i;
  * readiness is otherwise confirmed functionally by the successful build. A
  * missing ack is logged (non-blocking) for observability.
  */
-function assertIntroNotBlocked(raw: string): void {
-  const blocked =
-    /🚫|wrong model|cannot proceed|can'?t proceed|unable to proceed|(will not|won'?t) (proceed|build|continue|create)|cannot continue|can'?t continue|i (cannot|can'?t) build|refuse to (proceed|build|continue)/i;
-  if (blocked.test(raw)) {
+/** Regex for a wrong-model STOP or explicit refusal to proceed/build. Shared so
+ * the routed pipeline's phase validators detect the same refusals uniformly. */
+export const REFUSAL_RE =
+  /🚫|wrong model|cannot proceed|can'?t proceed|unable to proceed|(will not|won'?t) (proceed|build|continue|create)|cannot continue|can'?t continue|i (cannot|can'?t) build|refuse to (proceed|build|continue)/i;
+
+/**
+ * Throw if `raw` is empty/whitespace or contains a STOP/refusal. Shared by the
+ * intro handshake and the routed phase validators so an empty or refusing main
+ * model is treated as invalid output (→ backup takes over / fail loud) uniformly
+ * across every model — never special-cased.
+ */
+export function assertNotRefusal(raw: string, where: string): void {
+  if (!raw || !raw.trim()) {
+    throw new Error(`${where}: model returned empty output.`);
+  }
+  if (REFUSAL_RE.test(raw)) {
     throw new Error(
-      `Intro handshake hit a STOP / refusal — run cannot proceed. First 200 chars: ${raw
+      `${where} hit a STOP / refusal — run cannot proceed. First 200 chars: ${raw
         .slice(0, 200)
         .replace(/\s+/g, " ")}`,
     );
   }
+}
+
+function assertIntroNotBlocked(raw: string): void {
+  assertNotRefusal(raw, "Intro handshake");
   const ack =
     /\bready\b|\bconfirm(ed|ing)?\b|files received|\bunderstood\b|let'?s (begin|start)|proceeding|i (will|'?ll) proceed/i;
   if (!ack.test(raw)) {
@@ -159,7 +205,7 @@ export function fileBlock(name: string, body: string): string {
 
 /** Build the intro turn: verbatim intro prompt + the real uploaded files + context. */
 function introTurn(ctx: RunContext, deps: ConversationDeps): string {
-  const vars = promptVars(ctx);
+  const vars = promptVars(ctx, deps.pageUrl, deps.gmb);
   const files = [
     fileBlock("STS SEO Data 2026", deps.fixtures.seoData),
     fileBlock("Master Page Builder", deps.fixtures.pageBuilder),
@@ -180,7 +226,7 @@ function introTurn(ctx: RunContext, deps: ConversationDeps): string {
  */
 export async function runConversation(deps: ConversationDeps): Promise<ConversationOutcome> {
   const { ctx, complete } = deps;
-  const vars = promptVars(ctx);
+  const vars = promptVars(ctx, deps.pageUrl, deps.gmb);
   const cap = Math.max(1, deps.rebuildCap ?? Number(process.env.BAKEOFF_REBUILD_CAP ?? 2));
 
   const messages: ChatMessage[] = [];
@@ -250,10 +296,12 @@ export async function runConversation(deps: ConversationDeps): Promise<Conversat
 
   // A gated verification turn: send the verify prompt (report-primary, HTML
   // optional), parse the model's ✅/❌ verdict, and — faithful to the tool's "fix
-  // before proceeding" contract — run a BOUNDED corrective re-verify loop on a
-  // FAILED verdict, failing loud if it still fails after the cap. A null verdict
-  // (no verdict line emitted) is recorded and treated as a non-blocking
-  // pass-through. Uniform for every model — same prompts, same gate.
+  // before proceeding" contract — run a BOUNDED corrective re-verify loop until
+  // the model emits an explicit ✅ PASS, failing loud otherwise. A FAILED verdict
+  // AND a null verdict (no ✅/❌ line emitted) BOTH require resolution: the loop
+  // re-prompts up to the cap, and if the verdict is still not an explicit PASS it
+  // FAILS LOUD. A verification turn must never silently pass with no verdict.
+  // Uniform for every model — same prompts, same gate.
   const runVerification = async (
     phase: string,
     prompt: string,
@@ -271,13 +319,15 @@ export async function runConversation(deps: ConversationDeps): Promise<Conversat
     console.log(`    ⚖ ${phase}: verdict=${verdict ?? "none"}`);
 
     let fixes = 0;
-    while (verdict === "failed" && fixes < cap) {
+    // Re-verify on BOTH a FAILED and a null (no-verdict) result — a verification
+    // turn must end on an explicit ✅ PASS, never silently pass with no verdict.
+    while (verdict !== "passed" && fixes < cap) {
       fixes++;
       const fixPhase = `${phase}-fix-${fixes}`;
       raw = await send(
         fixPhase,
         fixPrompt + ARTIFACT_TO_INLINE_OPTIONAL,
-        `Corrective re-verify ${fixes}/${cap} after a FAILED ${phase} verdict.`,
+        `Corrective re-verify ${fixes}/${cap} after a ${verdict === "failed" ? "FAILED" : "MISSING (no ✅/❌)"} ${phase} verdict.`,
         webSearch,
       );
       doc = tryExtractHtmlDocument(raw);
@@ -286,9 +336,10 @@ export async function runConversation(deps: ConversationDeps): Promise<Conversat
       turns[turns.length - 1].verdict = verdict;
       console.log(`    ⚖ ${fixPhase}: verdict=${verdict ?? "none"}`);
     }
-    if (verdict === "failed") {
+    if (verdict !== "passed") {
       throw new Error(
-        `${phase} still returned a FAILED verdict after ${cap} corrective attempt(s).`,
+        `${phase} did not reach an explicit ✅ PASS after ${cap} corrective attempt(s) ` +
+          `(final verdict: ${verdict === "failed" ? "FAILED" : "none — no ✅/❌ line emitted"}).`,
       );
     }
   };
@@ -321,8 +372,8 @@ export async function runConversation(deps: ConversationDeps): Promise<Conversat
   // 7. Final link verification (gated on the ✅/❌ LINKS verdict).
   await runVerification(
     "verify-links",
-    verifyLinksPrompt(),
-    verifyLinksFixPrompt(),
+    verifyLinksPrompt(vars),
+    verifyLinksFixPrompt(vars),
     LINKS_VERDICT_PASS,
     LINKS_VERDICT_FAIL,
     "Final link verification (emails, contact button, no invented URLs).",

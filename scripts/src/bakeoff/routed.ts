@@ -15,12 +15,14 @@ import {
   verifyLinksFixPrompt,
   verifyLinksPrompt,
   type PromptVars,
+  type PromptGmb,
 } from "./miniPrompts.js";
 import {
   LINKS_VERDICT_FAIL,
   LINKS_VERDICT_PASS,
   SEO_VERDICT_FAIL,
   SEO_VERDICT_PASS,
+  assertNotRefusal,
   fileBlock,
   promptVars,
   readVerdict,
@@ -40,6 +42,11 @@ export interface RoutedDeps {
   introEnrichment: string;
   /** Per-scenario schema prompt (No-GMB or GMB). */
   schemaPromptFor: (vars: PromptVars) => string;
+  /** The page's target URL, used verbatim for the prompts (GMB pageUrl for the
+   * GMB scenario, else TARGET.url). */
+  pageUrl?: string;
+  /** Verified GMB NAP block for the GMB scenario; null for the No-GMB path. */
+  gmb?: PromptGmb | null;
   /** The resolved per-phase main+backup routing. */
   routing: ResolvedRouting;
   /** Max force-rebuild / corrective-verify attempts (default 2, env override). */
@@ -71,7 +78,7 @@ export interface RoutedOutcome extends ConversationOutcome {
  */
 export async function runRoutedConversation(deps: RoutedDeps): Promise<RoutedOutcome> {
   const { ctx, routing } = deps;
-  const vars = promptVars(ctx);
+  const vars = promptVars(ctx, deps.pageUrl, deps.gmb);
   const cap = Math.max(1, deps.rebuildCap ?? Number(process.env.BAKEOFF_REBUILD_CAP ?? 2));
 
   const turns: ConversationTurn[] = [];
@@ -244,11 +251,14 @@ export async function runRoutedConversation(deps: RoutedDeps): Promise<RoutedOut
     summary: string,
     webSearch = false,
   ): Promise<void> {
+    // A refusal / empty main response is structurally invalid → the backup steps
+    // in (or the phase fails loud if both refuse). Report-primary output (HTML) is
+    // still optional, so a model that audits without re-emitting HTML is fine.
     const first = await runPhase(
       phase,
       route,
       [sharedContext, htmlBlock(html), prompt + ARTIFACT_TO_INLINE_OPTIONAL].join("\n\n"),
-      () => {},
+      (raw) => assertNotRefusal(raw, phase),
       summary,
       webSearch,
     );
@@ -261,14 +271,16 @@ export async function runRoutedConversation(deps: RoutedDeps): Promise<RoutedOut
     console.log(`    ⚖ ${phase}: verdict=${verdict ?? "none"}`);
 
     let fixes = 0;
-    while (verdict === "failed" && fixes < cap) {
+    // Re-verify on BOTH a FAILED and a null (no-verdict) result — a verification
+    // turn must end on an explicit ✅ PASS, never silently pass with no verdict.
+    while (verdict !== "passed" && fixes < cap) {
       fixes++;
       const fixPhase = `${phase}-fix-${fixes}`;
       raw = await callModel(
         fixPhase,
         model,
         [sharedContext, htmlBlock(html), fixPrompt + ARTIFACT_TO_INLINE_OPTIONAL].join("\n\n"),
-        `Corrective re-verify ${fixes}/${cap} after a FAILED ${phase} verdict.`,
+        `Corrective re-verify ${fixes}/${cap} after a ${verdict === "failed" ? "FAILED" : "MISSING (no ✅/❌)"} ${phase} verdict.`,
         webSearch,
       );
       doc = tryExtractHtmlDocument(raw);
@@ -277,8 +289,11 @@ export async function runRoutedConversation(deps: RoutedDeps): Promise<RoutedOut
       turns[turns.length - 1].verdict = verdict;
       console.log(`    ⚖ ${fixPhase}: verdict=${verdict ?? "none"}`);
     }
-    if (verdict === "failed") {
-      throw new Error(`${phase} still returned a FAILED verdict after ${cap} corrective attempt(s).`);
+    if (verdict !== "passed") {
+      throw new Error(
+        `${phase} did not reach an explicit ✅ PASS after ${cap} corrective attempt(s) ` +
+          `(final verdict: ${verdict === "failed" ? "FAILED" : "none — no ✅/❌ line emitted"}).`,
+      );
     }
   }
 
@@ -315,8 +330,8 @@ export async function runRoutedConversation(deps: RoutedDeps): Promise<RoutedOut
   await runVerification(
     "verify-links",
     routing["verify-links"],
-    verifyLinksPrompt(),
-    verifyLinksFixPrompt(),
+    verifyLinksPrompt(vars),
+    verifyLinksFixPrompt(vars),
     LINKS_VERDICT_PASS,
     LINKS_VERDICT_FAIL,
     "Final link verification (emails, contact button, no invented URLs).",

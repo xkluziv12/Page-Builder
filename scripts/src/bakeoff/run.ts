@@ -5,9 +5,10 @@ import {
   buildRegistry,
   parseSchema,
   runCheckers,
+  WORD_COUNT_CEILINGS,
   type RunContext,
 } from "@workspace/mc-core";
-import { schemaPrompt, gmbSchemaPrompt, type PromptVars } from "./miniPrompts.js";
+import { schemaPrompt, gmbSchemaPrompt, type PromptVars, type PromptGmb } from "./miniPrompts.js";
 import {
   discoverNewestGrok,
   makeClaudeComplete,
@@ -20,7 +21,7 @@ import { loadDesignFixtures, type DesignFixtures } from "./fixtures.js";
 import { estimateCost } from "./cost.js";
 import { runConversation } from "./conversation.js";
 import { generateSharedGrounding, type SharedGrounding } from "./grounding.js";
-import { gmbContextSuffix, resolveGmbProfile, type GmbProfile } from "./gmb.js";
+import { gmbContextSuffix, resolveGmbProfile, promptGmbFrom, type GmbProfile } from "./gmb.js";
 import { loadReferenceHtml, resolveTarget, type BakeoffTarget } from "./target.js";
 import { scoreModels } from "./score.js";
 import { judgeVisual, type VisualVerdict } from "./visual.js";
@@ -68,6 +69,12 @@ interface ScenarioSpec {
   introEnrichment: string;
   /** Per-scenario schema prompt for the Phase-4 AI schema turn (No-GMB or GMB). */
   schemaPromptFor: (vars: PromptVars) => string;
+  /** The page's target URL, used verbatim for the prompts (GMB pageUrl for the
+   * GMB scenario, else TARGET.url). */
+  pageUrl: string;
+  /** Verified GMB NAP block for the GMB scenario; null for the faithful No-GMB
+   * path (prompts stay byte-identical). */
+  gmb: PromptGmb | null;
   /** Build the run context for this scenario. */
   buildContext: () => RunContext;
   /** CID the schema checker enforces against (null for No-GMB). */
@@ -102,6 +109,8 @@ function noGmbScenario(): ScenarioSpec {
       "The exact human No-GMB checklist a VA runs today, one continuous chat per model: verbatim copyPrompt() prompts, the real uploaded design files inlined, city/state targeting only, NO explicit page_url and NO GMB block.",
     introEnrichment: "",
     schemaPromptFor: (vars) => schemaPrompt(vars),
+    pageUrl: TARGET.url,
+    gmb: null,
     buildContext: baseContext,
     verifiedCid: null,
     notes: [
@@ -131,11 +140,13 @@ function gmbScenario(gmb: GmbProfile): ScenarioSpec {
         lat: gmb.lat,
         lng: gmb.lng,
       }),
+    pageUrl: gmb.pageUrl,
+    gmb: promptGmbFrom(gmb),
     buildContext: () => ({ ...baseContext(), verifiedCid: gmb.cid }),
     verifiedCid: gmb.cid,
     notes: [
-      "A fair, symmetric re-run: every model receives the IDENTICAL enriched intro (explicit page_url + GMB block), so we can see whether a model that refused under No-GMB builds well once given the inputs it demanded.",
-      "The GMB values (CID, street address, phone, coordinates) are EXPERIMENTAL / illustrative inputs for this comparison, NOT verified ground-truth location data — they are labelled as such in the intro block, and the block tells the model it MAY use them.",
+      "The dead-simple input path: every model receives the IDENTICAL intro (explicit page_url + the page's verified GMB block) and builds the page with its real local NAP (name/address/phone), hours, CID, and map link.",
+      "The GMB values (CID, street address, phone, coordinates) are the page's VERIFIED Google Business Profile, which the model MUST use as the page's contact info. For a real run they are supplied via BAKEOFF_GMB_JSON; the built-in Billings sample uses reserved-fictional values for the smoke path only.",
       "Schema here is a real AI turn running the uploaded Master Schema Generator (v1.4.1) with the verified CID + full address block, so the emitted JSON-LD carries the identifier/PostalAddress/geo/?cid= map URL a GMB page requires. The model must emit a <script type=\"application/ld+json\">…</script> block, validated by the harness.",
     ],
   };
@@ -311,6 +322,7 @@ async function main(): Promise<void> {
       scoreModels(
         s.models,
         buildRegistry().wordCountFloor,
+        WORD_COUNT_CEILINGS[TARGET.pageType] ?? 0,
         referenceHtml,
         verdictsByScenario.get(s.id),
       );
@@ -455,6 +467,8 @@ async function runOneModel(
       grounding: grounding.content,
       introEnrichment: scenario.introEnrichment,
       schemaPromptFor: scenario.schemaPromptFor,
+      pageUrl: scenario.pageUrl,
+      gmb: scenario.gmb,
     });
 
     // Record the shared grounding as this model's research brief (every model
@@ -490,6 +504,8 @@ async function runOneModel(
       fixtures,
       grounding: grounding.content,
       introEnrichment: scenario.introEnrichment,
+      pageUrl: scenario.pageUrl,
+      gmb: scenario.gmb,
     });
 
     // Validate the AI-generated schema (the harness already confirmed it was a

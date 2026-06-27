@@ -23,17 +23,20 @@ const REFERENCE_HTML_PATH = resolve(HERE, "../../src/bakeoff/reference/billings-
 const SCREENSHOT_DIR = resolve(HERE, "../../../artifacts/bake-off/public/screenshots");
 const SCREENSHOT_PREFIX = "screenshots";
 
-/** Word-count floor is needed to recompute scores; mirror the registry default. */
-async function wordCountFloor(): Promise<number> {
-  const { buildRegistry } = await import("@workspace/mc-core");
-  return buildRegistry().wordCountFloor;
+/** Word-count floor + per-page-type ceiling are needed to recompute scores. */
+async function wordCountBand(pageType: string): Promise<{ floor: number; ceiling: number }> {
+  const { buildRegistry, WORD_COUNT_CEILINGS } = await import("@workspace/mc-core");
+  return {
+    floor: buildRegistry().wordCountFloor,
+    ceiling: WORD_COUNT_CEILINGS[pageType] ?? 0,
+  };
 }
 
 async function main(): Promise<void> {
   const raw = await readFile(RESULTS_PATH, "utf8");
   const results = JSON.parse(raw) as BakeoffResults;
   const referenceHtml = await readFile(REFERENCE_HTML_PATH, "utf8");
-  const floor = await wordCountFloor();
+  const { floor, ceiling } = await wordCountBand(results.target.pageType);
 
   const okTotal = results.scenarios
     .flatMap((s) => s.models)
@@ -54,7 +57,7 @@ async function main(): Promise<void> {
     for (const m of scenario.models) {
       m.screenshot = visual.screenshots.get(m.id) ?? null;
     }
-    scoreModels(scenario.models, floor, referenceHtml, visual.verdicts);
+    scoreModels(scenario.models, floor, ceiling, referenceHtml, visual.verdicts);
     scenario.models.sort((a, b) => {
       if (a.status === "error" && b.status !== "error") return 1;
       if (b.status === "error" && a.status !== "error") return -1;

@@ -13,6 +13,7 @@ import {
   verifyLinksFixPrompt,
   verifyLinksPrompt,
   type PromptVars,
+  type PromptGmb,
 } from "./miniPrompts.js";
 import type { DesignFixtures } from "./fixtures.js";
 import type { PhaseTiming } from "./types.js";
@@ -87,17 +88,23 @@ function priceFor(modelTag: string): PriceTier {
 }
 
 /** The PromptVars the conversation derives for a given target context. Mirrors
- * `promptVars` in conversation.ts (kept in lockstep with it). */
-function promptVars(ctx: RunContext): PromptVars {
+ * `promptVars` in conversation.ts (kept in lockstep with it). `pageUrl` (verbatim
+ * target URL) and `gmb` (verified NAP / GMB-aware branches) must match what the
+ * conversation actually sent so the token estimate stays honest. */
+function promptVars(ctx: RunContext, pageUrl?: string, gmb?: PromptGmb | null): PromptVars {
   return {
     city: ctx.city,
     state: ctx.state,
-    url: `${ctx.registry.baseDomain.replace(/\/$/, "")}/${ctx.city
-      .toLowerCase()
-      .replace(/\s+/g, "-")}-${ctx.state.toLowerCase()}`,
+    url:
+      pageUrl && pageUrl.trim()
+        ? pageUrl.trim()
+        : `${ctx.registry.baseDomain.replace(/\/$/, "")}/${ctx.city
+            .toLowerCase()
+            .replace(/\s+/g, "-")}-${ctx.state.toLowerCase()}`,
     niche: ctx.niche,
     pageName: `${ctx.city} ${ctx.niche}`,
     hubSpoke: ctx.existingUrls.length ? ctx.existingUrls.join("\n") : "",
+    gmb: gmb ?? null,
   };
 }
 
@@ -113,8 +120,10 @@ function introUserText(
   fixtures: DesignFixtures,
   grounding: string,
   introEnrichment: string,
+  pageUrl?: string,
+  gmb?: PromptGmb | null,
 ): string {
-  const vars = promptVars(ctx);
+  const vars = promptVars(ctx, pageUrl, gmb);
   const files = [
     fileBlock("STS SEO Data 2026", fixtures.seoData),
     fileBlock("Master Page Builder", fixtures.pageBuilder),
@@ -136,9 +145,12 @@ function userCharsForPhase(
   fixtures: DesignFixtures,
   grounding: string,
   introEnrichment: string,
+  pageUrl?: string,
+  gmb?: PromptGmb | null,
 ): number {
-  const vars = promptVars(ctx);
-  if (phase === "intro") return introUserText(ctx, fixtures, grounding, introEnrichment).length;
+  const vars = promptVars(ctx, pageUrl, gmb);
+  if (phase === "intro")
+    return introUserText(ctx, fixtures, grounding, introEnrichment, pageUrl, gmb).length;
   if (phase === "build") return (buildPrompt(vars) + ARTIFACT_TO_INLINE).length;
   if (phase.startsWith("rebuild"))
     // The exact gate issue text varies; use a representative ~80-char issue.
@@ -151,9 +163,10 @@ function userCharsForPhase(
   if (phase === "seo-verify") return (seoVerifyPrompt(vars) + ARTIFACT_TO_INLINE_OPTIONAL).length;
   if (phase.startsWith("seo-verify-fix"))
     return (seoVerifyFixPrompt() + ARTIFACT_TO_INLINE_OPTIONAL).length;
-  if (phase === "verify-links") return (verifyLinksPrompt() + ARTIFACT_TO_INLINE_OPTIONAL).length;
+  if (phase === "verify-links")
+    return (verifyLinksPrompt(vars) + ARTIFACT_TO_INLINE_OPTIONAL).length;
   if (phase.startsWith("verify-links-fix"))
-    return (verifyLinksFixPrompt() + ARTIFACT_TO_INLINE_OPTIONAL).length;
+    return (verifyLinksFixPrompt(vars) + ARTIFACT_TO_INLINE_OPTIONAL).length;
   if (phase === "schema")
     // A real AI turn now: the No-GMB schema prompt + the inlined Master Schema
     // Generator file + the SCHEMA_TO_INLINE shim. The GMB variant is within a few
@@ -187,6 +200,13 @@ export interface EstimateCostArgs {
   fixtures: DesignFixtures;
   grounding: string;
   introEnrichment: string;
+  /** The page's target URL (used verbatim) — must match what the conversation
+   * actually sent, so the token estimate stays honest. Optional: falls back to
+   * the derived city/state slug. */
+  pageUrl?: string;
+  /** The verified GMB NAP block for the GMB scenario (null for No-GMB), so the
+   * estimate reflects the GMB-aware prompt branches. */
+  gmb?: PromptGmb | null;
 }
 
 /**
@@ -195,7 +215,8 @@ export interface EstimateCostArgs {
  * prior messages plus the new user turn. Pure + deterministic given its inputs.
  */
 export function estimateCost(args: EstimateCostArgs): CostEstimate {
-  const { modelTag, timings, htmlChars, ctx, fixtures, grounding, introEnrichment } = args;
+  const { modelTag, timings, htmlChars, ctx, fixtures, grounding, introEnrichment, pageUrl, gmb } =
+    args;
   const tier = priceFor(modelTag);
 
   let historyChars = 0;
@@ -203,7 +224,15 @@ export function estimateCost(args: EstimateCostArgs): CostEstimate {
   let outputChars = 0;
 
   for (const t of timings) {
-    const userChars = userCharsForPhase(t.phase, ctx, fixtures, grounding, introEnrichment);
+    const userChars = userCharsForPhase(
+      t.phase,
+      ctx,
+      fixtures,
+      grounding,
+      introEnrichment,
+      pageUrl,
+      gmb,
+    );
     // This call sends the whole accumulated history plus the new user message.
     billedInputChars += historyChars + userChars;
     historyChars += userChars;

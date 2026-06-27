@@ -105,15 +105,17 @@ describe("gmbContextSuffix — enriched-context block", () => {
     expect(suffix).toContain(`page_url: ${BILLINGS_GMB.pageUrl}`);
     expect(suffix).toContain(`gmb_url: ${BILLINGS_GMB.gmbUrl}`);
     expect(suffix).toContain(`gmb_cid: ${BILLINGS_GMB.cid}`);
-    expect(suffix).toContain("GMB data:");
+    expect(suffix).toContain("GMB data (verified");
     expect(suffix).toContain(BILLINGS_GMB.businessName);
     expect(suffix).toContain(BILLINGS_GMB.phone);
   });
 
-  it("labels the block EXPERIMENTAL / illustrative, not verified ground truth", () => {
-    expect(suffix).toContain("EXPERIMENTAL");
-    expect(suffix).toMatch(/illustrative/i);
-    expect(suffix).toMatch(/NOT verified/i);
+  it("frames the block as the verified NAP the model MUST use", () => {
+    expect(suffix).toContain("VERIFIED GOOGLE BUSINESS PROFILE");
+    expect(suffix).toMatch(/verified/i);
+    expect(suffix).toMatch(/use (them )?exactly/i);
+    expect(suffix).not.toMatch(/EXPERIMENTAL/i);
+    expect(suffix).not.toMatch(/illustrative/i);
   });
 });
 
@@ -132,8 +134,8 @@ describe("No-GMB prompt strings — backup-phone contract", () => {
     ["rebuild", rebuildPrompt(vars, "Hero form on wrong side")],
     ["seo", seoPrompt(vars)],
     ["seo-verify", seoVerifyPrompt(vars)],
-    ["verify-links", verifyLinksPrompt()],
-    ["verify-links fix", verifyLinksFixPrompt()],
+    ["verify-links", verifyLinksPrompt(vars)],
+    ["verify-links fix", verifyLinksFixPrompt(vars)],
   ];
 
   // A line carries a prohibition only when a negative/forbidding marker sits on

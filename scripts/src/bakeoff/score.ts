@@ -32,9 +32,19 @@ function linksScore(report: CheckerReport): number {
   return la.passed ? 100 : clamp(100 - la.errorCount * 20);
 }
 
-function wordCountScore(report: CheckerReport, floor: number): number {
+/**
+ * Word-count fit (0-100). Symmetric band: undershooting the floor scales the
+ * score down by the wordCount/floor ratio (writing too little is penalized);
+ * overshooting the ceiling scales it down by the ceiling/wordCount ratio
+ * (blowing past the mandated max is penalized just as hard). Anything inside
+ * [floor, ceiling] scores a full 100.
+ */
+function wordCountScore(report: CheckerReport, floor: number, ceiling: number): number {
   if (floor <= 0) return 100;
-  return clamp((report.wordCount / floor) * 100);
+  const wc = report.wordCount;
+  if (wc < floor) return clamp((wc / floor) * 100);
+  if (ceiling > 0 && wc > ceiling) return clamp((ceiling / wc) * 100);
+  return 100;
 }
 
 // ---------------------------------------------------------------------------
@@ -115,21 +125,33 @@ function visualTokensScore(modelHtml: string, refHtml: string): number {
   return clamp(jaccard(designTokens(modelHtml), designTokens(refHtml)) * 100);
 }
 
+/**
+ * Composite weights (must sum to 1.0). Deliberately tuned for an HONEST score:
+ *   - SPEED is excluded from the composite (weight 0). A freakishly fast model
+ *     should not be able to mathematically dominate on quality; speed stays a
+ *     separately-reported axis (`ModelScores.speed`) for transparency only.
+ *   - htmlMatch + visualMatch are capped at a COMBINED 0.25 (was ~0.40) so
+ *     closely copying the reference template can't outweigh a model that builds
+ *     a genuinely better page.
+ *   - The freed weight is moved into the real-quality axes (audit/structure/
+ *     schema/wordCount), and wordCount now also penalizes overshoot (see
+ *     {@link wordCountScore}), not just the floor.
+ */
 const WEIGHTS = {
-  audit: 0.2,
-  structure: 0.1,
-  schema: 0.1,
+  audit: 0.25,
+  structure: 0.15,
+  schema: 0.15,
   links: 0.1,
-  wordCount: 0.05,
-  speed: 0.05,
-  htmlMatch: 0.2,
-  visualMatch: 0.2,
+  wordCount: 0.1,
+  htmlMatch: 0.125,
+  visualMatch: 0.125,
 } as const;
 
 /**
  * Score every successful model. Speed is relative to the fastest successful run
- * (fastest = 100). htmlMatch / visualMatch compare each final page against the
- * real published page. Failed models are left unscored.
+ * (fastest = 100) and is REPORTED ONLY — it is no longer blended into the
+ * composite (see {@link WEIGHTS}). htmlMatch / visualMatch compare each final
+ * page against the real published page. Failed models are left unscored.
  *
  * `visualVerdicts` carries the rendered-screenshot visual judge (perceptual
  * pixel-diff + optional vision-LLM rating), keyed by model id. When a model has
@@ -140,6 +162,7 @@ const WEIGHTS = {
 export function scoreModels(
   models: ModelResult[],
   wordCountFloor: number,
+  wordCountCeiling: number,
   referenceHtml: string,
   visualVerdicts?: Map<string, VisualVerdict>,
 ): void {
@@ -156,7 +179,7 @@ export function scoreModels(
       structure: structureScore(m.html!),
       schema: schemaScore(m.schemaValid, report),
       links: linksScore(report),
-      wordCount: wordCountScore(report, wordCountFloor),
+      wordCount: wordCountScore(report, wordCountFloor, wordCountCeiling),
       speed,
       htmlMatch: htmlMatchScore(m.html!, referenceHtml),
       visualMatch: verdict ? verdict.combined : visualTokens,
@@ -170,7 +193,6 @@ export function scoreModels(
         partial.schema * WEIGHTS.schema +
         partial.links * WEIGHTS.links +
         partial.wordCount * WEIGHTS.wordCount +
-        partial.speed * WEIGHTS.speed +
         partial.htmlMatch * WEIGHTS.htmlMatch +
         partial.visualMatch * WEIGHTS.visualMatch,
     );

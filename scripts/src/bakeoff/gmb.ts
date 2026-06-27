@@ -1,26 +1,22 @@
 import { generateLocalBusinessSchema, type RunContext } from "@workspace/mc-core";
-import { HQ_PHONE } from "./miniPrompts.js";
+import { HQ_PHONE, type PromptGmb } from "./miniPrompts.js";
 
 /**
- * The "GMB-enriched" scenario for the bake-off.
+ * The GMB scenario for the bake-off — the dead-simple primary input: a target
+ * page_url + a VERIFIED Google Business Profile (GMB) block.
  *
- * In the production (No-GMB) context, the run context deliberately omits an
- * explicit page_url and any Google Business Profile (GMB) data — STS spoke
- * pages target a service-area city, not a verified physical storefront. Three
- * of the four models build anyway under that context; GPT refused, asking for
- * the page_url + GMB block before it would build.
+ * In the faithful No-GMB context the run deliberately omits a page_url and any
+ * GMB data — STS spoke pages target a service-area city, not a verified physical
+ * storefront. This module supplies the alternate flow: hand EVERY model the same
+ * explicit page_url + the page's verified GMB block, so each builds the page with
+ * its real local NAP (name/address/phone), hours, CID, and map link.
  *
- * This module supplies a SECOND, symmetric experiment: hand EVERY model the
- * exact same enriched context (explicit page_url + a GMB data block) so we can
- * see whether the refusing model builds well once given the inputs it demands —
- * a fair re-run, not an OpenAI-only prompt hack.
- *
- * The GMB values below are EXPERIMENTAL / illustrative for this comparison, not
- * verified ground truth. They are labelled as such in the context block so the
- * fail-loud / no-fabrication convention is respected: the experiment measures
- * build behaviour given a well-formed GMB block, it does not assert these are
- * STS's real verified location details. The phone uses the reserved-fictional
- * 555-01xx range; the CID and street address are placeholders.
+ * Any real run SUPPLIES its own verified block via `BAKEOFF_GMB_JSON`;
+ * {@link BILLINGS_GMB} below is the built-in SAMPLE target only (the Billings
+ * smoke run), and uses the reserved-fictional 555-01xx phone range plus a
+ * placeholder CID/street. The fail-loud / no-fabrication convention is enforced
+ * in {@link resolveGmbProfile}: a real (non-sample) target with a missing GMB
+ * field fails loudly rather than inventing location data.
  */
 export interface GmbProfile {
   pageUrl: string;
@@ -40,6 +36,13 @@ export interface GmbProfile {
   hours: string;
 }
 
+/**
+ * Built-in SAMPLE GMB target — the Billings, MT smoke run only. A real run
+ * supplies its own verified block via `BAKEOFF_GMB_JSON`; these values are NOT
+ * STS's real location data (reserved-fictional 555-01xx phone, placeholder CID +
+ * street), so they are safe defaults for the wiring/smoke path without asserting
+ * a fabricated verified profile for any live page.
+ */
 export const BILLINGS_GMB: GmbProfile = {
   pageUrl: "https://www.stselectronicrecyclinginc.com/billings-mt",
   gmbUrl: "https://www.google.com/maps?cid=12127465100000000000",
@@ -130,24 +133,28 @@ export function resolveGmbProfile(target: { city: string; state: string }): GmbP
 }
 
 /**
- * The enriched-context suffix appended AFTER the production `describeContext`
- * output. It is added only inside the harness — the shipped `describeContext`
- * prod path is never modified — so the No-GMB scenario stays a faithful
- * reproduction of production while this scenario adds the explicit page_url +
- * GMB block on top.
+ * The GMB-context suffix appended AFTER the production `describeContext` output.
+ * It is added only inside the harness — the shipped `describeContext` prod path
+ * is never modified — so the No-GMB scenario stays a faithful reproduction of
+ * production while this scenario adds the explicit page_url + verified GMB block
+ * on top. Presented as the page's VERIFIED Google Business Profile that the model
+ * MUST use for the page's NAP, hours, CID, and map link. Identical for every
+ * model in the scenario.
  */
 export function gmbContextSuffix(p: GmbProfile): string {
   return [
     "",
     "",
-    "[EXPERIMENTAL ENRICHED CONTEXT — explicit page_url + Google Business Profile (GMB) block.",
-    "These GMB details are illustrative inputs for a fair, symmetric re-run comparison, NOT verified",
-    "ground-truth location data. Every model in this scenario receives this identical block.]",
+    "[VERIFIED GOOGLE BUSINESS PROFILE — the explicit page_url + the page's verified GMB block.",
+    "This is the real, verified location data for this page. You MUST use it as the page's contact",
+    "info: the business name, street address, phone, hours, CID, and map link below are the page's",
+    "actual NAP — use them exactly, do not substitute the HQ line or omit the local address. Every",
+    "model in this scenario receives this identical block.]",
     "",
     `page_url: ${p.pageUrl}`,
     `gmb_url: ${p.gmbUrl}`,
     `gmb_cid: ${p.cid}`,
-    "GMB data:",
+    "GMB data (verified — use exactly):",
     `- Business name: ${p.businessName}`,
     `- Address: ${p.street}, ${p.city}, ${p.state} ${p.zip}`,
     `- County: ${p.county}`,
@@ -157,6 +164,23 @@ export function gmbContextSuffix(p: GmbProfile): string {
     `- Coordinates: ${p.lat}, ${p.lng}`,
     `- Hours: ${p.hours}`,
   ].join("\n");
+}
+
+/**
+ * Project a full {@link GmbProfile} down to the {@link PromptGmb} subset the
+ * build/seo/verify prompts consume (NAP + hours + CID + map). Centralised so the
+ * run + produce paths map a profile the same way.
+ */
+export function promptGmbFrom(p: GmbProfile): PromptGmb {
+  return {
+    businessName: p.businessName,
+    street: p.street,
+    zip: p.zip,
+    phone: p.phone,
+    hours: p.hours,
+    cid: p.cid,
+    gmbUrl: p.gmbUrl,
+  };
 }
 
 /**

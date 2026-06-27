@@ -8,6 +8,7 @@
     "mc": "tsx ./src/mc.ts",
     "system-map": "tsx ./src/system-map.ts",
     "bakeoff": "tsx ./src/bakeoff/run.ts",
+    "bakeoff:compare": "BAKEOFF_SCENARIOS=gmb tsx ./src/bakeoff/run.ts",
     "bakeoff:single": "BAKEOFF_PRODUCE_MODE=single tsx ./src/bakeoff/produce.ts",
     "bakeoff:multi": "BAKEOFF_PRODUCE_MODE=routed tsx ./src/bakeoff/produce.ts",
     "bakeoff:seo-verify-demo": "tsx ./src/bakeoff/seo-verify-demo.ts",

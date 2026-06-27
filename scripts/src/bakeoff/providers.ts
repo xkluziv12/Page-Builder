@@ -115,27 +115,63 @@ function requireEnv(name: string): string {
   return v;
 }
 
-/** Reject if `work` hasn't settled within `ms` — a hard wall-clock backstop. */
-async function withTimeout<T>(work: Promise<T>, ms: number, label: string): Promise<T> {
+/**
+ * Reject if the work hasn't settled within `ms` — a hard wall-clock backstop.
+ * The work is built from a factory given an {@link AbortSignal} that fires the
+ * instant the timeout trips, so an adapter wired to it (the OpenAI/Grok
+ * background-poll loops) can ABORT its in-flight poll/fetch instead of leaking a
+ * request that keeps polling and billing long after this race has rejected.
+ */
+async function withTimeout<T>(
+  work: (signal: AbortSignal) => Promise<T>,
+  ms: number,
+  label: string,
+): Promise<T> {
+  const controller = new AbortController();
   let timer: ReturnType<typeof setTimeout> | undefined;
   const timeout = new Promise<never>((_, reject) => {
-    timer = setTimeout(
-      () => reject(new Error(`${label} timed out after ${Math.round(ms / 1000)}s with no response.`)),
-      ms,
-    );
+    timer = setTimeout(() => {
+      controller.abort();
+      reject(new Error(`${label} timed out after ${Math.round(ms / 1000)}s with no response.`));
+    }, ms);
   });
   try {
-    return await Promise.race([work, timeout]);
+    return await Promise.race([work(controller.signal), timeout]);
   } finally {
     if (timer) clearTimeout(timer);
   }
 }
 
-/** Raw, single-attempt completion an adapter implements. */
+/**
+ * Sleep that rejects PROMPTLY when `signal` aborts, so a background-poll loop
+ * stops waiting (and the surrounding completion stops billing) the moment the
+ * wall-clock backstop fires, instead of leaking one more full poll interval.
+ */
+function abortableSleep(ms: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      reject(new Error("poll aborted: surrounding timeout fired."));
+      return;
+    }
+    const onAbort = () => {
+      clearTimeout(timer);
+      reject(new Error("poll aborted: surrounding timeout fired."));
+    };
+    const timer = setTimeout(() => {
+      signal.removeEventListener("abort", onAbort);
+      resolve();
+    }, ms);
+    signal.addEventListener("abort", onAbort, { once: true });
+  });
+}
+
+/** Raw, single-attempt completion an adapter implements. `signal` aborts the
+ * in-flight call (and any poll loop) when the wall-clock backstop trips. */
 type RawComplete = (
   messages: ChatMessage[],
-  system?: string,
-  opts?: CompleteOptions,
+  system: string | undefined,
+  opts: CompleteOptions | undefined,
+  signal: AbortSignal,
 ) => Promise<EngineResult>;
 
 /**
@@ -150,7 +186,11 @@ function guarded(model: string, fn: RawComplete): CompleteFn {
     let lastErr: unknown;
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
       try {
-        return await withTimeout(fn(messages, system, opts), WALL_CLOCK_MS, `${model} completion`);
+        return await withTimeout(
+          (signal) => fn(messages, system, opts, signal),
+          WALL_CLOCK_MS,
+          `${model} completion`,
+        );
       } catch (err) {
         lastErr = err;
         const msg = err instanceof Error ? err.message : String(err);
@@ -330,7 +370,7 @@ export function makeOpenAIComplete(model: string): CompleteFn {
   // run at the API default with no reasoning override. This only tunes HOW HARD a
   // pro model thinks; prompts, history, and turn order are identical everywhere.
   const isPro = /\bpro\b/i.test(model) || model.toLowerCase().includes("-pro");
-  return guarded(model, async (messages, system, opts) => {
+  return guarded(model, async (messages, system, opts, signal) => {
     // Submit as a BACKGROUND job and poll to completion. The synchronous Responses
     // endpoint enforces a server-side processing window (~minutes) that the
     // ultra-heavy "pro" tier routinely exceeds on the full page-build turn — it
@@ -338,21 +378,27 @@ export function makeOpenAIComplete(model: string): CompleteFn {
     // Background mode lifts that server-side cap; our WALL_CLOCK still bounds the
     // poll loop. This is a transport change only (identical prompt/input/turn
     // order) applied uniformly to every OpenAI tag, so no model is special-cased.
-    let resp = await client.responses.create({
-      model,
-      max_output_tokens: opts?.maxOutputTokens ?? OPENAI_MAX_OUTPUT_TOKENS,
-      background: true,
-      ...(isPro ? { reasoning: { effort: OPENAI_REASONING_EFFORT } } : {}),
-      ...(system ? { instructions: system } : {}),
-      // Responses web_search tool, attached ONLY on the flagged turn. It coexists
-      // with background poll mode; `resp.output_text` still aggregates the final
-      // text once the run completes, so extraction below is unchanged.
-      ...(opts?.webSearch ? { tools: [{ type: "web_search" as const }] } : {}),
-      input: messages.map((m) => ({ role: m.role, content: m.content })),
-    });
+    // The wall-clock `signal` is threaded into every create/retrieve and the
+    // inter-poll sleep, so a timeout ABORTS the in-flight request and stops the
+    // loop polling/billing instead of leaking it.
+    let resp = await client.responses.create(
+      {
+        model,
+        max_output_tokens: opts?.maxOutputTokens ?? OPENAI_MAX_OUTPUT_TOKENS,
+        background: true,
+        ...(isPro ? { reasoning: { effort: OPENAI_REASONING_EFFORT } } : {}),
+        ...(system ? { instructions: system } : {}),
+        // Responses web_search tool, attached ONLY on the flagged turn. It coexists
+        // with background poll mode; `resp.output_text` still aggregates the final
+        // text once the run completes, so extraction below is unchanged.
+        ...(opts?.webSearch ? { tools: [{ type: "web_search" as const }] } : {}),
+        input: messages.map((m) => ({ role: m.role, content: m.content })),
+      },
+      { signal },
+    );
     while (resp.status === "queued" || resp.status === "in_progress") {
-      await new Promise((r) => setTimeout(r, 5_000));
-      resp = await client.responses.retrieve(resp.id);
+      await abortableSleep(5_000, signal);
+      resp = await client.responses.retrieve(resp.id, undefined, { signal });
     }
     if (resp.status !== "completed") {
       throw new Error(
@@ -401,7 +447,7 @@ export function makeGrokComplete(model: string): CompleteFn {
     timeout: REQUEST_TIMEOUT_MS,
     maxRetries: 0,
   });
-  return guarded(model, async (messages, system, opts) => {
+  return guarded(model, async (messages, system, opts, signal) => {
     // Native web search, attached ONLY on the flagged turn. xAI's old Live Search
     // (`search_parameters`) is deprecated (410 → "switch to the Agent Tools API"),
     // so the current native path is the `web_search` Agent Tool, which xAI serves
@@ -409,18 +455,23 @@ export function makeGrokComplete(model: string): CompleteFn {
     // tool). We therefore route the flagged turn through `responses` with the
     // web_search tool; every other turn stays on plain chat/completions. The full
     // history is re-sent as `input` items, identical to the OpenAI adapter, so the
-    // turn/prompt sequence is unchanged.
+    // turn/prompt sequence is unchanged. The wall-clock `signal` is threaded into
+    // every create/retrieve and the inter-poll sleep so a timeout ABORTS the
+    // in-flight request instead of leaking a loop that keeps polling/billing.
     if (opts?.webSearch) {
-      let resp = await client.responses.create({
-        model,
-        max_output_tokens: opts?.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
-        tools: [{ type: "web_search" as const }],
-        ...(system ? { instructions: system } : {}),
-        input: messages.map((m) => ({ role: m.role, content: m.content })),
-      });
+      let resp = await client.responses.create(
+        {
+          model,
+          max_output_tokens: opts?.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
+          tools: [{ type: "web_search" as const }],
+          ...(system ? { instructions: system } : {}),
+          input: messages.map((m) => ({ role: m.role, content: m.content })),
+        },
+        { signal },
+      );
       while (resp.status === "queued" || resp.status === "in_progress") {
-        await new Promise((r) => setTimeout(r, 5_000));
-        resp = await client.responses.retrieve(resp.id);
+        await abortableSleep(5_000, signal);
+        resp = await client.responses.retrieve(resp.id, undefined, { signal });
       }
       if (resp.status && resp.status !== "completed") {
         throw new Error(

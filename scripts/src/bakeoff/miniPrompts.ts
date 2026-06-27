@@ -14,6 +14,23 @@
  * is unchanged.
  */
 
+/**
+ * The verified Google Business Profile NAP the GMB-build prompts weave into the
+ * page (contact, call buttons, footer, on-page verify). Supplied by the operator
+ * for a real run; absent (`null`) for the faithful No-GMB path. When present, the
+ * build/seo/verify prompts USE this real data instead of the No-GMB HQ-backup
+ * constraints — never invented, always operator-supplied.
+ */
+export interface PromptGmb {
+  businessName: string;
+  street: string;
+  zip: string;
+  phone: string;
+  hours: string;
+  cid: string;
+  gmbUrl: string;
+}
+
 export interface PromptVars {
   city: string;
   state: string;
@@ -22,6 +39,13 @@ export interface PromptVars {
   pageName: string;
   /** The Hub+Spoke internal-linking handoff text (empty string when none). */
   hubSpoke: string;
+  /**
+   * The verified GMB block when this is a GMB build, or null/undefined for the
+   * faithful No-GMB path. When set, the build/seo/verify prompts switch to the
+   * GMB-aware branches (use the real NAP); when absent they stay byte-identical
+   * to the verbatim No-GMB tool prompts.
+   */
+  gmb?: PromptGmb | null;
 }
 
 /** The "forced execution" prefix the tool stamps on most mini prompts. */
@@ -185,16 +209,26 @@ TARGET URL: ${v.url}
 NICHE: ${v.niche}
 ═══════════════════════════════════
 
-⚠️ NO GMB BUILD:
-This city has no Google Business listing — but PROCEED NORMALLY and build the full landing page. For the call buttons and on-page contact, use the STS HQ main line ${HQ_PHONE} as the backup phone, wired as a working tel: link (${HQ_PHONE_TEL}). Do NOT invent a LOCAL phone number, street address, business hours, CID, or Google Maps embed/CID link for this city. Schema is generated separately in Phase 4 (telephone = the HQ backup line; no CID, no street address) — this is otherwise a standard landing page.
+${
+    v.gmb
+      ? `✅ GMB BUILD — VERIFIED GOOGLE BUSINESS PROFILE:
+This page has a verified Google Business listing. Use this REAL location data as the page's contact info (call buttons, on-page contact, footer), wiring the phone as a working tel: link. Do NOT invent any value beyond what is given here:
+- Business name: ${v.gmb.businessName}
+- Address: ${v.gmb.street}, ${v.city}, ${v.state} ${v.gmb.zip}
+- Phone: ${v.gmb.phone}
+- Hours: ${v.gmb.hours}
+Schema (the verified CID + full PostalAddress + geo) is generated separately in Phase 4 — do NOT add JSON-LD here. This is otherwise a standard landing page.`
+      : `⚠️ NO GMB BUILD:
+This city has no Google Business listing — but PROCEED NORMALLY and build the full landing page. For the call buttons and on-page contact, use the STS HQ main line ${HQ_PHONE} as the backup phone, wired as a working tel: link (${HQ_PHONE_TEL}). Do NOT invent a LOCAL phone number, street address, business hours, CID, or Google Maps embed/CID link for this city. Schema is generated separately in Phase 4 (telephone = the HQ backup line; no CID, no street address) — this is otherwise a standard landing page.`
+  }
 ${hubSpokeSection}
 EXECUTION INSTRUCTIONS:
 1. Use Master Page Builder logic - follow EVERY step
 2. Apply Master Design (Tier 2) strictly - NO deviations
 3. Hero section MUST have city "${v.city}" + niche "${v.niche}" in H1, form on RIGHT
 4. Mobile responsive - images must NOT squeeze text
-5. Do NOT include Schema yet (built separately in Phase 4 — no CID, no GMB address)
-6. Footer/contact: use the STS HQ main line ${HQ_PHONE} (tel: link) for call buttons — do NOT add a local street address or invent a local-branch phone for this city
+5. Do NOT include Schema yet (built separately in Phase 4${v.gmb ? " — with the verified CID + address" : " — no CID, no GMB address"})
+6. ${v.gmb ? `Footer/contact: use the verified GMB phone ${v.gmb.phone} (tel: link) and the GMB address ${v.gmb.street}, ${v.city}, ${v.state} ${v.gmb.zip} for this city` : `Footer/contact: use the STS HQ main line ${HQ_PHONE} (tel: link) for call buttons — do NOT add a local street address or invent a local-branch phone for this city`}
 7. Facility mentions: Say "serving ${v.city} from our 600,000 sq ft facility" — NOT "our ${v.city} facility"
 ${v.hubSpoke ? "8. Include 3-4 internal links from Hub+Spoke handoff in rows 4+ (NOT hero)" : ""}
 
@@ -218,7 +252,7 @@ INSTRUCTIONS:
 4. Fix the specific issue mentioned above
 5. Ensure Hero has city in H1, form on RIGHT
 6. Ensure mobile view works - no image squeeze
-7. NO GMB: build normally; use the STS HQ main line ${HQ_PHONE} (tel: link) for call buttons; do NOT invent a local street address, local-branch phone, hours, or CID
+7. ${v.gmb ? `GMB: build normally; use the verified GMB phone ${v.gmb.phone} (tel: link) and address ${v.gmb.street}, ${v.city}, ${v.state} ${v.gmb.zip} for call buttons / contact; do NOT invent any value beyond the supplied GMB block` : `NO GMB: build normally; use the STS HQ main line ${HQ_PHONE} (tel: link) for call buttons; do NOT invent a local street address, local-branch phone, hours, or CID`}
 
 ⚠️ CRITICAL OUTPUT REQUIREMENT:
 CREATE A NEW ARTIFACT with the complete rebuilt HTML code. Do NOT paste code in chat.
@@ -228,7 +262,7 @@ DO NOT try to patch the old code. START FRESH. No lengthy explanations.`;
 }
 
 /** verify-links — closing link-integrity check. */
-export function verifyLinksPrompt(): string {
+export function verifyLinksPrompt(v: PromptVars): string {
   return `${FORCE_PREFIX}TASK: VERIFY ALL LINKS
 
 Scan the HTML and verify:
@@ -237,7 +271,7 @@ Scan the HTML and verify:
 2. ALL contact/quote buttons = https://www.stselectronicrecyclinginc.com/CONTACT-STS-PAGE
 3. NO made-up URLs (LLMs invent URLs!)
 4. NO example.com or placeholder links
-5. NO invented LOCAL phone numbers or street addresses (NO GMB build) — but the STS HQ main line ${HQ_PHONE} (tel: link) IS the allowed backup phone: KEEP it, do NOT treat it as invented.
+5. ${v.gmb ? `The verified GMB phone ${v.gmb.phone} and address ${v.gmb.street}, ${v.city}, ${v.state} ${v.gmb.zip} ARE expected — KEEP them, do NOT treat them as invented. Flag any OTHER invented phone, street address, or placeholder URL.` : `NO invented LOCAL phone numbers or street addresses (NO GMB build) — but the STS HQ main line ${HQ_PHONE} (tel: link) IS the allowed backup phone: KEEP it, do NOT treat it as invented.`}
 
 VERDICT:
 If ALL links correct: ✅ LINKS VERIFIED — Proceed to next phase
@@ -252,7 +286,7 @@ No lengthy explanations.`;
  * just asks the model to fix the issues IT listed and re-emit the verdict, the
  * same "fix and re-verify" loop the tool's own verify prompt describes.
  */
-export function verifyLinksFixPrompt(): string {
+export function verifyLinksFixPrompt(v: PromptVars): string {
   return `${FORCE_PREFIX}TASK: FIX LINK VERIFICATION FAILURES
 
 Your link verification returned ❌ LINKS FAILED.
@@ -261,7 +295,7 @@ Your link verification returned ❌ LINKS FAILED.
    - ALL email links = mailto:recycle@stsrecycle.com
    - ALL contact/quote buttons = https://www.stselectronicrecyclinginc.com/CONTACT-STS-PAGE
    - Remove any made-up / example.com / placeholder URLs
-   - Remove any invented LOCAL phone numbers or street addresses (NO GMB build) — but KEEP the STS HQ main line ${HQ_PHONE} (the allowed backup phone)
+   - ${v.gmb ? `Remove any invented phone numbers or street addresses OTHER than the verified GMB phone ${v.gmb.phone} and address ${v.gmb.street}, ${v.city}, ${v.state} ${v.gmb.zip} (KEEP those — they are the verified GMB data)` : `Remove any invented LOCAL phone numbers or street addresses (NO GMB build) — but KEEP the STS HQ main line ${HQ_PHONE} (the allowed backup phone)`}
 2. Re-scan ALL links in the corrected page.
 3. End your reply with the FINAL VERDICT, exactly one of:
    ✅ LINKS VERIFIED — Proceed to next phase
@@ -287,7 +321,7 @@ CRITICAL RULES:
 - The first 2 rows (Hero section) = MINOR tweaks only, no major changes
 - STRIP/REMOVE all existing Schema (rebuilt separately in Phase 4)
 - Verify emails = mailto:recycle@stsrecycle.com
-- NO GMB: keep the STS HQ main line ${HQ_PHONE} on the call buttons (tel: link); do NOT add or invent a local street address, local-branch phone, hours, or CID
+- ${v.gmb ? `GMB: keep the verified GMB phone ${v.gmb.phone} on the call buttons (tel: link) and the GMB address ${v.gmb.street}, ${v.city}, ${v.state} ${v.gmb.zip}; do NOT add or invent any value beyond the supplied GMB block` : `NO GMB: keep the STS HQ main line ${HQ_PHONE} on the call buttons (tel: link); do NOT add or invent a local street address, local-branch phone, hours, or CID`}
 ${v.hubSpoke ? "- Verify 3-4 internal links exist in content sections (rows 4+, NOT hero)" : ""}
 
 Complete the ENTIRE audit. Do not stop early. Do not summarize.
@@ -336,7 +370,38 @@ LOCAL SEO:
 ☐ City mentioned in first 100 words
 ☐ Email is mailto:recycle@stsrecycle.com
 
+${
+    v.gmb
+      ? `════════════════════════════════════════════════════════
+🟢 GMB CHECK
 ════════════════════════════════════════════════════════
+This page has a VERIFIED Google Business Profile. It SHOULD use this real NAP for
+the call buttons / contact / footer. Confirm the verified data is present and
+correct, then flag any value that does NOT match the verified block.
+
+VERIFIED (must be present, do NOT flag):
+✅ Phone ${v.gmb.phone} on the call buttons / contact (tel: link)
+✅ Address ${v.gmb.street}, ${v.city}, ${v.state} ${v.gmb.zip}
+✅ Hours ${v.gmb.hours}
+
+WRONG (fix these):
+❌ Any phone number OTHER than the verified ${v.gmb.phone}
+❌ Any street address OTHER than the verified ${v.gmb.street}
+❌ Invented neighborhoods, ratings, or hours that contradict the verified block
+❌ A CID or Google Maps link that does NOT match the verified profile
+
+NOTE: The verified CID + full PostalAddress + geo belong in the Phase-4 schema, not invented inline here.
+
+ACTION:
+- If the verified phone/address is MISSING → ADD it and output:
+  🟢 ADDED: verified GMB NAP wired to contact
+- If any value contradicts the verified block → FIX IT and output:
+  🟢 FIXED: [show before/after]
+
+If clean and the verified NAP is present → output:
+✅ GMB: Clean (verified NAP present, nothing invented)
+`
+      : `════════════════════════════════════════════════════════
 🔴 NO GMB CHECK
 ════════════════════════════════════════════════════════
 This is a NO GMB build. It SHOULD still have working call buttons that use the
@@ -365,7 +430,8 @@ ACTION:
 
 If clean and the HQ number is present → output:
 ✅ NO GMB: Clean (HQ backup phone present, no invented local data)
-
+`
+  }
 ════════════════════════════════════════════════════════
 🔴 FACILITY LANGUAGE CHECK
 ════════════════════════════════════════════════════════

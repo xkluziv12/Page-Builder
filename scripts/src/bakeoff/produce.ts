@@ -13,7 +13,7 @@ import { estimateCost } from "./cost.js";
 import { runConversation } from "./conversation.js";
 import { runRoutedConversation } from "./routed.js";
 import { generateSharedGrounding, type SharedGrounding } from "./grounding.js";
-import { gmbContextSuffix, resolveGmbProfile } from "./gmb.js";
+import { gmbContextSuffix, resolveGmbProfile, promptGmbFrom } from "./gmb.js";
 import { resolveTarget } from "./target.js";
 import {
   buildModelsForIds,
@@ -146,6 +146,11 @@ async function main(): Promise<void> {
         })
     : (vars) => schemaPrompt(vars);
   const verifiedCid = isGmb ? gmb!.cid : null;
+  // The page's target URL (used verbatim in the prompts) and the verified GMB NAP
+  // block (GMB-aware prompt branches). For No-GMB, pass TARGET.url + null so the
+  // prompts stay byte-identical to the faithful path.
+  const pageUrl = isGmb ? gmb!.pageUrl : TARGET.url;
+  const promptGmb = isGmb ? promptGmbFrom(gmb!) : null;
   const ctx: RunContext = isGmb ? { ...baseContext(), verifiedCid: gmb!.cid } : baseContext();
 
   let grounding: SharedGrounding;
@@ -175,6 +180,8 @@ async function main(): Promise<void> {
       grounding: grounding.content,
       introEnrichment,
       schemaPromptFor,
+      pageUrl,
+      gmb: promptGmb,
     });
     outcome = { html: conv.html, schema: conv.schema, totalMs: conv.totalMs, turns: conv.turns };
     runId = `single-${model.id}`;
@@ -194,6 +201,8 @@ async function main(): Promise<void> {
       grounding: grounding.content,
       introEnrichment,
       schemaPromptFor,
+      pageUrl,
+      gmb: promptGmb,
       routing,
     });
     outcome = { html: routed.html, schema: routed.schema, totalMs: routed.totalMs, turns: routed.turns };
@@ -254,6 +263,8 @@ async function main(): Promise<void> {
     fixtures,
     grounding: grounding.content,
     introEnrichment,
+    pageUrl,
+    gmb: promptGmb,
   });
 
   const result: ModelResult = {
