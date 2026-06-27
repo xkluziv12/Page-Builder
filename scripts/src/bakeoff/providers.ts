@@ -173,6 +173,36 @@ function unfence(raw: string): string {
   return raw.trim();
 }
 
+/**
+ * Enforce the live-fetch contract: when a turn REQUESTED web search, the provider
+ * response MUST carry evidence that the model actually called its native search
+ * tool. Attaching the tool only makes search *available* — a model is free to
+ * ignore it and answer from training recall, which would silently defeat the
+ * whole point of the search-grounded seo-verify turn. So if search was requested
+ * but no fetch happened, we FAIL LOUD (consistent with the repo's fail-loud
+ * convention). The throw flows through `guarded` (one bounded retry) and, if the
+ * model still won't fetch, is recorded as an honest per-model ERROR — never a
+ * silent pass. This rule is uniform across every provider, so it stays
+ * apples-to-apples. `count` is the best-available request/citation count for the
+ * run log; `searched` is the authoritative gate.
+ */
+function enforceLiveFetch(
+  model: string,
+  requested: boolean | undefined,
+  searched: boolean,
+  count: number,
+): void {
+  if (!requested) return;
+  if (!searched) {
+    throw new Error(
+      `${model} was told to perform a live web search on this turn but produced NO evidence of ` +
+        `calling its web-search tool. Live fetching is MANDATORY on this turn — failing loud ` +
+        `rather than accepting training-recall content.`,
+    );
+  }
+  console.log(`    🔎 ${model} live web search: ${count > 0 ? `${count} request(s)` : "performed"}`);
+}
+
 /** Claude direct, with STS's own ANTHROPIC_API_KEY. */
 export function makeClaudeComplete(model: string): CompleteFn {
   const client = new Anthropic({
@@ -196,6 +226,16 @@ export function makeClaudeComplete(model: string): CompleteFn {
       messages: messages.map((m) => ({ role: m.role, content: m.content })),
     });
     const message = await stream.finalMessage();
+    // Live-fetch evidence: Claude's server-side web_search emits server_tool_use /
+    // web_search_tool_result blocks and a usage.server_tool_use.web_search_requests
+    // count. Any of these proves it actually searched.
+    const searchReqs =
+      (message.usage as { server_tool_use?: { web_search_requests?: number } } | undefined)
+        ?.server_tool_use?.web_search_requests ?? 0;
+    const searchBlocks = message.content.filter(
+      (b) => b.type === "server_tool_use" || b.type === "web_search_tool_result",
+    ).length;
+    enforceLiveFetch(model, opts?.webSearch, searchReqs > 0 || searchBlocks > 0, searchReqs || searchBlocks);
     const raw = message.content
       .filter((b): b is Anthropic.TextBlock => b.type === "text")
       .map((b) => b.text)
@@ -229,6 +269,29 @@ export function makeGeminiComplete(model: string): CompleteFn {
         ...(opts?.webSearch ? { tools: [{ googleSearch: {} }] } : {}),
       },
     });
+    // Live-fetch evidence: Google Search grounding populates groundingMetadata
+    // (search queries it issued + the grounding chunks/supports it pulled back).
+    const gm = (
+      resp.candidates?.[0] as
+        | {
+            groundingMetadata?: {
+              webSearchQueries?: unknown[];
+              groundingChunks?: unknown[];
+              groundingSupports?: unknown[];
+              searchEntryPoint?: unknown;
+            };
+          }
+        | undefined
+    )?.groundingMetadata;
+    const queries = gm?.webSearchQueries?.length ?? 0;
+    const chunks = gm?.groundingChunks?.length ?? 0;
+    const supports = gm?.groundingSupports?.length ?? 0;
+    enforceLiveFetch(
+      model,
+      opts?.webSearch,
+      queries > 0 || chunks > 0 || supports > 0 || gm?.searchEntryPoint != null,
+      queries || chunks,
+    );
     const raw = (resp.text ?? "").trim();
     if (!raw) throw new Error(`${model} returned an empty response.`);
     return { content: unfence(raw), raw };
@@ -298,10 +361,36 @@ export function makeOpenAIComplete(model: string): CompleteFn {
         }`,
       );
     }
+    // Live-fetch evidence: the Responses API records each search as a
+    // `web_search_call` item in resp.output (alongside the message items).
+    const searchCalls = ((resp.output ?? []) as Array<{ type?: string }>).filter(
+      (it) => typeof it.type === "string" && it.type.includes("web_search"),
+    ).length;
+    enforceLiveFetch(model, opts?.webSearch, searchCalls > 0, searchCalls);
     const raw = (resp.output_text ?? "").trim();
     if (!raw) throw new Error(`${model} returned an empty response.`);
     return { content: unfence(raw), raw };
   });
+}
+
+/** Count provider web-search evidence in an OpenAI-style Responses output array. */
+function responsesSearchCount(output: unknown): number {
+  const items = (Array.isArray(output) ? output : []) as Array<{
+    type?: string;
+    content?: Array<{ annotations?: Array<{ type?: string }> }>;
+  }>;
+  let count = 0;
+  for (const it of items) {
+    if (typeof it.type === "string" && it.type.includes("web_search")) count++;
+    if (it.type === "message" && Array.isArray(it.content)) {
+      for (const c of it.content) {
+        if (Array.isArray(c.annotations)) {
+          count += c.annotations.filter((a) => a?.type === "url_citation").length;
+        }
+      }
+    }
+  }
+  return count;
 }
 
 /** Grok direct via xAI's OpenAI-compatible endpoint, with STS's own XAI_API_KEY. */
@@ -340,6 +429,10 @@ export function makeGrokComplete(model: string): CompleteFn {
           }`,
         );
       }
+      // Live-fetch evidence: xAI's Responses surface mirrors OpenAI's — a
+      // web_search_call output item and/or url_citation annotations on the message.
+      const searchCount = responsesSearchCount(resp.output);
+      enforceLiveFetch(model, opts?.webSearch, searchCount > 0, searchCount);
       const raw = (resp.output_text ?? "").trim();
       if (!raw) throw new Error(`${model} returned an empty response.`);
       return { content: unfence(raw), raw };

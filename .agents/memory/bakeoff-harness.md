@@ -289,6 +289,27 @@ the token-based `estimateCost` (noted in its `basis` string).
 seo-verify turn against an existing HTML file — proves live search without a full
 sweep. Confirmed live: models cite fresh 2026-dated facts, not training recall.
 
+## Live fetch is ENFORCED (fail-loud), not just offered — and WHO complies is unstable
+When a turn requests `webSearch`, the adapter no longer merely attaches the tool —
+it asserts the model ACTUALLY searched and throws if there's no evidence
+(`enforceLiveFetch` in `providers.ts`; logs `🔎 <model> live web search: N
+request(s)` on success). Evidence per provider: Claude `server_tool_use` blocks /
+`usage.server_tool_use.web_search_requests`; Gemini `groundingMetadata`
+(queries/chunks/supports); OpenAI Responses `web_search_call` items; Grok shared
+`responsesSearchCount()` (web_search_call items + `url_citation` annotations).
+**Why:** a model that's TOLD to fetch but answers from training recall silently
+poisons "live-grounded" SEO verdicts — fail loud so non-compliance is a visible
+ERROR, matching the repo's fail-loud convention.
+**How to apply:** this is uniform (same assertion, all four providers) so it stays
+apples-to-apples; never relax it for one model to "rescue" its cell.
+**Finding (volatile — re-run, don't trust):** under the FULL stateful chat, fetch
+compliance differs from the single-turn demo. In one enforced No-GMB sweep Claude,
+GPT-5.5, GPT-5.5-pro, and Grok searched and passed, while **GPT-5.4 and Gemini
+declined to call the tool on both attempts → recorded as honest ERRORs** — even
+though Gemini DID search in the single-turn `seo-verify-demo` (proves detection is
+correct, not a false negative; the growing history changes the model's behavior).
+WHO complies is real model behavior — that refusal IS the finding, never coax it.
+
 ## Two ADDITIVE production modes layered on the comparison harness (single / routed)
 Beyond the 6-model comparison (`run.ts`, the operator's "all of them"), the tool
 now PRODUCES one real page two ways, driven by plain-language requests:
