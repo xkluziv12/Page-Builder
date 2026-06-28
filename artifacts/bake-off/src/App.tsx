@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import ModelDetail from "@/pages/model-detail";
+import PortlandReview from "@/pages/portland-review";
 import Layout from "@/components/layout";
 import { DatasetProvider } from "@/contexts/dataset-context";
 
@@ -14,6 +15,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
+      <Route path="/portland-review" component={PortlandReview} />
       <Route path="/model/:datasetId/:scenarioId/:id" component={ModelDetail} />
       <Route component={NotFound} />
     </Switch>
