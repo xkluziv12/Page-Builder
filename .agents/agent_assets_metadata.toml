@@ -54,3 +54,9 @@ id = "9l5gqqHgvKBbnq2URy_Us"
 uri = "file://exports/bakeoff-dossier.md"
 type = "text"
 title = "Bake-Off Dossier (the document sent to reviewers)"
+
+[[outputs]]
+id = "YF09NpuPyeo9wGU2zP0c7"
+uri = "file://exports/bakeoff-full.zip"
+type = "unspecified"
+title = "Bake-Off — full review package (zip)"
