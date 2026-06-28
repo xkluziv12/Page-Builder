@@ -338,11 +338,39 @@ no reference to compare); the city-aware checker report is the quality signal.
 Scripts: `bakeoff:single` / `bakeoff:multi`. A NEW GMB page MUST supply its
 verified GMB block via `BAKEOFF_GMB_JSON` (fail loud — never invent CID/address).
 
-## Verify-turn gating: act on PASSED/FAILED, with a bounded corrective loop
+## Verify-turn gating: a verify turn must end on an explicit ✅ PASS, never silently
 seo-verify and verify-links turns parse the model's ✅/❌ verdict (`readVerdict`,
-later match wins so an echoed rubric doesn't false-positive). FAILED drives a
-BOUNDED corrective re-verify loop (cap `BAKEOFF_REBUILD_CAP`, default 2); still
-failed → fail loud. A null/absent verdict is a non-blocking pass-through (logged).
+later match wins so an echoed rubric doesn't false-positive). The loop condition is
+`while (verdict !== "passed" && fixes < cap)` (cap `BAKEOFF_REBUILD_CAP`, default 2)
+in BOTH `conversation.ts` (single/stateful) and `routed.ts` (handoff) — so a FAILED
+**and** a null/absent verdict both drive a bounded corrective re-verify, and if it
+never reaches an explicit PASS it FAILS LOUD.
+**Why:** a null verdict (no ✅/❌ line) used to count as a silent non-blocking pass —
+that let a verify turn "succeed" having verified nothing. A verification with no
+verdict is not a pass.
 **Gotcha:** verify turns must use `ARTIFACT_TO_INLINE_OPTIONAL`, not the mandatory
 `ARTIFACT_TO_INLINE` — the latter forbids commentary and so SUPPRESSES the verdict
 line the gate parses. seo *audit* still uses mandatory `ARTIFACT_TO_INLINE`.
+
+## Dead-simple input contract: a target URL + a verified GMB block
+The PRIMARY input is now just a page URL + the page's verified Google Business
+Profile. `bakeoff:compare` (`BAKEOFF_SCENARIOS=gmb` default) reads `BAKEOFF_TARGET_URL`
++ `BAKEOFF_GMB_JSON`; the faithful No-GMB VA reproduction stays reachable via
+`BAKEOFF_SCENARIOS=no-gmb` but is no longer primary.
+**Two hard invariants (do NOT break):** (1) the real target URL is threaded verbatim
+through `promptVars(ctx, pageUrl?, gmb?)` — which is DUPLICATED in `conversation.ts`
+and `cost.ts` and must stay in lockstep; when `pageUrl` is empty it falls back to the
+derived `${baseDomain}/${city}-${state}` slug. (2) The No-GMB prompt text stays
+BYTE-IDENTICAL: GMB-awareness is added ONLY as `v.gmb ? <gmb text> : <verbatim old
+No-GMB text>` ternaries in the build/seo/verify mini-prompts — the else branch must
+remain the exact prior string (HQ_PHONE backup language lives only there).
+**Fail loud:** a real (non-Billings-sample) GMB target with no `BAKEOFF_GMB_JSON`, or
+a block missing any required field, throws with the exact JSON shape to supply —
+never invent a CID/address/phone for a real page.
+
+## Poll loops abort on wall-clock timeout (no billing leak)
+`withTimeout` in `providers.ts` owns an `AbortController` and aborts on timeout; the
+OpenAI background-poll loop and the Grok web-search poll loop thread that signal into
+`responses.create`/`responses.retrieve` and sleep via `abortableSleep`, so a timed-out
+turn stops polling/billing instead of leaking an in-flight poll. Success path is
+unchanged; Claude/Gemini adapters ignore the optional `signal`. Uniform, not per-model.
