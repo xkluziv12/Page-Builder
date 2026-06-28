@@ -779,6 +779,70 @@ export function checkSchemaRules(
 }
 
 /**
+ * 15. GMB schema completeness. A GMB page (one WITH a verified CID) must carry
+ * the local-business essentials a Google Business Profile page needs:
+ * `telephone`, a street address, and opening hours
+ * (`openingHoursSpecification`, or a bare `openingHours`). This complements
+ * {@link checkSchemaRules} — that rule guards the *identity* (the exact CID and
+ * the No-GMB leak ban); this one guards *completeness* of the GMB local-business
+ * fields. It fires ONLY for GMB pages (verifiedCid present); a No-GMB page has
+ * no such fields by design and is skipped. Reports/gates only; never rewrites.
+ */
+export function checkSchemaCompleteness(
+  schema: string | null | undefined,
+  verifiedCid: string | null | undefined,
+): CheckResult {
+  const cid = verifiedCid?.trim() || null;
+  if (!cid) {
+    // No-GMB page: completeness of GMB fields does not apply.
+    return pass(
+      "schema-completeness",
+      "Schema GMB completeness",
+      "No-GMB page (no verified CID); GMB completeness check skipped.",
+    );
+  }
+  if (!schema || !schema.trim()) {
+    return pass(
+      "schema-completeness",
+      "Schema GMB completeness",
+      "No schema provided yet; skipped.",
+    );
+  }
+  const parsed = parseSchema(schema);
+  if (!parsed) {
+    return pass(
+      "schema-completeness",
+      "Schema GMB completeness",
+      "Schema is not parseable JSON-LD; completeness check skipped (validity handled elsewhere).",
+    );
+  }
+  const acc: SchemaWalk = { keys: new Set(), sameAs: [], cidValues: new Set() };
+  walkSchema(parsed, acc);
+
+  const missing: string[] = [];
+  if (!acc.keys.has("telephone")) missing.push("missing telephone");
+  if (!acc.keys.has("streetaddress")) missing.push("missing streetAddress");
+  if (!acc.keys.has("openinghoursspecification") && !acc.keys.has("openinghours")) {
+    missing.push("missing openingHoursSpecification");
+  }
+
+  if (missing.length === 0) {
+    return pass(
+      "schema-completeness",
+      "Schema GMB completeness",
+      "GMB page: schema carries telephone, street address, and opening hours.",
+    );
+  }
+  return fail(
+    "schema-completeness",
+    "Schema GMB completeness",
+    "error",
+    "GMB page (verified CID present) but the schema is missing required local-business fields. Add telephone, full street address, and openingHoursSpecification so the verified Business Profile resolves completely.",
+    missing,
+  );
+}
+
+/**
  * The checker IDs that constitute the link audit. These are carved out of the
  * full report so the dashboard can present links as their own pre-publish gate
  * and so a human override can excuse exactly these errors (and nothing else).
@@ -856,6 +920,7 @@ export function runCheckers(input: CheckerInput): CheckerReport {
     checkCertScope(input.html),
     checkEntityConsistency(input.html, input.schema, input.businessName, input.entities),
     checkSchemaRules(input.schema, input.verifiedCid),
+    checkSchemaCompleteness(input.schema, input.verifiedCid),
     checkAuditTargets(input.html, classification, afterAudit),
     checkAssertAfterReplace(input.html, input.replacements ?? []),
     checkBibleHash(input.designBibleHash, currentBibleHash),

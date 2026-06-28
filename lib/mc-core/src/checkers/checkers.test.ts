@@ -13,6 +13,7 @@ import {
   checkPlaceholderLinks,
   checkSacredLinks,
   checkSchemaRules,
+  checkSchemaCompleteness,
   checkUrlRegistry,
   checkWordCount,
   runCheckers,
@@ -509,6 +510,63 @@ describe("checkSchemaRules", () => {
     const r = checkSchemaRules(s, "987654321");
     expect(r.passed).toBe(false);
     expect(r.severity).toBe("error");
+  });
+});
+
+describe("checkSchemaCompleteness", () => {
+  const fullGmb = JSON.stringify({
+    "@type": ["RecyclingCenter", "LocalBusiness"],
+    telephone: "(972) 764-8880",
+    address: { "@type": "PostalAddress", streetAddress: "650 NE Holladay St #1600" },
+    openingHoursSpecification: [
+      { "@type": "OpeningHoursSpecification", dayOfWeek: "https://schema.org/Monday", opens: "08:30", closes: "17:00" },
+    ],
+  });
+
+  it("skips a No-GMB page (no verified CID)", () => {
+    expect(checkSchemaCompleteness(fullGmb, null).passed).toBe(true);
+    expect(checkSchemaCompleteness("{}", null).passed).toBe(true);
+  });
+
+  it("skips when no schema is provided or schema is unparseable", () => {
+    expect(checkSchemaCompleteness(null, "123").passed).toBe(true);
+    expect(checkSchemaCompleteness("{not json", "123").passed).toBe(true);
+  });
+
+  it("passes a GMB schema carrying telephone, street address, and opening hours", () => {
+    expect(checkSchemaCompleteness(fullGmb, "987654321").passed).toBe(true);
+  });
+
+  it("accepts a bare openingHours key in place of openingHoursSpecification", () => {
+    const s = JSON.stringify({
+      "@type": "LocalBusiness",
+      telephone: "(972) 764-8880",
+      address: { "@type": "PostalAddress", streetAddress: "650 NE Holladay St" },
+      openingHours: "Mo-Fr 08:30-17:00",
+    });
+    expect(checkSchemaCompleteness(s, "987654321").passed).toBe(true);
+  });
+
+  it("fails a GMB schema missing telephone, street address, and opening hours", () => {
+    const s = JSON.stringify({ "@type": "LocalBusiness", name: "STS" });
+    const r = checkSchemaCompleteness(s, "987654321");
+    expect(r.passed).toBe(false);
+    expect(r.severity).toBe("error");
+    const joined = r.details.join(" | ");
+    expect(joined).toMatch(/telephone/);
+    expect(joined).toMatch(/streetAddress/);
+    expect(joined).toMatch(/openingHoursSpecification/);
+  });
+
+  it("fails a GMB schema missing only opening hours", () => {
+    const s = JSON.stringify({
+      "@type": "LocalBusiness",
+      telephone: "(972) 764-8880",
+      address: { "@type": "PostalAddress", streetAddress: "650 NE Holladay St" },
+    });
+    const r = checkSchemaCompleteness(s, "987654321");
+    expect(r.passed).toBe(false);
+    expect(r.details.join(" | ")).toMatch(/openingHoursSpecification/);
   });
 });
 

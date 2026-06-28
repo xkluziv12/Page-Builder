@@ -374,3 +374,29 @@ OpenAI background-poll loop and the Grok web-search poll loop thread that signal
 `responses.create`/`responses.retrieve` and sleep via `abortableSleep`, so a timed-out
 turn stops polling/billing instead of leaking an in-flight poll. Success path is
 unchanged; Claude/Gemini adapters ignore the optional `signal`. Uniform, not per-model.
+
+## GMB sample = a REAL parsed Maps listing, never fabricated NAP
+The built-in GMB sample target is now the **Regus – Portland – Liberty Centre**
+listing (stand-in for STS `/portland-or`), built by running a committed Maps paste
+through the reusable parser `maps-paste.ts` (`parseGoogleMapsPaste`: place URL +
+raw info dump → CID hex→decimal + `?cid=` URL, `!3d/!4d` geo, street/city/state/zip,
+phone, 7-day hours incl. 24h, plus code). This replaced the older fictional
+`BILLINGS_GMB` (555-01xx phone / placeholder CID).
+**Why:** the sample must exercise the SAME parser a real run uses and carry sourced
+NAP, not invented data — fail-loud on any missing required field.
+**How to apply:** the sample's real phone/address/hours/geo/CID are kept as-is; ONLY
+`website` is forced to the STS domain (`STS_WEBSITE`). `resolveGmbProfile` defaults to
+`PORTLAND_GMB` only for the Portland, OR target; any other city still needs a verified
+`BAKEOFF_GMB_JSON`. `GmbProfile` gained optional `openingHours: DayHours[]`/`plusCode`
+and a required `website`.
+
+## GMB schema completeness is a SEPARATE checker from the CID/identity rule
+`checkSchemaCompleteness` (mc-core checkers) fires ONLY when `verifiedCid` is present
+(a GMB page) and errors if the schema lacks `telephone`, a street address, or opening
+hours (`openingHoursSpecification` OR a bare `openingHours`). It mirrors
+`checkSchemaRules`' No-GMB skip, so No-GMB pages are untouched.
+**Why:** `checkSchemaRules` guards identity (exact CID + No-GMB leak ban); completeness
+guards the local-business fields a GMB page needs. Both the deterministic
+`generateGmbSchema` and the AI `gmbSchemaPrompt` now emit `@type:["RecyclingCenter",
+"LocalBusiness"]` + `openingHoursSpecification` (closed days omitted; 24h→00:00/23:59),
+so the live AI schema turn passes the gate.

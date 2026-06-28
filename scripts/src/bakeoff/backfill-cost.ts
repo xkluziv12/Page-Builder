@@ -15,7 +15,7 @@ import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { RunContext } from "@workspace/mc-core";
 import { estimateCost, billingsNoGmbContext } from "./cost.js";
-import { gmbContextSuffix, BILLINGS_GMB } from "./gmb.js";
+import { gmbContextSuffix, PORTLAND_GMB } from "./gmb.js";
 import { loadDesignFixtures } from "./fixtures.js";
 import type { BakeoffResults, ScenarioResult, ModelResult } from "./types.js";
 
@@ -31,8 +31,8 @@ const TARGETS = [
 function contextForScenario(scenarioId: string): { ctx: RunContext; introEnrichment: string } {
   if (scenarioId === "gmb") {
     return {
-      ctx: { ...billingsNoGmbContext(), verifiedCid: BILLINGS_GMB.cid },
-      introEnrichment: gmbContextSuffix(BILLINGS_GMB),
+      ctx: { ...billingsNoGmbContext(), verifiedCid: PORTLAND_GMB.cid },
+      introEnrichment: gmbContextSuffix(PORTLAND_GMB),
     };
   }
   return { ctx: billingsNoGmbContext(), introEnrichment: "" };

@@ -572,6 +572,9 @@ export interface SchemaGmbInputs {
   phone: string;
   lat: number;
   lng: number;
+  /** Verified hours, one human line per open day (e.g. "Monday: 8:30 AM – 5:00 PM").
+   * Empty when the GMB block carries no structured hours. */
+  hoursLines?: string[];
 }
 
 /** schema (GMB-enriched) — the Phase-4 schema turn for the GMB scenario. Same
@@ -602,17 +605,25 @@ Website: https://www.stselectronicrecyclinginc.com
 - Street address: ${g.street}
 - Postal code: ${g.zip}
 - Phone: ${g.phone}
-- Coordinates: ${g.lat}, ${g.lng}
+- Coordinates: ${g.lat}, ${g.lng}${
+    g.hoursLines && g.hoursLines.length > 0
+      ? `\n- Hours (use EXACTLY; closed days are omitted):\n${g.hoursLines.map((h) => `  • ${h}`).join("\n")}`
+      : ""
+  }
 
 REQUIREMENTS:
-1. Type: LocalBusiness (or RecyclingCenter)
+1. Type: an array ["RecyclingCenter", "LocalBusiness"] (most-specific first)
 2. identifier: "${g.cid}" (CID format exactly — do NOT use gMapsUrl)
 3. Full PostalAddress: streetAddress "${g.street}", addressLocality "${v.city}", addressRegion "${v.state || "[STATE]"}", postalCode "${g.zip}", addressCountry "US"
 4. telephone "${g.phone}", geo GeoCoordinates ${g.lat}/${g.lng}
-5. hasMap and sameAs using the ?cid= URL above
-6. Include "Electronic Recycling" in the name and description, and the website URL
-7. Do NOT include aggregateRating/reviews or individual reviews
-8. Do NOT invent neighborhoods, ratings, or any value not given above
+5. hasMap and sameAs using the ?cid= URL above${
+    g.hoursLines && g.hoursLines.length > 0
+      ? `\n6. openingHoursSpecification: one OpeningHoursSpecification per open day above (dayOfWeek as https://schema.org/<Day>, opens/closes in 24h HH:MM; "Open 24 hours" → opens "00:00" closes "23:59"). Omit closed days.`
+      : ""
+  }
+${g.hoursLines && g.hoursLines.length > 0 ? "7" : "6"}. Include "Electronic Recycling" in the name and description, and the website URL
+${g.hoursLines && g.hoursLines.length > 0 ? "8" : "7"}. Do NOT include aggregateRating/reviews or individual reviews
+${g.hoursLines && g.hoursLines.length > 0 ? "9" : "8"}. Do NOT invent neighborhoods, ratings, or any value not given above
 
 Output the complete schema script block. No lengthy explanations.`;
 }

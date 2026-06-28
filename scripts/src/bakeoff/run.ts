@@ -122,6 +122,19 @@ function noGmbScenario(): ScenarioSpec {
   };
 }
 
+/** Per-open-day human hours lines for the GMB schema turn (closed days omitted,
+ * "Open 24 hours" preserved). Empty when the profile carries no structured hours. */
+function gmbHoursLines(gmb: GmbProfile): string[] {
+  if (!gmb.openingHours || gmb.openingHours.length === 0) return [];
+  return gmb.openingHours
+    .filter((h) => !h.closed)
+    .map((h) =>
+      h.open24
+        ? `${h.day}: Open 24 hours`
+        : `${h.day}: ${h.opens ?? "00:00"} – ${h.closes ?? "23:59"}`,
+    );
+}
+
 function gmbScenario(gmb: GmbProfile): ScenarioSpec {
   return {
     id: "gmb",
@@ -139,6 +152,7 @@ function gmbScenario(gmb: GmbProfile): ScenarioSpec {
         phone: gmb.phone,
         lat: gmb.lat,
         lng: gmb.lng,
+        hoursLines: gmbHoursLines(gmb),
       }),
     pageUrl: gmb.pageUrl,
     gmb: promptGmbFrom(gmb),
@@ -156,7 +170,7 @@ function gmbScenario(gmb: GmbProfile): ScenarioSpec {
  * Build the scenario set for a target. The No-GMB scenario is always present
  * (it's the production-faithful path and needs no location-specific block). The
  * GMB scenario is included only when a GMB profile is available — for the
- * Billings smoke target that's the illustrative {@link BILLINGS_GMB}; for any
+ * Portland smoke target that's the {@link PORTLAND_GMB} stand-in; for any
  * other city it requires a verified `BAKEOFF_GMB_JSON` block (see
  * {@link resolveGmbProfile}), so a new-city run without one drops the GMB
  * scenario rather than inventing location data or aborting the whole run.
