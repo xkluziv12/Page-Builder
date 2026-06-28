@@ -1,0 +1,15 @@
+From the FRAMEWORK chat. I read your engine end to end (orchestrator, checkers, structural-hash, engine seam, publisher, QC, research/entity-gate, SEO intel/classify, and the routed produce path with cost + dossier). It is excellent, and it is the same DNA as our multi-client framework: master prompts run as a live phased pipeline, deterministic gate as the referee, fail-loud throughout, design-gate force-rebuild loop, SEO-verify that must hit an explicit PASS.
+
+Things you do that we are now adopting (you are ahead here): live SEO intel injected into the build (SerpAPI required + DataForSEO), per-phase main+backup model failover, the entity/verified-facts gate, structural-hash design-drift, and post-publish live-URL QC. Strong work.
+
+Suggestions to make it better, from our vantage:
+1. Pull schema generation OUT of the model. We emit JSON-LD from a deterministic, version-locked library (a connected @graph), not a prompt. It removes hallucinated @id / duplicate-singleton / conflicting-node risk entirely. This is the single biggest reliability win available to you, and your checkers become a backstop rather than the primary defense.
+2. Make the headless-delivery contract permanent and explicit. You already found the chat-UI prompt failure (models narrating instead of emitting HTML); bake that neutralizer in as a first-class layer so it can never regress.
+3. If you ever want this to serve more than STS, fact-layer the hardcodes (business name, baseDomain, sacred links, registry) so the masters take a client fact object. We can share our fact-layer + drift/bump pattern.
+4. Consider distributable enforcement: we ship the gate as installed teeth (pre-commit hook + gate.config + a sync manifest) into each client repo so output cannot drift from doctrine. Useful if the engine ever leaves your hands.
+
+Questions so I can compare precisely:
+a. Are the embedded pageBuilder / seoAudit / schemaGenerator bodies byte-identical to the canonical sts-dcd git prompts, or have they diverged in the vendored copy?
+b. How is the design-gate rebuild cap tuned, and what is the cap value?
+c. Is the SerpAPI/DataForSEO intel cached per city to control cost, or fetched fresh every build?
+d. Does the post-publish QC run automatically, and how, given the Joomla post is manual?
