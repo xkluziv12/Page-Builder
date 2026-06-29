@@ -1,0 +1,331 @@
+# TechnoCycle WordPress CMS Workflow Audit
+## Complete Phase-by-Phase Report — Verified Against Live Admin 6/19/2026
+
+---
+
+## STACK VERIFICATION (Correct All Proposed Items First)
+
+| Component | Proposed | ACTUAL (verified) |
+|---|---|---|
+| WordPress | 6.9.4 ✓ | **6.9.4** ✓ CONFIRMED |
+| Page Builder | Divi (Elegant Themes) ✗ | **Beaver Builder Plugin (Pro) v2.9.4.2** — CORRECTS. Divi is 100% absent. |
+| SEO Plugin | Yoast SEO ✓ | **Yoast SEO v27.8** ✓ CONFIRMED |
+| Caching | WP Rocket 3.21.3 only ✗ | **WP Rocket 3.21.3 + Kinsta server-side cache** — CORRECTS. Site is hosted on Kinsta (confirmed in page footer: "Thanks for creating with WordPress and hosting with **Kinsta**"). Kinsta Cache is a separate sidebar menu item. |
+| CDN | Cloudflare (active) ✗ | Cloudflare is listed as a WP Rocket Add-on but is **OFF** (toggle is off in WP Rocket › Add-ons). No Cloudflare integration is active. Kinsta provides its own CDN (visible under Kinsta Cache › "Clear CDN Cache" button). |
+| Elementor | Absent (proposed) ✓ | **Absent** ✓ CONFIRMED |
+| Joomla | Absent (proposed) ✓ | **Absent** ✓ CONFIRMED |
+
+**Additional plugins NOT in your proposed stack (all active):**
+
+- **Classic Editor v1.7.0** — forces the old TinyMCE/Classic editing screen; this is why you see a Classic Editor + Beaver Builder tab on pages, not Gutenberg.
+- **Beaver Themer v1.5.3** — builds the sitewide header/footer/archive layouts; controls the green page-title banner VAs see on every page.
+- **Gravity Forms v2.10.4** + three add-ons (reCAPTCHA, Twilio, Webhooks) — handles all quote/pickup forms embedded in pages.
+- **Imagify v2.2.8** — auto-compresses uploaded images to WebP.
+- **Redirection v5.8.0** — manages 301 redirects.
+- **Jetpack v15.9** — security/stats.
+- **Campaign Tracker for WordPress v3.8.5** — UTM tracking on form submissions.
+- **WVEX (WebVitality Extras) v1.37.6** — custom theme helpers for the WebVitality Child Theme v2.
+- **ActiveCampaign Postmark v1.20.0** — overrides wp_mail for transactional email delivery.
+- **WPS Hide Login v1.9.18** — INACTIVE (login URL hardening, currently off).
+
+---
+
+## PHASE A — META SETUP
+
+### A1. Path to find/open the target page in wp-admin
+
+**CONFIRMS** the proposed general approach; exact steps are:
+
+1. In the left sidebar, click **Pages** → the label is literally "**Pages**" with sub-links "All Pages" and "Add Page".
+2. Direct URL: `https://technocycle.com/wp-admin/edit.php?post_type=page`
+3. This opens a table with 64 total pages (44 Published, 20 Drafts).
+4. Hover over the page row title to reveal row-action links; click **"Edit"** (exact label) on the target page.
+5. Direct URL pattern once in the editor: `https://technocycle.com/wp-admin/post.php?post={POST_ID}&action=edit`
+
+The Pages list has a Yoast-added filter tab labeled **"Beaver Builder (12)"** which quickly filters to only BB-built pages.
+
+---
+
+### A2. Is each page new or cloned from a template?
+
+**CORRECTS** the proposed step. The site does NOT use Divi Library layouts. Beaver Builder has its own saved template library.
+
+- **Location:** Left sidebar → **Beaver Builder → Templates**
+- **Direct URL:** `https://technocycle.com/wp-admin/edit.php?post_type=fl-builder-template`
+- **Three saved templates exist:**
+
+  | Template Name | ShortCode / ID |
+  |---|---|
+  | **Collect-It Safely Template** | `[fl_builder_insert_layout id=1733]` |
+  | **HomeTemplate** | `[fl_builder_insert_layout id=1615]` |
+  | **Inner Page Template** | `[fl_builder_insert_layout id=1256]` |
+
+- **"Inner Page Template" (id=1256) is the standard service/landing page template** — it is the direct equivalent of your old Joomla "Clean Top 2026" layout. When creating a new service page, the VA should launch Beaver Builder and apply this template via Beaver Builder's in-editor "Templates" panel.
+
+- Alternatively, existing service pages (e.g. "e-Waste Recycling", "IT Asset Disposition – ITAD") show a **"Duplicate Page •"** row action on some pages in the Pages list, which clones the full page including BB layout. This is a faster option than applying a template from scratch.
+
+---
+
+### A3. Slug/permalink field — location and naming convention
+
+**CONFIRMS** a slug/permalink field exists, but documents the exact location:
+
+- After clicking **"Edit"** on a page, the slug/permalink appears immediately **below the page title field** as: `Permalink: https://technocycle.com/e-waste-recycling/ ‎Edit`
+- Click the blue **"Edit"** button inline to make the slug field editable.
+- Alternatively, in the **Yoast SEO** meta box (below the editor), the **"Slug"** field under the "Search appearance" section is a second place to edit the slug. Both sync to the same value.
+- Permalink structure is set to **"Post name"** (Settings → Permalinks → "Post name" radio is selected).
+
+**Naming convention from live pages:**
+
+| Page Title | Slug |
+|---|---|
+| e-Waste Recycling | `e-waste-recycling` |
+| IT Asset Disposition – ITAD | `it-asset-disposition-itad` |
+| Employment Verification Request | `employment-verification-request` |
+
+**Convention:** all lowercase, words separated by hyphens, no dates, no subfolders, stripped of special characters (em-dashes become single hyphens). Resulting URL: `https://technocycle.com/{slug}/`
+
+---
+
+### A4. How is the page TITLE HEADING hidden?
+
+**CORRECTS** the proposed step significantly. There is **no "Show Title = HIDE" toggle** in this setup.
+
+The page title banner (the **green/dark band** showing "e-Waste Recycling" or "IT Asset Disposition – ITAD" at the top of every inner page) is **NOT a WordPress native page title**. It is a **Beaver Themer layout** applied sitewide to inner pages. The text it displays is the WordPress page title pulled dynamically by the Themer template.
+
+- To change or suppress the banner title, the VA would need to edit the **Beaver Themer** layout — this is an admin-only operation, not a per-page toggle.
+- On the e-Waste Recycling page, inspecting the `<h1>` elements revealed: the "e-Waste Recycling" heading displayed in the green bar has class `uabb-heading` — it is rendered by a Beaver Builder **Heading module** (likely in a Themer layout).
+- The **Page Attributes → Template** dropdown in the editor sidebar offers three choices: **"Default template"**, **"No Header/Footer"**, and **"Sidebar"**. Selecting **"No Header/Footer"** will suppress the Themer-controlled header band — this is the closest equivalent to "Hide Title" if you want a fully blank-canvas landing page. 
+- **RECOMMENDATION FOR NEW LANDING PAGES:** Use the **"No Header/Footer"** page template so the Themer banner doesn't inject an H1. The page title heading should then come from within the Beaver Builder layout itself (as it does in the existing pages via the Heading module).
+
+---
+
+### A5. Yoast SEO meta box — exact fields
+
+**CONFIRMS** Yoast controls `<title>` and `<meta description>`. Verified via live page source: both tags carry `class="yoast-seo-meta-tag"`.
+
+**Location:** The "Yoast SEO" panel appears **below the main content editor**, labeled "Yoast SEO" in a collapsible meta box. It has four tabs at the top: **SEO | Readability | Schema | Social**.
+
+**Fields the VA fills (all on the SEO tab):**
+
+| Field Label | Location | Notes |
+|---|---|---|
+| **Focus keyphrase** | SEO tab → "Focus keyphrase" section → input labelled "Focus keyphrase", placeholder "Type here" | Main target keyword for scoring |
+| **SEO title** | SEO tab → "Search appearance" → field labelled "SEO title" | Has "Insert variable" button for snippets; red/green character-count bar below |
+| **Slug** | SEO tab → "Search appearance" → field labelled "Slug" | Syncs with the permalink editor above. Edit either location. |
+| **Meta description** | SEO tab → "Search appearance" → field labelled "Meta description" | Has "Insert variable" button; orange/green character-count bar below |
+| **Cornerstone content** | SEO tab → accordion labelled "Cornerstone content" | Toggle checkbox; mark flagship pages as cornerstone |
+| **Canonical URL** | SEO tab → accordion labelled "**Advanced**" (must click to expand) → field labelled "**Canonical URL**" | Leave blank to auto-set to current page URL; only fill if intentionally overriding |
+| **Page type (Schema)** | **Schema tab** → "Page type" dropdown (default: "Default for Pages (Web Page)") | Change to "CollectionPage", "FAQPage", etc. if needed |
+| **Article type (Schema)** | Schema tab → "Article type" dropdown (default: "Default for Pages (None)") | Leave as None for service pages |
+
+**Fields that do NOT need to be filled by the VA on service pages:**
+- "Add related keyphrase" — Premium only
+- "Internal linking suggestions" — Premium only
+- "Social" tab — optional per page, populated globally in Yoast settings
+
+---
+
+## PHASE B — CONTENT / HTML
+
+### B1. Content placement method — CORRECTS the proposed path entirely
+
+**The correct method is the Classic Editor's Code view, NOT a Divi "Code" module.**
+
+Because the **Classic Editor plugin** is active, service pages use the **Classic Editor** (TinyMCE). The editor screen has two tabs immediately above the editing area: **"Text Editor"** and **"Beaver Builder"**.
+
+**Two valid paths for pasting generated HTML:**
+
+**PATH 1 — Classic Editor Code view (recommended for raw HTML):**
+1. On the page edit screen, ensure the **"Text Editor"** tab is active (it is by default).
+2. Click the **"Code"** button at the top-right of the editor toolbar (the alternative to the "Visual" button — both buttons appear in the same toolbar row). The exact label is **"Code"**.
+3. Paste the generated HTML directly into the text area.
+4. Click **"Visual"** to verify rendering, then click **"Update"** (or "Publish" for new pages) in the Publish panel.
+
+**PATH 2 — Beaver Builder HTML module:**
+1. On the page edit screen, click the **"Beaver Builder"** tab (not the "Text Editor" tab).
+2. Click the **"Launch Beaver Builder"** button (exact label) that appears in the tab area.
+3. Beaver Builder opens as a frontend visual editor. Add a Row, then add a module. The module to search for is **"HTML"** (not "Code" — Beaver Builder's module is labelled "HTML").
+4. Paste your generated HTML into the HTML module's content field.
+
+**CRITICAL NOTE:** For new SEO landing pages, the existing service pages (e-Waste Recycling, IT Asset Disposition) are built primarily through **Beaver Builder** (their rows/columns/modules are Beaver Builder structures). The Classic Editor text area may contain no content or minimal content — the Beaver Builder layout is stored separately. Inspect which editor holds the content before overwriting.
+
+---
+
+### B2. Does pasted HTML retain inline CSS?
+
+**UNKNOWN / NEEDS HUMAN** — confirmed by observation but cannot be tested in this audit without making a live change.
+
+**What is known:** The theme is **WebVitality Child Theme v2** (a custom child theme, not a stock Beaver Builder theme). On the live page the existing content shows normal styling. No scoping wrapper was observed in the existing page HTML. However:
+- WP Rocket's **"Minify CSS"** and **"Load CSS asynchronously"** are active and could affect inline-style timing.
+- Imagify converts images automatically, which could affect inline `<img>` src references if images are referenced by URL in the pasted HTML.
+- **RECOMMENDATION:** Wrap pasted HTML in a `<div class="tc-custom-content">` scoping class and add any needed styles to the child theme's `style.css` rather than using inline styles, to avoid WP Rocket minification interference.
+
+---
+
+### B3. Clearing old content before pasting
+
+For **Classic Editor** path: In "Code" view, select all (`Cmd+A`) and delete, then paste new HTML.
+
+For **Beaver Builder** path: In the Beaver Builder editor, hover over the existing row/module → click the **"X"** (delete) icon on each row to remove it, then add a new row and HTML module. Alternatively, select all content in the page and use Beaver Builder's "Delete" row option.
+
+---
+
+## SCHEMA AUDIT
+
+### S1. Does Yoast emit an application/ld+json @graph?
+
+**YES — CONFIRMS.** Verified via direct JavaScript query on the live e-waste-recycling page.
+
+Yoast emits **exactly 1 `<script type="application/ld+json">` block** containing a single `@graph` array with these `@type` entries:
+
+1. **WebPage** — describes the current page (URL, name, description, breadcrumb)
+2. **BreadcrumbList** — the breadcrumb trail
+3. **WebSite** — sitewide name and search action
+
+**Not emitted on this page:** Organization, LocalBusiness, FAQPage, Service, Person, Article.
+
+Note: Organization/LocalBusiness are typically emitted on the Home page or via Yoast's site-wide settings. They do not appear on individual service pages.
+
+---
+
+### S2. Is custom JSON-LD pasted anywhere?
+
+**No custom JSON-LD was detected** on the inspected service pages. The Yoast Schema tab for service pages shows only the two dropdowns ("Page type" and "Article type") — no free-text schema input. No schema plugin was found in the plugin list. No custom JSON-LD was visible in the page source beyond the single Yoast @graph block.
+
+Risk of duplicate schema: **LOW currently**, but if the team pastes a JSON-LD block inside a Beaver Builder HTML module or in the Classic Editor Code view, it will appear as a second `<script type="application/ld+json">` alongside Yoast's, which **is a duplicate-schema risk** for WebPage and BreadcrumbList types. Scope custom schema strictly to types Yoast does not emit (FAQPage, Service, LocalBusiness with full NAP detail).
+
+---
+
+### S3. Is a separate "Schema Generator" step still needed?
+
+**SLIM TO GAPS.** Yoast already handles: WebPage, BreadcrumbList, WebSite.
+
+Yoast does NOT emit on service pages: **Service, FAQPage, LocalBusiness** (with full address/phone/hours detail, geo coordinates, service area).
+
+**RECOMMENDATION:** Remove the Schema Generator step for base schema. Add a targeted supplemental step: "If the page has an FAQ section, paste a FAQPage JSON-LD block in a Beaver Builder HTML module below the content. If the page targets a service area, paste a Service/LocalBusiness block with NAP data." Keep this as a conditional step, not a required one for every page.
+
+---
+
+## PHASE D — IMAGES / MEDIA
+
+### D1. How are images embedded?
+
+**BOTH methods are used.** Observed on live pages:
+- Images referenced via Media Library URLs (`/wp-content/uploads/YYYY/MM/`) embedded inside Beaver Builder Image modules or rows.
+- No evidence of base64-embedded images.
+- The workflow is: upload first to Media Library, then insert into the Beaver Builder layout via the media picker.
+
+---
+
+### D2. Media Library path and URL pattern
+
+- **Admin path:** Left sidebar → **Media → Library** (or sub-link "Add Media File")
+- **Direct URL:** `https://technocycle.com/wp-admin/upload.php`
+- **Upload URL pattern:** `https://technocycle.com/wp-content/uploads/YYYY/MM/filename.ext`
+  - Example from live page: `https://technocycle.com/wp-content/uploads/2018/07/25-Year-Crest.jpg`
+  - Example from media attachment: `https://technocycle.com/wp-content/uploads/2023/11/R2V3-certified-logo-300-px.png`
+- **Imagify** automatically optimizes images on upload (WebP conversion active, confirmed in WP Rocket Add-ons).
+
+---
+
+### D3. Featured Image and ALT text
+
+**Featured Image:**
+- The "Featured image" meta box appears in the **right sidebar** of the Classic Editor page screen, below the WP Rocket Options box.
+- The exact link label is **"Set featured image"**.
+- For existing service pages, Featured Image is NOT set (the box shows only the "Set featured image" link with no image).
+
+**ALT Text:**
+- ALT text is entered in the **Media Library attachment detail modal** — when you click any image in `upload.php`, a panel opens on the right showing the field labelled **"Alternative Text"**.
+- Example: the R2V3 certification logo has "Alternative Text" = "R2V3 certified logo".
+- ALT text can also be set/overridden per-usage inside the Beaver Builder Image module settings.
+
+---
+
+## PHASE C — CACHE & VERIFY
+
+### C1. Cache-clear steps — CORRECTS the proposed step
+
+The site has **two cache layers**, not one:
+
+**Layer 1 — WP Rocket (application cache):**
+- Admin bar → hover over **"WP Rocket"** in the top admin bar → dropdown appears
+- OR: Settings → **WP Rocket** → Dashboard tab → "Quick Actions" section → button labelled **"CLEAR AND PRELOAD"** (exact label, uppercase, in orange)
+- Direct URL: `https://technocycle.com/wp-admin/options-general.php?page=wprocket`
+
+**Layer 2 — Kinsta Server Cache (REQUIRED — this is the host-level full-page cache):**
+- Left sidebar → **"Kinsta Cache"** (exact menu label) → `https://technocycle.com/wp-admin/admin.php?page=kinsta-tools`
+- Buttons available (exact labels): **"Clear All Caches"**, **"Clear Site Cache"**, **"Clear Object Cache"**, **"Clear CDN Cache"**
+- For a newly published page: use **"Clear Site Cache"** (covers full page cache) or **"Clear All Caches"** to be safe.
+- **Auto-purge note:** Kinsta states "We purge the full page cache on every page and post update." — meaning clicking "Update" or "Publish" may auto-clear the Kinsta page cache. However, the VA should still manually click "Clear Site Cache" after publishing to ensure propagation.
+
+**Admin-bar "Clear Caches" button (fastest method):**
+- Top-right of the wp-admin screen → the standalone button labelled **"Clear Caches"** (exact label).
+- This button appears to be a unified cache-clear shortcut; the VA should use this first, then verify.
+
+**Cloudflare:** NOT active, NOT required. The Cloudflare add-on in WP Rocket is toggled OFF. No separate Cloudflare purge step needed.
+
+---
+
+### C2. Publish flow — exact button labels
+
+For a **new page (draft → live):**
+1. In the Publish panel (right sidebar), status shows **"Status: Draft Edit"**
+2. Click **"Preview Changes"** (exact label, button in Publish panel) to preview first.
+3. Click the blue **"Publish"** button (exact label) — this publishes immediately.
+4. A confirmation notice appears at the top: "Page published. View page."
+
+For an **existing published page (update):**
+1. Status shows **"Status: Published Edit"**
+2. Click **"Preview Changes"** to preview if desired.
+3. Click the blue **"Update"** button (exact label, in the Publish panel where "Publish" was).
+
+---
+
+### C3. Verifying the live page
+
+1. After publishing/updating, click the **"View Page"** link in the success notice, OR click **"View Page"** in the admin bar at the top.
+2. Live URL to test: `https://technocycle.com/{slug}/`
+3. Hard refresh: `Cmd+Shift+R` (Mac) to bypass browser cache.
+4. **Visual checks:** Confirm banner title shows correct page name in green bar; confirm content area renders correctly; confirm sidebar form ("Let Us Know What You Need") is present and shows correct fields.
+5. **Mobile check:** Resize browser or use Chrome DevTools device mode — the existing pages are responsive via Beaver Builder's responsive settings.
+6. **Verify footer:** The site footer contains the address, phone number (713 895 7409 — shown in the header as well), and navigation links. Confirm these match the GMB/business listing data.
+
+---
+
+### C4. Site-wide footer/contact info
+
+- Phone number: **713 895 7409** — displayed in the site header (top right) across all pages.
+- The footer is controlled by a **Beaver Themer** layout (sitewide footer template), not per-page content.
+- To update footer/contact info site-wide: Left sidebar → **Beaver Builder → Themer Layouts** → find the Footer layout → edit it. This is an admin-level change, not a per-page VA task.
+- For verification purposes: the VA only needs to confirm the phone number in the header and footer matches the live GMB listing — no editing is needed unless there is a discrepancy.
+
+---
+
+## ADMIN URL CHEAT-SHEET
+
+| Destination | Exact URL |
+|---|---|
+| **All Pages** | `https://technocycle.com/wp-admin/edit.php?post_type=page` |
+| **Add New Page** | `https://technocycle.com/wp-admin/post-new.php?post_type=page` |
+| **Media Library** | `https://technocycle.com/wp-admin/upload.php` |
+| **Add Media File** | `https://technocycle.com/wp-admin/media-new.php` |
+| **Yoast SEO Settings** | `https://technocycle.com/wp-admin/admin.php?page=wpseo_dashboard` |
+| **WP Rocket Settings** | `https://technocycle.com/wp-admin/options-general.php?page=wprocket` |
+| **Kinsta Cache** | `https://technocycle.com/wp-admin/admin.php?page=kinsta-tools` |
+| **Beaver Builder Templates** | `https://technocycle.com/wp-admin/edit.php?post_type=fl-builder-template` |
+| **Beaver Builder Themer Layouts** | `https://technocycle.com/wp-admin/edit.php?post_type=fl-theme-layout` |
+| **Permalink Settings** | `https://technocycle.com/wp-admin/options-permalink.php` |
+
+---
+
+## VERDICT
+
+**(1) Content-placement method to standardize on:** Use **Beaver Builder** as the primary builder, not the Classic Editor text area. The workflow is: Classic Editor screen → click the **"Beaver Builder"** tab → click **"Launch Beaver Builder"** → add an **"HTML" module** (exact module name) and paste generated HTML there. This is consistent with how all 12 existing Beaver Builder pages are built. Reserve the Classic Editor "Code" view only for simple text-only pages.
+
+**(2) Meta handling:** Yoast SEO owns and correctly emits all meta. VA fills exactly five fields per page in the Yoast SEO box: **SEO title**, **Slug**, **Meta description**, **Focus keyphrase**, and (conditionally) **Canonical URL** in the Advanced accordion. The "Cornerstone content" toggle should be set for flagship service pages. The Schema tab's "Page type" dropdown can be changed to override Yoast's default WebPage type when appropriate.
+
+**(3) Schema handling:** **SLIM TO GAPS.** Remove the standalone "Schema Generator" step as a mandatory phase. Yoast auto-generates WebPage + BreadcrumbList + WebSite. Add a conditional supplemental step: paste a FAQPage JSON-LD block only on pages with a FAQ section, and a Service/LocalBusiness block only when targeting a specific city/service area. Paste it inside a **Beaver Builder HTML module** placed at the bottom of the page layout (invisible to visitors, crawlable by search engines).
+
+**(4) Surprise that breaks the proposed workflow:** **The builder is Beaver Builder, not Divi — there is no Divi, no Divi Library, no "Code" module.** Additionally, the site runs on **Kinsta hosting with server-level full-page cache** that is entirely separate from WP Rocket. Any cache-purge step that mentions only WP Rocket will silently fail to invalidate Kinsta's cache layer, causing the VA to see stale pages after publishing. Both caches must be cleared (or rely on Kinsta's auto-purge on save). **Always click "Clear Site Cache" in Kinsta Cache after publishing — this is the step most likely to be missed and cause "why isn't the page updating?" support tickets.**

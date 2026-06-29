@@ -1,10 +1,27 @@
 :root {
-  --navy: #1e3a5f;
-  --navy-dark: #152a45;
-  --gold: #d4a854;
-  --gold-light: #e8c47c;
-  --cream: #faf8f5;
   --white: #ffffff;
+
+  /* STS (default) — navy / gold */
+  --pt-nav-start: #1e3a5f;
+  --pt-nav-end: #152a45;
+  --pt-accent: #d4a854;
+  --pt-accent-light: #e8c47c;
+  --pt-accent-contrast: #1e3a5f;
+  --pt-bg: #faf8f5;
+  --pt-active-bg: rgba(212, 168, 84, 0.15);
+  --pt-shadow: rgba(30, 58, 95, 0.25);
+}
+
+/* TechnoCycle — green / white */
+.pt-app[data-brand="tc"] {
+  --pt-nav-start: #157347;
+  --pt-nav-end: #0c5132;
+  --pt-accent: #86efac;
+  --pt-accent-light: #d1fae5;
+  --pt-accent-contrast: #0c5132;
+  --pt-bg: #f1f8f4;
+  --pt-active-bg: rgba(134, 239, 172, 0.18);
+  --pt-shadow: rgba(12, 81, 50, 0.25);
 }
 
 html,
@@ -18,13 +35,13 @@ body {
 }
 
 .pt-app {
-  background: var(--cream);
+  background: var(--pt-bg);
   min-height: 100vh;
 }
 
 /* Navigation Bar */
 .pt-nav {
-  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-dark) 100%);
+  background: linear-gradient(135deg, var(--pt-nav-start) 0%, var(--pt-nav-end) 100%);
   position: fixed;
   top: 0;
   left: 0;
@@ -60,15 +77,22 @@ body {
 .pt-brand-icon {
   width: 30px;
   height: 30px;
-  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  background: linear-gradient(135deg, var(--pt-accent) 0%, var(--pt-accent-light) 100%);
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
   font-size: 13px;
-  color: var(--navy);
+  color: var(--pt-nav-start);
   font-family: "Inter", sans-serif;
+}
+
+.pt-brand-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.1;
 }
 
 .pt-brand-text {
@@ -82,7 +106,6 @@ body {
   display: inline-flex;
   align-items: center;
   margin-left: 16px;
-  margin-right: auto;
   border: 1px solid rgba(212, 168, 84, 0.55);
   border-radius: 999px;
   overflow: hidden;
@@ -106,9 +129,52 @@ body {
 }
 
 .pt-switch-seg.active {
-  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
-  color: var(--navy);
+  background: linear-gradient(135deg, var(--pt-accent) 0%, var(--pt-accent-light) 100%);
+  color: var(--pt-accent-contrast);
   cursor: default;
+}
+
+.pt-brand-tagline {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  margin-top: 2px;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: "Inter", sans-serif;
+}
+
+/* Brand switcher (STS / TechnoCycle) */
+.pt-brand-switch {
+  display: flex;
+  gap: 2px;
+  margin-left: 16px;
+  margin-right: auto;
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 7px;
+}
+
+.pt-brand-pill {
+  border: none;
+  cursor: pointer;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  border-radius: 5px;
+  color: rgba(255, 255, 255, 0.7);
+  background: none;
+  transition: all 0.2s ease;
+  font-family: "Inter", sans-serif;
+  white-space: nowrap;
+}
+
+.pt-brand-pill:hover {
+  color: var(--white);
+}
+
+.pt-brand-pill.active {
+  color: var(--pt-accent-contrast);
+  background: var(--pt-accent);
 }
 
 .pt-menu {
@@ -166,8 +232,8 @@ body {
 }
 
 .pt-item.active {
-  color: var(--gold);
-  background: rgba(212, 168, 84, 0.15);
+  color: var(--pt-accent);
+  background: var(--pt-active-bg);
 }
 
 .pt-item.active::after {
@@ -178,7 +244,7 @@ body {
   transform: translateX(-50%);
   width: 24px;
   height: 2px;
-  background: var(--gold);
+  background: var(--pt-accent);
   border-radius: 2px 2px 0 0;
 }
 
@@ -204,7 +270,7 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: var(--cream);
+  background: var(--pt-bg);
 }
 
 .pt-frame-wrapper iframe {
@@ -570,7 +636,7 @@ body {
     top: 68px;
     left: 0;
     right: 0;
-    background: var(--navy-dark);
+    background: var(--pt-nav-end);
     flex-direction: column;
     padding: 10px;
     gap: 2px;

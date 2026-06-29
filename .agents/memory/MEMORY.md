@@ -14,3 +14,5 @@
 - [Meta research location resolution](meta-research-location.md) — trust the model's page-read city/state over the URL slug; "in"→Indiana + STS HQ footer poison parseCityState/extractLocations.
 - [Model-id display redaction trap](model-id-display-redaction.md) — Anthropic ids are masked on screen (claude-sonnet-4-6→n-4-6); never hand-type them or you 404; import from mc-core.
 - [MC shared prompt builders](mc-shared-prompt-builders.md) — builders.ts is the single per-phase prompt source for both modes; No-GMB byte-for-byte, ctx.gmb drives the branch, schema phase fails loud.
+- [TechnoCycle WordPress stack](technocycle-wordpress-stack.md) — TC tool copies target WordPress/Beaver Builder/Yoast/Kinsta (not Joomla); Themer banner = page H1, output is an H2-start fragment, schema slim-to-gaps.
+- [M.A.R.K. canonical prompt set](mark-prompt-source-of-truth.md) — current build prompts = `(4.7)`-prefixed files in Drive folder "MY STS PROMPTS"; STS page model (single H1 in hero, absolute-HTTPS images).

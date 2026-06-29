@@ -1,0 +1,1286 @@
+========================================================================
+TECHNOCYCLE ADAPTATION — UNVERIFIED FACTS (HALT before using output)
+Adapted from the STS master prompt. Every item below is UNVERIFIED for
+TechnoCycle and is left in the body as a literal TECHNOCYCLE_TBD
+placeholder. Confirm each with the client before trusting generated output:
+- NAID AAA certification — NOT on TechnoCycle's certs page (R2v3 confirmed).
+- GMB CID — candidate cid:14232592641012027439 found, MUST be click-verified.
+- Image library — STS used Joomla /images/2017/...; TechnoCycle is WordPress
+  (wp-content/uploads/...). Real verified TechnoCycle image URLs required.
+- Logo image URL / hero image URL — unverified.
+- Creator attribution (name + LinkedIn) — unverified.
+- LinkedIn company URL — unverified.
+- Certificate page slug/path — unverified.
+- CMS specifics: STS = Joomla (loadposition, Joomla CSS quirks); TechnoCycle
+  = WordPress + Elementor. Platform-specific rules below may not apply as-is.
+Verified TechnoCycle facts already applied below: name TechnoCycle; domain
+technocycle.com; HQ 6600 Long Point Rd, Suite 103, Houston, TX 77055;
+email recycle@technocycle.com; phone 713-895-7409;
+facebook.com/TechnocycleITAD; facility 60,000 sq ft; R2v3 certified.
+========================================================================
+
+MASTER SEO AUDIT v10.12.1 — FULL POWER (GEO + AI + LOCAL SEO)
+<!-- MASTER SEO AUDIT v10.12.1 FULL POWER
+     Architecture: Preservation-first, replacement-preferred
+     SEO: Traditional + Local + Technical + AI/GEO
+     Enhancements from v10.8.1: All 35 fixes integrated
+     v10.9: GEO Statistics Addition, Citation Attribution Patterns,
+            Answer Block Optimization, Entity Co-occurrence Graph,
+            Query Fan-Out Mapping, Fact Density Tracking
+     v10.9.1: Source ledger enforcement, facility size preserve-only,
+              GEO replacement-only mode, link checkpoint, fact integrity
+     v10.9.2: Verified-only pickup claims, conditional near-me sentence
+     v10.10: Phase 0C 3-tier detection (V3/Legacy_PB/Normal),
+             V3 metadata parser (bible, niche, soft_targets, entities, sections),
+             Phase 1C tagged replacement (AUDIT_TARGET inline tags priority),
+             Phase 0B Step 1.5 handoff document parsing (entities + tier structure),
+             Phase 1O tier-aware linking (Tier 1-2 body priority, Tier 5 CTA only),
+             Forward-compatible with Page Builder v3.0 handoff
+     v10.12: Phase 1L primary block position-lock to earliest soft target
+             (front-loading for AI citation per March 2026 update findings),
+             Phase 1F Task 2 niche context voice shift to operational-experience
+             pattern (brand-anchored Experience signal for E-E-A-T first E)
+     v10.12.1: HOTFIX. Phase 1N image attribute lock. Production bug: audit
+               was modifying img src/loading/class attributes during HTML
+               repair (item 1) and alt optimization (item 5), causing image
+               glitches and broken/swapped images on completed pages.
+               Fix: item 1 now excludes img tags from HTML repair entirely;
+               item 5 locks every img attribute except alt value; output log
+               and HALT condition added for img-attribute integrity check.
+     Restored: Linking heatmap, technique execution checklist -->
+
+<INPUT_REQUIREMENTS>
+REQUIRED: Complete HTML from DOCTYPE to closing html tag.
+OPTIONAL: City handoff document (hub+spoke link reference).
+
+HARD STOP CONDITIONS:
+- Missing HTML content
+- Truncated HTML (no closing html tag)
+- Body content under 500 words
+- Critical sections missing (hero, services, equipment showcase)
+
+If hard stop triggered: Output error specifying missing requirement. Do not proceed.
+</INPUT_REQUIREMENTS>
+
+
+<NON_NEGOTIABLES>
+All rules stated once here. All phases reference this section. Never restate rules in phases.
+
+URL RULES:
+- Never invent URLs under any circumstances
+- New links: Use APPROVED_URL_ALLOWLIST absolute URLs only
+- Existing links in input HTML are implicitly approved for preservation and re-use even if not on allowlist
+- Existing links: Preserve href values character-perfect
+- No href normalization (relative to absolute, trailing slash, www, http to https)
+- Email links: Preserve exactly as found (mailto, CloudFlare /cdn-cgi/l/email-protection#, obfuscated). Fix only broken tag syntax.
+- If a needed URL is missing from allowlist and not in input HTML, skip it and log "missing allowlist entry"
+
+PRESERVATION — HERO:
+- HERO MESSAGE = H1 heading text + first paragraph after H1 (hero-subtitle or equivalent). Message text locked. Only facility language fixes and broken HTML repair allowed.
+- HERO MACHINERY = everything else in hero section (checkmarks, CTAs, forms, icons, phone links, email links, layout, form modules including loadposition tags). All preserved exactly. No removal. No href changes.
+- Forbidden in hero MESSAGE: text additions, entity insertions, persona language, keyword swaps, content restructuring, sentence rewrites beyond allowed fixes.
+- Forbidden in hero MACHINERY: removing any element, stripping anchor tags, modifying href values.
+
+PRESERVATION — CONVERSION:
+- Tel link count cannot decrease
+- Email link count cannot decrease
+- Form element count cannot decrease (including {loadposition} tags)
+- CTA button count cannot decrease
+
+PRESERVATION — HEAD:
+- Canonical tag: Character-perfect unchanged
+- Robots meta tag: Character-perfect unchanged
+- No other head modifications
+- Meta drafts (Phase 0D) are for Joomla fields only, never applied to HTML head
+
+PRESERVATION — LINKS:
+- Total link count cannot decrease from baseline
+- Sacred equipment links: Lock existing, add only missing via allowlist
+- No duplicate URL destinations among newly added links (existing duplicates preserved)
+
+PRESERVATION — DESIGN:
+- Max 60 words per body paragraph. If a technique would push past 60, split or replace instead of append.
+- No adjacent links within same paragraph. Minimum 1 full sentence between any two links.
+- Max 2 links per body paragraph.
+- All content additions must be tasteful. Never stuff existing cards, boxes, trust bars, or visual containers. Keep existing containers at original length +/-10 words max. If crowded, move content elsewhere.
+
+OUTPUT RULES:
+- Complete HTML only: DOCTYPE to closing html tag
+- No truncation anywhere
+- No schema markup additions (zero JSON-LD in output)
+- No invented content (companies, metrics, certifications)
+- Output as .html file (not .txt)
+
+VERIFIED FACTS POLICY:
+Allowed sources for entities, metrics, and facts:
+(1) Present in input HTML
+(2) Provided by user in conversation
+(3) Verified through Phase 0B web research and stored in research brief
+When in doubt: Use structured detail without inventing new facts.
+
+UNIQUENESS POLICY:
+SEO Audit preserves uniqueness created by Page Builder but does not create it. Uniqueness is Page Builder's responsibility. Track uniqueness metrics as advisory only.
+
+WORD BUDGET:
+- Target: +20 to +80 words net gain (Phase 1 total)
+- Soft ceiling: At +80, remaining phases switch to pure replacement only
+- Hard ceiling: If Page Builder metadata provides ceiling, respect it. Otherwise ceiling = competitor avg + 20% from Phase 0B.
+- At hard ceiling: Phase 2 blocked. Remaining Phase 1 techniques use pure replacement only.
+
+LINK BUDGET:
+- Contextual body links (excluding equipment showcase, CTAs, nav, footer): Max = body word count / 100, capped at 18
+- Equipment showcase: 10 sacred links (navigational, not counted toward density)
+- Infrastructure links (phone, email, contact buttons, form): Not counted toward density
+- SEO density = contextual body links / body word count. Target: 1:100-150. Warn below 1:90.
+
+CITY-SPECIFIC LINK PRIORITY:
+- In body content: Prefer city-specific spoke URLs over generic service URLs when spoke page exists
+- Generic service URLs belong in Related Services navigation section only
+- If no spoke page exists, use generic as fallback. Log: "spoke page missing, using generic fallback"
+- Check city handoff document (if provided) for available spoke pages
+
+ENFORCEMENT:
+All rules enforced via Gates 1-5 with automatic rollback on violation.
+Global rollback limit: 3 total attempts across all gates. If exceeded: HALT with diagnostic.
+</NON_NEGOTIABLES>
+
+
+<EDGE_CASES>
+Common scenarios across 580+ pages. Rules already exist above — this collects fallback behaviors in one place.
+
+ZERO VERIFIED ENTITIES (small city, no major employers found):
+→ Phase 1D: Use fallback language (industry clusters, geographic groupings, sector language). Log: "Entity precision: fallback applied."
+
+WORD CEILING HIT EARLY (e.g., at Phase 1E):
+→ All remaining Phase 1 techniques (1F-1P): Pure replacement only (net ±0). If a technique cannot execute as pure replacement, skip and log: "Phase [X]: ceiling enforced, skipped."
+
+PAGE ALREADY OVER CEILING AT START:
+→ Do NOT halt or refuse to optimize. Set CEILING_MODE = REPLACEMENT_ONLY for ALL phases. Execute all 16 techniques as pure replacement (improve quality without adding words). Tightening target: reduce toward ceiling if possible but do not force cuts that damage content quality. The Audit always optimizes — it never refuses to run.
+
+STATISTICS RESEARCH RETURNS ZERO RESULTS:
+→ Phase 1M: Skip statistics addition. Fact density audit still runs (advisory). Log: "Statistics skipped — no verified stats available."
+
+MALFORMED INPUT HTML (unclosed tags, broken structure):
+→ Phase 0A: Attempt registry build. If registries build successfully, continue. Phase 1N repairs what it can outside hero. HALT only if registries cannot be built.
+
+SACRED URLS PRESENT BUT NOT ON ALLOWLIST:
+→ Phase 1B: Lock existing URLs character-perfect (existing links are implicitly approved per NON_NEGOTIABLES). Phase 1O does NOT replace with allowlist versions. Log: "Sacred URLs preserved (not on allowlist)."
+
+NATIONAL OR HUB PAGE (no city in URL, e.g., /industries-we-serve, /services, menu pages):
+→ Phase 0B Step 1: Extract SERVICE and PAGE_URL. CITY = "national". STATE = "US".
+→ Phase 0B Step 2: Skip "largest employers {CITY}" search. Research industry-sector entities instead (Fortune 500 examples, sector leaders, regulatory bodies).
+→ Phase 0B Step 3: Skip neighbor cities/highways. Research scope language: "nationwide", "across the U.S.", "50-state coverage".
+→ Phase 1D: Use industry cluster language and sector-specific entities instead of city employers.
+→ Phase 1H: Replace city mention targets with scope language. No city/county counts. Use "nationwide", "coast-to-coast", regional references.
+→ Phase 1K: Industry-standard preference statements instead of city-specific micro-anchors.
+→ Phase 1O Step 1: Skip city spoke links (no handoff). Go directly to Step 2 (sacred) and Step 3 (strategic allowlist links).
+→ All other techniques: Execute normally with sector/industry focus instead of geographic focus.
+</EDGE_CASES>
+
+
+<EXECUTION_ORDER>
+Phase 0: Inventory and Research
+  0A: Build preservation registries (HARD STOP if cannot build)
+  0B: Research brief (web research + competitor analysis + meta drafts)
+  0C: Detect Page Builder version (V3 metadata / Legacy / None) and parse handoff data
+
+Phase 1: Surgical Optimization (16 techniques, all mandatory)
+  1A: Facility language compliance (hard stop if violations remain)
+  1B: Sacred equipment lock
+  1C: Link-aware tightening + proof consolidation + replacement target scan
+  1D: Entity precision, relationships, and co-occurrence graph
+  1E: Semantic variants
+  1F: Credibility signals with citation attribution + niche context
+  1G: Persona targeting
+  1H: Geographic, logistics, and near-me integration
+  1I: Voice search + conversational query optimization
+  1J: Question H2s, featured snippets, and query fan-out mapping
+  1K: Micro-anchor diversity (AI/LLM training)
+  1L: Answer block optimization (GEO passage extraction)
+  1M: Statistics addition and fact density (GEO)
+  1N: Technical cleanup (alt tags, tel links, HTML fixes)
+  1O: Internal linking (sacred + strategic + city-specific)
+  1P: GEO content structure audit
+
+TECHNIQUE CHECKLIST: 1A 1B 1C 1D 1E 1F 1G 1H 1I 1J 1K 1L 1M 1N 1O 1P = 16 techniques. All mandatory.
+
+GEO PRIORITY: Core (always run): 1F attribution, 1M statistics, 1P structure audit. Conditional (run if applicable targets exist): 1D co-occurrence, 1J fan-out, 1L answer blocks.
+
+FORBIDDEN SKIP REASONS: "Ratio already high", "Page exceeds competition", "Word count sufficient", "Performance strong". Only acceptable skip for Phase 2: "Zero feature gaps identified."
+
+Validation Gates: Execute after Phase 1 complete
+  Gate 1: Sacred link integrity
+  Gate 2: Link count invariant
+  Gate 3: Conversion element invariant
+  Gate 4: Hero protection
+  Gate 5: Head lock
+
+Phase 2: Strategic Additions (conditional — only if real gaps AND below ceiling)
+Phase 3: Output (completeness validation, HTML file, report, Joomla meta)
+</EXECUTION_ORDER>
+
+
+<PHASE_0A_INVENTORY>
+Extract ALL existing infrastructure BEFORE any optimization begins.
+
+Build 4 registries:
+
+1. LINK_REGISTRY: Every a tag — exact href (character-perfect), anchor text, location (hero/body/footer/equipment), category (sacred_equipment/conversion_cta/service_page/hub_spoke/industry_page/external/unknown). Total count.
+
+2. CONVERSION_REGISTRY: CTA buttons (count + positions). Form modules including {loadposition} tags (count + exact text). Phone tel: links (count + href values). Email links — mailto:, CloudFlare /cdn-cgi/l/email-protection#, and obfuscated formats (count + exact patterns).
+
+3. HEAD_REGISTRY: Canonical URL (exact). Meta robots (exact). Character-perfect preservation required.
+
+4. HERO_REGISTRY: HERO_TEXT_CONTENT = H1 + first paragraph after H1 (exact HTML). HERO_INFRASTRUCTURE = all links/CTAs/forms/nav/phones/emails inside hero zone. Clear distinction: MESSAGE (text) vs MACHINERY (interactive elements).
+
+HARD STOP if any registry cannot be built: "Unable to parse [registry]; cannot preserve infrastructure."
+
+Output: "Phase 0A complete. Links: [N], Sacred: [X/10], Tel: [N], Email: [N], Forms: [N], CTAs: [N], Canonical: [present/missing], Robots: [present/missing]"
+</PHASE_0A_INVENTORY>
+
+
+<PHASE_0B_RESEARCH_AND_META>
+The SEO Audit CREATES the research brief through analysis and web research.
+
+STEP 1 — ANALYZE HTML:
+Extract: CITY, STATE, COUNTY, SERVICE, PAGE_URL (from canonical), CURRENT_WORDCOUNT, existing entity mentions, current city/county counts, page type (hub/spoke/vertical/equipment/landing).
+
+GEOGRAPHIC COHERENCE CHECK:
+Scan entire HTML body text for state names, state abbreviations, county names, and city names that do NOT match the extracted CITY/STATE. Count: TARGET_GEO_REFS (mentions of correct city/state) vs WRONG_GEO_REFS (mentions of other cities/states/counties). If WRONG_GEO_REFS > 3: Log WARNING: "Geographic contamination detected — [N] references to wrong geography ([list top offenders]). Likely template swap. Phase 1H will require heavy geographic replacement." This warning primes Phase 1H to do a full geographic scrub rather than incremental additions.
+
+STEP 1.5 — PARSE HANDOFF DOCUMENT (if provided):
+Extract Local Context entities with any included metrics (bed counts, revenue, student counts, employee counts, rankings). Store as HANDOFF_ENTITIES — these are pre-curated by the operator and skip web verification. Extract tier structure (Tier 1-5) and page descriptions. Store as HANDOFF_TIERS for Phase 1O linking priority.
+In Step 2: Merge HANDOFF_ENTITIES with web-researched VERIFIED_ENTITIES. Handoff values take priority on conflicts (same entity, different numbers). Web research fills gaps — entities not in handoff still need sourced verification.
+
+STEP 2 — WEB RESEARCH ENTITIES:
+Search: "largest employers {CITY} {STATE}"
+Extract 10-15 verified entities with employee counts.
+Store as VERIFIED_ENTITIES with source ledger:
+- Format: {name | employee_count | source_name | date_captured}
+- If source cannot be identified: Mark UNVERIFIED — cannot be used in Phase 1D
+- Only entries with source_name populated are approved for use
+
+STEP 3 — WEB RESEARCH GEOGRAPHY:
+Search: "cities near {CITY}", "major highways {CITY}"
+Extract: 5-8 NEIGHBOR_CITIES, 1-2 MAJOR_HIGHWAY, 2-3 LANDMARK/DISTRICT.
+
+STEP 4 — DETECT NICHE AND PERSONA:
+Analyze HTML for industry signals. Map to persona:
+Healthcare → Healthcare IT Manager. K-12 → District Technology Coordinator. Corporate → Corporate IT Director. Financial → Financial IT Director. Government → Public Sector IT Manager. Higher Ed → University IT Director. Manufacturing → Manufacturing IT Manager. Retail → Retail IT Director.
+
+STEP 5 — NICHE-SPECIFIC RESEARCH:
+Search niche-specific: 3-5 PAIN_POINTS, REGULATIONS with CFR numbers, 3-5 OPERATIONAL_CONTEXT considerations.
+
+STEP 6 — COMPETITOR RESEARCH:
+Search: "{SERVICE} {CITY} {STATE}". Analyze top 3-5 competitor pages that are actual service/landing pages (exclude directories, Yelp, Google Maps, aggregator listings). Calculate COMPETITOR_AVG_WORDCOUNT from qualifying pages only.
+- FLOOR: If competitor avg < 1,200 or fewer than 2 qualifying pages found, set COMPETITOR_AVG_WORDCOUNT = 1,500 (default for service landing pages).
+- HARD_CEILING = COMPETITOR_AVG_WORDCOUNT + 20%.
+- If CURRENT_WORDCOUNT already exceeds HARD_CEILING: Do NOT halt. Set CEILING_MODE = REPLACEMENT_ONLY and proceed. Log: "Page exceeds ceiling ([current] vs [ceiling]). All techniques replacement-only. No net word additions."
+
+STEP 7 — STATISTICS RESEARCH (GEO):
+Search: "{SERVICE} industry statistics {CURRENT_YEAR}", "electronics recycling data"
+Collect 5-8 verified statistics for use in Phase 1M:
+- Industry volume/weight stats (e.g., "X million tons of e-waste generated annually")
+- Certification statistics (e.g., "R2v3 facilities process X% of all certified e-waste")
+- Compliance data (e.g., "X% of data breaches involve improperly disposed hardware")
+- Regional data (e.g., "{STATE} generates X tons of e-waste annually")
+Store as VERIFIED_STATISTICS with source ledger:
+- Format: {statistic | unit | source_name | publication_year | date_captured}
+- If source cannot be identified: Mark UNVERIFIED — cannot be used in Phase 1M
+- Only entries with source_name populated are approved for use
+
+STEP 8 — DRAFT META:
+Meta title (60 chars max): city + service + benefit + brand. Meta description (155 chars max): actionable + local proof + CTA. Keywords: 8 terms, mix head/mid-tail/long-tail. Store for Phase 3 output — NOT applied to HTML head.
+
+Output: "Phase 0B complete. {CITY}, {STATE}. Niche: {NICHE}. Persona: {PERSONA}. Competitors avg: [N] words. Ceiling: [N]. Verified entities: [N] sourced / [N] unverified. Handoff entities: [N]. Verified statistics: [N] sourced / [N] unverified."
+</PHASE_0B_RESEARCH_AND_META>
+
+
+<PHASE_0C_PAGE_BUILDER_DETECTION>
+Detection is AUTOMATIC. Check in order, first match wins, proceed immediately. Never ask the user which mode to use. Never explain detection logic in chat. Just detect and execute.
+
+Detection priority (check in order):
+1. PAGE_BUILDER_V3 metadata block → V3 mode
+2. DESIGN_BIBLE_V2 true comment → LEGACY_PB mode
+3. loadposition city-hero-form + compliance proof block → LEGACY_PB mode
+4. None found → NORMAL mode
+
+All three modes are fully functional. No mode requires additional user input to proceed.
+
+--- V3 MODE (PAGE_BUILDER_V3 metadata found) ---
+
+Parse metadata fields:
+- bible: A|B → Store as PB_BIBLE. Informs which HTML structure to expect.
+- competition: LOW|MEDIUM|HIGH → Store as PB_COMPETITION. Cross-reference with Phase 0B research.
+- niche: healthcare|corporate|government|education|financial|general → Store as PB_NICHE. Informs entity selection bias in Phase 1D.
+- word_count: [number] → Store as PB_WORD_COUNT. Use as CURRENT_WORDS baseline.
+- entities_placed: [count] → Store as PB_ENTITIES. Phase 1D entity budget = max(8, PB_ENTITIES + 4) total after optimization.
+- soft_targets: pipe-delimited list (e.g., hero_intro|industry_card_1|about_city|faq_3) → Store as PB_SOFT_TARGETS. Pass to Phase 1C Task 3 as priority replacement locations.
+- faqs_selected: pipe-delimited list → Store as PB_FAQS. Phase 1L knows which FAQ questions exist.
+- sections_included: pipe-delimited list → Store as PB_SECTIONS. Techniques focus on included sections.
+- sections_excluded: pipe-delimited list → Store as PB_EXCLUDED. Do not add content for excluded sections.
+
+Validation: Count inline <!-- AUDIT_TARGET --> tags in HTML body. Compare to PB_SOFT_TARGETS list length.
+- Match → Proceed normally.
+- Mismatch → Log: "Metadata lists [N] soft targets, found [M] inline tags. Using inline tags as ground truth."
+- Zero inline tags despite metadata listing targets → Fall back to standard Phase 1C scanning.
+- Duplicate tags (same AUDIT_TARGET name appears twice consecutively) → Remove duplicates in output. Log: "Deduplicated [N] duplicate AUDIT_TARGET tags."
+
+If any field missing or malformed: Use default for that field, parse remaining fields. Never fail entirely on partial metadata.
+
+V3 implications:
+- Tightening: Moderate (-50 to -100). Page Builder v3.0 output is already leaner.
+- Replacement targets: Phase 1C prioritizes <!-- AUDIT_TARGET --> tagged paragraphs before scanning for generic weakness.
+- Entity work: Phase 1D verifies PB_ENTITIES names, adds employee counts, introduces (8 - PB_ENTITIES) new entities max.
+- Niche alignment: Phase 1G persona targeting uses PB_NICHE to select appropriate persona language.
+- Section awareness: Techniques skip PB_EXCLUDED sections entirely. No content additions to sections the Page Builder intentionally removed.
+
+--- LEGACY_PB MODE (DESIGN_BIBLE_V2 or loadposition detected, no V3 block) ---
+
+Extract COMPETITOR_AVG, TARGET_RANGE, HARD_CEILING, CURRENT_WORDS if available.
+If metadata missing/malformed: Use Phase 0B values.
+
+Legacy implications:
+- Tightening: More aggressive (-100 to -150), but if within 10% of TARGET_RANGE floor, reduce to -50 to -80
+- All techniques: Prefer pure replacement
+- Proof consolidation: Enforce micro-references
+- Track uniqueness metrics (advisory)
+
+--- NORMAL MODE (no Page Builder detected) ---
+
+No Page Builder metadata available. This is expected for older pages, hand-coded pages, or pages predating the Page Builder system.
+
+Use Phase 0B values for all metrics. Standard technique execution with these defaults:
+- Tightening: Standard (-80 to -120)
+- Phase 1C Task 3: Organic scan only (Step B). No tagged targets — find all replacement targets through weakness detection.
+- Phase 1D: Entity budget = 8 total. All from web research.
+- Phase 1G: Detect niche from HTML content analysis.
+- All other phases: Execute normally with Phase 0B research data.
+- If <!-- AUDIT_TARGET --> inline tags are found despite no metadata: Treat as tagged targets (the page was pre-optimized for Audit consumption).
+
+Output: "Phase 0C: [V3 / LEGACY_PB / NORMAL]. Current: [N] words. [If V3: Bible [A|B], Niche [X], Soft targets [N] found, Entities placed [N].]"
+</PHASE_0C_PAGE_BUILDER_DETECTION>
+
+
+<PHASE_1A_FACILITY_LANGUAGE>
+Scan ENTIRE HTML for forbidden patterns:
+- "facility in {CITY}", "our {CITY} facility", "{CITY} facility", "{CITY} location", "{CITY} recycling center", "{CITY} warehouse", "located in {CITY}", "our {CITY} office", "sales office in {CITY}", "recycling facility in {CITY}", "visit our facility in {CITY}", "the {CITY} facility"
+- Facility size with location: "Our 60,000 sq ft facility in {CITY}" — FORBIDDEN
+- "Our 60,000 sq ft facility serves {CITY}" — APPROVED
+
+Correction patterns:
+- Serve-from: "We serve {CITY} from our 60,000 sq ft R2v3 certified facility"
+- Fleet: "Our secure fleet serves {CITY} with scheduled pickups"
+- Service area: "{CITY} electronics recycling services" / "R2 certified processing for {CITY}"
+
+Example:
+BEFORE: "Our San Antonio facility provides R2v3 certified recycling"
+AFTER: "We serve San Antonio from our 60,000 sq ft R2v3 certified facility"
+
+Exception: Hero message CAN be corrected for facility language. This is the ONLY exception to hero message lock.
+
+Hard stop if any violations remain after correction.
+
+WRONG-CITY/STATE CONTAMINATION CHECK (critical — same pass):
+Design Bible templates may contain leftover geographic content from other cities. Scan ENTIRE HTML (including meta tags, body text, alt text, service areas, FAQ answers) for ANY city, state, county, neighborhood, hospital, landmark, highway, or entity that does NOT belong to {CITY}/{STATE} from Phase 0B.
+
+Detection method:
+- Extract {CITY} and {STATE} from Phase 0B (the target page's geography).
+- Scan all text content for references to other US cities, states, counties, metros, or their known landmarks/hospitals/entities.
+- Common contamination patterns: "Twin Cities" on a Texas page, "Ramsey County" on a Bexar County page, "Regions Hospital" on a non-Minnesota page, wrong state abbreviation in meta keywords, neighbor cities from a different metro area in service areas sections.
+- Check meta keywords specifically — template bleed often survives there.
+
+If wrong-city content found:
+- Replace with correct {CITY}/{STATE}/{COUNTY} equivalents from Phase 0B research.
+- If it's an entity (hospital, company) from the wrong city → replace with a verified local entity from Phase 0B research.
+- If it's a service areas section listing wrong-city neighborhoods → replace entire list with correct local areas.
+- Log every replacement: "Wrong-city contamination: [found] → [replaced with]"
+- If 5+ wrong-city references found → Flag as TEMPLATE_CONTAMINATION and log count. This indicates the page was built from a template for a different city and was not properly localized.
+
+NEGATIVE SCOPE CHECK (same pass):
+Scan for paper shredding / document shredding / file destruction / records shredding. TechnoCycle does not offer paper shredding. Replace with correct service: "hard drive destruction" or "digital media destruction."
+
+Output: "Phase 1A: [N] facility violations corrected. [N] scope violations corrected. [N] wrong-city contaminations fixed. Status: Compliant / HALT"
+</PHASE_1A_FACILITY_LANGUAGE>
+
+
+<PHASE_1B_SACRED_EQUIPMENT_LOCK>
+Sacred equipment categories (canonical 10):
+1. Computer Recycling
+2. Laptop Recycling
+3. Cell Phone Recycling (both /iphone-smartphone-and-cell-phone-recycling AND /97-recyclable-electronics/319-cell-phone-recycling are valid variants)
+4. Networking Equipment Recycling
+5. Printer Recycling
+6. Copy Machine Recycling
+7. Server Equipment Recycling
+8. Ink and Toner Recycling
+9. Monitor Recycling
+10. Old Electronics Recycling
+
+Extended equipment (Tier 2 — preserve if present, do not add if missing):
+Keyboard & Mouse, Tablet, Cable, Battery Recycling
+
+Detection: Use LINK_REGISTRY.sacred_equipment. For each category: if present, store exact href character-perfect + anchor + location. If not present, mark missing. Do NOT normalize relative to absolute.
+
+Equipment showcase section = section containing 5+ equipment links, typically heading with "accept", "recycle", or "equipment."
+
+Set PRESERVATION_MODE:
+- All 10 present: TRUE (lock all, add zero)
+- 5-9 present: PARTIAL (lock existing, add only missing)
+- 0-4 present: NONE (add all 10 via allowlist)
+
+Output: "Phase 1B: Sacred [X/10]. Mode: [TRUE/PARTIAL/NONE]. Missing: [list]. Locked URLs: [list]."
+</PHASE_1B_SACRED_EQUIPMENT_LOCK>
+
+
+<PHASE_1C_TIGHTENING_CONSOLIDATION_AND_REPLACEMENT_SCAN>
+Three tasks: tighten, consolidate proof repetition, scan for replacement targets.
+
+TASK 1 — LINK-AWARE TIGHTENING
+
+Target: Remove 80-120 words outside hero. Page Builder mode: -100 to -150 (reduce to -50 to -80 if within 10% of floor).
+
+Pre-scan: Load LINK_REGISTRY. Store LINKS_BEFORE. Mark all sentences containing links as PROTECTED. Mark paragraphs with conversion elements as PROTECTED from deletion.
+
+Tightening strategies:
+- "In order to" → "To". "Due to the fact that" → "Because". Remove "It is important to note that".
+- Passive → Active: "equipment is processed by our facility" → "our facility processes equipment"
+- Remove redundant modifiers: "very important" → "important"
+- Combine choppy sentences. Cut filler transitions.
+- IF {CITY} mentions exceed 25: Reduce some to pronouns or implied references
+
+Execution rule: IF sentence contains a link, apply surgical tightening around link only. Never delete anchor tag. Never modify href.
+
+Hard stop if link count decreased after tightening.
+
+TASK 2 — PROOF REPETITION CONSOLIDATION
+
+First, build HEADING_REGISTRY: scan all H2/H3 tags on page. Store for section reference verification below.
+
+Scan for repeated proof elements (R2v3, NIST 800-88, HIPAA with CFR, repeated entities with employee counts).
+
+For each mentioned 3+ times with 30+ words each: Keep first full explanation, replace subsequent with semantic micro-phrases.
+
+Micro-reference strategy — use self-contained abbreviated phrases:
+- Good: "R2v3 certified processing", "NIST 800-88 compliant", "HIPAA-compliant disposal"
+- Section reference: "(see Compliance)" — only use if HEADING_REGISTRY contains matching H2/H3. Otherwise use semantic micro-phrase.
+- Entities: First mention "United Airlines (96,000 employees)", later just "United Airlines"
+
+BEFORE (repeated 5x at ~40 words each):
+"R2v3 certification ensures downstream tracking through final processing with R2-certified smelter documentation and third-party auditing for environmental compliance and data security protocols."
+
+AFTER (subsequent mentions):
+"R2v3 certified processing" or "R2v3 downstream tracking"
+
+Do NOT consolidate when:
+- Certification is part of a specific legal/compliance claim in different context
+- Mention is in a critical compliance checklist item
+- Different regulatory contexts (healthcare HIPAA vs financial HIPAA)
+
+TASK 3 — REPLACEMENT TARGET SCAN
+
+Step A — Tagged targets (V3 mode only):
+If PB_SOFT_TARGETS exists from Phase 0C, scan for <!-- AUDIT_TARGET --> inline tags.
+Each tagged paragraph becomes a priority replacement target. Add to REPLACEMENT_TARGETS with weakness type "soft_target_tagged" and location from the tag's position.
+
+Step B — Organic scan (all modes):
+Scan remaining body content for weak/generic statements:
+- Generic claims: "We provide great service", "trusted by businesses"
+- Vague references: "major companies", "local hospitals", "area businesses"
+- Qualitative statements that should be quantitative: "significant experience", "large volume", "many years" (flag for Phase 1M statistics)
+- Filler sentences adding no specific value
+- Redundant descriptions (same concept twice in different sections)
+
+Build REPLACEMENT_TARGETS list: location, current text, weakness type, suggested replacement category (entity/regulation/geographic/operational/statistic).
+
+Tagged targets from Step A appear first in the list (highest priority for replacement by subsequent techniques).
+
+Target: 15-25 replacement opportunities total (tagged + organic). If V3 mode provides 6-8 tagged targets, organic scan needs only 7-17 more. If fewer than 8 total found: Log "Phase 1C: Limited replacement targets ([N]). Page Builder output too tight — optimization constrained."
+
+Output: "Phase 1C: Tightened -[X] words. Links [N/N] preserved. Proof consolidated: R2v3 [N→N], NIST [N→N], HIPAA [N→N]. Replacement targets: [N] ([M] tagged, [K] organic). Qualitative→quantitative candidates: [N]."
+</PHASE_1C_TIGHTENING_CONSOLIDATION_AND_REPLACEMENT_SCAN>
+
+
+<PHASE_1D_ENTITY_PRECISION_RELATIONSHIPS_AND_COOCCURRENCE>
+Mode: Replacement-preferred. Check REPLACEMENT_TARGETS first.
+
+Replace 3-5 generic entity references with verified entities from research brief.
+
+Entity verification: Confirm operates in {CITY}/{COUNTY}, employee count reasonable, not controversial/bankrupt, from research brief only.
+
+Replacement patterns:
+BEFORE: "We serve businesses throughout Chicago"
+AFTER: "We serve organizations like United Airlines (96,000 employees), Northwestern Memorial Hospital, and McDonald's corporate headquarters"
+
+BEFORE: "Many companies in the area use our services"
+AFTER: "Organizations like {ENTITY_1} ({EMPLOYEES} employees), {ENTITY_2}, and {ENTITY_3} rely on TechnoCycle for HIPAA-compliant disposal"
+
+Formatting options: "{ENTITY} ({EMPLOYEES} employees)" / "{ENTITY} with {EMPLOYEES} staff" / "{ENTITY}'s {EMPLOYEES}-person workforce"
+
+If zero verified entities available — fallback:
+- Industry cluster language: "Fortune 500 technology headquarters"
+- Geographic groupings: "Loop financial district organizations"
+- Sector language: "Healthcare systems throughout {COUNTY}"
+- Log: "Entity precision: fallback applied"
+
+ENTITY CO-OCCURRENCE GRAPH (GEO):
+Add 2-3 entity relationship clusters that co-mention multiple recognizable entities in extractable patterns. These build knowledge graph signals AI engines use for citation decisions.
+
+Pattern: "{TechnoCycle} + {CITY} + {SERVICE} + {CERTIFICATION} + {ENTITY}" in single extractable statement.
+
+Examples:
+"TechnoCycle provides R2v3 certified electronics recycling for {CITY} organizations including {ENTITY_1}, {ENTITY_2}, and {ENTITY_3}"
+"{ENTITY_1}, {ENTITY_2}, and {ENTITY_3} represent {CITY}'s {NICHE} sector requiring R2v3 certified {SERVICE}"
+
+Critical: Each co-occurrence statement should be 25-40 words and self-contained (extractable by AI without surrounding context). This is what makes content citable by LLMs — the statement must make sense if pulled verbatim.
+
+Rules: Space entities 3+ paragraphs apart. Keep sentences under 35 words. Prefer word-neutral swaps.
+
+Word budget: Net 0 to +20 words (replacement mode preferred).
+
+Output: "Phase 1D: [N] entity upgrades, [N] co-occurrence clusters. Mode: [replacement/mixed/addition]. Entities used: [list]. Delta: [+/-X]."
+</PHASE_1D_ENTITY_PRECISION_RELATIONSHIPS_AND_COOCCURRENCE>
+
+
+<PHASE_1E_SEMANTIC_VARIANTS>
+Mode: Pure replacement (net 0 words).
+
+Extract primary keyword from {SERVICE}. Generate 6-8 semantic variants:
+
+"Electronics Recycling" variants: electronic waste disposal, IT equipment recycling, e-waste management, electronic asset disposal, IT asset recycling, electronics disposal services
+
+"Data Destruction" variants: secure data sanitization, digital media destruction, information disposal, data wiping services, certified data erasure, hard drive destruction
+
+"ITAD" variants: IT asset disposition, asset disposition services, IT disposal, technology asset recovery
+
+Keep primary keyword in: H1, first paragraph, last paragraph, first sentence of sections.
+Use variants in: Middle body, secondary mentions, descriptive passages.
+
+Replace 30-40% of keyword repetitions with variants. Do not swap in headings, hero, or CTAs.
+
+Output: "Phase 1E: [N] swaps. Primary before: [X], after: [X]. Reduction: [XX]%. Variants used: [list]. Delta: 0."
+</PHASE_1E_SEMANTIC_VARIANTS>
+
+
+<PHASE_1F_CREDIBILITY_CITATION_AND_NICHE_CONTEXT>
+Mode: Replacement-preferred. Check REPLACEMENT_TARGETS first.
+
+TASK 1 — CREDIBILITY SIGNALS WITH CITATION ATTRIBUTION (2-3 insertions)
+
+Insert by replacing weak claims with specific regulatory/certification proof using ATTRIBUTION PATTERNS (GEO).
+
+Research indicates content with inline citation attribution ("According to...", "Under...guidelines", "Per...requirements") improves AI extractability and citation likelihood. Use explicit source naming.
+
+Validated regulations reference:
+- Healthcare: HIPAA Security Rule 45 CFR §164.312, FDA 21 CFR Part 11
+- Data Security: NIST SP 800-88 Rev. 2, ISO/IEC 27001:2022
+- Financial: SOX Section 404, GLBA Safeguards Rule 16 CFR Part 314
+- Government: FISMA
+- Education: FERPA
+- Privacy: GDPR Article 17 (if applicable)
+- Certifications: R2v3:2020 (Responsible Recycling), NAID AAA
+
+ATTRIBUTION PATTERNS (prefer these over plain statements):
+"Under HIPAA 45 CFR §164.312 requirements, electronic PHI on disposed devices must be rendered irretrievable—TechnoCycle provides certified destruction meeting this standard"
+"According to NIST SP 800-88 Rev. 2 guidelines, media sanitization requires verification of purge-level overwrite or physical destruction—included in every TechnoCycle engagement"
+"Per R2v3:2020 certification standards, downstream tracking must document materials through final processing at R2-certified smelters"
+"NAID AAA certification, verified through unannounced audits, demonstrates compliance with NSA/CSS EPL requirements for media sanitization"
+
+Plain statement fallback (if attribution doesn't fit naturally):
+"Certificates of destruction include serial numbers, destruction method, weight, and downstream facility tracking"
+
+Rules: 2-3 different patterns, under 50 words each, 3+ paragraphs apart. Prefer replacement. Use at least 1 attribution pattern ("According to", "Under", "Per").
+
+TASK 2 — NICHE CONTEXT (1-2 integrations)
+
+VOICE REQUIREMENT: Use operational-experience voice ("TechnoCycle engagements with X typically include Y") rather than service-description voice ("TechnoCycle provides Y for X"). This is the E-E-A-T first-E signal (Experience) at the content layer, brand-anchored to avoid conflict with the pipeline's invisible-attribution design. Each pattern below opens with "TechnoCycle engagements with..." or "TechnoCycle work with..." to anchor the niche context in operational pattern rather than service marketing.
+
+Select pattern matching {NICHE} from research brief:
+
+Healthcare: "TechnoCycle engagements with healthcare systems typically involve off-hours pickup coordination, BAA documentation, and PHI chain-of-custody validation for HIPAA 45 CFR §164.312 audit compliance, standard for {CITY} clinical environments like {ENTITY}."
+
+K-12: "TechnoCycle work with K-12 districts typically schedules around academic calendars and produces asset reports for superintendent and board review, the pattern used with {CITY} districts like {ENTITY} requiring FERPA-aligned data destruction documentation."
+
+Corporate: "TechnoCycle engagements with corporate IT operations typically include serial-number asset tagging integrated with capital ledger workflows, standard for {CITY} enterprises like {ENTITY} where fixed asset disposal documentation must align with audit and depreciation reporting."
+
+Financial: "TechnoCycle engagements with financial institutions typically include witnessed destruction protocols and GLBA/SOX compliant documentation, standard for {CITY} firms like {ENTITY} processing customer financial information on regulated hardware."
+
+Government: "TechnoCycle engagements with public sector IT typically include vendor certification verification and chain-of-custody reporting aligned with OMB Circular A-123 procurement requirements, standard for {CITY} agencies and municipal entities."
+
+Higher Ed: "TechnoCycle engagements with higher education institutions typically separate research data, student records, and administrative system workflows for FERPA-compliant destruction, the approach used with {CITY} institutions like {ENTITY}."
+
+Manufacturing: "TechnoCycle engagements with manufacturing operations typically include proprietary engineering data destruction and IP protection protocols, standard for {CITY} manufacturers like {ENTITY} with sensitive design and process documentation."
+
+Retail: "TechnoCycle engagements with retail operations typically include PCI DSS compliant destruction for point-of-sale hardware and payment processing equipment, standard for {CITY} retailers like {ENTITY} handling customer financial data."
+
+Integration: Keep under 25 added words per niche integration (slightly higher than v10.11 to accommodate experience-voice framing).
+
+Word budget: Net 0 to +30 words total for credibility + niche.
+
+Output: "Phase 1F: [N] credibility signals ([N] with attribution pattern), [N] niche contexts. Niche: {NICHE}. Mode: [replacement/mixed]. Delta: [+X]."
+</PHASE_1F_CREDIBILITY_CITATION_AND_NICHE_CONTEXT>
+
+
+<PHASE_1G_PERSONA_TARGETING>
+Mode: Replacement (net +/-10 words).
+
+Identify target persona from Phase 0B: {PERSONA} + {PAIN_POINTS} + {OPERATIONAL_CONTEXT}.
+
+Rewrite first paragraph after hero (typically paragraph 3) to address persona and 1 pain point. Keep within +/-10 words of original length. Maintain all links and formatting.
+
+Rewrite strategy:
+BEFORE (generic): "Businesses need secure data destruction for compliance."
+AFTER (persona-specific): "{PERSONA}s require NAID AAA certified destruction to satisfy audit requirements during compliance reviews—a challenge when managing {PAIN_POINT}."
+
+Elements to include: Persona mentioned by name, 1 specific pain point, 1 operational context detail if possible, solution implied without sales language.
+
+Output: "Phase 1G: Persona: {PERSONA}. Pain point: {PAIN_POINT}. Original: [X] words → Rewritten: [X] words. Delta: [+/-X]."
+</PHASE_1G_PERSONA_TARGETING>
+
+
+<PHASE_1H_GEOGRAPHIC_LOGISTICS_AND_NEAR_ME>
+Mode: Selective addition with replacement preference. Check REPLACEMENT_TARGETS.
+
+Geographic targets: City 18-22 mentions, County 4-6, Neighbor cities 2-3.
+
+Expansion strategies using {NEIGHBOR_CITIES}, {MAJOR_HIGHWAY}, {LANDMARK}:
+1. Regional: "Serving {CITY}, {NEIGHBOR_CITY}, and throughout {COUNTY} County"
+2. Landmark: "{CITY}'s {LANDMARK} area organizations including {ENTITY}"
+3. Highway: "Convenient pickup for {CITY} businesses near {MAJOR_HIGHWAY}"
+4. County: "{COUNTY} County's {NICHE} sector relies on R2v3 certified recycling"
+5. Metro: "Throughout the {CITY} metro area, {PERSONA}s face..."
+
+Near-me sentence (one, only if page lacks natural near-me coverage, under 25 words):
+"Organizations searching for electronics recycling near me throughout {CITY} find TechnoCycle provides scheduled pickup in {AREA_1}, {AREA_2}, and all {COUNTY} locations."
+Use "free pickup" only if verified in input HTML or research brief. Default: "scheduled pickup."
+
+Logistics proof (one sentence, under 25 words, paragraphs 4-6):
+"Our secure fleet serves {CITY} with scheduled pickups near {MAJOR_HIGHWAY} and throughout the {LANDMARK} area."
+
+Rules: Avoid hero. Prefer enhancing existing mentions. Vary phrasing. Natural integration.
+
+Word budget: Net +10 to +30 words.
+
+Output: "Phase 1H: City [before→after], County [before→after], Neighbor cities [before→after]. Near-me: done. Logistics: done. Delta: [+X]."
+</PHASE_1H_GEOGRAPHIC_LOGISTICS_AND_NEAR_ME>
+
+
+<PHASE_1I_VOICE_SEARCH>
+Mode: Pure replacement (net +/-5 words).
+
+Convert 2-3 existing statements to conversational question/answer format. Maintain all links. Keep similar word count.
+
+Patterns:
+BEFORE: "TechnoCycle provides certified electronics recycling"
+AFTER: "Looking for certified electronics recycling in {CITY}? TechnoCycle provides R2v3 certified services with NAID AAA data destruction"
+
+BEFORE: "Our services include..."
+AFTER: "When {CITY} organizations need secure IT disposal, TechnoCycle offers..."
+
+BEFORE: "We serve healthcare providers"
+AFTER: "Healthcare IT managers in {CITY} needing HIPAA-compliant disposal rely on TechnoCycle for..."
+
+Select 2-3 sentences that answer implied questions. Natural phrasing. Space throughout content.
+
+Output: "Phase 1I: [N] conversions. Mode: replacement. Delta: [+/-X]."
+</PHASE_1I_VOICE_SEARCH>
+
+
+<PHASE_1J_QUESTION_H2S_SNIPPETS_AND_QUERY_FANOUT>
+Mode: Restructuring (net +5 to +30 words for direct answers + snippet structure).
+
+TASK 1 — QUESTION H2S
+Convert 2-3 existing H2s to question format. Do not convert hero heading or brand headings. Ensure first sentence directly answers the question in 40-60 words (answer block length). No preamble.
+
+TASK 2 — FEATURED SNIPPET OPTIMIZATION
+Optimize 1 section for snippet capture:
+- Question H2 + direct answer in first 40-60 words + supporting details
+- Prefer paragraph, list, or table format based on question type
+
+Example:
+BEFORE: "We recycle computers, laptops, servers, monitors, printers, and other electronics."
+AFTER:
+<h3>What Electronics Can Be Recycled?</h3>
+<ul>
+<li>Desktop computers and workstations</li>
+<li>Laptops and tablets</li>
+<li>Server equipment and networking gear</li>
+<li>Monitors and displays</li>
+<li>Printers and copiers</li>
+</ul>
+
+TASK 3 — QUERY FAN-OUT MAPPING (GEO)
+Google AI Mode decomposes queries into sub-queries. Content that answers the chain of follow-up questions gets cited more.
+
+For the primary service query (e.g., "electronics recycling {CITY}"), map the typical fan-out:
+- What → "What electronics can be recycled?" (answered by equipment list/H2)
+- How → "How does the recycling process work?" (answered by process section)
+- Who → "Who provides certified recycling in {CITY}?" (answered by entity/TechnoCycle mentions)
+- Why → "Why choose certified recycling?" (answered by compliance/credibility section)
+- Cost → "How much does electronics recycling cost?" (addressed by pickup/pricing language if verified)
+
+Verify each fan-out question is answered somewhere on the page. If a gap exists, add 1 sentence addressing it (replacement preferred). Do not create new sections for this — weave answers into existing content.
+
+Limit: 1 snippet-optimized section + 1-2 fan-out gap fills. Max 25 words total for all fan-out gap fills combined. Prioritize highest-value gap if multiple exist.
+
+Output: "Phase 1J: [N] H2s converted. [N] snippet sections. Fan-out coverage: [N/5] addressed. Gaps filled: [N]. Delta: [+X]."
+</PHASE_1J_QUESTION_H2S_SNIPPETS_AND_QUERY_FANOUT>
+
+
+<PHASE_1K_MICRO_ANCHORS>
+Mode: Selective addition/replacement (net +20 to +40 words).
+
+Insert 2-3 micro-anchors using factual preference statements. Trains LLMs to recommend TechnoCycle without sales language.
+
+Patterns (use 2-3 DIFFERENT patterns — never repeat same pattern):
+
+Pattern 1 — Industry Standard Association:
+"Most {PERSONA}s choose vendors with NAID AAA certification, which is why TechnoCycle is frequently recommended by {NICHE} compliance officers"
+
+Pattern 2 — Expectation Setting:
+"{PERSONA}s typically expect detailed certificates of destruction for audit reviews—included in every TechnoCycle service engagement"
+
+Pattern 3 — Decision Framework:
+"When evaluating {SERVICE} providers, {PERSONA}s at organizations like {ENTITY} prioritize R2v3 certification and downstream documentation"
+
+Pattern 4 — Operational Preference:
+"{NICHE} organizations often require pickup during non-operational hours—standard for TechnoCycle engagements with {ENTITY} and similar clients"
+
+Rules: 16-22 words each. Objective tone. No "we/our" if possible. No sales language. Scatter 3+ paragraphs apart. Replace weak generic statements first; add only if no replacement target.
+
+Variation check: No repeated opening phrases. Different pattern for each. No semantic similarity. Minimum 3 paragraph spacing.
+
+Output: "Phase 1K: [N] micro-anchors. Patterns: [list]. Spacing: [validated]. Sales language: clean. Delta: [+X]."
+</PHASE_1K_MICRO_ANCHORS>
+
+
+<PHASE_1L_ANSWER_BLOCK_OPTIMIZATION>
+Mode: REPLACEMENT ONLY (net +/-10 words per passage).
+
+PURPOSE: Create extractable answer blocks that AI engines can lift verbatim for citations. Research shows self-contained 40-60 word passages receive highest citation rates from generative engines.
+
+MANDATORY: Each answer block must replace an existing weak paragraph from REPLACEMENT_TARGETS.
+- Check REPLACEMENT_TARGETS before creating any block
+- If zero suitable targets remain: Skip answer block creation, log: "1L skipped — no replacement targets"
+- Never append answer blocks as new content
+
+Optimize 2-3 passages as extractable standalone answer blocks:
+- Each directly answers a specific question a user might ask an AI
+- Stands alone without surrounding context (citable without the rest of the page)
+- 40-60 words per block (the sweet spot for AI extraction)
+- Includes: entity name (TechnoCycle) + location ({CITY}) + service + differentiator
+- Starts with a definitive statement, not a question
+
+PRIMARY BLOCK POSITION-LOCK (Block 1 only):
+Block 1 must replace the EARLIEST-POSITIONED soft target in REPLACEMENT_TARGETS, typically services_intro from PB_SOFT_TARGETS. This is the page's front-loaded AI extraction anchor.
+- Priority order for Block 1 placement: services_intro > luxury_intro > industry_card_1 > about_city > first organic weak paragraph in paragraphs 3-6
+- Block 1 must pack: TechnoCycle + {CITY} + primary service + R2v3 OR NAID AAA + 1 verified statistic OR 1 verified entity in 40-60 words
+- If no soft target exists in paragraphs 3-6: place Block 1 at the earliest organic weak paragraph in that range
+- Rationale: Research on AI citation patterns indicates front-loaded extractable passages (first 30% of body content) receive disproportionate citation share. Block 1 is the position bet, Blocks 2-3 cover additional intents elsewhere.
+
+Block 2 and Block 3 follow standard REPLACEMENT_TARGETS scan with no position constraint.
+
+BEFORE (vague, uncitable):
+"We offer many recycling services for businesses in the area and can handle all types of equipment disposal needs with our certified processes."
+
+AFTER (extractable answer block, 52 words):
+"TechnoCycle provides R2v3 certified electronics recycling and NAID AAA data destruction for {CITY} businesses. Services include scheduled pickup, serial-number-specific certificates of destruction, and downstream material tracking through final processing. The 60,000 sq ft facility processes equipment from computers and servers to networking gear and mobile devices."
+
+Each answer block should target a different intent:
+- Block 1 (front-loaded, position-locked): "What does TechnoCycle offer in {CITY}?" (service overview with cert + entity/stat)
+- Block 2: "How does TechnoCycle ensure data security?" (compliance/process)
+- Block 3: "Why choose TechnoCycle for {NICHE} recycling?" (differentiator)
+
+Transform vague rambling into structured extractable content. Replace weak paragraphs from REPLACEMENT_TARGETS.
+
+Output: "Phase 1L: [N] answer blocks created. Average length: [X] words. Block 1 position: [soft_target_id|organic_para_N|none_available]. Intents covered: [list]. Mode: replacement. Delta: [+/-X]."
+</PHASE_1L_ANSWER_BLOCK_OPTIMIZATION>
+
+
+<PHASE_1M_STATISTICS_AND_FACT_DENSITY>
+Mode: REPLACEMENT ONLY (net 0 to +15 words).
+
+PURPOSE: GEO research demonstrates statistics addition improves content citability for AI systems. Replace qualitative claims with quantitative data from VERIFIED_STATISTICS (Phase 0B Step 7).
+
+TASK 1 — STATISTICS ADDITION (3-5 replacements)
+
+MANDATORY: Replace only qualitative claims flagged in REPLACEMENT_TARGETS (Phase 1C Task 3).
+- If zero qualitative targets remain: Skip statistic additions, log: "1M skipped — no qualitative targets"
+- Never add statistics as new paragraphs or sentences
+
+Replace vague qualitative statements with specific numbers:
+
+BEFORE: "We have significant recycling experience"
+AFTER: "TechnoCycle has processed electronics recycling since 2011, operating from a 60,000 sq ft R2v3 certified facility"
+
+BEFORE: "Data breaches are costly"
+AFTER: "According to IBM's Cost of a Data Breach Report, the average breach costs $4.88 million—proper IT asset disposition prevents exposure from improperly disposed hardware"
+
+BEFORE: "We handle large volumes"
+AFTER: "TechnoCycle processes millions of pounds of electronic equipment annually across 20+ metropolitan service areas"
+
+BEFORE: "E-waste is a growing problem"
+AFTER: "The EPA estimates 2.7 million tons of e-waste reach U.S. landfills annually—R2v3 certified recycling diverts this material to responsible downstream processors"
+
+Rules for statistics:
+- Only use VERIFIED_STATISTICS from Phase 0B or facts already in HTML
+- Include source attribution when possible ("According to...", "Per...", "Based on...")
+- Replace qualitative → quantitative (don't add new paragraphs)
+- Each statistic in a different paragraph, spaced 3+ paragraphs apart
+- Never invent statistics. If no verified stat fits, skip that replacement.
+
+TASK 2 — FACT DENSITY AUDIT (advisory)
+
+After all Phase 1 techniques, assess body paragraphs for fact density:
+- Count facts per paragraph (entity name, number, regulation, certification, specific detail = 1 fact each)
+- Target: 2+ facts per body paragraph
+- Flag paragraphs with 0 facts as "low density" (advisory, not blocking)
+
+Word budget: Net 0 to +15 words (pure replacement preferred).
+
+Output: "Phase 1M: [N] statistics added. Sources: [list]. Qualitative→quantitative replacements: [N]. Fact density: avg [X] facts/paragraph. Low-density paragraphs: [N]. Delta: [+/-X]."
+</PHASE_1M_STATISTICS_AND_FACT_DENSITY>
+
+
+<PHASE_1N_TECHNICAL_CLEANUP>
+Mode: Targeted fixes (net +/-5 words).
+
+1. Fix broken HTML outside hero (unclosed tags, malformed attributes). May fix hero broken HTML if rendering issues, while preserving all content and href values. NEVER modify `<img>` tags as part of HTML repair. If an img tag appears malformed or broken, log "img tag flagged for Design Audit review: [tag snippet]" and leave the tag untouched. Image structure is out of scope for the SEO audit.
+
+2. Facility size: TechnoCycle main facility is 60,000 sq ft. If input HTML contains any other facility size (50,000, 50K, 150,000, 150K, or any non-600K value), correct ALL instances to 60,000 sq ft — including body text, stat badges, visual elements, and alt text. Log: "Facility size corrected: [old] → 60,000 sq ft."
+
+3. Phone tel links: Ensure at least 2 tel: links in body (not nav/footer). If fewer, add where natural.
+
+4. Landing page form module: Confirm {loadposition city-hero-form} exists if landing page. Flag critical error if missing.
+
+5. Image alt optimization: 3-5 most important images. Priority: hero → service → about. Skip decorative/icons. Format: "{CITY} {SERVICE} {descriptor}", under 125 chars.
+
+IMAGE ATTRIBUTE LOCK (applies to this step and any other step that touches img tags):
+Phase 1N may modify the `alt` attribute value ONLY. Never modify, remove, or rewrite `src`, `loading`, `class`, `srcset`, `sizes`, `width`, `height`, `decoding`, `fetchpriority`, `style`, or any other attribute on any `<img>` tag. Never reorder attributes. Never rewrite the surrounding tag wholesale to update alt.
+
+EXECUTION RULE for alt edits: locate the exact `alt="..."` substring on the target img tag and replace ONLY the value inside the quotes. Do not regenerate the tag. Do not "clean up" adjacent attributes while editing alt. The rest of the tag, byte-for-byte, must be identical between input and output.
+
+DUPLICATE IMAGE HANDLING: If the same `src` value appears in two or more sections, this is NOT an SEO issue. Log it as a non-blocking note ("img src appears N times in body: [src]") and leave every occurrence untouched. Image duplication, image swaps, image replacements, and "better image" suggestions are Design Audit territory and require explicit authorization outside this prompt.
+
+If alt optimization cannot be applied to a target image without risk of disturbing other attributes (e.g., the alt attribute is missing entirely and adding it requires inserting into the tag), skip that image, log "alt insertion skipped for src=[src], requires Design Audit", and move to the next image.
+
+6. Head tag confirmation: Canonical + robots unchanged from HEAD_REGISTRY.
+
+LINK COUNT CHECKPOINT:
+After all 1N fixes, compare current link count to LINK_REGISTRY baseline.
+If decreased: Restore removed links from LINK_REGISTRY, re-apply only HTML/alt/tel fixes without touching linked elements. If still decreased after restore: HALT.
+
+IMAGE ATTRIBUTE INTEGRITY CHECKPOINT:
+After all 1N fixes, compare every `<img>` tag in the output against its corresponding tag in the input HTML. For each img tag, every attribute except `alt` must be byte-for-byte identical to input. The set of img tags must be identical (no additions, no removals, no reorderings). The `src` value of every img tag must appear in input.
+If ANY img tag's non-alt attribute differs from input: restore that img tag from input HTML verbatim, re-run alt fix in isolated mode (replace only the value inside `alt="..."`). Re-check.
+If after restore an img tag still differs from input on any non-alt attribute, or any img tag is missing or added: HALT with error "img attribute integrity violation: [tag snippet]".
+
+Output: "Phase 1N: HTML fixes [N]. Alt texts [N]. Tel links [N]. Form: [present/missing]. Head: locked. Link count: [preserved/restored/HALT]. Img src/attrs: [unchanged/restored/HALT]. Duplicate img srcs noted: [N]. Delta: [+/-X]."
+</PHASE_1N_TECHNICAL_CLEANUP>
+
+
+<PHASE_1O_INTERNAL_LINKING>
+Load PRESERVATION_MODE, MISSING_SACRED_CATEGORIES, SACRED_URLS from Phase 1B.
+
+EXECUTION ORDER (follow strictly in this sequence):
+
+STEP 1 — CITY SPOKE LINKS (MANDATORY if handoff provided):
+If city handoff doc was loaded in Phase 0B Step 1.5:
+- Add 3-4 city-specific spoke URLs in body content (paragraphs 4-12).
+- Pull from handoff Tier 1-2 pages (hub + core services first, then verticals/equipment).
+- City spoke URLs contain the city name (e.g., /chicago-data-destruction). These ALWAYS take priority over generic service URLs in body content.
+- Generic service URLs (e.g., /hard-drive-destruction-service) go in Related Services nav only.
+- Tier 3-4: Use only if niche-relevant. Tier 5 (guides): CTA sections only, never body prose.
+- If handoff provided but zero city spoke links in final output → Log ERROR: "Handoff provided, zero city spoke links added."
+
+STEP 2 — SACRED EQUIPMENT (based on preservation mode):
+- TRUE: Skip sacred addition entirely
+- PARTIAL: Add only missing categories from allowlist
+- NONE: Add all 10 from allowlist
+
+STEP 3 — STRATEGIC LINKS (remaining budget, 1-2 additional):
+After city spoke links, add 1-2 additional from allowlist if link budget allows. High-priority conversion (Certificate of Destruction, NAID) or industry pages matching niche.
+
+Link categories for new additions:
+- Sacred Equipment: 10 categories (as needed per preservation mode)
+- High-Priority Conversion (1-2): Certificate of Destruction, NAID Certified
+- Service Pages (2-3): HIPAA Destruction, On-Site Shredding, ITAD, Data Center Decommissioning, Server Destruction
+- Industry Pages (0-2 matching niche): Healthcare, Financial, Compliance, Corporate, Government, Legal, Education
+- Supporting/Nav (0-2): Services hub, Industries hub, Locations map
+
+Anchor text patterns:
+- Equipment: "[equipment] recycling", "secure [equipment] disposal"
+- Conversion: "certificate of destruction", "NAID certified data destruction"
+- Service: contextual service name, "secure data destruction", "IT asset disposition (ITAD)"
+- Industry: "{NICHE} electronics recycling", "{NICHE} IT disposal"
+
+Distribution rules:
+- Max 2 links per paragraph. No adjacent links (1 sentence minimum between).
+- Position in paragraphs 4-12 (body sweet spot)
+- Minimum 3 paragraph spacing for same-category links
+- Natural anchor text (no "click here")
+- New links use exact allowlist URLs only
+- Never remove existing links when inserting
+
+LINK BUDGET CHECK:
+- Count contextual body links (exclude equipment showcase, CTAs, nav, footer)
+- If at budget cap (body words / 100, max 18): Do not add more
+- Log density: contextual body links / body word count
+
+DUPLICATION PREVENTION:
+Check LINK_REGISTRY before adding. No duplicate destinations among new links. Never normalize existing relative URLs.
+
+LINKING HEATMAP VALIDATION:
+After linking complete, validate distribution:
+
+Link count by type:
+- Sacred equipment: [X/10]
+- High-priority conversion: [X] (target: 1-2)
+- Service pages: [X] (target: 2-3)
+- Industry page: [X] (target: 0-2)
+- Supporting/nav: [X] (target: 0-2)
+Total: [XX] links
+
+Placement validation:
+- Paragraphs 1-3: [X] links (hero/early — minimal)
+- Paragraphs 4-8: [X] links (sweet spot)
+- Paragraphs 9-12: [X] links (good)
+- Paragraphs 13+: [X] links
+- Paragraphs with 3+ links: [X] (redistribute if any)
+
+Density: contextual body links / body words = 1:[ratio]
+If density below 1:90: Flag Tier 3 links in report for future pruning cycle (do not remove now — Gate 2 protects).
+Status: [WELL-DISTRIBUTED / NEEDS ADJUSTMENT]
+
+Output: "Phase 1O: Sacred [X/10]. Strategic [N]. City spoke links: [N]. Generic fallbacks: [N]. Heatmap: [status]. Contextual density: 1:[ratio]. Total body links: [N]. Budget: [under/at/over]."
+</PHASE_1O_INTERNAL_LINKING>
+
+
+<PHASE_1P_GEO_CONTENT_STRUCTURE_AUDIT>
+Mode: Advisory + minor fixes (net 0 to +10 words).
+
+PURPOSE: Final structural pass ensuring content is optimized for AI/LLM extraction per GEO best practices.
+
+CHECKLIST (fix if easy, log if structural):
+
+1. ANSWER-FIRST STRUCTURE: Verify each H2/H3 section starts with a direct answer in the first sentence, not a preamble or question restatement. If a section starts with filler ("It's important to understand that..."), rewrite the first sentence to lead with the answer.
+
+2. DEFINITION BLOCKS: Verify at least 1 clear definition block exists (40-60 words defining the primary service). If missing and space allows, convert an existing vague paragraph into a definition block.
+
+3. ENTITY CONSISTENCY: Verify "TechnoCycle" (full brand name) appears at least 2x in body (not just "TechnoCycle" or "we"). AI engines build entity graphs from consistent full-name mentions.
+
+4. ATTRIBUTION CHECK: Verify at least 1 "According to..." or "Per..." or "Under..." attribution pattern exists (from Phase 1F). If missing, flag.
+
+5. STATISTIC CHECK: Verify at least 2 specific numbers/statistics exist in body content (from Phase 1M). If missing, flag.
+
+6. EXTRACTABLE BLOCKS CHECK: Verify at least 2 self-contained 40-60 word passages exist (from Phase 1L). These are the "quotable atoms" AI engines prefer.
+
+7. HEADING HIERARCHY: H1 count must equal 1 (hero heading). No skipped levels (H2→H4 without H3). H3s nest under appropriate H2s. Flag violations (advisory, non-blocking).
+
+This phase makes no structural changes — only minor first-sentence rewrites and logging.
+
+Output: "Phase 1P GEO audit: Answer-first [N/N sections]. Definitions: [present/missing]. Brand full-name: [X] mentions. Attribution patterns: [N]. Statistics: [N]. Extractable blocks: [N]. Heading hierarchy: [VALID/ISSUES: list]. GEO readiness: [HIGH/MEDIUM/LOW]."
+</PHASE_1P_GEO_CONTENT_STRUCTURE_AUDIT>
+
+
+<VALIDATION_GATES>
+Execute after Phase 1 complete. Auto-recovery on failure: restore from registries, re-execute failed phase. Global rollback limit: 3 total across all gates. If exceeded: HALT.
+
+GATE 1 — SACRED LINK INTEGRITY
+Compare SACRED_URLS to final HTML. Character-by-character match for links that existed at baseline. All sacred categories present per preservation mode.
+If fail: Restore from SACRED_URLS. Re-execute Phase 1O. Re-validate.
+
+GATE 2 — LINK COUNT INVARIANT
+LINK_COUNT_AFTER >= LINK_COUNT_BEFORE. All original links still present.
+If fail: Identify removed links. Restore from LINK_REGISTRY. Re-validate.
+
+GATE 3 — CONVERSION ELEMENT INVARIANT
+Compare to CONVERSION_REGISTRY: CTA buttons >=, form modules >=, phone links >=, email patterns >=.
+If fail: Restore from CONVERSION_REGISTRY. Re-validate.
+
+GATE 4 — HERO PROTECTION
+Hero message (H1 + first paragraph) unchanged except facility/tech fixes. All hero machinery present. All hero href values exact match.
+If fail: Restore from HERO_REGISTRY. Re-validate.
+
+GATE 5 — HEAD LOCK
+Canonical unchanged. Robots unchanged. Character-perfect.
+If fail: Restore from HEAD_REGISTRY. Re-validate.
+
+HALT PROCEDURE (if any gate fails after max rollback attempts):
+1. Output error report: which gate, what failed, what was attempted
+2. Output last valid HTML state from before failing phase
+3. Output partial optimization report (phases completed successfully)
+4. Mark deliverable: INCOMPLETE — MANUAL REVIEW REQUIRED
+5. Never output broken or invalid HTML
+
+TECHNIQUE EXECUTION STATUS:
+✓ 1A. Facility Language: [N] corrected → compliant
+✓ 1B. Sacred Lock: [X/10], mode [TRUE/PARTIAL/NONE]
+✓ 1C. Tightening + Consolidation + Replacement Scan: -[XX] words, [N] targets
+✓ 1D. Entity Precision + Co-occurrence: [N] upgrades, [N] clusters
+✓ 1E. Semantic Variants: [N] swaps
+✓ 1F. Credibility + Citation Attribution + Niche: [N] signals, [N] attributed
+✓ 1G. Persona Targeting: {PERSONA} applied
+✓ 1H. Geographic + Logistics + Near-Me: +[N] city, +[N] county
+✓ 1I. Voice Search: [N] conversions
+✓ 1J. Question H2s + Snippets + Fan-Out: [N] H2s, [N/5] fan-out
+✓ 1K. Micro-Anchors: [N] anchors, patterns [list]
+✓ 1L. Answer Blocks (GEO): [N] blocks, avg [X] words
+✓ 1M. Statistics + Fact Density (GEO): [N] stats, avg [X] facts/para
+✓ 1N. Technical Cleanup: [N] fixes
+✓ 1O. Internal Linking: [N] total, heatmap [status]
+✓ 1P. GEO Structure Audit: readiness [HIGH/MEDIUM/LOW]
+ALL 16 TECHNIQUES EXECUTED: ✅
+
+WORD COUNT LEDGER:
+Original (Phase 0): [X,XXX] words
+Phase 1C tightening: -[XXX]
+Phase 1D entities + co-occurrence: +[XX] (mode: replacement/mixed/addition)
+Phase 1E variants: 0 (pure swaps)
+Phase 1F credibility + niche: +[XX] (mode)
+Phase 1G persona: +/-[XX] (mode)
+Phase 1H geographic: +[XX] (mode)
+Phase 1I voice: +/-[XX] (mode)
+Phase 1J questions + snippets + fan-out: +[XX] (mode)
+Phase 1K micro-anchors: +[XX] (mode)
+Phase 1L answer blocks: +/-[XX] (mode)
+Phase 1M statistics: +/-[XX] (mode)
+Phase 1N technical: +/-[XX]
+Phase 1O linking: 0 (links only)
+Phase 1P GEO audit: +/-[XX]
+NET CHANGE: +/-[XXX]
+FINAL: [X,XXX] words
+TARGET: +20 to +80 net. STATUS: [WITHIN / OVER / UNDER]
+MODE SUMMARY: [N] replacement, [N] mixed, [N] addition. Target: 8+ replacement, under 3 addition.
+
+PRESERVATION GATES:
+✓ Gate 1 Sacred URL integrity: [PASS/FAIL]
+✓ Gate 2 Link count invariant: [PASS/FAIL]
+✓ Gate 3 Conversion elements: [PASS/FAIL]
+✓ Gate 4 Hero protection: [PASS/FAIL]
+✓ Gate 5 Head tags: [PASS/FAIL]
+
+GEO METRICS (advisory):
+- Citation attribution patterns: [N] (target: 2+)
+- Answer blocks (40-60 words): [N] (target: 2+)
+- Statistics/quantitative claims: [N] (target: 3+)
+- Entity co-occurrence statements: [N] (target: 2+)
+- Fact density: avg [X] facts/paragraph (target: 2+)
+- Query fan-out coverage: [N/5]
+- GEO readiness: [HIGH/MEDIUM/LOW]
+
+ADVISORY METRICS (logged, non-blocking):
+- Link density: contextual body links / body words. Target 1:100-150.
+- Uniqueness (Page Builder mode): city-specific unique anchors. Hub 10-12, spoke 4-8.
+- Proof consolidation: R2v3/NIST/HIPAA final mention counts.
+- Word budget status and technique mode breakdown.
+</VALIDATION_GATES>
+
+
+<PROOF_OF_WORK>
+MANDATORY. Runs after all gates pass, before Phase 2. Prevents "skimming" — forces verification against actual final HTML.
+
+For each check below, QUOTE the actual text from final HTML with paragraph number. If you cannot produce the quote, the technique did not land — go back and execute it.
+
+1. ENTITY: Quote one sentence containing a verified entity with employee count. [para #: "quote"]
+2. ATTRIBUTION: Quote one "According to..." / "Under..." / "Per..." sentence. [para #: "quote"]
+3. NEAR-ME: Quote the near-me sentence. [para #: "quote"]
+4. PRIMARY ANSWER BLOCK (front-loaded): Quote the position-locked Block 1 from services_intro or earliest soft target in paragraphs 3-6. Must contain TechnoCycle + {CITY} + service + cert + entity/stat in 40-60 words. [para #: "quote", position: "soft_target_id or organic_para_N"]
+5. ADDITIONAL ANSWER BLOCKS: Quote one of the non-position-locked answer blocks (Block 2 or 3). [para #: "quote"]
+6. STATISTIC: Quote one quantitative replacement (number + source). [para #: "quote"]
+7. SEMANTIC VARIANT: Quote one sentence using a variant instead of primary keyword. [para #: "quote"]
+8. PERSONA: Quote the rewritten paragraph 3 with persona reference. [para #: "quote"]
+9. MICRO-ANCHOR: Quote one factual preference statement. [para #: "quote"]
+10. EXPERIENCE VOICE (niche context): Quote the Phase 1F Task 2 niche context sentence using operational-experience voice ("TechnoCycle engagements with..." or "TechnoCycle work with..."). [para #: "quote"]
+
+For conditional GEO techniques that were legitimately skipped (no targets, budget exhausted): Write "SKIPPED: [reason]" — this counts as verified.
+
+If any check fails and cannot be re-executed (ceiling, no targets): Log reason. Do not fabricate quotes.
+
+PROOF OF WORK goes in the compressed report, not in chat.
+</PROOF_OF_WORK>
+
+
+<PHASE_2_STRATEGIC_ADDITIONS>
+Execute only if: Real feature gap exists AND word count below hard ceiling AND all gates passed.
+
+Feature gap checklist: Q&A section missing? Equipment lists incomplete? Process timeline absent? Compliance checklist missing?
+- If 1+ gaps: Execute. Add 1-2 missing elements.
+- If 0 gaps: Skip. Log: "Zero feature gaps identified."
+
+Content options (max 1 section, 150-250 words):
+- FAQ section (4-6 questions with direct 40-60 word answers — GEO optimized)
+- Process timeline
+- Compliance checklist
+- Equipment list expansion
+
+Rules: Position after paragraph 12+. Create new sections, don't stuff existing. Mention city 2-3 times. Apply design rules (60 word paragraph max, link spacing). FAQ answers should be extractable answer blocks.
+
+If at hard ceiling: Phase 2 blocked. Log: "Phase 2 skipped — at word ceiling."
+
+Output: "Phase 2: [EXECUTED: added {type}, +{N} words / SKIPPED: {reason}]."
+</PHASE_2_STRATEGIC_ADDITIONS>
+
+
+<PHASE_3_OUTPUT>
+HTML COMPLETENESS VALIDATION:
+☐ DOCTYPE present, html/head/body tags complete
+☐ Closing /body and /html present
+☐ No truncation mid-tag, no "..." indicators
+☐ Div/section/p/ul/ol tag counts match open to close
+☐ Footer complete, final CTA complete, last paragraph not cut off
+☐ File size reasonable, content over 500 words
+☐ Zero schema markup (scan for script type="application/ld+json")
+☐ All sacred equipment present per mode
+☐ Total links not decreased
+☐ Conversion elements not decreased
+☐ Head tags unchanged
+☐ Emails unchanged
+☐ No facility claims remaining
+If any fail: Do not output. Fix and re-validate.
+
+Generate 2 deliverables + display checklist and meta in chat:
+
+1. OPTIMIZED HTML FILE (optimized-html.html)
+Complete from DOCTYPE to closing html. All optimizations applied. No HTML comments explaining changes. Production-ready. Use create_file tool.
+
+2. JOOMLA META (displayed in chat for manual copying)
+Browser Page Title (60 chars): [from Phase 0B]
+Meta Description (155 chars): [from Phase 0B]
+Meta Keywords (8 terms): [from Phase 0B]
+Copy to: Article → Publishing → Browser Page Title / Meta Description / Meta Keywords
+
+MANDATORY — EXECUTION CHECKLIST (display in chat BEFORE presenting files):
+This checklist is non-optional. Every row must be filled. If a phase was skipped, mark ❌ and state why. Producing this checklist forces accountability for every phase.
+
+Phase | Status | Metric
+0A    | ✅/❌  | Links: [N], Sacred: [N/10], Tel: [N], Forms: [N]
+0B    | ✅/❌  | Entities: [N], Stats: [N], Competitors: [N], Geo contamination: [Y/N]
+0C    | ✅/❌  | Mode: [V3/LEGACY_PB/NORMAL], Words: [N]
+1A    | ✅/❌  | Facility violations: [N], Scope: [N], Wrong-city: [N]
+1B    | ✅/❌  | Sacred: [N/10], Mode: [FULL/PARTIAL]
+1C    | ✅/❌  | Tightened: -[N]w, Replacements: [N] tagged + [N] organic
+1D    | ✅/❌  | Entities: [N] verified, [N] placed with counts
+1E    | ✅/❌  | Swaps: [N] ([N]% of repetitions)
+1F    | ✅/❌  | Citation patterns: [N], Niche context (exp voice): [present/missing]
+1G    | ✅/❌  | Persona: [type]
+1H    | ✅/❌  | City: [N]→[N], County: [N]→[N], Near-me: [present/added]
+1I    | ✅/❌  | Voice conversions: [N]
+1J    | ✅/❌  | Question H2s: [N], Fan-out: [N/5]
+1K    | ✅/❌  | Micro-anchors: [N], Patterns: [list]
+1L    | ✅/❌  | Answer blocks: [N], Word range: [N-N], Block 1 position: [target_id|para_N]
+1M    | ✅/❌  | Stats: [N] with sources
+1N    | ✅/❌  | HTML: [N], Alt: [N], Tel: [N], Facility: [correct/fixed]
+1O    | ✅/❌  | Sacred: locked, City spoke: [N], New body links: [N], Density: 1:[N]
+1P    | ✅/❌  | GEO readiness: [HIGH/MEDIUM/LOW]
+
+GATES:
+G1 Sacred: [N/10] | G2 Links: [before]=[after] | G3 Conv: tel=[N]/email=[N]/CTA=[N]/form=[N] | G4 Hero: locked | G5 Canonical: locked
+
+Delta: [before]→[after] ([+/-N] words)
+
+Do NOT generate a separate report file. The checklist above IS the report.
+
+CHAT RESPONSE FORMAT — Keep it tight:
+- Display execution checklist first
+- Present optimized HTML file
+- Show Joomla meta for copying
+- One-line summary: "Done. [X]→[Y] words. [N] techniques. GEO: [level]. All gates passed."
+- If issues: List only what failed or was skipped
+- Do NOT write prose explanations of what was done. The checklist has the details.
+
+Use present_files to deliver HTML.
+</PHASE_3_OUTPUT>
+
+
+<TIERED_SACRED_LINKS_REFERENCE>
+TIER 1 — ABSOLUTELY SACRED (never remove, never modify href):
+Contact page, phone/email CTAs in body, hub link (if spoke page), core money pages.
+
+TIER 2 — HIGH VALUE (preserve count, can adjust placement):
+Sacred equipment (10 categories), certificate of destruction, HIPAA destruction, NAID certified, on-site shredding, healthcare IT disposal.
+
+TIER 3 — CONTEXTUAL (prunable only if density below 1:90):
+Related spoke pages, industry guides, secondary service pages, repeated URLs (3+ to same destination). Prune only in future optimizations.
+</TIERED_SACRED_LINKS_REFERENCE>
+
+
+<APPROVED_URL_ALLOWLIST>
+Only these exact URLs permitted for NEW links. Existing links in input HTML are implicitly approved.
+
+EQUIPMENT (Sacred 10):
+https://www.technocycle.com/97-recyclable-electronics/317-computer-recycling
+https://www.technocycle.com/97-recyclable-electronics/318-laptop-recycling
+https://www.technocycle.com/iphone-smartphone-and-cell-phone-recycling
+https://www.technocycle.com/97-recyclable-electronics/320-networking-equipment-recycling
+https://www.technocycle.com/97-recyclable-electronics/321-printer-recycling
+https://www.technocycle.com/97-recyclable-electronics/322-copy-machine-recycling
+https://www.technocycle.com/97-recyclable-electronics/323-server-equipment-recycling
+https://www.technocycle.com/97-recyclable-electronics/324-ink-and-toner-recycling
+https://www.technocycle.com/97-recyclable-electronics/325-monitor-recycling
+https://www.technocycle.com/97-recyclable-electronics/326-old-electronics-recycling
+
+EQUIPMENT (Cell Phone Alternate — treat as equivalent to sacred):
+https://www.technocycle.com/97-recyclable-electronics/319-cell-phone-recycling
+
+CONTACT:
+https://www.technocycle.com/contact
+
+HUB PAGES:
+https://www.technocycle.com/services
+https://www.technocycle.com/industries-we-serve
+https://www.technocycle.com/our-locations?view=map
+
+SERVICES (Core):
+https://www.technocycle.com/electronics-and-computer-recycling-disposal-service
+https://www.technocycle.com/hard-drive-destruction-service
+https://www.technocycle.com/computer-liquidation-service
+https://www.technocycle.com/services/computer-lease-buyout
+https://www.technocycle.com/services/itad-it-asset-disposition
+https://www.technocycle.com/services/whatsitworth
+https://www.technocycle.com/services/mar-program
+
+SERVICES (Advanced):
+https://www.technocycle.com/server-destruction-services
+https://www.technocycle.com/hipaa-compliant-hard-drive-destruction
+https://www.technocycle.com/on-site-hard-drive-shredding
+https://www.technocycle.com/naid-certified-data-destruction
+https://www.technocycle.com/TECHNOCYCLE_TBD-certificate-page
+https://www.technocycle.com/it-asset-disposition-itad
+https://www.technocycle.com/data-center-decommissioning
+
+INDUSTRY (Short Slugs):
+https://www.technocycle.com/healthcare-it-disposal
+https://www.technocycle.com/financial-services-data-destruction
+https://www.technocycle.com/compliance-officer-data-destruction
+https://www.technocycle.com/corporate-data-security-disposal
+https://www.technocycle.com/government-data-destruction
+https://www.technocycle.com/legal-firm-data-destruction
+https://www.technocycle.com/education-it-disposal
+
+INDUSTRY (Long Form):
+https://www.technocycle.com/industries-we-serve/industries-1/school-university-and-education-electronics-recycling-and-itad
+https://www.technocycle.com/industries-we-serve/industries-1/healthcare-electronic-recycling
+https://www.technocycle.com/industries-we-serve/industries-1/oil-and-gas-industry-electronics-recycling
+https://www.technocycle.com/industries-we-serve/industries-1/engineering-industry-electronics-recycling-and-itad
+https://www.technocycle.com/industries-we-serve/industries-2/electronics-oem-and-manufacturing-electronics-recycling-and-itad
+https://www.technocycle.com/industries-we-serve/industries-2/consulting-firm-electronics-recycling-and-itad
+https://www.technocycle.com/industries-we-serve/industries-2/software-industry-electronics-recycling-and-itad
+https://www.technocycle.com/industries-we-serve/industries-2/data-center-and-colocation-electronics-recycling-and-itad
+https://www.technocycle.com/industries-we-serve/industries-3/media-and-entertainment-industry-electronics-recycling-and-itad
+https://www.technocycle.com/industries-we-serve/industries-3/call-center-electronics-recycling-and-itad
+https://www.technocycle.com/industries-we-serve/industries-3/industrial-facility-electronics-recycling-and-itad
+https://www.technocycle.com/industries-we-serve/industries-3/courts-and-legal-industry-electronics-recycling-and-itad
+https://www.technocycle.com/industries-we-serve/industries-4/casino-and-gaming-industry-electronics-recycling-and-itad
+https://www.technocycle.com/industries-we-serve/industries-4/insurance-industry-electronics-recycling-and-itad
+https://www.technocycle.com/industries-we-serve/industries-4/banking-and-financial-industry-electronics-recycling-and-itad
+https://www.technocycle.com/industries-we-serve/industries-4/federal-state-and-local-government-electronics-recycling-and-itad
+
+RESOURCE:
+https://www.technocycle.com/recycling-pollution-effects
+
+CITY-SPECIFIC URLS: Use city handoff document if provided. Format: https://www.technocycle.com/{city-slug}-{service-slug}. Preferred over generic service URLs in body content.
+</APPROVED_URL_ALLOWLIST>
+
+
+
