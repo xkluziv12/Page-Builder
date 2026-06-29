@@ -13,3 +13,4 @@
 - [Replit config guard during rebase](replit-config-rebase-guard.md) — git can't write .replit/replit.nix during rebase (guard); use keep-ours merge driver, then materialize union via verifyAndReplaceDotReplit.
 - [Meta research location resolution](meta-research-location.md) — trust the model's page-read city/state over the URL slug; "in"→Indiana + STS HQ footer poison parseCityState/extractLocations.
 - [Model-id display redaction trap](model-id-display-redaction.md) — Anthropic ids are masked on screen (claude-sonnet-4-6→n-4-6); never hand-type them or you 404; import from mc-core.
+- [MC shared prompt builders](mc-shared-prompt-builders.md) — builders.ts is the single per-phase prompt source for both modes; No-GMB byte-for-byte, ctx.gmb drives the branch, schema phase fails loud.

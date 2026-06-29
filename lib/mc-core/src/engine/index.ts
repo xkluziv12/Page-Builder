@@ -7,3 +7,11 @@ export { ReplitEngine } from "./replit";
 export type { ReplitEngineContent } from "./replit";
 export { describeContext, describeSeoIntel } from "./context";
 export { pageBuilderPrompt, schemaGeneratorPrompt, seoAuditPrompt } from "../prompts";
+export {
+  buildPagePrompt,
+  auditPagePrompt,
+  schemaPrompt,
+  verifyPrompt,
+  promptForPhase,
+} from "../prompts";
+export type { PromptText, PromptPhase } from "../prompts";

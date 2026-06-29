@@ -1,5 +1,5 @@
 import type { RunContext } from "../types";
-import { pageBuilderPrompt, schemaGeneratorPrompt, seoAuditPrompt } from "../prompts";
+import { auditPagePrompt, buildPagePrompt, pageBuilderPrompt, schemaPrompt } from "../prompts";
 import { describeContext } from "./context";
 import type { AIEngine, ChatTurn, EngineResult } from "./types";
 
@@ -53,28 +53,18 @@ export abstract class PromptCompletionEngine implements AIEngine {
   protected abstract complete(system: string, user: string): Promise<EngineResult>;
 
   buildPage(ctx: RunContext): Promise<EngineResult> {
-    return this.complete(
-      pageBuilderPrompt,
-      `Build the page for the following job:\n\n${describeContext(ctx)}`,
-    );
+    const { system, user } = buildPagePrompt(ctx);
+    return this.complete(system, user);
   }
 
   auditPage(ctx: RunContext, currentHtml: string): Promise<EngineResult> {
-    return this.complete(
-      seoAuditPrompt,
-      `Audit and improve the following page. Return the full corrected HTML.\n\nContext:\n${describeContext(
-        ctx,
-      )}\n\nCurrent HTML:\n${currentHtml}`,
-    );
+    const { system, user } = auditPagePrompt(ctx, currentHtml);
+    return this.complete(system, user);
   }
 
   generateSchema(ctx: RunContext, currentHtml: string): Promise<EngineResult> {
-    return this.complete(
-      schemaGeneratorPrompt,
-      `Generate JSON-LD schema for the following page.\n\nContext:\n${describeContext(
-        ctx,
-      )}\n\nPage HTML:\n${currentHtml}`,
-    );
+    const { system, user } = schemaPrompt(ctx, currentHtml);
+    return this.complete(system, user);
   }
 
   chatEdit(

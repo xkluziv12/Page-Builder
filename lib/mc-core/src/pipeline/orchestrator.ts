@@ -5,7 +5,7 @@ import type { JoomlaPublisher } from "../publisher/joomla";
 import { logBlogEntry, type BlogLogEntry } from "../research/blog-log";
 import { runEntityQualityGate } from "../research/entity-gate";
 import type { ResearchInput, ResearchProvider } from "../research/provider";
-import { deriveJoomlaMeta, generateLocalBusinessSchema, parseSchema } from "../schema/generator";
+import { deriveJoomlaMeta, parseSchema } from "../schema/generator";
 import type {
   CheckerReport,
   JoomlaMeta,
@@ -147,7 +147,17 @@ export async function runPhase(
       const ctxWithBrief: RunContext = { ...ctx, researchBrief: state.researchBrief };
       const result = await deps.engine.generateSchema(ctxWithBrief, state.html);
       const valid = parseSchema(result.content);
-      state.schema = valid ? result.content : generateLocalBusinessSchema(ctx);
+      // Fail loud: a schema phase that returns un-parseable JSON-LD must HALT the
+      // run, not silently swap in a deterministic placeholder. Substituting a
+      // generic LocalBusiness schema here masked a broken engine output and could
+      // publish a page whose schema does not match its content. This guard lives
+      // in the shared orchestrator, so BOTH Dashboard and Replit modes inherit it.
+      if (!valid) {
+        throw new Error(
+          "Schema phase failed: the engine output is not valid JSON-LD. The run is halted instead of substituting a placeholder schema. Re-run the schema phase and produce parseable JSON-LD.",
+        );
+      }
+      state.schema = result.content;
       // Derive the Joomla meta now so it is persisted with the run before publish.
       state.joomlaMeta = deriveJoomlaMeta(state.html, ctx);
       state.checkerReport = runCheckers({
@@ -161,9 +171,7 @@ export async function runPhase(
       return {
         phase,
         state,
-        summary: valid
-          ? phaseSummary("Schema generated", state.checkerReport)
-          : "Engine schema was invalid JSON; used deterministic LocalBusiness fallback.",
+        summary: phaseSummary("Schema generated", state.checkerReport),
       };
     }
 

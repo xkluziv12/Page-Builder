@@ -117,6 +117,31 @@ export interface UrlRegistry {
   wordCountFloor: number;
 }
 
+/**
+ * A verified Google Business Profile attached to a run. Its PRESENCE is the
+ * GMB-aware signal for the shared prompt builders: when set, the build / audit /
+ * schema / verify prompts weave this REAL local NAP (name/address/phone/hours)
+ * plus the verified CID + Maps URL into the page and JSON-LD, and forbid
+ * inventing anything beyond it. When absent/null the run is a No-GMB page and the
+ * prompts stay byte-for-byte identical to the faithful Dashboard path (STS HQ
+ * line only; never invent a local address/phone/CID). Never fabricate this block
+ * — it must be operator-verified, exactly like `verifiedCid`.
+ */
+export interface GmbProfile {
+  businessName: string;
+  street: string;
+  zip: string;
+  phone: string;
+  hours: string;
+  cid: string;
+  /** The verified Google Maps `?cid=` URL (used for hasMap + sameAs). */
+  gmbUrl: string;
+  /** Optional structured signals enriching the GMB schema branch. */
+  county?: string | null;
+  lat?: number | null;
+  lng?: number | null;
+}
+
 export interface RunContext {
   city: string;
   state: string;
@@ -128,6 +153,11 @@ export interface RunContext {
   existingUrls: string[];
   handoff: string | null;
   verifiedCid: string | null;
+  /**
+   * The verified GMB profile for this page, or null for a No-GMB run. Drives the
+   * GMB-aware branch in the shared prompt builders (see {@link GmbProfile}).
+   */
+  gmb?: GmbProfile | null;
   designBibleHash: string | null;
   blogTopic: string | null;
   researchBrief: ResearchBrief | null;
