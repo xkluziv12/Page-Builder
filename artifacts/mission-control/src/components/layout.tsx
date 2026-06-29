@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Link, useLocation } from "wouter";
 import { LayoutDashboard, Rocket, BookOpen, Table2 } from "lucide-react";
+import { useSystemMode } from "@/hooks/use-system-mode";
 
 // SidebarProvider writes the open/collapsed state to the `sidebar_state` cookie
 // on every toggle but never reads it back on mount. This is a client-rendered
@@ -24,6 +25,7 @@ function readSidebarPreference(): boolean {
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
+  const { mode, setMode } = useSystemMode();
 
   return (
     <SidebarProvider defaultOpen={readSidebarPreference()}>
@@ -62,6 +64,41 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
             </div>
           </SidebarHeader>
           <SidebarContent className="p-4 group-data-[collapsible=icon]:p-2">
+            <div className="mb-4 group-data-[collapsible=icon]:hidden">
+              <div className="mb-1.5 px-1 text-[10px] font-semibold uppercase tracking-wider text-sidebar-foreground/50">
+                System
+              </div>
+              <div
+                role="group"
+                aria-label="Build system"
+                className="grid grid-cols-2 overflow-hidden rounded-md border border-primary/40 text-xs font-bold tracking-wide"
+              >
+                <button
+                  type="button"
+                  aria-pressed={mode === "dashboard"}
+                  onClick={() => setMode("dashboard")}
+                  className={
+                    mode === "dashboard"
+                      ? "bg-primary px-2 py-1.5 text-primary-foreground"
+                      : "px-2 py-1.5 text-sidebar-foreground/70 transition-colors hover:text-sidebar-foreground"
+                  }
+                >
+                  Dashboard
+                </button>
+                <button
+                  type="button"
+                  aria-pressed={mode === "replit"}
+                  onClick={() => setMode("replit")}
+                  className={
+                    mode === "replit"
+                      ? "bg-primary px-2 py-1.5 text-primary-foreground"
+                      : "px-2 py-1.5 text-sidebar-foreground/70 transition-colors hover:text-sidebar-foreground"
+                  }
+                >
+                  Replit
+                </button>
+              </div>
+            </div>
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={location === "/"} tooltip="Dashboard">

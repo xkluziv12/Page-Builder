@@ -9,6 +9,7 @@ import { Activity, Play, Plus, Server, CheckCircle2, Clock, Rocket } from "lucid
 import { Link } from "wouter";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
+import { useSystemMode } from "@/hooks/use-system-mode";
 
 export default function Dashboard() {
   const { data: summary } = useGetSummary({
@@ -25,7 +26,9 @@ export default function Dashboard() {
   const [vaName, setVaName] = useState("");
   const [url, setUrl] = useState("");
   const [track, setTrack] = useState<"page"|"blog">("page");
-  const [engine, setEngine] = useState<"claude"|"openai"|"gemini"|"replit">("claude");
+  const { mode } = useSystemMode();
+  const [model, setModel] = useState<"claude"|"openai"|"gemini">("claude");
+  const engine = mode === "replit" ? "replit" : model;
 
   const handleLaunch = () => {
     if (!vaName.trim() || !url.trim()) {
@@ -124,15 +127,20 @@ export default function Dashboard() {
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Engine</label>
-                  <Select value={engine} onValueChange={(v: "claude"|"openai"|"gemini"|"replit") => setEngine(v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="claude">Claude (Sonnet 4.6)</SelectItem>
-                      <SelectItem value="openai">OpenAI (GPT-5.4)</SelectItem>
-                      <SelectItem value="gemini">Gemini (3.1 Pro)</SelectItem>
-                      <SelectItem value="replit">Replit (Agent)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {mode === "replit" ? (
+                    <div className="flex h-9 items-center rounded-md border border-input bg-muted/40 px-3 text-sm text-muted-foreground">
+                      Replit (Agent)
+                    </div>
+                  ) : (
+                    <Select value={model} onValueChange={(v: "claude"|"openai"|"gemini") => setModel(v)}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="claude">Claude (Sonnet 4.6)</SelectItem>
+                        <SelectItem value="openai">OpenAI (GPT-5.4)</SelectItem>
+                        <SelectItem value="gemini">Gemini (3.1 Pro)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                 </div>
               </div>
 

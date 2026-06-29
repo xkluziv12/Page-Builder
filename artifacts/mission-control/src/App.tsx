@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AppLayout } from "@/components/layout";
+import { SystemModeProvider } from "@/hooks/use-system-mode";
 import Dashboard from "@/pages/dashboard";
 import RunDetail from "@/pages/run-detail";
 import Registry from "@/pages/registry";
@@ -27,11 +28,13 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <AppLayout>
-            <Router />
-          </AppLayout>
-        </WouterRouter>
+        <SystemModeProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <AppLayout>
+              <Router />
+            </AppLayout>
+          </WouterRouter>
+        </SystemModeProvider>
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
