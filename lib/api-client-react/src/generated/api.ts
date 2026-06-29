@@ -37,6 +37,7 @@ import type {
   MetaResearchRequest,
   MetaResearchResult,
   MissionRun,
+  PhasePrompt,
   Prompt,
   PublishPromptRequest,
   PublishResult,
@@ -825,6 +826,89 @@ export const useRunReplitPhase = <TError = ErrorType<ErrorResponse>,
       > => {
       return useMutation(getRunReplitPhaseMutationOptions(options));
     }
+
+export const getGetPhasePromptUrl = (id: number,
+    phase: 'research' | 'build' | 'audit' | 'schema' | 'publish',) => {
+
+
+
+
+  return `/api/mc/runs/${id}/phases/${phase}/prompt`
+}
+
+/**
+ * Returns the exact per-phase prompt (the same text Dashboard mode sends to a model) so a VA can copy it into the Replit Agent. Only build, audit, and schema have prompts; the response flags whether the GMB or No-GMB variant was emitted.
+ * @summary Get the copy-paste prompt text for a Replit-mode phase
+ */
+export const getPhasePrompt = async (id: number,
+    phase: 'research' | 'build' | 'audit' | 'schema' | 'publish', options?: RequestInit): Promise<PhasePrompt> => {
+
+  return customFetch<PhasePrompt>(getGetPhasePromptUrl(id,phase),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetPhasePromptQueryKey = (id: number,
+    phase: 'research' | 'build' | 'audit' | 'schema' | 'publish',) => {
+    return [
+    `/api/mc/runs/${id}/phases/${phase}/prompt`
+    ] as const;
+    }
+
+
+export const getGetPhasePromptQueryOptions = <TData = Awaited<ReturnType<typeof getPhasePrompt>>, TError = ErrorType<ErrorResponse>>(id: number,
+    phase: 'research' | 'build' | 'audit' | 'schema' | 'publish', options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPhasePrompt>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPhasePromptQueryKey(id,phase);
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPhasePrompt>>> = ({ signal }) => getPhasePrompt(id,phase, { signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, enabled: !!(id && phase), ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPhasePrompt>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetPhasePromptQueryResult = NonNullable<Awaited<ReturnType<typeof getPhasePrompt>>>
+export type GetPhasePromptQueryError = ErrorType<ErrorResponse>
+
+
+/**
+ * @summary Get the copy-paste prompt text for a Replit-mode phase
+ */
+
+export function useGetPhasePrompt<TData = Awaited<ReturnType<typeof getPhasePrompt>>, TError = ErrorType<ErrorResponse>>(
+ id: number,
+    phase: 'research' | 'build' | 'audit' | 'schema' | 'publish', options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPhasePrompt>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetPhasePromptQueryOptions(id,phase,options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
 
 export const getApprovePhaseUrl = (id: number,
     phase: 'research' | 'build' | 'audit' | 'schema' | 'publish',) => {

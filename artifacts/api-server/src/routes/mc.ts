@@ -12,6 +12,7 @@ import {
 import {
   BASE_DOMAIN,
   deriveLinkAudit,
+  promptForPhase,
   researchMeta,
   runCheckers,
   runPhase,
@@ -493,6 +494,42 @@ router.post("/mc/runs/:id/phases/:phase/replit", async (req, res) => {
     return;
   }
   res.json(serializeRun(result.run));
+});
+
+// GET /mc/runs/:id/phases/:phase/prompt — the copy-paste prompt text for a
+// Replit-mode phase. Returns the SAME per-phase prompt Dashboard mode sends to a
+// model (assembled from the shared prompt builders), so a VA can paste it into
+// the Replit Agent, build the artifact there, and submit it back through the
+// governed pipeline. Only build/audit/schema have prompts; research stays
+// automated and publish needs no prompt.
+const PROMPT_PHASES = new Set(["build", "audit", "schema"]);
+router.get("/mc/runs/:id/phases/:phase/prompt", async (req, res) => {
+  const id = Number(req.params.id);
+  const phase = String(req.params.phase);
+  if (!PROMPT_PHASES.has(phase)) {
+    res.status(400).json({
+      error: `Phase "${phase}" has no copy-paste prompt. Only build, audit, and schema do — research stays automated and publish needs no prompt.`,
+    });
+    return;
+  }
+  const run = await loadRun(id);
+  if (!run) {
+    res.status(404).json({ error: "Run not found" });
+    return;
+  }
+  const registry = await loadRegistry(run.handoff ? [run.handoff] : [], run.existingUrls ?? []);
+  const ctx = toRunContext(run, registry);
+  // Build operates on no prior page; audit/schema embed the current page HTML.
+  const currentHtml = phase === "build" ? "" : (run.pageHtml ?? "");
+  const prompt = promptForPhase(phase as "build" | "audit" | "schema", ctx, currentHtml);
+  const combined = prompt.system ? `${prompt.system}\n\n${prompt.user}` : prompt.user;
+  res.json({
+    phase,
+    gmb: !!ctx.gmb,
+    system: prompt.system,
+    user: prompt.user,
+    combined,
+  });
 });
 
 // POST /mc/runs/:id/phases/:phase/approve — approve and unlock next

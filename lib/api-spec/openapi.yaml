@@ -193,6 +193,35 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /mc/runs/{id}/phases/{phase}/prompt:
+    get:
+      operationId: getPhasePrompt
+      tags:
+        - mission-control
+      summary: Get the copy-paste prompt text for a Replit-mode phase
+      description: Returns the exact per-phase prompt (the same text Dashboard mode sends to a model) so a VA can copy it into the Replit Agent. Only build, audit, and schema have prompts; the response flags whether the GMB or No-GMB variant was emitted.
+      parameters:
+        - $ref: "#/components/parameters/RunId"
+        - $ref: "#/components/parameters/PhaseName"
+      responses:
+        "200":
+          description: The assembled prompt text for the phase
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhasePrompt"
+        "400":
+          description: The phase has no copy-paste prompt
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "404":
+          description: Run not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
   /mc/runs/{id}/phases/{phase}/approve:
     post:
       operationId: approvePhase
@@ -933,6 +962,35 @@ components:
         schema:
           type: string
           description: JSON-LD produced by the Replit Agent (Schema phase).
+    PhasePrompt:
+      type: object
+      description: The copy-paste prompt text for a Replit-mode phase — the same prompt Dashboard mode sends to a model, assembled for the run.
+      required:
+        - phase
+        - gmb
+        - system
+        - user
+        - combined
+      properties:
+        phase:
+          type: string
+          enum:
+            - build
+            - audit
+            - schema
+          description: The phase this prompt drives.
+        gmb:
+          type: boolean
+          description: True when the GMB (verified Google Business Profile) prompt variant was emitted; false for a No-GMB page.
+        system:
+          type: string
+          description: The Master prompt document for the phase (may be empty).
+        user:
+          type: string
+          description: The fully-assembled user message (context + phase instruction).
+        combined:
+          type: string
+          description: system + user joined, ready to paste into the Replit Agent in one block.
     PhaseState:
       type: object
       required:

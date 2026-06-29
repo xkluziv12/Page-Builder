@@ -14,13 +14,17 @@ import {
   useGetQcResults,
   useRunQc,
   useSaveRunHtml,
+  useGetPhasePrompt,
+  useRunReplitPhase,
   getGetRunQueryKey,
   getGetChatHistoryQueryKey,
   getGetQcResultsQueryKey,
+  getGetPhasePromptQueryKey,
 } from "@workspace/api-client-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Collapsible,
   CollapsibleContent,
@@ -52,6 +56,8 @@ import {
   Pencil,
   Save,
   X,
+  Upload,
+  ClipboardPaste,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -94,6 +100,188 @@ const STATUS_STYLE: Record<string, string> = {
   failed: "text-destructive",
 };
 
+type PromptPhase = "build" | "audit" | "schema";
+const PROMPT_STEP: Record<PromptPhase, { step: number; label: string }> = {
+  build: { step: 1, label: "Build" },
+  audit: { step: 2, label: "Audit" },
+  schema: { step: 3, label: "Schema" },
+};
+
+/**
+ * The Replit-mode copy-paste workflow for the active phase. It renders the SAME
+ * per-phase prompt the Dashboard sends to a model (fetched from the API), gives
+ * the VA a one-click Copy, and a paste-or-upload box to submit the artifact the
+ * Replit Agent produced. Submitting reuses the Replit phase endpoint, so the
+ * result flows through the identical checkers/gates as a Dashboard build.
+ */
+function ReplitPhasePanel({
+  runId,
+  phase,
+  onSubmitted,
+}: {
+  runId: number;
+  phase: PromptPhase;
+  onSubmitted: () => void;
+}) {
+  const { toast } = useToast();
+  const { step, label } = PROMPT_STEP[phase];
+  const isSchema = phase === "schema";
+  const [result, setResult] = useState("");
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const { data: prompt, isLoading } = useGetPhasePrompt(runId, phase, {
+    query: { queryKey: getGetPhasePromptQueryKey(runId, phase) },
+  });
+  const runReplitPhase = useRunReplitPhase();
+
+  const handleCopy = async () => {
+    if (!prompt) return;
+    try {
+      await navigator.clipboard.writeText(prompt.combined);
+      toast({ title: "Prompt copied", description: "Paste it into the Replit Agent chat." });
+    } catch {
+      toast({
+        title: "Copy failed",
+        description: "Select the text below and copy it manually.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    void file.text().then((t) => setResult(t));
+    e.target.value = "";
+  };
+
+  const handleSubmit = () => {
+    const text = result.trim();
+    if (!text) {
+      toast({
+        title: isSchema ? "Paste the JSON-LD first" : "Paste the page HTML first",
+        description: `Bring back what the Replit Agent produced for ${label}.`,
+        variant: "destructive",
+      });
+      return;
+    }
+    runReplitPhase.mutate(
+      { id: runId, phase, data: isSchema ? { schema: text } : { html: text } },
+      {
+        onSuccess: () => {
+          toast({
+            title: `${label} submitted`,
+            description: "Running the same checks as Dashboard mode — review the result.",
+          });
+          setResult("");
+          onSubmitted();
+        },
+        onError: (err) =>
+          toast({
+            title: "Submit failed",
+            description: (err as { error?: string })?.error ?? "Unknown error",
+            variant: "destructive",
+          }),
+      },
+    );
+  };
+
+  return (
+    <div
+      className="rounded-lg border border-secondary/50 bg-secondary/10 p-3 space-y-3"
+      data-testid="replit-phase-panel"
+    >
+      <div className="flex items-center justify-between gap-2">
+        <span className="text-sm font-semibold">
+          Step {step} — {label} in Replit
+        </span>
+        {prompt && (
+          <Badge variant="outline" className="uppercase text-[10px]">
+            {prompt.gmb ? "GMB page" : "No-GMB page"}
+          </Badge>
+        )}
+      </div>
+      <p className="text-xs text-muted-foreground">
+        Keep Replit open on the side. Copy this prompt into the Replit Agent chat, let it produce the{" "}
+        {isSchema ? "JSON-LD schema" : "page HTML"}, then paste the result back here.
+      </p>
+
+      {/* 1 — copy the prompt */}
+      <div className="space-y-1.5">
+        <div className="flex items-center justify-between">
+          <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+            Copy this into Replit
+          </span>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleCopy}
+            disabled={!prompt}
+            data-testid="button-copy-prompt"
+          >
+            <Copy className="h-3 w-3 mr-1" /> Copy
+          </Button>
+        </div>
+        {isLoading ? (
+          <div className="flex items-center text-xs text-muted-foreground">
+            <Loader2 className="h-3 w-3 animate-spin mr-1.5" /> Loading prompt…
+          </div>
+        ) : prompt ? (
+          <pre className="text-[11px] leading-snug bg-background border border-border rounded-md p-2 max-h-48 overflow-auto whitespace-pre-wrap font-mono">
+            {prompt.combined}
+          </pre>
+        ) : (
+          <p className="text-xs text-destructive">Could not load the prompt for this phase.</p>
+        )}
+      </div>
+
+      {/* 2 — paste the result back */}
+      <div className="space-y-1.5">
+        <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          Paste the {isSchema ? "JSON-LD" : "page"} back here
+        </span>
+        <Textarea
+          value={result}
+          onChange={(e) => setResult(e.target.value)}
+          placeholder={
+            isSchema
+              ? "Paste the JSON-LD the Replit Agent produced…"
+              : "Paste the full page HTML the Replit Agent produced…"
+          }
+          className="h-28 text-[11px] font-mono resize-y"
+          data-testid="textarea-replit-result"
+        />
+        <div className="flex items-center gap-2">
+          <input
+            ref={fileRef}
+            type="file"
+            accept={isSchema ? ".json,.txt,application/json" : ".html,.htm,.txt,text/html"}
+            className="hidden"
+            onChange={handleFile}
+          />
+          <Button size="sm" variant="outline" onClick={() => fileRef.current?.click()}>
+            <Upload className="h-3 w-3 mr-1" /> Upload file
+          </Button>
+          <Button
+            size="sm"
+            onClick={handleSubmit}
+            disabled={runReplitPhase.isPending || !result.trim()}
+            data-testid="button-submit-replit"
+          >
+            {runReplitPhase.isPending ? (
+              <Loader2 className="h-3 w-3 animate-spin" />
+            ) : (
+              <>
+                <ClipboardPaste className="h-3 w-3 mr-1" /> Submit {label}
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function RunDetail() {
   const params = useParams<{ id: string }>();
   const id = Number(params.id);
@@ -119,6 +307,7 @@ export default function RunDetail() {
   const revokeLinkAuditOverride = useRevokeLinkAuditOverride();
   const runQc = useRunQc();
   const saveRunHtml = useSaveRunHtml();
+  const runReplitPhase = useRunReplitPhase();
 
   const [message, setMessage] = useState("");
   const [overrideBy, setOverrideBy] = useState("");
@@ -185,6 +374,28 @@ export default function RunDetail() {
   const handleRun = (p: Phase) => {
     runPhase.mutate(
       { id, phase: p },
+      {
+        onSuccess: () => {
+          toast({ title: "Phase complete", description: `${p} finished — review the result.` });
+          invalidate();
+        },
+        onError: (err) =>
+          toast({
+            title: "Phase failed",
+            description: (err as { error?: string })?.error ?? "Unknown error",
+            variant: "destructive",
+          }),
+      },
+    );
+  };
+
+  // Replit mode: research + publish have no copy-paste prompt — they reuse the
+  // shared research provider / Joomla publisher. The VA triggers them with one
+  // click here (empty body), and they flow through the same Replit phase endpoint
+  // and checkers as a submitted build.
+  const handleReplitAuto = (p: Phase) => {
+    runReplitPhase.mutate(
+      { id, phase: p, data: {} },
       {
         onSuccess: () => {
           toast({ title: "Phase complete", description: `${p} finished — review the result.` });
@@ -441,9 +652,9 @@ export default function RunDetail() {
           <div className="flex-1 overflow-auto p-4 space-y-4">
             {isReplit && (
               <div className="rounded-md border border-secondary/40 bg-secondary/10 p-3 text-xs text-muted-foreground">
-                <span className="font-medium text-foreground">Replit mode.</span> Built by
-                the Replit Agent via the run-book CLI — this dashboard is the review surface.
-                The AI edit chat is disabled here; approve each gate below.
+                <span className="font-medium text-foreground">Replit mode.</span> Build each
+                step in the Replit Agent: copy the prompt below into Replit, paste the result
+                back here, and approve each gate. Research and publish run automatically.
               </div>
             )}
 
@@ -466,6 +677,14 @@ export default function RunDetail() {
                 const canRun = status === "ready" && !isReplit;
                 const canRetry = status === "failed" && !isReplit;
                 const canApprove = status === "review";
+                // Replit mode: research + publish reuse the shared provider/publisher,
+                // so the VA runs them with one click here. Build/audit/schema are
+                // produced via the copy-paste panel below, not from the ladder.
+                const replitAutoPhase = p === "research" || p === "publish";
+                const canReplitAuto =
+                  isReplit && replitAutoPhase && (status === "ready" || status === "failed");
+                const replitBusy =
+                  runReplitPhase.isPending && runReplitPhase.variables?.phase === p;
                 return (
                   <div key={p} className="rounded-lg border border-border bg-background p-3">
                     <div className="flex items-center gap-2.5">
@@ -493,7 +712,7 @@ export default function RunDetail() {
                     {st?.error && (
                       <p className="text-xs text-destructive mt-1.5 pl-[26px]">{st.error}</p>
                     )}
-                    {(canRun || canRetry || canApprove) && (
+                    {(canRun || canRetry || canApprove || canReplitAuto) && (
                       <div className="flex items-center gap-2 mt-2.5 pl-[26px]">
                         {canRun && (
                           <Button size="sm" disabled={busy} onClick={() => handleRun(p)}>
@@ -502,6 +721,27 @@ export default function RunDetail() {
                             ) : (
                               <>
                                 <Play className="h-3 w-3 mr-1" /> Start now
+                              </>
+                            )}
+                          </Button>
+                        )}
+                        {canReplitAuto && (
+                          <Button
+                            size="sm"
+                            disabled={replitBusy}
+                            onClick={() => handleReplitAuto(p)}
+                            data-testid={`button-replit-auto-${p}`}
+                          >
+                            {replitBusy ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <>
+                                <Play className="h-3 w-3 mr-1" />
+                                {status === "failed"
+                                  ? "Retry"
+                                  : p === "publish"
+                                    ? "Publish now"
+                                    : "Run research"}
                               </>
                             )}
                           </Button>
@@ -528,6 +768,18 @@ export default function RunDetail() {
                 );
               })}
             </div>
+
+            {/* Replit copy-paste workflow for the active build/audit/schema phase */}
+            {isReplit &&
+              (() => {
+                const active = (["build", "audit", "schema"] as const).find((p) => {
+                  const status = phaseState(p)?.status ?? "locked";
+                  return status === "ready" || status === "failed";
+                });
+                return active ? (
+                  <ReplitPhasePanel runId={id} phase={active} onSubmitted={invalidate} />
+                ) : null;
+              })()}
 
             {/* Link Audit (collapsible) */}
             {linkAudit && (

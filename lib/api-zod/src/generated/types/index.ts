@@ -49,6 +49,8 @@ export * from './missionRunCurrentPhase';
 export * from './missionRunEngine';
 export * from './missionRunStatus';
 export * from './missionRunTrack';
+export * from './phasePrompt';
+export * from './phasePromptPhase';
 export * from './phaseState';
 export * from './phaseStatePhase';
 export * from './phaseStateStatus';

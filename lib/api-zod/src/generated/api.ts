@@ -751,6 +751,24 @@ export const RunReplitPhaseResponse = zod.object({
 
 
 /**
+ * Returns the exact per-phase prompt (the same text Dashboard mode sends to a model) so a VA can copy it into the Replit Agent. Only build, audit, and schema have prompts; the response flags whether the GMB or No-GMB variant was emitted.
+ * @summary Get the copy-paste prompt text for a Replit-mode phase
+ */
+export const GetPhasePromptParams = zod.object({
+  "id": zod.coerce.number(),
+  "phase": zod.enum(['research', 'build', 'audit', 'schema', 'publish'])
+})
+
+export const GetPhasePromptResponse = zod.object({
+  "phase": zod.enum(['build', 'audit', 'schema']).describe('The phase this prompt drives.'),
+  "gmb": zod.boolean().describe('True when the GMB (verified Google Business Profile) prompt variant was emitted; false for a No-GMB page.'),
+  "system": zod.string().describe('The Master prompt document for the phase (may be empty).'),
+  "user": zod.string().describe('The fully-assembled user message (context + phase instruction).'),
+  "combined": zod.string().describe('system + user joined, ready to paste into the Replit Agent in one block.')
+}).describe('The copy-paste prompt text for a Replit-mode phase — the same prompt Dashboard mode sends to a model, assembled for the run.')
+
+
+/**
  * @summary Approve a completed phase and unlock the next
  */
 export const ApprovePhaseParams = zod.object({

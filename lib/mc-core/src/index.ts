@@ -58,6 +58,14 @@ export type {
   KeywordMovement,
   SeoDelta,
 } from "./worklog";
+export {
+  buildPagePrompt,
+  auditPagePrompt,
+  schemaPrompt,
+  verifyPrompt,
+  promptForPhase,
+} from "./prompts";
+export type { PromptText, PromptPhase } from "./prompts";
 export { runPhase } from "./pipeline/orchestrator";
 export type {
   PhaseState,
