@@ -1,5 +1,6 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { PromptCompletionEngine, extractContent } from "./base";
+import { requestTimeoutMs, withTimeout } from "./transport";
 import type { EngineResult } from "./types";
 
 const DEFAULT_MODEL = "claude-sonnet-4-6";
@@ -35,13 +36,22 @@ export class ClaudeEngine extends PromptCompletionEngine {
   }
 
   protected async complete(system: string, user: string): Promise<EngineResult> {
-    const message = await this.client.messages.create({
-      model: this.model,
-      max_tokens: MAX_TOKENS,
-      system,
-      messages: [{ role: "user", content: user }],
-    });
-    const raw = textFrom(message);
+    const raw = await withTimeout(
+      async (signal) => {
+        const message = await this.client.messages.create(
+          {
+            model: this.model,
+            max_tokens: MAX_TOKENS,
+            system,
+            messages: [{ role: "user", content: user }],
+          },
+          { signal },
+        );
+        return textFrom(message);
+      },
+      requestTimeoutMs(),
+      `claude (${this.model})`,
+    );
     return { content: extractContent(raw), raw };
   }
 }

@@ -1,5 +1,6 @@
 import type { GoogleGenAI } from "@google/genai";
 import { PromptCompletionEngine, extractContent } from "./base";
+import { requestTimeoutMs, withTimeout } from "./transport";
 import type { EngineResult } from "./types";
 
 const DEFAULT_MODEL = "gemini-3.1-pro-preview";
@@ -25,16 +26,24 @@ export class GeminiEngine extends PromptCompletionEngine {
   }
 
   protected async complete(system: string, user: string): Promise<EngineResult> {
-    const resp = await this.client.models.generateContent({
-      model: this.model,
-      contents: [{ role: "user", parts: [{ text: user }] }],
-      config: {
-        systemInstruction: system,
-        maxOutputTokens: MAX_OUTPUT_TOKENS,
+    const raw = await withTimeout(
+      async (signal) => {
+        const resp = await this.client.models.generateContent({
+          model: this.model,
+          contents: [{ role: "user", parts: [{ text: user }] }],
+          config: {
+            systemInstruction: system,
+            maxOutputTokens: MAX_OUTPUT_TOKENS,
+            abortSignal: signal,
+          },
+        });
+        const out = (resp.text ?? "").trim();
+        if (!out) throw new Error(`${this.model} returned an empty response.`);
+        return out;
       },
-    });
-    const raw = (resp.text ?? "").trim();
-    if (!raw) throw new Error(`${this.model} returned an empty response.`);
+      requestTimeoutMs(),
+      `gemini (${this.model})`,
+    );
     return { content: extractContent(raw), raw };
   }
 }

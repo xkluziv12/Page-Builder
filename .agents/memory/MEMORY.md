@@ -16,3 +16,4 @@
 - [MC shared prompt builders](mc-shared-prompt-builders.md) — builders.ts is the single per-phase prompt source for both modes; No-GMB byte-for-byte, ctx.gmb drives the branch, schema phase fails loud.
 - [TechnoCycle WordPress stack](technocycle-wordpress-stack.md) — TC tool copies target WordPress/Beaver Builder/Yoast/Kinsta (not Joomla); Themer banner = page H1, output is an H2-start fragment, schema slim-to-gaps.
 - [M.A.R.K. canonical prompt set](mark-prompt-source-of-truth.md) — current build prompts = `(4.7)`-prefixed files in Drive folder "MY STS PROMPTS"; STS page model (single H1 in hero, absolute-HTTPS images).
+- [Routed Dashboard engine](routed-dashboard-engine.md) — bake-off orchestration (routing/timeout-abort/fallback/verify) lives in RoutedEngine behind the AIEngine seam; null verdict = invalid; main+explicit routes fail loud, default backup degrades.

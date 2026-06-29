@@ -4,6 +4,7 @@ import {
   OpenAIEngine,
   GeminiEngine,
   ReplitEngine,
+  RoutedEngine,
   DirectResearchProvider,
   N8nResearchProvider,
   createJoomlaPublisher,
@@ -22,6 +23,10 @@ import {
   DEFAULT_INDUSTRY_LINKS,
   DEFAULT_URL_ALLOWLIST,
   type AIEngine,
+  type PromptCompletionEngine,
+  type RoutedEngineEvent,
+  type RoutedPhase,
+  type RoutedRouting,
   type Classification,
   type Competition,
   type ExtractedLocation,
@@ -132,31 +137,132 @@ export const publisher = createJoomlaPublisher({
  */
 export const SUPPORTED_ENGINES = ["claude", "openai", "gemini", "replit"] as const;
 
+/** The model-backed providers the routed Dashboard engine can call. */
+type ProviderName = "claude" | "openai" | "gemini";
+
+function isProviderName(v: string): v is ProviderName {
+  return v === "claude" || v === "openai" || v === "gemini";
+}
+
 /**
- * Resolve the engine used by the server's *auto-run* path (Dashboard mode). The
- * model-backed engines (claude/openai/gemini) are auto-runnable; Replit runs are
- * operator-driven and supply their own {@link ReplitEngine} per phase via the
- * Replit submit endpoint, so they never go through this resolver. Calling it for
- * "replit" therefore fails loudly rather than silently mislabeling provenance.
+ * Default backup provider per primary. When the requested (main) model exhausts
+ * its attempts on a phase, the routed engine falls back to a *different*
+ * provider so a single provider's outage/refusal doesn't sink the run. Best-
+ * effort: a missing backup key degrades to main-only (see {@link engineFor}).
+ */
+const DEFAULT_BACKUP: Record<ProviderName, ProviderName> = {
+  claude: "openai",
+  openai: "claude",
+  gemini: "claude",
+};
+
+/** Construct the concrete model-backed engine for a provider (fail loud on key). */
+async function makeProviderEngine(name: ProviderName): Promise<PromptCompletionEngine> {
+  if (name === "claude") return new ClaudeEngine(await getAnthropic());
+  if (name === "openai") return new OpenAIEngine(await getOpenAI());
+  return new GeminiEngine(await getGemini());
+}
+
+/** The phases the routed engine routes; each gets its own main + optional backup. */
+const ROUTED_PHASES: RoutedPhase[] = ["build", "audit", "schema", "verify", "chat"];
+
+/**
+ * Resolve the engine used by the server's *auto-run* path (Dashboard mode).
+ *
+ * CHANGED: the model-backed path now returns a {@link RoutedEngine} instead of a
+ * bare ClaudeEngine/OpenAIEngine/GeminiEngine. The routed engine adds the
+ * bake-off's orchestration strengths — per-phase model routing, in-flight
+ * timeouts, retry → main→backup fallback on invalid output, and a verify +
+ * corrective-re-verify loop after audit — WITHOUT touching the pipeline
+ * orchestrator, the prompt text, or the deterministic checker quality gates.
+ *
+ * Routing: every phase's main defaults to the requested `engine`; its backup
+ * defaults to {@link DEFAULT_BACKUP}. Per-phase overrides are read from
+ * `MC_ROUTE_<PHASE>_MAIN` / `MC_ROUTE_<PHASE>_BACKUP` (phase upper-cased, value a
+ * provider name). An EXPLICIT env route to a provider whose key is missing fails
+ * loud; a DEFAULT backup whose key is missing degrades to main-only and logs.
+ *
+ * Replit runs are operator-driven and supply their own {@link ReplitEngine} per
+ * phase, so they never go through this resolver — calling it for "replit" fails
+ * loud rather than silently mislabeling provenance.
  */
 export async function engineFor(engine: string): Promise<AIEngine> {
-  if (engine === "claude") {
-    return new ClaudeEngine(await getAnthropic());
-  }
-  if (engine === "openai") {
-    return new OpenAIEngine(await getOpenAI());
-  }
-  if (engine === "gemini") {
-    return new GeminiEngine(await getGemini());
-  }
   if (engine === "replit") {
     throw new Error(
       `Replit-mode runs are operator-driven and cannot be auto-run by the server. The Replit Agent must submit each phase's artifact via the Replit run-book (POST /mc/runs/:id/phases/:phase/replit).`,
     );
   }
-  throw new Error(
-    `Engine "${engine}" is not supported. Available engines: ${SUPPORTED_ENGINES.join(", ")}.`,
-  );
+  if (!isProviderName(engine)) {
+    throw new Error(
+      `Engine "${engine}" is not supported. Available engines: ${SUPPORTED_ENGINES.join(", ")}.`,
+    );
+  }
+
+  // Build each provider engine at most once and share it across phases.
+  const cache = new Map<ProviderName, PromptCompletionEngine>();
+  const get = async (name: ProviderName): Promise<PromptCompletionEngine> => {
+    const existing = cache.get(name);
+    if (existing) return existing;
+    const built = await makeProviderEngine(name);
+    cache.set(name, built);
+    return built;
+  };
+
+  // An explicit env override fails loud (missing key, unknown provider); returns
+  // null when the override is unset so the caller applies its default.
+  const resolveExplicit = async (envKey: string): Promise<PromptCompletionEngine | null> => {
+    const override = (process.env[envKey] ?? "").trim().toLowerCase();
+    if (!override) return null;
+    if (!isProviderName(override)) {
+      throw new Error(
+        `${envKey}="${override}" is not a valid provider. Use one of: claude, openai, gemini.`,
+      );
+    }
+    return get(override);
+  };
+
+  const routing = {} as RoutedRouting;
+  for (const phase of ROUTED_PHASES) {
+    const ph = phase.toUpperCase();
+
+    // MAIN: explicit override (fail loud) → else the requested engine (fail loud;
+    // the user picked it, so a missing key is a hard error, not a degrade).
+    const main =
+      (await resolveExplicit(`MC_ROUTE_${ph}_MAIN`)) ?? (await get(engine));
+
+    // BACKUP: explicit override (fail loud) → else the default backup provider,
+    // best-effort (a missing default-backup key degrades to main-only + logs).
+    let backup: PromptCompletionEngine | undefined;
+    const explicitBackup = await resolveExplicit(`MC_ROUTE_${ph}_BACKUP`);
+    if (explicitBackup) {
+      backup = explicitBackup;
+    } else {
+      const defName = DEFAULT_BACKUP[engine];
+      try {
+        backup = await get(defName);
+      } catch (err) {
+        logger.warn(
+          { err, phase, provider: defName },
+          `Default backup engine "${defName}" unavailable; "${phase}" will run main-only`,
+        );
+        backup = undefined;
+      }
+    }
+
+    routing[phase] = { main, backup };
+  }
+
+  const log = (event: RoutedEngineEvent): void => {
+    if (event.status === "ok") {
+      logger.debug(event, "routed-engine phase ok");
+    } else {
+      logger.warn(event, `routed-engine ${event.status}`);
+    }
+  };
+
+  // Keep provenance stable: name the routed engine after the requested provider
+  // so existing run records still read "claude"/"openai"/"gemini".
+  return new RoutedEngine({ routing, log, name: engine });
 }
 
 /** Build a Replit-mode engine seeded with operator-produced artifacts. */
@@ -172,27 +278,70 @@ export function replitEngineFor(content: {
   });
 }
 
-const SYNTHESIS_MODEL = "claude-sonnet-4-6";
+const DEFAULT_SYNTHESIS_MODEL = "claude-sonnet-4-6";
 const SYNTHESIS_MAX_TOKENS = 8192;
 
+/** The research-synthesis provider (defaults to anthropic). */
+function synthesisProvider(): ProviderName {
+  const p = (process.env.MC_SYNTHESIS_PROVIDER ?? "anthropic").trim().toLowerCase();
+  if (p === "anthropic" || p === "claude") return "claude";
+  if (p === "openai") return "openai";
+  if (p === "gemini") return "gemini";
+  throw new Error(
+    `Unknown MC_SYNTHESIS_PROVIDER "${p}". Use "anthropic" (default), "openai", or "gemini".`,
+  );
+}
+
+/** The research-synthesis model id (defaults to the Claude Sonnet baseline). */
+function synthesisModel(): string {
+  const m = (process.env.MC_SYNTHESIS_MODEL ?? "").trim();
+  return m || DEFAULT_SYNTHESIS_MODEL;
+}
+
 /**
- * Structuring step for the direct research provider: a single Anthropic call
- * that coerces web-grounded research into the strict ResearchBrief JSON. Reuses
- * the already-wired Anthropic integration (no extra key). Returns plain text;
- * the provider parses + fails loud on malformed JSON.
+ * Structuring step for the direct research provider: a single model call that
+ * coerces web-grounded research into the strict ResearchBrief JSON. Returns
+ * plain text; the provider parses + fails loud on malformed JSON.
+ *
+ * CHANGED: the provider/model are now configurable (MC_SYNTHESIS_PROVIDER /
+ * MC_SYNTHESIS_MODEL) instead of a hardcoded Anthropic model. It still defaults
+ * to the Claude Sonnet baseline (reusing the wired Anthropic integration, no
+ * extra key). Whichever provider is selected fails loud at point of use when its
+ * key is missing — never a silent placeholder.
  */
 async function synthesizeBrief(system: string, user: string): Promise<string> {
-  const client = await getAnthropic();
-  const message = await client.messages.create({
-    model: SYNTHESIS_MODEL,
-    max_tokens: SYNTHESIS_MAX_TOKENS,
-    system,
-    messages: [{ role: "user", content: user }],
+  const provider = synthesisProvider();
+  const model = synthesisModel();
+  if (provider === "claude") {
+    const client = await getAnthropic();
+    const message = await client.messages.create({
+      model,
+      max_tokens: SYNTHESIS_MAX_TOKENS,
+      system,
+      messages: [{ role: "user", content: user }],
+    });
+    return message.content
+      .map((b) => (b.type === "text" ? b.text : ""))
+      .join("\n")
+      .trim();
+  }
+  if (provider === "openai") {
+    const client = await getOpenAI();
+    const resp = await client.responses.create({
+      model,
+      max_output_tokens: SYNTHESIS_MAX_TOKENS,
+      instructions: system,
+      input: [{ role: "user", content: user }],
+    });
+    return (resp.output_text ?? "").trim();
+  }
+  const client = await getGemini();
+  const resp = await client.models.generateContent({
+    model,
+    contents: [{ role: "user", parts: [{ text: user }] }],
+    config: { systemInstruction: system, maxOutputTokens: SYNTHESIS_MAX_TOKENS },
   });
-  return message.content
-    .map((b) => (b.type === "text" ? b.text : ""))
-    .join("\n")
-    .trim();
+  return (resp.text ?? "").trim();
 }
 
 /**

@@ -1,5 +1,11 @@
 import type { RunContext } from "../types";
-import { auditPagePrompt, buildPagePrompt, pageBuilderPrompt, schemaPrompt } from "../prompts";
+import {
+  auditPagePrompt,
+  buildPagePrompt,
+  pageBuilderPrompt,
+  schemaPrompt,
+  verifyPrompt,
+} from "../prompts";
 import { describeContext } from "./context";
 import type { AIEngine, ChatTurn, EngineResult } from "./types";
 
@@ -64,6 +70,18 @@ export abstract class PromptCompletionEngine implements AIEngine {
 
   generateSchema(ctx: RunContext, currentHtml: string): Promise<EngineResult> {
     const { system, user } = schemaPrompt(ctx, currentHtml);
+    return this.complete(system, user);
+  }
+
+  /**
+   * VERIFY — a closing link/compliance self-check that ends on an explicit
+   * ✅ VERIFIED / ❌ FAILED verdict (see {@link verifyPrompt}). Additive: the
+   * legacy pipeline had no verify turn, so there is no byte-for-byte baseline to
+   * preserve. The {@link RoutedEngine} drives the verdict + corrective re-verify
+   * loop on top of this; a bare engine simply returns one verify turn.
+   */
+  verifyPage(ctx: RunContext, currentHtml: string): Promise<EngineResult> {
+    const { system, user } = verifyPrompt(ctx, currentHtml);
     return this.complete(system, user);
   }
 

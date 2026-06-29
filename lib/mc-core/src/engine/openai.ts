@@ -1,5 +1,6 @@
 import type OpenAI from "openai";
 import { PromptCompletionEngine, extractContent } from "./base";
+import { abortableSleep, requestTimeoutMs, withTimeout } from "./transport";
 import type { EngineResult } from "./types";
 
 const DEFAULT_MODEL = "gpt-5.4";
@@ -42,26 +43,47 @@ export class OpenAIEngine extends PromptCompletionEngine {
   }
 
   protected async complete(system: string, user: string): Promise<EngineResult> {
-    let resp = await this.client.responses.create({
-      model: this.model,
-      max_output_tokens: MAX_OUTPUT_TOKENS,
-      background: true,
-      instructions: system,
-      input: [{ role: "user", content: user }],
-    });
-    while (resp.status === "queued" || resp.status === "in_progress") {
-      await new Promise((r) => setTimeout(r, POLL_INTERVAL_MS));
-      resp = await this.client.responses.retrieve(resp.id);
-    }
-    if (resp.status !== "completed") {
-      throw new Error(
-        `${this.model} background run ended as ${resp.status ?? "unknown"}: ${
-          resp.error?.message ?? resp.incomplete_details?.reason ?? "no detail"
-        }`,
-      );
-    }
-    const raw = (resp.output_text ?? "").trim();
-    if (!raw) throw new Error(`${this.model} returned an empty response.`);
+    const raw = await withTimeout(
+      async (signal) => {
+        let resp = await this.client.responses.create(
+          {
+            model: this.model,
+            max_output_tokens: MAX_OUTPUT_TOKENS,
+            background: true,
+            instructions: system,
+            input: [{ role: "user", content: user }],
+          },
+          { signal },
+        );
+        try {
+          while (resp.status === "queued" || resp.status === "in_progress") {
+            // abortableSleep rejects the instant the timeout fires, so the poll
+            // loop stops promptly instead of waiting out the interval.
+            await abortableSleep(POLL_INTERVAL_MS, signal);
+            resp = await this.client.responses.retrieve(resp.id, undefined, { signal });
+          }
+        } catch (err) {
+          // On timeout, best-effort cancel the still-running background job so it
+          // stops processing/billing server-side instead of being orphaned.
+          if (signal.aborted) {
+            await this.client.responses.cancel(resp.id).catch(() => {});
+          }
+          throw err;
+        }
+        if (resp.status !== "completed") {
+          throw new Error(
+            `${this.model} background run ended as ${resp.status ?? "unknown"}: ${
+              resp.error?.message ?? resp.incomplete_details?.reason ?? "no detail"
+            }`,
+          );
+        }
+        const out = (resp.output_text ?? "").trim();
+        if (!out) throw new Error(`${this.model} returned an empty response.`);
+        return out;
+      },
+      requestTimeoutMs(),
+      `openai (${this.model})`,
+    );
     return { content: extractContent(raw), raw };
   }
 }
