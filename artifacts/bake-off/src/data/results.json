@@ -1,5 +1,5 @@
 {
-  "ranAt": "2026-07-10T18:53:03.341Z",
+  "ranAt": "2026-07-10T19:20:34.514Z",
   "target": {
     "url": "https://www.stselectronicrecyclinginc.com/billings-mt",
     "city": "Billings",
@@ -1078,7 +1078,7 @@
             "schema": 55,
             "links": 100,
             "wordCount": 90,
-            "speed": 100,
+            "speed": 20,
             "htmlMatch": 73,
             "visualMatch": 78,
             "visualPixel": 84,

@@ -6,13 +6,13 @@
   },
   {
     "letter": "B",
-    "source": "CUR:gemini-3.5-flash",
+    "source": "CUR:claude-sonnet-4-6",
     "run": "current"
   },
   {
     "letter": "C",
-    "source": "OLD:claude-sonnet-4-6",
-    "run": "archived"
+    "source": "CUR:gemini-3.5-flash",
+    "run": "current"
   },
   {
     "letter": "D",
@@ -21,17 +21,22 @@
   },
   {
     "letter": "E",
-    "source": "OLD:gemini-3.1-pro-preview",
+    "source": "OLD:gpt-5.5",
     "run": "archived"
   },
   {
     "letter": "F",
-    "source": "OLD:gpt-5.5",
+    "source": "OLD:claude-sonnet-4-6",
     "run": "archived"
   },
   {
     "letter": "G",
     "source": "OLD:grok-4.3",
+    "run": "archived"
+  },
+  {
+    "letter": "H",
+    "source": "OLD:gemini-3.1-pro-preview",
     "run": "archived"
   }
 ]
