@@ -46,6 +46,13 @@ export interface PhaseTiming {
   wordCount: number;
 }
 
+export interface TokenUsage {
+  inputTokens: number;
+  cachedInputTokens: number;
+  outputTokens: number;
+  reasoningTokens: number;
+}
+
 export interface ModelScores {
   audit: number;
   structure: number;
@@ -94,8 +101,13 @@ export interface ModelResult {
   scores: ModelScores | null;
   /** Relative path (under public/) to this model's rendered screenshot. */
   screenshot: string | null;
-  /** Best-effort USD cost estimate for the run (token usage is not captured). */
+  /** USD cost for the run — MEASURED from real token usage when available, else a
+   * character-based estimate. `costEstimate.basis` states which. */
   costEstimate?: CostEstimate | null;
+  /** Real provider-reported token usage summed across all turns, when captured. */
+  usage?: TokenUsage | null;
+  /** Relative path (under public/) to this model's full per-turn transcript file. */
+  transcriptPath?: string | null;
 }
 
 export interface ScenarioResult {

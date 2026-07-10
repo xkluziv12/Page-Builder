@@ -17,14 +17,14 @@ import {
   type CompleteFn,
 } from "./providers.js";
 import { loadDesignFixtures, type DesignFixtures } from "./fixtures.js";
-import { estimateCost } from "./cost.js";
-import { runConversation } from "./conversation.js";
+import { estimateCost, costFromUsage } from "./cost.js";
+import { runConversation, type TranscriptEntry } from "./conversation.js";
 import { generateSharedGrounding, type SharedGrounding } from "./grounding.js";
 import { gmbContextSuffix, resolveGmbProfile, promptGmbFrom, type GmbProfile } from "./gmb.js";
 import { loadReferenceHtml, resolveTarget, type BakeoffTarget } from "./target.js";
 import { scoreModels } from "./score.js";
 import { judgeVisual, type VisualVerdict } from "./visual.js";
-import type { BakeoffResults, ModelResult, ScenarioResult } from "./types.js";
+import type { BakeoffResults, ModelResult, ScenarioResult, TokenUsage } from "./types.js";
 
 /** The build target (city/state/niche/url) — env-driven, defaults to Billings, MT. */
 const TARGET = resolveTarget();
@@ -42,6 +42,11 @@ const OUTPUT_PATH = resolve(HERE, "../../../artifacts/bake-off/src/data/results.
 /** Screenshots are written into the viewer's public dir so it can serve them. */
 const SCREENSHOT_DIR = resolve(HERE, "../../../artifacts/bake-off/public/screenshots");
 const SCREENSHOT_PREFIX = "screenshots";
+// Full per-turn transcripts are written to their own files (one per scenario ×
+// model) under the viewer's public dir, keeping results.json lean while making
+// every turn — prompt, raw reply, usage, and any error — inspectable.
+const TRANSCRIPT_DIR = resolve(HERE, "../../../artifacts/bake-off/public/transcripts");
+const TRANSCRIPT_PREFIX = "transcripts";
 
 interface ModelSpec {
   id: string;
@@ -440,6 +445,22 @@ async function loadOrAuthorGrounding(
   return generateSharedGrounding(synth, TARGET.city, TARGET.state, TARGET.niche);
 }
 
+/** Sum the real per-turn token usage into one run-level total. Returns null when
+ * no turn reported usage (so cost falls back to the character-based estimate). */
+function sumUsage(transcript: TranscriptEntry[]): TokenUsage | null {
+  const withUsage = transcript.filter((t) => t.usage);
+  if (withUsage.length === 0) return null;
+  return withUsage.reduce<TokenUsage>(
+    (acc, t) => ({
+      inputTokens: acc.inputTokens + t.usage!.inputTokens,
+      cachedInputTokens: acc.cachedInputTokens + t.usage!.cachedInputTokens,
+      outputTokens: acc.outputTokens + t.usage!.outputTokens,
+      reasoningTokens: acc.reasoningTokens + t.usage!.reasoningTokens,
+    }),
+    { inputTokens: 0, cachedInputTokens: 0, outputTokens: 0, reasoningTokens: 0 },
+  );
+}
+
 async function runOneModel(
   spec: ModelSpec,
   scenario: ScenarioSpec,
@@ -464,8 +485,13 @@ async function runOneModel(
     scores: null,
     screenshot: null,
     costEstimate: null,
+    usage: null,
+    transcriptPath: null,
   };
   const ctx = scenario.buildContext();
+  // Mutable per-turn transcript sink: filled AS the conversation runs, so even a
+  // run that fails loud mid-pipeline leaves a partial transcript + usage behind.
+  const transcript: TranscriptEntry[] = [];
   try {
     const outcome = await runConversation({
       ctx,
@@ -476,6 +502,7 @@ async function runOneModel(
       schemaPromptFor: scenario.schemaPromptFor,
       pageUrl: scenario.pageUrl,
       gmb: scenario.gmb,
+      transcript,
     });
 
     // Record the shared grounding as this model's research brief (every model
@@ -500,20 +527,22 @@ async function runOneModel(
       verdict: t.verdict,
     }));
 
-    // Best-effort cost estimate (the providers don't surface token usage). Built
-    // from the actual recorded turn sequence + the deterministic prompts/fixtures
-    // re-sent each turn. See cost.ts for the documented assumptions.
-    base.costEstimate = estimateCost({
-      modelTag: spec.model,
-      timings: base.timings,
-      htmlChars: outcome.html.length,
-      ctx,
-      fixtures,
-      grounding: grounding.content,
-      introEnrichment: scenario.introEnrichment,
-      pageUrl: scenario.pageUrl,
-      gmb: scenario.gmb,
-    });
+    // Cost: PREFER the measured cost from real provider-reported token usage;
+    // fall back to the character-based estimate only when no turn returned usage.
+    base.usage = sumUsage(transcript);
+    base.costEstimate = base.usage
+      ? costFromUsage(spec.model, base.usage)
+      : estimateCost({
+          modelTag: spec.model,
+          timings: base.timings,
+          htmlChars: outcome.html.length,
+          ctx,
+          fixtures,
+          grounding: grounding.content,
+          introEnrichment: scenario.introEnrichment,
+          pageUrl: scenario.pageUrl,
+          gmb: scenario.gmb,
+        });
 
     // Validate the AI-generated schema (the harness already confirmed it was a
     // valid <script type="application/ld+json"> block and stored the raw JSON) and
@@ -551,7 +580,44 @@ async function runOneModel(
   } catch (err) {
     base.status = "error";
     base.error = err instanceof Error ? err.message : String(err);
+    // Keep the partial usage from whatever turns DID run before the failure, and
+    // surface the measured spend-to-failure so an errored run still shows cost.
+    base.usage = sumUsage(transcript);
+    if (base.usage) base.costEstimate = costFromUsage(spec.model, base.usage);
     console.log(`  ✗ ${spec.label} failed: ${base.error}`);
+  }
+
+  // Persist the full per-turn transcript (best-effort, OK OR error path) so every
+  // run — including a failed one — is inspectable. A write failure must never
+  // fail the run, mirroring the screenshot write.
+  try {
+    const rel = `${TRANSCRIPT_PREFIX}/${scenario.id}/${spec.id}.json`;
+    const abs = resolve(TRANSCRIPT_DIR, scenario.id, `${spec.id}.json`);
+    await mkdir(dirname(abs), { recursive: true });
+    await writeFile(
+      abs,
+      JSON.stringify(
+        {
+          scenario: scenario.id,
+          modelId: spec.id,
+          label: spec.label,
+          model: spec.model,
+          status: base.status,
+          error: base.error,
+          totalMs: base.totalMs,
+          usage: base.usage,
+          turns: transcript,
+        },
+        null,
+        2,
+      ),
+      "utf8",
+    );
+    base.transcriptPath = rel;
+  } catch (err) {
+    console.log(
+      `  ! ${spec.label} transcript write skipped: ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
   return base;
 }

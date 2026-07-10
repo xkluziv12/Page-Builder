@@ -19,6 +19,22 @@ export interface PhaseTiming {
   verdict?: "passed" | "failed" | null;
 }
 
+/**
+ * Real, provider-reported token usage for a run, summed across every turn.
+ * `inputTokens` is the FULL prompt token count including any cached portion;
+ * `cachedInputTokens` is the subset served from the provider's prompt cache
+ * (billed at a discount). `reasoningTokens` is the hidden reasoning subset of
+ * the output (0 when the provider does not report it). Normalized to this one
+ * shape across Anthropic / OpenAI / Gemini / xAI so cost is MEASURED, not
+ * estimated. Null on a ModelResult when no turn returned usage.
+ */
+export interface TokenUsage {
+  inputTokens: number;
+  cachedInputTokens: number;
+  outputTokens: number;
+  reasoningTokens: number;
+}
+
 export interface ModelScores {
   /** Quality of the checker pass (errors/warnings on the final page). */
   audit: number;
@@ -68,8 +84,23 @@ export interface ModelResult {
   scores: ModelScores | null;
   /** Relative path (under the viewer's public dir) to this model's rendered screenshot. */
   screenshot: string | null;
-  /** Best-effort USD cost estimate for the run (token usage is not captured). */
+  /**
+   * USD cost for the run. When real token usage was captured this is a MEASURED
+   * cost (see `costFromUsage`); otherwise it falls back to the reconstructed
+   * estimate (see `estimateCost`). `costEstimate.basis` states which.
+   */
   costEstimate: CostEstimate | null;
+  /**
+   * Real provider-reported token usage summed across every turn (including the
+   * turns of a run that later errored). Null when no turn returned usage.
+   */
+  usage: TokenUsage | null;
+  /**
+   * Relative path (under the viewer's public dir) to this model's full per-turn
+   * transcript file (user prompt + raw reply + usage per phase), written for OK
+   * AND errored runs so a failure is inspectable. Null if the write was skipped.
+   */
+  transcriptPath: string | null;
 }
 
 /**

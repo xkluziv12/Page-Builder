@@ -2,6 +2,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI } from "@google/genai";
 import OpenAI from "openai";
 import type { EngineResult } from "@workspace/mc-core";
+import type { TokenUsage } from "./types.js";
 
 /**
  * One turn in the running conversation. The bake-off drives every model through
@@ -57,11 +58,21 @@ export interface CompleteOptions {
   maxOutputTokens?: number;
 }
 
+/**
+ * A completion result: the model's next turn plus the real token usage the
+ * provider reported for THIS call (null when a provider omits it). Extends
+ * mc-core's {@link EngineResult} locally so the shipped pipeline's engine type
+ * stays usage-free — usage capture is a bake-off-only concern.
+ */
+export interface CompleteResult extends EngineResult {
+  usage: TokenUsage | null;
+}
+
 export type CompleteFn = (
   messages: ChatMessage[],
   system?: string,
   opts?: CompleteOptions,
-) => Promise<EngineResult>;
+) => Promise<CompleteResult>;
 
 /** Generous output budget — full SEO pages run well past the default limits. */
 const MAX_OUTPUT_TOKENS = 32000;
@@ -172,7 +183,7 @@ type RawComplete = (
   system: string | undefined,
   opts: CompleteOptions | undefined,
   signal: AbortSignal,
-) => Promise<EngineResult>;
+) => Promise<CompleteResult>;
 
 /**
  * Wrap a raw completion with a per-request timeout + small bounded retry. This
@@ -305,7 +316,24 @@ export function makeClaudeComplete(model: string): CompleteFn {
       .join("\n")
       .trim();
     if (!raw) throw new Error(`${model} returned an empty response.`);
-    return { content: unfence(raw), raw };
+    // Anthropic reports cache reads/writes SEPARATELY from `input_tokens`, so the
+    // full prompt total is the sum of all three; the cached-read subset is billed
+    // at a discount (extended-thinking output is folded into `output_tokens`).
+    // Null (not a zero-filled object) when no usage block came back, so cost can
+    // fall back to the estimate rather than reporting a false "Measured $0".
+    const au = message.usage;
+    const usage: TokenUsage | null = au
+      ? {
+          inputTokens:
+            (au.input_tokens ?? 0) +
+            (au.cache_read_input_tokens ?? 0) +
+            (au.cache_creation_input_tokens ?? 0),
+          cachedInputTokens: au.cache_read_input_tokens ?? 0,
+          outputTokens: au.output_tokens ?? 0,
+          reasoningTokens: 0,
+        }
+      : null;
+    return { content: unfence(raw), raw, usage };
   });
 }
 
@@ -362,7 +390,19 @@ export function makeGeminiComplete(model: string): CompleteFn {
     );
     const raw = (resp.text ?? "").trim();
     if (!raw) throw new Error(`${model} returned an empty response.`);
-    return { content: unfence(raw), raw };
+    // Gemini's promptTokenCount INCLUDES the cached subset; visible output is
+    // candidatesTokenCount and hidden reasoning ("thoughts") is billed on top.
+    // Null when no usageMetadata came back (so cost falls back to the estimate).
+    const gu = resp.usageMetadata;
+    const usage: TokenUsage | null = gu
+      ? {
+          inputTokens: gu.promptTokenCount ?? 0,
+          cachedInputTokens: gu.cachedContentTokenCount ?? 0,
+          outputTokens: (gu.candidatesTokenCount ?? 0) + (gu.thoughtsTokenCount ?? 0),
+          reasoningTokens: gu.thoughtsTokenCount ?? 0,
+        }
+      : null;
+    return { content: unfence(raw), raw, usage };
   });
 }
 
@@ -449,8 +489,33 @@ export function makeOpenAIComplete(model: string): CompleteFn {
     enforceLiveFetch(model, opts?.webSearch, searchCalls > 0, searchCalls);
     const raw = (resp.output_text ?? "").trim();
     if (!raw) throw new Error(`${model} returned an empty response.`);
-    return { content: unfence(raw), raw };
+    return { content: unfence(raw), raw, usage: responsesUsage(resp.usage) };
   });
+}
+
+/** Normalize an OpenAI-style Responses `usage` block into {@link TokenUsage}.
+ * `input_tokens` already includes the cached subset; `output_tokens` already
+ * includes the hidden reasoning subset. Shared by the OpenAI and xAI Responses
+ * paths. Returns null when no usage block was reported (so cost can fall back to
+ * the estimate rather than reporting a false "Measured $0"). */
+function responsesUsage(
+  u:
+    | {
+        input_tokens?: number;
+        output_tokens?: number;
+        input_tokens_details?: { cached_tokens?: number } | null;
+        output_tokens_details?: { reasoning_tokens?: number } | null;
+      }
+    | null
+    | undefined,
+): TokenUsage | null {
+  if (!u) return null;
+  return {
+    inputTokens: u.input_tokens ?? 0,
+    cachedInputTokens: u.input_tokens_details?.cached_tokens ?? 0,
+    outputTokens: u.output_tokens ?? 0,
+    reasoningTokens: u.output_tokens_details?.reasoning_tokens ?? 0,
+  };
 }
 
 /** Count provider web-search evidence in an OpenAI-style Responses output array. */
@@ -520,7 +585,7 @@ export function makeGrokComplete(model: string): CompleteFn {
       enforceLiveFetch(model, opts?.webSearch, searchCount > 0, searchCount);
       const raw = (resp.output_text ?? "").trim();
       if (!raw) throw new Error(`${model} returned an empty response.`);
-      return { content: unfence(raw), raw };
+      return { content: unfence(raw), raw, usage: responsesUsage(resp.usage) };
     }
     // Prompt caching: xAI auto-caches repeated prompt prefixes and bills the hit
     // portion as discounted cached tokens with no request-side flag (its
@@ -533,7 +598,19 @@ export function makeGrokComplete(model: string): CompleteFn {
     });
     const raw = (resp.choices[0]?.message?.content ?? "").trim();
     if (!raw) throw new Error(`${model} returned an empty response.`);
-    return { content: unfence(raw), raw };
+    // chat/completions usage: prompt_tokens/completion_tokens INCLUDE their
+    // cached / reasoning subsets, reported in the *_details blocks. Null when no
+    // usage block came back (so cost falls back to the estimate).
+    const cu = resp.usage;
+    const usage: TokenUsage | null = cu
+      ? {
+          inputTokens: cu.prompt_tokens ?? 0,
+          cachedInputTokens: cu.prompt_tokens_details?.cached_tokens ?? 0,
+          outputTokens: cu.completion_tokens ?? 0,
+          reasoningTokens: cu.completion_tokens_details?.reasoning_tokens ?? 0,
+        }
+      : null;
+    return { content: unfence(raw), raw, usage };
   });
 }
 

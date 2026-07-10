@@ -1,5 +1,6 @@
 import { describeContext, type RunContext } from "@workspace/mc-core";
 import type { ChatMessage, CompleteFn } from "./providers.js";
+import type { TokenUsage } from "./types.js";
 import type { DesignFixtures } from "./fixtures.js";
 import { extractHtmlDocument, extractSchemaJson, tryExtractHtmlDocument } from "./extract.js";
 import { evaluateDesignGate } from "./designGate.js";
@@ -61,6 +62,33 @@ export interface ConversationDeps {
   gmb?: PromptGmb | null;
   /** Max design-gate rebuild attempts before failing loudly. */
   rebuildCap?: number;
+  /**
+   * Optional mutable sink for the full per-turn transcript. When provided, every
+   * turn (successful OR the one that threw) is pushed here as it happens, so the
+   * caller keeps a partial transcript even when the conversation fails loud
+   * mid-run. Purely observational — it never changes what is sent to the model.
+   */
+  transcript?: TranscriptEntry[];
+}
+
+/**
+ * One turn of the raw conversation, captured for after-the-fact inspection: the
+ * exact user prompt sent, the model's raw reply, the wall time, any parsed
+ * verdict, the real token usage, and — for the turn that failed — the error.
+ */
+export interface TranscriptEntry {
+  phase: string;
+  summary: string;
+  webSearch: boolean;
+  /** The full user prompt sent on this turn (this turn's new message only). */
+  user: string;
+  /** The model's raw reply, or "" when the turn threw before replying. */
+  assistant: string;
+  ms: number;
+  verdict?: "passed" | "failed" | null;
+  usage: TokenUsage | null;
+  /** Set to the error message when THIS turn threw; null otherwise. */
+  error: string | null;
 }
 
 export interface ConversationTurn {
@@ -230,13 +258,23 @@ export async function runConversation(deps: ConversationDeps): Promise<Conversat
   const vars = promptVars(ctx, deps.pageUrl, deps.gmb);
   const cap = Math.max(1, deps.rebuildCap ?? Number(process.env.BAKEOFF_REBUILD_CAP ?? 2));
 
+  const transcript = deps.transcript;
   const messages: ChatMessage[] = [];
   const turns: ConversationTurn[] = [];
   let totalMs = 0;
 
+  /** Set the ✅/❌ verdict on the latest turn AND its transcript entry (kept in
+   * lockstep — both arrays gain their newest element on the same `send`). */
+  const setLastVerdict = (verdict: "passed" | "failed" | null): void => {
+    if (turns.length) turns[turns.length - 1].verdict = verdict;
+    if (transcript?.length) transcript[transcript.length - 1].verdict = verdict;
+  };
+
   /** Send one user turn, append both sides to history, time it. The optional
    * `webSearch` switches on the provider's native web-search tool for THIS turn
-   * only (used by the SEO-verify turn, whose prompt mandates a live web search). */
+   * only (used by the SEO-verify turn, whose prompt mandates a live web search).
+   * Every turn is also recorded into the optional transcript sink — including the
+   * turn that throws, so a failed run stays inspectable. */
   const send = async (
     phase: string,
     user: string,
@@ -247,14 +285,35 @@ export async function runConversation(deps: ConversationDeps): Promise<Conversat
     console.log(
       `    → ${phase}: sending (${messages.length} msgs in history)${webSearch ? " [web-search]" : ""}…`,
     );
+    const entry: TranscriptEntry = {
+      phase,
+      summary,
+      webSearch,
+      user,
+      assistant: "",
+      ms: 0,
+      verdict: null,
+      usage: null,
+      error: null,
+    };
+    transcript?.push(entry);
     const t0 = Date.now();
-    const res = await complete(messages, undefined, webSearch ? { webSearch: true } : undefined);
-    const ms = Date.now() - t0;
-    totalMs += ms;
-    messages.push({ role: "assistant", content: res.raw });
-    turns.push({ phase, ms, summary });
-    console.log(`    ← ${phase}: ${(ms / 1000).toFixed(1)}s, ${res.raw.length} chars`);
-    return res.raw;
+    try {
+      const res = await complete(messages, undefined, webSearch ? { webSearch: true } : undefined);
+      const ms = Date.now() - t0;
+      totalMs += ms;
+      messages.push({ role: "assistant", content: res.raw });
+      turns.push({ phase, ms, summary });
+      entry.ms = ms;
+      entry.assistant = res.raw;
+      entry.usage = res.usage;
+      console.log(`    ← ${phase}: ${(ms / 1000).toFixed(1)}s, ${res.raw.length} chars`);
+      return res.raw;
+    } catch (err) {
+      entry.ms = Date.now() - t0;
+      entry.error = err instanceof Error ? err.message : String(err);
+      throw err;
+    }
   };
 
   // 1. Intro / setup handshake (files uploaded, rules, model check). Gate on the
@@ -316,7 +375,7 @@ export async function runConversation(deps: ConversationDeps): Promise<Conversat
     let doc = tryExtractHtmlDocument(raw);
     if (doc) html = doc;
     let verdict = readVerdict(raw, pass, fail);
-    turns[turns.length - 1].verdict = verdict;
+    setLastVerdict(verdict);
     console.log(`    ⚖ ${phase}: verdict=${verdict ?? "none"}`);
 
     let fixes = 0;
@@ -334,7 +393,7 @@ export async function runConversation(deps: ConversationDeps): Promise<Conversat
       doc = tryExtractHtmlDocument(raw);
       if (doc) html = doc;
       verdict = readVerdict(raw, pass, fail);
-      turns[turns.length - 1].verdict = verdict;
+      setLastVerdict(verdict);
       console.log(`    ⚖ ${fixPhase}: verdict=${verdict ?? "none"}`);
     }
     if (verdict !== "passed") {

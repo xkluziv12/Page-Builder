@@ -144,12 +144,18 @@ function ModelRankCard({ model, rank, scenarioId, datasetId }: { model: ModelRes
                   <Clock className="w-4 h-4" />
                   <span>{(model.totalMs / 1000).toFixed(1)}s</span>
                 </div>
-                {model.costEstimate && (
-                  <div className="flex items-center gap-1.5" title="Estimated cost (token usage not captured)">
-                    <DollarSign className="w-4 h-4" />
-                    <span>~${model.costEstimate.totalUsd.toFixed(2)} est.</span>
-                  </div>
-                )}
+                {model.costEstimate && (() => {
+                  const measured = model.costEstimate.basis.startsWith("Measured");
+                  return (
+                    <div
+                      className="flex items-center gap-1.5"
+                      title={measured ? "Measured cost from real provider token usage" : "Estimated cost (token usage not captured)"}
+                    >
+                      <DollarSign className="w-4 h-4" />
+                      <span>{measured ? "" : "~"}${model.costEstimate.totalUsd.toFixed(2)}{measured ? "" : " est."}</span>
+                    </div>
+                  );
+                })()}
                 {model.checkerReport && (
                   <div className="flex items-center gap-1.5">
                     {model.checkerReport.passed ? (

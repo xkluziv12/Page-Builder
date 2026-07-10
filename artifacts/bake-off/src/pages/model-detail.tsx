@@ -396,18 +396,27 @@ export default function ModelDetail() {
 
         <TabsContent value="cost" className="mt-0">
           {model.costEstimate ? (
+            (() => {
+              const measured = model.costEstimate.basis.startsWith("Measured");
+              return (
             <div className="space-y-6">
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <ScoreCell label="Est. Total" value={`$${model.costEstimate.totalUsd.toFixed(2)}`} hint="input + output" />
+                <ScoreCell label={measured ? "Total Cost" : "Est. Total"} value={`$${model.costEstimate.totalUsd.toFixed(2)}`} hint="input + output" />
                 <ScoreCell label="Input Cost" value={`$${model.costEstimate.inputUsd.toFixed(2)}`} hint={`${formatTokens(model.costEstimate.inputTokens)} tok`} />
                 <ScoreCell label="Output Cost" value={`$${model.costEstimate.outputUsd.toFixed(2)}`} hint={`${formatTokens(model.costEstimate.outputTokens)} tok`} />
                 <ScoreCell label="List Price" value={`$${model.costEstimate.pricePerMInput}/$${model.costEstimate.pricePerMOutput}`} hint="per 1M in/out" />
               </div>
-              <Card className="border-amber-500/30 bg-amber-500/5">
+              {model.usage && (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <ScoreCell label="Input Tokens" value={formatTokens(model.usage.inputTokens)} hint={`${formatTokens(model.usage.cachedInputTokens)} cached`} />
+                  <ScoreCell label="Output Tokens" value={formatTokens(model.usage.outputTokens)} hint={model.usage.reasoningTokens > 0 ? `${formatTokens(model.usage.reasoningTokens)} reasoning` : "no hidden reasoning"} />
+                </div>
+              )}
+              <Card className={measured ? "border-emerald-500/30 bg-emerald-500/5" : "border-amber-500/30 bg-amber-500/5"}>
                 <CardHeader className="pb-3">
-                  <CardTitle className="flex items-center gap-2 text-sm uppercase tracking-wider text-amber-600 dark:text-amber-400">
+                  <CardTitle className={`flex items-center gap-2 text-sm uppercase tracking-wider ${measured ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400"}`}>
                     <AlertTriangle className="w-4 h-4" />
-                    How this estimate was derived
+                    {measured ? "How this cost was measured" : "How this estimate was derived"}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="text-sm text-muted-foreground leading-relaxed">
@@ -415,6 +424,8 @@ export default function ModelDetail() {
                 </CardContent>
               </Card>
             </div>
+              );
+            })()
           ) : (
             <Card className="border-dashed">
               <CardContent className="p-8 text-center text-sm text-muted-foreground">

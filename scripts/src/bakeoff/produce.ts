@@ -291,6 +291,10 @@ async function main(): Promise<void> {
     scores: null,
     screenshot: null,
     costEstimate,
+    // The production builder does not capture per-turn usage/transcripts (that is
+    // a bake-off comparison concern); cost here stays the character-based estimate.
+    usage: null,
+    transcriptPath: null,
   };
 
   const scenario: ScenarioResult = {

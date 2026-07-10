@@ -238,9 +238,54 @@ apples-to-apples.
 **Finding (volatile, don't trust as authoritative):** in one No-GMB sweep the pro
 tier did NOT win — standard `gpt-5.5` edged `gpt-5.5-pro` despite ~6× the wall time.
 
-## Cost is RECONSTRUCTED, not captured — providers' token usage is discarded
-The harness never records the LLM `usage` object, so per-run cost is a documented
-ESTIMATE (`scripts/src/bakeoff/cost.ts`, `estimateCost`): it replays each model's
+## Cost is now MEASURED from real provider usage, with the estimate as fallback
+Every provider adapter now returns a normalized `TokenUsage`
+(`{inputTokens,cachedInputTokens,outputTokens,reasoningTokens}`) on a
+bake-off-local `CompleteResult extends EngineResult` — mc-core's `EngineResult`
+(`{content,raw}`) is left UNTOUCHED (prod stays Claude-only). `run.ts` sums usage
+across turns (`sumUsage`) and prefers `costFromUsage()` (basis starts
+"Measured — …", cached input billed at a 0.1× discount) over `estimateCost()`.
+**Critical invariant:** adapters return `usage: null` (NOT a zero-filled object)
+when the provider omits a usage block, so a missing-usage run correctly FALLS
+BACK to the estimate instead of reporting a false "Measured $0". An errored run
+that spent tokens before failing still surfaces measured spend-to-failure
+(`base.usage` + `costFromUsage` set in the catch). Per-provider normalization:
+Anthropic reports cache reads/writes SEPARATELY from `input_tokens` (sum all
+three for the full prompt total; cached = cache_read); OpenAI/Gemini/Grok prompt
+counts INCLUDE the cached subset (use directly; cached = the *_details subset);
+Gemini output = candidates + thoughts (thoughts billed on top), reasoning =
+thoughts; OpenAI/Grok output already includes the reasoning subset.
+
+## Full per-turn transcripts are persisted for EVERY run, including errored ones
+`conversation.ts` `send()` pushes a `TranscriptEntry` (user prompt, raw reply,
+ms, verdict, usage, error) into an optional mutable sink on `ConversationDeps` —
+recording the entry even when the turn THROWS (try/catch records error + rethrows;
+prompts/history semantics unchanged, no `totalMs` double-count). `setLastVerdict`
+updates the latest `turns[]` AND transcript entry in lockstep. `run.ts` writes
+`artifacts/bake-off/public/transcripts/<scenario>/<model>.json` best-effort on
+BOTH the ok and error paths; `results.json` stays lean (usage summary +
+`transcriptPath` pointer only). Viewer `model-detail.tsx` cost tab keys off
+`basis.startsWith("Measured")` to switch measured-vs-estimated labels/colors and
+render the token-usage cells.
+
+## Fairness fix: the intro model-check is NEUTRALIZED, not gated
+`INTRO_NEUTRALIZE` (`miniPrompts.ts`, appended in `introTurn`) tells the model to
+skip the "confirm you are Sonnet 4.6 / switch models" handshake and just proceed.
+**Why:** the verbatim intro carries the tool's Claude-specific model-check whose
+only hard stop is the wrong-model case ("🚫 WRONG MODEL — I am Opus. Switch to
+Sonnet 4.6"); a non-Claude model (seen live: Grok) would ROLE-PLAY that refusal
+and fail its whole run on the intro turn — a pure artifact of the handshake, not
+a build failure. Neutralizing it uniformly (all models, same text) removed Grok's
+"wrong model" intro error on the fresh sweep while staying apples-to-apples.
+**Finding (volatile — re-run, don't trust):** a fresh No-GMB sweep after the fix
+had grok/gpt-5.6-terra/gemini-3.5-flash build OK, while gemini-3.1-pro-preview
+(no web-search evidence on the verify turn) and claude-sonnet-5 (empty response
+after 2 attempts) failed loud — honest per-model ERRORs, left as-is.
+
+## [SUPERSEDED] Cost was once RECONSTRUCTED, not captured — kept for older datasets
+Older `results.json`/`old-bakeoff.json` cells predate usage capture, so their
+cost is a documented ESTIMATE (`scripts/src/bakeoff/cost.ts`, `estimateCost`): it
+replays each model's
 recorded turn sequence, re-bills the FULL growing history every turn (the chat is
 stateful — see above), sizes prompts from the verbatim mini-prompts + real inlined
 fixtures (~4 chars/token), prices by model-family list tiers. NOTE: schema is now

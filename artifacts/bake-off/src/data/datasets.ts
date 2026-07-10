@@ -21,7 +21,7 @@ export const DATASETS: Dataset[] = [
     id: "current",
     label: "Current Bake-Off",
     blurb:
-      "Latest top-tier run — Claude Opus, GPT-5.5 / GPT-5.5-pro, Gemini 3.1 Pro, Grok 4.3.",
+      "Latest top-tier run — Claude Sonnet 5, GPT-5.6-Terra, Gemini 3.1 Pro + 3.5 Flash, Grok 4.5. Fairness-fixed (neutralized intro), with real measured token cost + full per-turn transcripts.",
     results: currentData as BakeoffResults,
   },
   {

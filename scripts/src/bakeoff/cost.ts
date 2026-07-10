@@ -16,7 +16,7 @@ import {
   type PromptGmb,
 } from "./miniPrompts.js";
 import type { DesignFixtures } from "./fixtures.js";
-import type { PhaseTiming } from "./types.js";
+import type { PhaseTiming, TokenUsage } from "./types.js";
 
 /**
  * Best-effort COST ESTIMATE for a bake-off model run.
@@ -85,6 +85,51 @@ const FALLBACK_TIER: PriceTier = {
 
 function priceFor(modelTag: string): PriceTier {
   return PRICE_TIERS.find((t) => t.test.test(modelTag)) ?? FALLBACK_TIER;
+}
+
+/** Cached input is billed at ~10% of the standard input rate across the major
+ * providers, so the discount factor is uniform (kept apples-to-apples). */
+const CACHED_INPUT_DISCOUNT = 0.1;
+
+/**
+ * MEASURED cost from real, provider-reported token usage (summed across turns).
+ * Unlike {@link estimateCost} (which reconstructs tokens from prompt characters)
+ * this uses the exact counts the providers returned, bills the cached-input
+ * subset at a discount, and folds hidden reasoning tokens into output (they are
+ * already part of `outputTokens`). Prefer this whenever usage was captured.
+ *
+ * NOTE: provider-side web-search fees on the SEO-verify turn are billed
+ * separately by each provider and are NOT represented in token usage, so they
+ * are excluded here (same exclusion as the estimate).
+ */
+export function costFromUsage(modelTag: string, usage: TokenUsage): CostEstimate {
+  const tier = priceFor(modelTag);
+  const round4 = (n: number) => Math.round(n * 10_000) / 10_000;
+  const cached = Math.min(Math.max(0, usage.cachedInputTokens), usage.inputTokens);
+  const uncachedInput = usage.inputTokens - cached;
+  const inputUsd =
+    (uncachedInput / 1_000_000) * tier.inputPerM +
+    (cached / 1_000_000) * tier.inputPerM * CACHED_INPUT_DISCOUNT;
+  const outputUsd = (usage.outputTokens / 1_000_000) * tier.outputPerM;
+  return {
+    inputTokens: usage.inputTokens,
+    outputTokens: usage.outputTokens,
+    inputUsd: round4(inputUsd),
+    outputUsd: round4(outputUsd),
+    totalUsd: round4(inputUsd + outputUsd),
+    pricePerMInput: tier.inputPerM,
+    pricePerMOutput: tier.outputPerM,
+    basis:
+      `Measured — real token usage reported by the provider, summed across all turns: ` +
+      `${usage.inputTokens.toLocaleString()} input token(s) (${cached.toLocaleString()} served from ` +
+      `prompt cache, billed at ${Math.round(CACHED_INPUT_DISCOUNT * 100)}% of the input rate) and ` +
+      `${usage.outputTokens.toLocaleString()} output token(s)` +
+      (usage.reasoningTokens > 0
+        ? ` (incl. ${usage.reasoningTokens.toLocaleString()} hidden reasoning token(s))`
+        : "") +
+      `, priced at ${tier.label} list rates ($${tier.inputPerM}/$${tier.outputPerM} per 1M in/out). ` +
+      `Provider-side web-search fees on the SEO-verify turn are billed separately and are excluded.`,
+  };
 }
 
 /** The PromptVars the conversation derives for a given target context. Mirrors
