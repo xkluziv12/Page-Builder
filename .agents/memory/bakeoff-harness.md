@@ -255,6 +255,27 @@ shows — never present the number as exact.
 bakeoff:cost` (resolves repo root from `import.meta.url`, NOT cwd, because
 `--filter` runs in the package dir). Sanity anchor: Claude Opus no-gmb ≈ $6.
 
+## Prompt caching is wired on EVERY provider (transport-only, stays apples-to-apples)
+Because the chat is stateful (the ~180K-char fixtures + growing history are re-sent
+verbatim every turn), each provider adapter in `providers.ts` now enables prompt
+caching so that repeated prefix is read from cache instead of re-billed at full
+input price:
+- **Anthropic (Claude):** EXPLICIT — `cache_control:{type:"ephemeral"}` breakpoints
+  on the first message (pins the huge fixtures block) and the last message
+  (incrementally caches the whole conversation for the next turn). Requires
+  converting those messages' `content` from a string to a `[{type:"text",…}]` block.
+- **OpenAI:** AUTOMATIC for prefixes >1024 tokens; we add a stable per-model
+  `prompt_cache_key` (`bakeoff-<model>`) on the Responses call to route turns to
+  the same cache. (Grok's OpenAI-compatible surface REJECTS unknown fields, so do
+  NOT send `prompt_cache_key` there — xAI auto-caches without any flag.)
+- **Gemini:** IMPLICIT context caching is on by default for 2.5+/3.x — no flag.
+- **xAI (Grok):** AUTOMATIC cached-token billing — no flag.
+**Why it's still fair:** caching is a billing/transport optimization only — the
+text each model reads is byte-identical and turn order is unchanged, exactly like
+the `background`/`webSearch` knobs. Never treat it as per-model coaxing.
+**Gotcha:** editing `providers.ts` does NOT affect an already-running `tsx` sweep
+(modules are loaded at start); caching only applies to the NEXT run or a resume.
+
 ## Viewer is multi-dataset — current run + archived "Old Bake-Off" side by side
 `artifacts/bake-off` switches between datasets via `src/data/datasets.ts` +
 `DatasetProvider` (`current` = live `results.json`, `old` = `old-bakeoff.json`

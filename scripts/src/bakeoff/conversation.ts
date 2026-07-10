@@ -6,6 +6,7 @@ import { evaluateDesignGate } from "./designGate.js";
 import {
   ARTIFACT_TO_INLINE,
   ARTIFACT_TO_INLINE_OPTIONAL,
+  INTRO_NEUTRALIZE,
   SCHEMA_TO_INLINE,
   buildPrompt,
   introPrompt,
@@ -214,7 +215,7 @@ function introTurn(ctx: RunContext, deps: ConversationDeps): string {
   const grounding = `${RULE}\n📄 LOCAL MARKET RESEARCH (shared brief)\n${RULE}\n${deps.grounding.trim()}\n`;
   const context = `${RULE}\nBUILD CONTEXT (registry facts)\n${RULE}\n${describeContext(ctx)}\n`;
   const enrichment = deps.introEnrichment.trim() ? `\n${deps.introEnrichment.trim()}\n` : "";
-  return [introPrompt(vars), files, grounding, context, enrichment]
+  return [introPrompt(vars), INTRO_NEUTRALIZE, files, grounding, context, enrichment]
     .filter(Boolean)
     .join("\n\n");
 }

@@ -263,7 +263,30 @@ export function makeClaudeComplete(model: string): CompleteFn {
       ...(opts?.webSearch
         ? { tools: [{ type: "web_search_20250305" as const, name: "web_search" as const }] }
         : {}),
-      messages: messages.map((m) => ({ role: m.role, content: m.content })),
+      // Prompt caching: mark cache breakpoints so the large, verbatim-repeated
+      // prefix (the ~180K-char design fixtures inlined in the intro + the growing
+      // conversation) is READ from Anthropic's cache on every turn after the first
+      // instead of being re-billed at full input price. cache_control is a
+      // billing/transport hint only — the text the model reads is byte-identical,
+      // so the comparison stays apples-to-apples. Two breakpoints: the first
+      // message pins the massive fixtures block; the last message incrementally
+      // caches the whole conversation for the next turn (Anthropic reads the
+      // longest matching cached prefix automatically).
+      messages: messages.map((m, i) => {
+        const pin = i === 0 || i === messages.length - 1;
+        return pin
+          ? {
+              role: m.role,
+              content: [
+                {
+                  type: "text" as const,
+                  text: m.content,
+                  cache_control: { type: "ephemeral" as const },
+                },
+              ],
+            }
+          : { role: m.role, content: m.content };
+      }),
     });
     const message = await stream.finalMessage();
     // Live-fetch evidence: Claude's server-side web_search emits server_tool_use /
@@ -293,6 +316,11 @@ export function makeGeminiComplete(model: string): CompleteFn {
     httpOptions: { timeout: REQUEST_TIMEOUT_MS },
   });
   return guarded(model, async (messages, system, opts) => {
+    // Prompt caching: Gemini 2.5+/3.x enable IMPLICIT context caching by default —
+    // when a request shares a long prefix with a recent one (here the ~180K-char
+    // fixtures + growing history, re-sent verbatim each turn), Google serves the
+    // matching prefix from cache at a discount with no request-side flag. So no
+    // explicit cachedContent handle is needed; caching is on for every turn.
     const resp = await ai.models.generateContent({
       model,
       // Gemini uses "model" for the assistant role and a `parts` array.
@@ -384,6 +412,12 @@ export function makeOpenAIComplete(model: string): CompleteFn {
     let resp = await client.responses.create(
       {
         model,
+        // Prompt caching: OpenAI auto-caches prompt prefixes >1024 tokens and
+        // discounts the cached input; a stable per-model prompt_cache_key routes
+        // this conversation's turns to the same cache so the big repeated prefix
+        // (fixtures + history) lands cache hits. Routing hint only — prompts,
+        // input, and turn order are unchanged, so the comparison stays faithful.
+        prompt_cache_key: `bakeoff-${model}`,
         max_output_tokens: opts?.maxOutputTokens ?? OPENAI_MAX_OUTPUT_TOKENS,
         background: true,
         ...(isPro ? { reasoning: { effort: OPENAI_REASONING_EFFORT } } : {}),
@@ -488,6 +522,10 @@ export function makeGrokComplete(model: string): CompleteFn {
       if (!raw) throw new Error(`${model} returned an empty response.`);
       return { content: unfence(raw), raw };
     }
+    // Prompt caching: xAI auto-caches repeated prompt prefixes and bills the hit
+    // portion as discounted cached tokens with no request-side flag (its
+    // OpenAI-compatible surface rejects unknown fields, so no prompt_cache_key is
+    // sent). The big verbatim-repeated prefix therefore still lands cache hits.
     const resp = await client.chat.completions.create({
       model,
       max_tokens: opts?.maxOutputTokens ?? MAX_OUTPUT_TOKENS,

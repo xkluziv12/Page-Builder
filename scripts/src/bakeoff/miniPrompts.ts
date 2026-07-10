@@ -88,6 +88,35 @@ export const ARTIFACT_TO_INLINE =
   "emit the entire HTML document here, in this message.]";
 
 /**
+ * Intro-turn neutralizer for the source tool's Claude-DESKTOP chrome, applied
+ * IDENTICALLY to every model (same class of uniform shim as `ARTIFACT_TO_INLINE`
+ * / `SCHEMA_TO_INLINE`). The verbatim intro was authored for a VA driving Claude
+ * Sonnet 4.6 in the Claude desktop app, so it ends with steps that only make
+ * sense there and are actively Claude-4.6-specific:
+ *   - "rename this chat", "upload these files" (no chat-title / upload surface on
+ *     the API — the files are already inlined below), and
+ *   - a MODEL-IDENTITY gate that orders the model to declare it is a Claude model
+ *     and, if it is "Opus", to reply ONLY "🚫 WRONG MODEL … Switch to Sonnet 4.6"
+ *     and STOP. A non-Claude model that follows this literally HARD-STOPS the run
+ *     before it ever builds (observed: Grok emitted the WRONG MODEL stop).
+ * That gate measures "are you Claude Sonnet 4.6", not build quality, so it biases
+ * the whole comparison toward Sonnet 4.6. This note neutralizes ONLY that
+ * medium/identity chrome — uniformly, for every model — while leaving all the
+ * actual build rules intact. It is NOT per-model coaxing.
+ */
+export const INTRO_NEUTRALIZE =
+  "\n\n[API EXECUTION NOTE — applies to every model identically: this is a " +
+  "headless API session, NOT the Claude desktop app. There is no chat title to " +
+  "rename and no file-upload surface — the required files (STS SEO Data, Master " +
+  "Page Builder, Master Design Tier 2) are already provided INLINE below, so treat " +
+  "them as uploaded. The 'MODEL CHECK' step is legacy chrome from a Claude-only " +
+  "workflow: DISREGARD it entirely. Do NOT state which model you are, do NOT emit " +
+  'the "🚫 WRONG MODEL" stop, and do NOT stop for any model-identity reason — ' +
+  "whichever model you are, you are the correct model for this run. Acknowledge " +
+  "the session rules briefly and proceed. All other build rules above remain fully " +
+  "in force.]";
+
+/**
  * The verify-turn counterpart of `ARTIFACT_TO_INLINE`. The seo-verify and
  * verify-links turns are REPORT-primary (HTML is optional, emitted only if the
  * model changed the page) and MUST end with an explicit ✅/❌ verdict the harness

@@ -10,7 +10,6 @@ import {
 } from "@workspace/mc-core";
 import { schemaPrompt, gmbSchemaPrompt, type PromptVars, type PromptGmb } from "./miniPrompts.js";
 import {
-  discoverNewestGrok,
   makeClaudeComplete,
   makeGeminiComplete,
   makeOpenAIComplete,
@@ -30,13 +29,11 @@ import type { BakeoffResults, ModelResult, ScenarioResult } from "./types.js";
 /** The build target (city/state/niche/url) — env-driven, defaults to Billings, MT. */
 const TARGET = resolveTarget();
 
-const CLAUDE_MODEL = "claude-opus-4-8";
-const GEMINI_MODEL = "gemini-3.1-pro-preview";
-const OPENAI_MODEL = "gpt-5.5-pro";
-/** Standard (non-pro) OpenAI chat tag, run alongside pro for a tier comparison. */
-const OPENAI_MODEL_STD = "gpt-5.5";
-/** Prior-generation OpenAI chat tag, added to compare a cheaper tier vs the majors. */
-const OPENAI_MODEL_54 = "gpt-5.4";
+const CLAUDE_MODEL = "claude-sonnet-5";
+const GEMINI_PRO_MODEL = "gemini-3.1-pro-preview";
+const GEMINI_FLASH_MODEL = "gemini-3.5-flash";
+const OPENAI_MODEL = "gpt-5.6-terra";
+const GROK_MODEL = "grok-4.5";
 
 const BUSINESS_NAME = "STS Electronic Recycling";
 
@@ -282,13 +279,10 @@ async function main(): Promise<void> {
 
   const prior = await loadPrior();
   const claudeComplete = makeClaudeComplete(CLAUDE_MODEL);
-  const geminiComplete = makeGeminiComplete(GEMINI_MODEL);
+  const geminiProComplete = makeGeminiComplete(GEMINI_PRO_MODEL);
+  const geminiFlashComplete = makeGeminiComplete(GEMINI_FLASH_MODEL);
   const openaiComplete = makeOpenAIComplete(OPENAI_MODEL);
-  const openaiStdComplete = makeOpenAIComplete(OPENAI_MODEL_STD);
-  const openai54Complete = makeOpenAIComplete(OPENAI_MODEL_54);
-  const grokModel = await discoverNewestGrok();
-  console.log(`Discovered newest Grok tag: ${grokModel}`);
-  const grokComplete = makeGrokComplete(grokModel);
+  const grokComplete = makeGrokComplete(GROK_MODEL);
 
   const reference = await loadReferenceHtml(TARGET);
   const referenceHtml = reference.html;
@@ -299,12 +293,11 @@ async function main(): Promise<void> {
   const grounding = await loadOrAuthorGrounding(prior.grounding, claudeComplete);
 
   let models: ModelSpec[] = [
-    { id: "claude", label: "Claude Opus 4.8", provider: "Anthropic", model: CLAUDE_MODEL, complete: claudeComplete },
-    { id: "gemini", label: "Gemini 3.1 Pro", provider: "Google", model: GEMINI_MODEL, complete: geminiComplete },
+    { id: "claude", label: "Claude Sonnet 5", provider: "Anthropic", model: CLAUDE_MODEL, complete: claudeComplete },
+    { id: "gemini", label: "Gemini 3.1 Pro", provider: "Google", model: GEMINI_PRO_MODEL, complete: geminiProComplete },
+    { id: "gemini-flash", label: "Gemini 3.5 Flash", provider: "Google", model: GEMINI_FLASH_MODEL, complete: geminiFlashComplete },
     { id: "openai", label: `OpenAI ${OPENAI_MODEL.toUpperCase()}`, provider: "OpenAI", model: OPENAI_MODEL, complete: openaiComplete },
-    { id: "openai-std", label: `OpenAI ${OPENAI_MODEL_STD.toUpperCase()}`, provider: "OpenAI", model: OPENAI_MODEL_STD, complete: openaiStdComplete },
-    { id: "openai-54", label: `OpenAI ${OPENAI_MODEL_54.toUpperCase()}`, provider: "OpenAI", model: OPENAI_MODEL_54, complete: openai54Complete },
-    { id: "grok", label: "Grok (xAI)", provider: "xAI", model: grokModel, complete: grokComplete },
+    { id: "grok", label: "Grok 4.5", provider: "xAI", model: GROK_MODEL, complete: grokComplete },
   ];
   if (MODEL_FILTER.length) {
     models = models.filter((m) => MODEL_FILTER.includes(m.id));
