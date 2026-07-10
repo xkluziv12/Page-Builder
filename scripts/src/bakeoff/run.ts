@@ -205,6 +205,55 @@ const MODEL_FILTER = (process.env.BAKEOFF_MODELS ?? "")
   .filter(Boolean);
 
 /**
+ * Optional per-model overrides, applied generically by model id — never
+ * special-cased to one model. `BAKEOFF_MODEL_OVERRIDES` is a JSON object of
+ * `{ [modelId]: { model?, label? } }` that swaps the underlying provider tag
+ * and/or the display label for any spec (e.g. run the Claude slot on a
+ * different Sonnet revision). Fails loud on malformed JSON.
+ */
+const MODEL_OVERRIDES: Record<string, { model?: string; label?: string }> = (() => {
+  const raw = process.env.BAKEOFF_MODEL_OVERRIDES?.trim();
+  if (!raw) return {};
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      throw new Error("expected a JSON object");
+    }
+    for (const [id, entry] of Object.entries(parsed as Record<string, unknown>)) {
+      if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
+        throw new Error(`entry "${id}" must be an object with optional string model/label`);
+      }
+      const { model, label } = entry as Record<string, unknown>;
+      if (model !== undefined && typeof model !== "string") {
+        throw new Error(`entry "${id}".model must be a string`);
+      }
+      if (label !== undefined && typeof label !== "string") {
+        throw new Error(`entry "${id}".label must be a string`);
+      }
+    }
+    return parsed as Record<string, { model?: string; label?: string }>;
+  } catch (err) {
+    throw new Error(
+      `BAKEOFF_MODEL_OVERRIDES is not valid JSON: ${err instanceof Error ? err.message : String(err)}`,
+    );
+  }
+})();
+
+/**
+ * Model ids to force-rerun even when a prior (ok OR error) result exists for
+ * them — comma-separated, or `all`. Used to re-run a single model in place
+ * (e.g. after fixing an errored slot) while every other model resumes from the
+ * recorded results.json untouched.
+ */
+const FORCE_RERUN = new Set(
+  (process.env.BAKEOFF_FORCE ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean),
+);
+const forced = (id: string): boolean => FORCE_RERUN.has("all") || FORCE_RERUN.has(id);
+
+/**
  * Resumable per-model run state, loaded from a prior results.json. The harness
  * persists after EVERY model so a long run that is interrupted (e.g. the
  * environment reaps a long background process) can be relaunched and continues
@@ -234,7 +283,9 @@ async function loadPrior(): Promise<Prior> {
   if (Array.isArray(obj.scenarios)) {
     for (const s of obj.scenarios as ScenarioResult[]) {
       const m = new Map<string, ModelResult>();
-      for (const model of s.models) m.set(model.id, model);
+      // Forced ids are dropped from the recorded set so they re-run in place;
+      // every other model resumes from results.json untouched.
+      for (const model of s.models) if (!forced(model.id)) m.set(model.id, model);
       done.set(s.id, m);
     }
   }
@@ -283,11 +334,9 @@ async function main(): Promise<void> {
   );
 
   const prior = await loadPrior();
+  // Only needed to author the shared grounding when none is recorded yet; the
+  // per-model complete fns are built (with any overrides) alongside `models`.
   const claudeComplete = makeClaudeComplete(CLAUDE_MODEL);
-  const geminiProComplete = makeGeminiComplete(GEMINI_PRO_MODEL);
-  const geminiFlashComplete = makeGeminiComplete(GEMINI_FLASH_MODEL);
-  const openaiComplete = makeOpenAIComplete(OPENAI_MODEL);
-  const grokComplete = makeGrokComplete(GROK_MODEL);
 
   const reference = await loadReferenceHtml(TARGET);
   const referenceHtml = reference.html;
@@ -297,13 +346,36 @@ async function main(): Promise<void> {
   // already recorded in results.json when present; otherwise author it once.
   const grounding = await loadOrAuthorGrounding(prior.grounding, claudeComplete);
 
-  let models: ModelSpec[] = [
-    { id: "claude", label: "Claude Sonnet 5", provider: "Anthropic", model: CLAUDE_MODEL, complete: claudeComplete },
-    { id: "gemini", label: "Gemini 3.1 Pro", provider: "Google", model: GEMINI_PRO_MODEL, complete: geminiProComplete },
-    { id: "gemini-flash", label: "Gemini 3.5 Flash", provider: "Google", model: GEMINI_FLASH_MODEL, complete: geminiFlashComplete },
-    { id: "openai", label: `OpenAI ${OPENAI_MODEL.toUpperCase()}`, provider: "OpenAI", model: OPENAI_MODEL, complete: openaiComplete },
-    { id: "grok", label: "Grok 4.5", provider: "xAI", model: GROK_MODEL, complete: grokComplete },
+  const baseModels: Array<{
+    id: string;
+    label: string;
+    provider: ModelSpec["provider"];
+    model: string;
+    make: (tag: string) => CompleteFn;
+  }> = [
+    { id: "claude", label: "Claude Sonnet 5", provider: "Anthropic", model: CLAUDE_MODEL, make: makeClaudeComplete },
+    { id: "gemini", label: "Gemini 3.1 Pro", provider: "Google", model: GEMINI_PRO_MODEL, make: makeGeminiComplete },
+    { id: "gemini-flash", label: "Gemini 3.5 Flash", provider: "Google", model: GEMINI_FLASH_MODEL, make: makeGeminiComplete },
+    { id: "openai", label: `OpenAI ${OPENAI_MODEL.toUpperCase()}`, provider: "OpenAI", model: OPENAI_MODEL, make: makeOpenAIComplete },
+    { id: "grok", label: "Grok 4.5", provider: "xAI", model: GROK_MODEL, make: makeGrokComplete },
   ];
+  // Apply per-model overrides (tag/label) generically by id — the override
+  // swaps the provider tag and rebuilds that model's complete fn to match, so
+  // the recorded `model` field always reflects what actually ran.
+  let models: ModelSpec[] = baseModels.map((m) => {
+    const ovr = MODEL_OVERRIDES[m.id];
+    const model = ovr?.model ?? m.model;
+    if (ovr?.model && ovr.model !== m.model) {
+      console.log(`Override: ${m.id} model ${m.model} -> ${model}`);
+    }
+    return {
+      id: m.id,
+      label: ovr?.label ?? m.label,
+      provider: m.provider,
+      model,
+      complete: m.make(model),
+    };
+  });
   if (MODEL_FILTER.length) {
     models = models.filter((m) => MODEL_FILTER.includes(m.id));
     if (models.length === 0) {
@@ -312,15 +384,17 @@ async function main(): Promise<void> {
     console.log(`Active model(s): ${models.map((m) => m.id).join(", ")}`);
   }
 
-  // Seed the working scenario set from any prior (resumable) results.
+  // Seed the working scenario set from EVERY prior (resumable) result — not just
+  // the active/filtered models. A BAKEOFF_MODELS filter must only decide which
+  // models RUN this pass; models absent from the filter still need to survive
+  // the next persist(), or a single-model rerun would wipe the rest of the
+  // dataset. Forced ids are already dropped from prior.done in loadPrior.
   const scenarios: ScenarioResult[] = activeScenarios.map((spec) => ({
     id: spec.id,
     label: spec.label,
     description: spec.description,
     notes: spec.notes,
-    models: models
-      .map((m) => prior.done.get(spec.id)?.get(m.id))
-      .filter((m): m is ModelResult => m != null),
+    models: [...(prior.done.get(spec.id)?.values() ?? [])],
   }));
 
   // Per-scenario visual verdicts (rendered-screenshot judge). Populated by the

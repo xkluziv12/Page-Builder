@@ -17,3 +17,5 @@
 - [TechnoCycle WordPress stack](technocycle-wordpress-stack.md) — TC tool copies target WordPress/Beaver Builder/Yoast/Kinsta (not Joomla); Themer banner = page H1, output is an H2-start fragment, schema slim-to-gaps.
 - [M.A.R.K. canonical prompt set](mark-prompt-source-of-truth.md) — current build prompts = `(4.7)`-prefixed files in Drive folder "MY STS PROMPTS"; STS page model (single H1 in hero, absolute-HTTPS images).
 - [Routed Dashboard engine](routed-dashboard-engine.md) — bake-off orchestration (routing/timeout-abort/fallback/verify) lives in RoutedEngine behind the AIEngine seam; null verdict = invalid; main+explicit routes fail loud, default backup degrades.
+- [Bake-off single-model rerun](bakeoff-single-model-rerun.md) — rerun ONE model via BAKEOFF_MODELS+FORCE+MODEL_OVERRIDES same scenario (reuses grounding); filter must not wipe others on persist (seed from ALL prior).
+- [Blind judge panel](bakeoff-judge-panel.md) — newest frontier models score anonymized pages; schema richness is the decider; judges may self-favor, cross-model agreement is the real signal.
