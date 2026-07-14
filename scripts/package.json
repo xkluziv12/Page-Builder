@@ -20,6 +20,7 @@
     "bakeoff:judge": "tsx ./src/bakeoff/judge-panel.ts",
     "bakeoff:portland-review": "tsx ./src/bakeoff/portland-review.ts",
     "judge": "tsx ./src/judge/run.ts",
+    "github:sync": "tsx ./src/github-sync.ts",
     "seed-prompts": "tsx ./src/seed-prompts.ts",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit"
@@ -28,6 +29,7 @@
     "@anthropic-ai/sdk": "^0.78.0",
     "@google/genai": "^1.44.0",
     "@workspace/db": "workspace:*",
+    "@workspace/github-sync": "workspace:*",
     "@workspace/mc-core": "workspace:*",
     "drizzle-orm": "catalog:",
     "openai": "^6.27.0",

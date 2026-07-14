@@ -178,6 +178,9 @@ importers:
       '@workspace/db':
         specifier: workspace:*
         version: link:../../lib/db
+      '@workspace/github-sync':
+        specifier: workspace:*
+        version: link:../../lib/github-sync
       '@workspace/integrations-anthropic-ai':
         specifier: workspace:*
         version: link:../../lib/integrations-anthropic-ai
@@ -1033,6 +1036,12 @@ importers:
         specifier: ^0.31.10
         version: 0.31.10
 
+  lib/github-sync:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.6.2
+
   lib/integrations-anthropic-ai:
     dependencies:
       '@anthropic-ai/sdk':
@@ -1079,6 +1088,9 @@ importers:
       '@workspace/db':
         specifier: workspace:*
         version: link:../lib/db
+      '@workspace/github-sync':
+        specifier: workspace:*
+        version: link:../lib/github-sync
       '@workspace/mc-core':
         specifier: workspace:*
         version: link:../lib/mc-core

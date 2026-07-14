@@ -3,6 +3,7 @@ import { logger } from "./lib/logger";
 import { seedRegistry } from "./lib/mc-runtime";
 import { startWorkLogScheduler } from "./lib/mc-worklog-scheduler";
 import { startGitSyncPoller } from "./lib/gitSync";
+import { startGitHubMirrorScheduler } from "./lib/github-mirror-scheduler";
 
 const rawPort = process.env["PORT"];
 
@@ -28,4 +29,5 @@ app.listen(port, (err) => {
   void seedRegistry();
   startWorkLogScheduler();
   startGitSyncPoller();
+  startGitHubMirrorScheduler();
 });
