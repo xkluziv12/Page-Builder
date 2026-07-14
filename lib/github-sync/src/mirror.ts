@@ -110,11 +110,66 @@ async function gitLines(root: string, args: string[]): Promise<string[]> {
   return stdout.split("\0").filter((s) => s.length > 0);
 }
 
-function gitBlobSha(content: Buffer): string {
+/** Git blob SHA-1: sha1("blob <len>\0" + content). */
+export function gitBlobSha(content: Buffer): string {
   return createHash("sha1")
     .update(`blob ${content.length}\0`)
     .update(content)
     .digest("hex");
+}
+
+/**
+ * Order-independent fingerprint of a snapshot: paths are sorted before
+ * hashing, and path/mode/sha all feed the digest.
+ */
+export function computeSnapshotDigest(entries: Map<string, LocalEntry>): string {
+  const digestHash = createHash("sha1");
+  for (const [path, entry] of [...entries.entries()].sort(([a], [b]) => (a < b ? -1 : 1))) {
+    digestHash.update(`${path}\0${entry.mode}\0${entry.sha}\n`);
+  }
+  return digestHash.digest("hex");
+}
+
+export type SnapshotDiff = {
+  /** Paths whose blob content must be uploaded (new sha remotely). */
+  toUpload: string[];
+  /** Tree entries to write (adds, content changes, and mode-only changes). */
+  changedEntries: { path: string; mode: string; sha: string }[];
+  /** Remote-only paths that will be deleted by the mirror commit. */
+  deletions: string[];
+  added: number;
+  modified: number;
+};
+
+/**
+ * Pure local-vs-remote diff. A path counts as modified when its sha OR mode
+ * differs; mode-only changes are re-written in the tree without a blob upload.
+ */
+export function diffAgainstRemote(
+  entries: Map<string, LocalEntry>,
+  remoteBlobs: Map<string, { sha: string; mode: string }>,
+): SnapshotDiff {
+  const toUpload: string[] = [];
+  const changedEntries: { path: string; mode: string; sha: string }[] = [];
+  let added = 0;
+  let modified = 0;
+  for (const [path, entry] of entries) {
+    const remoteEntry = remoteBlobs.get(path);
+    if (!remoteEntry) {
+      added++;
+      toUpload.push(path);
+      changedEntries.push({ path, mode: entry.mode, sha: entry.sha });
+    } else if (remoteEntry.sha !== entry.sha || remoteEntry.mode !== entry.mode) {
+      modified++;
+      if (remoteEntry.sha !== entry.sha) toUpload.push(path);
+      changedEntries.push({ path, mode: entry.mode, sha: entry.sha });
+    }
+  }
+  const deletions: string[] = [];
+  for (const path of remoteBlobs.keys()) {
+    if (!entries.has(path)) deletions.push(path);
+  }
+  return { toUpload, changedEntries, deletions, added, modified };
 }
 
 async function mapLimit<T, R>(
@@ -186,11 +241,6 @@ export async function computeLocalSnapshot(root: string): Promise<SnapshotResult
       if (row) entries.set(row.path, row.entry);
     }
 
-    const digestHash = createHash("sha1");
-    for (const [path, entry] of [...entries.entries()].sort(([a], [b]) => (a < b ? -1 : 1))) {
-      digestHash.update(`${path}\0${entry.mode}\0${entry.sha}\n`);
-    }
-
     let localHead: string | null = null;
     try {
       const { stdout } = await execFileAsync("git", ["rev-parse", "HEAD"], { cwd: root });
@@ -201,7 +251,7 @@ export async function computeLocalSnapshot(root: string): Promise<SnapshotResult
 
     return {
       ok: true,
-      snapshot: { entries, digest: digestHash.digest("hex"), localHead },
+      snapshot: { entries, digest: computeSnapshotDigest(entries), localHead },
     };
   } catch (err) {
     return {
@@ -349,26 +399,10 @@ export async function mirrorToGitHub(opts: MirrorOptions = {}): Promise<MirrorSu
   if (!remoteResult.ok) return fail(remoteResult.detail, snapshot.digest);
   const remote = remoteResult.state;
 
-  const toUpload: string[] = [];
-  const changedEntries: { path: string; mode: string; sha: string }[] = [];
-  let added = 0;
-  let modified = 0;
-  for (const [path, entry] of snapshot.entries) {
-    const remoteEntry = remote.blobs.get(path);
-    if (!remoteEntry) {
-      added++;
-      toUpload.push(path);
-      changedEntries.push({ path, mode: entry.mode, sha: entry.sha });
-    } else if (remoteEntry.sha !== entry.sha || remoteEntry.mode !== entry.mode) {
-      modified++;
-      if (remoteEntry.sha !== entry.sha) toUpload.push(path);
-      changedEntries.push({ path, mode: entry.mode, sha: entry.sha });
-    }
-  }
-  const deletions: string[] = [];
-  for (const path of remote.blobs.keys()) {
-    if (!snapshot.entries.has(path)) deletions.push(path);
-  }
+  const { toUpload, changedEntries, deletions, added, modified } = diffAgainstRemote(
+    snapshot.entries,
+    remote.blobs,
+  );
 
   if (changedEntries.length === 0 && deletions.length === 0 && remote.headSha) {
     return {
