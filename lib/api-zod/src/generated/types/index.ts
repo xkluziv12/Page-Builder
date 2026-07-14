@@ -24,6 +24,8 @@ export * from './error';
 export * from './errorResponse';
 export * from './extractedLocation';
 export * from './getSeoIntelParams';
+export * from './githubSyncStatus';
+export * from './githubSyncSummary';
 export * from './gscPullResult';
 export * from './gtmetrixCheck';
 export * from './gtmetrixMetrics';

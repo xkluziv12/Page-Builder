@@ -9,6 +9,38 @@ export interface HealthStatus {
   status: string;
 }
 
+export interface GithubSyncStatus {
+  enabled: boolean;
+  repo: string;
+  branch: string;
+  intervalMinutes: number;
+  syncing: boolean;
+  /** @nullable */
+  lastCheckedAt: string | null;
+  /** @nullable */
+  lastSyncAt: string | null;
+  /** @nullable */
+  lastCommitSha: string | null;
+  /** @nullable */
+  lastDetail: string | null;
+  /** @nullable */
+  lastError: string | null;
+}
+
+export interface GithubSyncSummary {
+  ok: boolean;
+  skipped: boolean;
+  detail: string;
+  /** @nullable */
+  commitSha: string | null;
+  added: number;
+  modified: number;
+  deleted: number;
+  /** @nullable */
+  digest: string | null;
+  errors: string[];
+}
+
 export interface ErrorResponse {
   error: string;
 }

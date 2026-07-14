@@ -13,6 +13,8 @@ tags:
     description: Mission Control page-builder pipeline
   - name: prompts
     description: Prompt manager operations
+  - name: github-sync
+    description: Outbound GitHub mirror status and manual trigger
 paths:
   /healthz:
     get:
@@ -722,6 +724,40 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
+  /github-sync/status:
+    get:
+      operationId: getGithubSyncStatus
+      tags:
+        - github-sync
+      summary: Outbound GitHub mirror status
+      description: Current state of the background workspace-to-GitHub mirror (last sync, last commit, last error).
+      responses:
+        "200":
+          description: Sync status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GithubSyncStatus"
+  /github-sync/now:
+    post:
+      operationId: runGithubSyncNow
+      tags:
+        - github-sync
+      summary: Trigger a GitHub mirror pass now
+      description: Runs a full mirror pass immediately. Returns 502 when the push failed.
+      responses:
+        "200":
+          description: Sync summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GithubSyncSummary"
+        "502":
+          description: Sync failed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GithubSyncSummary"
 components:
   parameters:
     RunId:
@@ -756,6 +792,73 @@ components:
           type: string
       required:
         - status
+    GithubSyncStatus:
+      type: object
+      properties:
+        enabled:
+          type: boolean
+        repo:
+          type: string
+        branch:
+          type: string
+        intervalMinutes:
+          type: number
+        syncing:
+          type: boolean
+        lastCheckedAt:
+          type: [string, "null"]
+        lastSyncAt:
+          type: [string, "null"]
+        lastCommitSha:
+          type: [string, "null"]
+        lastDetail:
+          type: [string, "null"]
+        lastError:
+          type: [string, "null"]
+      required:
+        - enabled
+        - repo
+        - branch
+        - intervalMinutes
+        - syncing
+        - lastCheckedAt
+        - lastSyncAt
+        - lastCommitSha
+        - lastDetail
+        - lastError
+    GithubSyncSummary:
+      type: object
+      properties:
+        ok:
+          type: boolean
+        skipped:
+          type: boolean
+        detail:
+          type: string
+        commitSha:
+          type: [string, "null"]
+        added:
+          type: number
+        modified:
+          type: number
+        deleted:
+          type: number
+        digest:
+          type: [string, "null"]
+        errors:
+          type: array
+          items:
+            type: string
+      required:
+        - ok
+        - skipped
+        - detail
+        - commitSha
+        - added
+        - modified
+        - deleted
+        - digest
+        - errors
     ErrorResponse:
       type: object
       required:

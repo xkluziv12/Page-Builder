@@ -29,6 +29,8 @@ import type {
   Error,
   ErrorResponse,
   GetSeoIntelParams,
+  GithubSyncStatus,
+  GithubSyncSummary,
   GscPullResult,
   HealthStatus,
   LinkAuditOverrideRequest,
@@ -2477,5 +2479,154 @@ export const useResearchMeta = <TError = ErrorType<ErrorResponse>,
         TContext
       > => {
       return useMutation(getResearchMetaMutationOptions(options));
+    }
+
+export const getGetGithubSyncStatusUrl = () => {
+
+
+
+
+  return `/api/github-sync/status`
+}
+
+/**
+ * Current state of the background workspace-to-GitHub mirror (last sync, last commit, last error).
+ * @summary Outbound GitHub mirror status
+ */
+export const getGithubSyncStatus = async ( options?: RequestInit): Promise<GithubSyncStatus> => {
+
+  return customFetch<GithubSyncStatus>(getGetGithubSyncStatusUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetGithubSyncStatusQueryKey = () => {
+    return [
+    `/api/github-sync/status`
+    ] as const;
+    }
+
+
+export const getGetGithubSyncStatusQueryOptions = <TData = Awaited<ReturnType<typeof getGithubSyncStatus>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGithubSyncStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetGithubSyncStatusQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getGithubSyncStatus>>> = ({ signal }) => getGithubSyncStatus({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getGithubSyncStatus>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetGithubSyncStatusQueryResult = NonNullable<Awaited<ReturnType<typeof getGithubSyncStatus>>>
+export type GetGithubSyncStatusQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Outbound GitHub mirror status
+ */
+
+export function useGetGithubSyncStatus<TData = Awaited<ReturnType<typeof getGithubSyncStatus>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getGithubSyncStatus>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetGithubSyncStatusQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getRunGithubSyncNowUrl = () => {
+
+
+
+
+  return `/api/github-sync/now`
+}
+
+/**
+ * Runs a full mirror pass immediately. Returns 502 when the push failed.
+ * @summary Trigger a GitHub mirror pass now
+ */
+export const runGithubSyncNow = async ( options?: RequestInit): Promise<GithubSyncSummary> => {
+
+  return customFetch<GithubSyncSummary>(getRunGithubSyncNowUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getRunGithubSyncNowMutationOptions = <TError = ErrorType<GithubSyncSummary>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runGithubSyncNow>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof runGithubSyncNow>>, TError,void, TContext> => {
+
+const mutationKey = ['runGithubSyncNow'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof runGithubSyncNow>>, void> = () => {
+
+
+          return  runGithubSyncNow(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RunGithubSyncNowMutationResult = NonNullable<Awaited<ReturnType<typeof runGithubSyncNow>>>
+
+    export type RunGithubSyncNowMutationError = ErrorType<GithubSyncSummary>
+
+    /**
+ * @summary Trigger a GitHub mirror pass now
+ */
+export const useRunGithubSyncNow = <TError = ErrorType<GithubSyncSummary>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runGithubSyncNow>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof runGithubSyncNow>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getRunGithubSyncNowMutationOptions(options));
     }
 

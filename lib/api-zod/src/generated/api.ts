@@ -1799,3 +1799,38 @@ export const ResearchMetaResponse = zod.object({
 })
 
 
+/**
+ * Current state of the background workspace-to-GitHub mirror (last sync, last commit, last error).
+ * @summary Outbound GitHub mirror status
+ */
+export const GetGithubSyncStatusResponse = zod.object({
+  "enabled": zod.boolean(),
+  "repo": zod.string(),
+  "branch": zod.string(),
+  "intervalMinutes": zod.number(),
+  "syncing": zod.boolean(),
+  "lastCheckedAt": zod.string().nullable(),
+  "lastSyncAt": zod.string().nullable(),
+  "lastCommitSha": zod.string().nullable(),
+  "lastDetail": zod.string().nullable(),
+  "lastError": zod.string().nullable()
+})
+
+
+/**
+ * Runs a full mirror pass immediately. Returns 502 when the push failed.
+ * @summary Trigger a GitHub mirror pass now
+ */
+export const RunGithubSyncNowResponse = zod.object({
+  "ok": zod.boolean(),
+  "skipped": zod.boolean(),
+  "detail": zod.string(),
+  "commitSha": zod.string().nullable(),
+  "added": zod.number(),
+  "modified": zod.number(),
+  "deleted": zod.number(),
+  "digest": zod.string().nullable(),
+  "errors": zod.array(zod.string())
+})
+
+

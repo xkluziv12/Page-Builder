@@ -1,6 +1,7 @@
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuItem,
@@ -12,6 +13,7 @@ import {
 import { Link, useLocation } from "wouter";
 import { LayoutDashboard, Rocket, BookOpen, Table2 } from "lucide-react";
 import { useSystemMode } from "@/hooks/use-system-mode";
+import { GitHubSyncStatus } from "@/components/github-sync-status";
 
 // SidebarProvider writes the open/collapsed state to the `sidebar_state` cookie
 // on every toggle but never reads it back on mount. This is a client-rendered
@@ -130,6 +132,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarContent>
+          <SidebarFooter className="p-2 border-t border-sidebar-border">
+            <GitHubSyncStatus />
+          </SidebarFooter>
           <SidebarRail />
         </Sidebar>
         <main className="flex-1 flex flex-col min-h-screen overflow-hidden">
