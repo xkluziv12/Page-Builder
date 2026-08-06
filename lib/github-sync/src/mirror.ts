@@ -16,7 +16,7 @@ const execFileAsync = promisify(execFile);
  * all writes happen remotely through the GitHub REST API.
  */
 
-export const TOKEN_ENV = "xkluziv12_git";
+export const TOKEN_ENV = "XKLUZIV12_GITHUB_MASTER_TOKEN";
 const DEFAULT_REPO = "xkluziv12/page-terminal";
 const DEFAULT_BRANCH = "main";
 const API_BASE = "https://api.github.com";
