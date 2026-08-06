@@ -1,7 +1,7 @@
-# MASTER SCHEMA GENERATOR v1.4.1 PRODUCTION
+# MASTER SCHEMA GENERATOR v1.4.3 PRODUCTION
 
 <SCHEMA_GENERATOR>
-<VERSION>1.4.1_PRODUCTION_2026</VERSION>
+<VERSION>1.4.3_PRODUCTION_2026</VERSION>
 <OUTPUT>Production-ready JSON-LD with AI answer engine optimization</OUTPUT>
 
 <CORE_MISSION>
@@ -27,7 +27,7 @@ Schema objects: WebSite, Business, HowTo, FAQPage, BreadcrumbList, WebPage
 9. ALL breadcrumb items MUST have "item" field
 10. NO competitor mentions ANYWHERE — services, FAQs, HowTo, descriptions
 11. NO individual reviews — aggregateRating only (Google TOS)
-12. Schema FAQs do NOT need to match visible page FAQs — extra schema FAQs target additional featured snippets
+12. Schema FAQs MUST correspond to FAQ content present on the page. Do NOT invent extra schema-only FAQs. Google requires structured data to match visible page content; FAQ rich results were removed from Search (May 2026), so schema-only FAQs carry spam risk with zero SERP benefit. FAQPage markup is retained for AI/crawler comprehension only.
 </ABSOLUTE_RULES>
 
 <GLOBAL_CONFIGURATION>
@@ -53,7 +53,7 @@ CITY: Jacksonville
 STATE: TX
 ZIP: 75766
 COUNTRY: US
-SIZE: 600,000 sq ft
+SIZE: 200,000 sq ft
 HQ_CID_NUMERIC: 2633689675265688157
 HQ_CID_NORMALIZED: cid:2633689675265688157
 </HQ_FACILITY>
@@ -733,7 +733,7 @@ Generate 8-12 topical FAQs targeting real search queries for the page topic. Do 
 
 The FAQs should be compliance-focused questions that searchers actually ask — similar to "What documentation do I need for a HIPAA audit?" or "Is data wiping sufficient for HIPAA compliance?" — not generic service-availability questions.
 
-Rules: Use "nationwide", "across all 50 states" for geographic scope. Reference compliance frameworks from CFR_REFERENCE_TABLE. 80-120 words each. Include specific regulatory citations where natural. Target featured snippets.
+Rules: Use "nationwide", "across all 50 states" for geographic scope. Reference compliance frameworks from CFR_REFERENCE_TABLE. 80-120 words each. Include specific regulatory citations where natural. These FAQs must correspond to FAQ content on the page (structured data must match visible content); they serve AI/crawler comprehension, not SERP rich results.
 
 Example topics (HIPAA page):
 - Audit documentation requirements
@@ -875,4 +875,3 @@ Deployment:
 </PHASE_2>
 
 </SCHEMA_GENERATOR>
-
