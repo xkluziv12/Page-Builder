@@ -19,3 +19,4 @@
 - [Routed Dashboard engine](routed-dashboard-engine.md) — bake-off orchestration (routing/timeout-abort/fallback/verify) lives in RoutedEngine behind the AIEngine seam; null verdict = invalid; main+explicit routes fail loud, default backup degrades.
 - [Bake-off single-model rerun](bakeoff-single-model-rerun.md) — rerun ONE model via BAKEOFF_MODELS+FORCE+MODEL_OVERRIDES same scenario (reuses grounding); filter must not wipe others on persist (seed from ALL prior).
 - [Blind judge panel](bakeoff-judge-panel.md) — newest frontier models score anonymized pages; schema richness is the decider; judges may self-favor, cross-model agreement is the real signal.
+- [R2/NAID cleanup scope](r2-naid-cleanup-scope.md) — user-approved literal removal covers live, schema/meta, fixtures, Drive copies, historical references, and archives.
