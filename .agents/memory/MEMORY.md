@@ -20,3 +20,4 @@
 - [Bake-off single-model rerun](bakeoff-single-model-rerun.md) — rerun ONE model via BAKEOFF_MODELS+FORCE+MODEL_OVERRIDES same scenario (reuses grounding); filter must not wipe others on persist (seed from ALL prior).
 - [Blind judge panel](bakeoff-judge-panel.md) — newest frontier models score anonymized pages; schema richness is the decider; judges may self-favor, cross-model agreement is the real signal.
 - [R2/NAID cleanup scope](r2-naid-cleanup-scope.md) — user-approved literal removal covers live, schema/meta, fixtures, Drive copies, historical references, and archives.
+- [Large GitHub workspace publishing](github-large-workspace-publishing.md) — connector writes are rate-limited; publish large unrelated histories as throttled blobs plus hierarchical Git trees.
