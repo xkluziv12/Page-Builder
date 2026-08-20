@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/bake-off/"
+title = "Bake-Off"
+version = "1.0.0"
+id = "artifacts/bake-off"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/bake-off/" ]
+localPort = 23464
+
+[services.development]
+run = "pnpm --filter @workspace/bake-off run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/bake-off", "run", "build" ]
+publicDir = "artifacts/bake-off/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23464"
+BASE_PATH = "/bake-off/"

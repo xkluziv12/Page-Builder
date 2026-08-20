@@ -1,0 +1,5 @@
+.replit merge=ours
+replit.nix merge=ours
+pnpm-lock.yaml merge=ours
+lib/api-zod/src/generated/** merge=ours
+lib/api-client-react/src/generated/** merge=ours

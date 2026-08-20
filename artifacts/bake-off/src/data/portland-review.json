@@ -1,0 +1,80 @@
+{
+  "generatedAt": "2026-06-28T18:27:08.160Z",
+  "profile": {
+    "pageUrl": "https://www.stselectronicrecyclinginc.com/portland-or",
+    "gmbUrl": "https://www.google.com/maps?cid=11474658500133154431",
+    "cid": "cid:11474658500133154431",
+    "businessName": "Regus - Portland - Liberty Centre",
+    "street": "650 NE Holladay St #1600",
+    "city": "Portland",
+    "state": "OR",
+    "zip": "97232",
+    "county": "Multnomah County",
+    "phone": "(972) 764-8880",
+    "neighborhoods": [
+      "Lloyd District",
+      "Sullivan's Gulch",
+      "Irvington"
+    ],
+    "landmark": "in the Lloyd District near the Oregon Convention Center",
+    "lat": 45.5301,
+    "lng": -122.657,
+    "hours": "Mon-Fri 08:30-17:00; Sat-Sun Closed",
+    "openingHours": [
+      {
+        "day": "Monday",
+        "open24": false,
+        "closed": false,
+        "opens": "08:30",
+        "closes": "17:00"
+      },
+      {
+        "day": "Tuesday",
+        "open24": false,
+        "closed": false,
+        "opens": "08:30",
+        "closes": "17:00"
+      },
+      {
+        "day": "Wednesday",
+        "open24": false,
+        "closed": false,
+        "opens": "08:30",
+        "closes": "17:00"
+      },
+      {
+        "day": "Thursday",
+        "open24": false,
+        "closed": false,
+        "opens": "08:30",
+        "closes": "17:00"
+      },
+      {
+        "day": "Friday",
+        "open24": false,
+        "closed": false,
+        "opens": "08:30",
+        "closes": "17:00"
+      },
+      {
+        "day": "Saturday",
+        "open24": false,
+        "closed": true,
+        "opens": null,
+        "closes": null
+      },
+      {
+        "day": "Sunday",
+        "open24": false,
+        "closed": true,
+        "opens": null,
+        "closes": null
+      }
+    ],
+    "plusCode": "G8GW+2C",
+    "website": "https://www.stselectronicrecyclinginc.com"
+  },
+  "gmbContextSuffix": "\n\n[VERIFIED GOOGLE BUSINESS PROFILE — the explicit page_url + the page's verified GMB block.\nThis is the real, verified location data for this page. You MUST use it as the page's contact\ninfo: the business name, street address, phone, hours, CID, and map link below are the page's\nactual NAP — use them exactly, do not substitute the HQ line or omit the local address. Every\nmodel in this scenario receives this identical block.]\n\npage_url: https://www.stselectronicrecyclinginc.com/portland-or\ngmb_url: https://www.google.com/maps?cid=11474658500133154431\ngmb_cid: cid:11474658500133154431\nGMB data (verified — use exactly):\n- Business name: Regus - Portland - Liberty Centre\n- Address: 650 NE Holladay St #1600, Portland, OR 97232\n- County: Multnomah County\n- Phone: (972) 764-8880\n- Neighborhoods: Lloyd District, Sullivan's Gulch, Irvington\n- Landmark: in the Lloyd District near the Oregon Convention Center\n- Coordinates: 45.5301, -122.657\n- Hours: Mon-Fri 08:30-17:00; Sat-Sun Closed",
+  "gmbSchema": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": [\n    \"RecyclingCenter\",\n    \"LocalBusiness\"\n  ],\n  \"name\": \"Regus - Portland - Liberty Centre\",\n  \"url\": \"https://www.stselectronicrecyclinginc.com/portland-or\",\n  \"identifier\": \"cid:11474658500133154431\",\n  \"telephone\": \"(972) 764-8880\",\n  \"areaServed\": {\n    \"@type\": \"City\",\n    \"name\": \"Portland\"\n  },\n  \"address\": {\n    \"@type\": \"PostalAddress\",\n    \"streetAddress\": \"650 NE Holladay St #1600\",\n    \"addressLocality\": \"Portland\",\n    \"addressRegion\": \"OR\",\n    \"postalCode\": \"97232\",\n    \"addressCountry\": \"US\"\n  },\n  \"geo\": {\n    \"@type\": \"GeoCoordinates\",\n    \"latitude\": 45.5301,\n    \"longitude\": -122.657\n  },\n  \"hasMap\": \"https://www.google.com/maps?cid=11474658500133154431\",\n  \"sameAs\": [\n    \"https://www.google.com/maps?cid=11474658500133154431\"\n  ],\n  \"makesOffer\": [\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Computer Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/317-computer-recycling\"\n      }\n    },\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Laptop Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/318-laptop-recycling\"\n      }\n    },\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Cell Phone Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/iphone-smartphone-and-cell-phone-recycling\"\n      }\n    },\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Networking Equipment Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/320-networking-equipment-recycling\"\n      }\n    },\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Printer Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/321-printer-recycling\"\n      }\n    },\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Copy Machine Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/322-copy-machine-recycling\"\n      }\n    },\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Server Equipment Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/323-server-equipment-recycling\"\n      }\n    },\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Ink and Toner Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/324-ink-and-toner-recycling\"\n      }\n    },\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Monitor Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/325-monitor-recycling\"\n      }\n    },\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Old Electronics Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/326-old-electronics-recycling\"\n      }\n    }\n  ],\n  \"openingHoursSpecification\": [\n    {\n      \"@type\": \"OpeningHoursSpecification\",\n      \"dayOfWeek\": \"https://schema.org/Monday\",\n      \"opens\": \"08:30\",\n      \"closes\": \"17:00\"\n    },\n    {\n      \"@type\": \"OpeningHoursSpecification\",\n      \"dayOfWeek\": \"https://schema.org/Tuesday\",\n      \"opens\": \"08:30\",\n      \"closes\": \"17:00\"\n    },\n    {\n      \"@type\": \"OpeningHoursSpecification\",\n      \"dayOfWeek\": \"https://schema.org/Wednesday\",\n      \"opens\": \"08:30\",\n      \"closes\": \"17:00\"\n    },\n    {\n      \"@type\": \"OpeningHoursSpecification\",\n      \"dayOfWeek\": \"https://schema.org/Thursday\",\n      \"opens\": \"08:30\",\n      \"closes\": \"17:00\"\n    },\n    {\n      \"@type\": \"OpeningHoursSpecification\",\n      \"dayOfWeek\": \"https://schema.org/Friday\",\n      \"opens\": \"08:30\",\n      \"closes\": \"17:00\"\n    }\n  ]\n}",
+  "noGmbSchema": "{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"LocalBusiness\",\n  \"name\": \"STS Electronic Recycling — Portland, OR\",\n  \"url\": \"https://www.stselectronicrecyclinginc.com\",\n  \"telephone\": \"844-699-2913\",\n  \"areaServed\": {\n    \"@type\": \"City\",\n    \"name\": \"Portland\"\n  },\n  \"address\": {\n    \"@type\": \"PostalAddress\",\n    \"addressLocality\": \"Portland\",\n    \"addressRegion\": \"OR\",\n    \"addressCountry\": \"US\"\n  },\n  \"makesOffer\": [\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Computer Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/317-computer-recycling\"\n      }\n    },\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Laptop Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/318-laptop-recycling\"\n      }\n    },\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Cell Phone Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/iphone-smartphone-and-cell-phone-recycling\"\n      }\n    },\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Networking Equipment Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/320-networking-equipment-recycling\"\n      }\n    },\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Printer Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/321-printer-recycling\"\n      }\n    },\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Copy Machine Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/322-copy-machine-recycling\"\n      }\n    },\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Server Equipment Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/323-server-equipment-recycling\"\n      }\n    },\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Ink and Toner Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/324-ink-and-toner-recycling\"\n      }\n    },\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Monitor Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/325-monitor-recycling\"\n      }\n    },\n    {\n      \"@type\": \"Offer\",\n      \"itemOffered\": {\n        \"@type\": \"Service\",\n        \"name\": \"Old Electronics Recycling\",\n        \"url\": \"https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/326-old-electronics-recycling\"\n      }\n    }\n  ]\n}"
+}

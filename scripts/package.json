@@ -1,0 +1,47 @@
+{
+  "name": "@workspace/scripts",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "hello": "tsx ./src/hello.ts",
+    "mc": "tsx ./src/mc.ts",
+    "system-map": "tsx ./src/system-map.ts",
+    "bakeoff": "tsx ./src/bakeoff/run.ts",
+    "bakeoff:compare": "BAKEOFF_SCENARIOS=gmb tsx ./src/bakeoff/run.ts",
+    "bakeoff:single": "BAKEOFF_PRODUCE_MODE=single tsx ./src/bakeoff/produce.ts",
+    "bakeoff:multi": "BAKEOFF_PRODUCE_MODE=routed tsx ./src/bakeoff/produce.ts",
+    "bakeoff:seo-verify-demo": "tsx ./src/bakeoff/seo-verify-demo.ts",
+    "bakeoff:schema-demo": "tsx ./src/bakeoff/schema-demo.ts",
+    "bakeoff:rescore": "tsx ./src/bakeoff/rescore-visual.ts",
+    "bakeoff:cost": "tsx ./src/bakeoff/backfill-cost.ts",
+    "bakeoff:dossier": "tsx ./src/bakeoff/dossier.ts",
+    "bakeoff:review": "tsx ./src/bakeoff/review.ts",
+    "bakeoff:judge": "tsx ./src/bakeoff/judge-panel.ts",
+    "bakeoff:portland-review": "tsx ./src/bakeoff/portland-review.ts",
+    "judge": "tsx ./src/judge/run.ts",
+    "github:sync": "tsx ./src/github-sync.ts",
+    "seed-prompts": "tsx ./src/seed-prompts.ts",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.78.0",
+    "@google/genai": "^1.44.0",
+    "@workspace/db": "workspace:*",
+    "@workspace/github-sync": "workspace:*",
+    "@workspace/mc-core": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "openai": "^6.27.0",
+    "pixelmatch": "^7.2.0",
+    "playwright-core": "^1.61.0",
+    "pngjs": "^7.0.0",
+    "yaml": "^2.9.0"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "@types/pngjs": "^6.0.5",
+    "tsx": "catalog:",
+    "vitest": "^4.1.9"
+  }
+}

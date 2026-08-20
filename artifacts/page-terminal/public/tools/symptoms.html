@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en" data-t="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Symptoms</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f6f9; --cd:#ffffff; --bd:#e2e8f0; --bd2:#cbd5e1;
+  --tx:#0f172a; --tx2:#475569; --tx3:#94a3b8;
+  --ac:#3b82f6; --ac2:#60a5fa; --tl:#0d9488; --gn:#059669;
+  --am:#f59e0b; --rd:#dc2626; --rd2:#ef4444; --pp:#8b5cf6;
+  --r:10px;
+}
+[data-t="dark"]{
+  --bg:#0a0f1d; --cd:#111827; --bd:#1f2937; --bd2:#374151;
+  --tx:#f1f5f9; --tx2:#cbd5e1; --tx3:#64748b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{font-family:'Outfit',sans-serif;background:var(--bg);color:var(--tx);font-size:14px;min-height:100vh}
+.mono{font-family:'IBM Plex Mono',monospace;font-feature-settings:"tnum"}
+
+header{display:flex;align-items:center;gap:14px;padding:14px 24px;background:var(--cd);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:10}
+.logo{display:inline-flex;align-items:center;gap:10px;font-size:15px;font-weight:700;letter-spacing:-.2px}
+.logo-mk{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;font-weight:800;border-radius:8px;font-size:15px;font-family:'IBM Plex Mono',monospace}
+.logo-tag{font-size:11.5px;color:var(--tx3);font-weight:500;border-left:1px solid var(--bd);padding-left:10px;margin-left:2px}
+.spacer{flex:1}
+.icon-btn{background:none;border:1px solid var(--bd);border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--tx2);font-size:13px;line-height:1}
+.icon-btn:hover{background:var(--bg);color:var(--tx)}
+
+nav.tabs{display:flex;gap:0;background:var(--cd);border-bottom:1px solid var(--bd);padding:0 24px;overflow-x:auto}
+nav.tabs .tab-btn{background:none;border:none;padding:13px 18px;font:inherit;font-size:13px;font-weight:600;color:var(--tx3);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;letter-spacing:.2px}
+nav.tabs .tab-btn:hover{color:var(--tx2)}
+nav.tabs .tab-btn.active{color:var(--tx);border-bottom-color:var(--rd)}
+
+main{padding:20px 24px;max-width:1400px;margin:0 auto}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:18px}
+.kpi{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);padding:14px 16px;position:relative;overflow:hidden}
+.kpi::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--ac)}
+.kpi-red::before{background:var(--rd)}
+.kpi-amber::before{background:var(--am)}
+.kpi-green::before{background:var(--gn)}
+.kpi-blue::before{background:var(--ac)}
+.kpi-l{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);margin-bottom:6px}
+.kpi-v{font-size:28px;font-weight:600;font-family:'IBM Plex Mono',monospace;line-height:1.1;margin-bottom:3px}
+.kpi-d{font-size:11.5px;color:var(--tx2)}
+
+.cd{background:var(--cd);border:1px solid var(--bd);border-radius:var(--r);padding:18px;margin-bottom:16px}
+.cd-h{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;gap:12px;flex-wrap:wrap}
+.cd-t{font-size:14px;font-weight:600;letter-spacing:-.1px}
+.cd-st{font-size:11.5px;color:var(--tx3);margin-top:2px}
+
+.err{background:var(--bg);border:1px solid var(--bd);border-radius:8px;margin-bottom:8px;overflow:hidden;transition:border-color .15s}
+.err:hover{border-color:var(--bd2)}
+.err.severe{border-left:3px solid var(--rd)}
+.err.warn{border-left:3px solid var(--am)}
+.err.info{border-left:3px solid var(--ac)}
+.err-hd{display:grid;grid-template-columns:90px 1fr 140px 100px 90px 60px;gap:12px;align-items:center;padding:12px 14px;cursor:pointer;font-size:12.5px;user-select:none}
+.err-hd:hover{background:rgba(220,38,38,.04)}
+.err-time{color:var(--tx3);font-family:'IBM Plex Mono',monospace;font-size:11px}
+.err-msg{color:var(--tx);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.err-wf{color:var(--tx2);font-family:'IBM Plex Mono',monospace;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.err-node{color:var(--tx2);font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.err-mode{display:inline-block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;padding:2px 6px;border-radius:4px;font-family:'IBM Plex Mono',monospace;text-align:center}
+.err-mode.manual{background:rgba(59,130,246,.12);color:var(--ac)}
+.err-mode.scheduled{background:rgba(13,148,136,.14);color:var(--tl)}
+.err-mode.webhook{background:rgba(139,92,246,.12);color:var(--pp)}
+.err-mode.unknown{background:var(--bd);color:var(--tx3)}
+.err-toggle{color:var(--tx3);font-size:12px;text-align:right}
+.err-bd{display:none;padding:0 14px 14px;border-top:1px solid var(--bd);font-size:12px}
+.err-bd.open{display:block}
+.err-bd-sec{margin-top:12px}
+.err-bd-l{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tx3);margin-bottom:5px}
+.err-bd-tx{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--tx);background:var(--cd);padding:8px 11px;border-radius:6px;border:1px solid var(--bd);white-space:pre-wrap;word-break:break-word;line-height:1.45}
+.err-bd-link{display:inline-flex;align-items:center;gap:5px;color:var(--ac);text-decoration:none;font-size:11.5px;margin-top:8px;font-weight:500}
+.err-bd-link:hover{text-decoration:underline}
+
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center}
+.filter-pill{padding:5px 11px;background:var(--cd);border:1px solid var(--bd);border-radius:6px;font-size:11.5px;color:var(--tx2);cursor:pointer;font-family:inherit}
+.filter-pill:hover{background:var(--bg);color:var(--tx)}
+.filter-pill.on{background:var(--rd);color:#fff;border-color:var(--rd)}
+.filter-bar-l{font-size:11px;color:var(--tx3);text-transform:uppercase;letter-spacing:.5px;font-weight:700;margin-right:4px}
+
+.empty-state{padding:60px 20px;text-align:center;color:var(--tx2)}
+.empty-state-ic{font-size:48px;margin-bottom:14px;opacity:.4}
+.empty-state-t{font-size:16px;font-weight:600;color:var(--tx);margin-bottom:6px}
+.empty-state-d{font-size:13px;color:var(--tx3);max-width:420px;margin:0 auto;line-height:1.5}
+
+.source-card{padding:14px;background:var(--bg);border:1px solid var(--bd);border-radius:8px;display:flex;align-items:center;gap:12px}
+.source-status{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.source-status.up{background:var(--gn);box-shadow:0 0 0 3px rgba(5,150,105,.18)}
+.source-status.warn{background:var(--am);box-shadow:0 0 0 3px rgba(245,158,11,.18)}
+.source-status.down{background:var(--rd);box-shadow:0 0 0 3px rgba(220,38,38,.18)}
+.source-name{flex:1;font-size:13px;font-weight:600}
+.source-meta{font-size:11px;color:var(--tx3);font-family:'IBM Plex Mono',monospace}
+
+.ph-hint{margin-top:14px;padding:10px 14px;background:linear-gradient(90deg,rgba(220,38,38,.08),rgba(220,38,38,.04));border:1px solid rgba(220,38,38,.2);border-radius:8px;font-size:11.5px;color:var(--tx2);font-style:italic}
+
+footer{padding:18px 24px;text-align:center;font-size:11px;color:var(--tx3);border-top:1px solid var(--bd);margin-top:24px}
+footer .mono{color:var(--tx2)}
+.mark-attr{margin-top:10px;font-size:10.5px;color:var(--tx3);letter-spacing:.3px;display:flex;align-items:center;justify-content:center;gap:6px;flex-wrap:wrap}
+.mark-name{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--ac2);letter-spacing:1.2px}
+.mark-sub{color:var(--tx3);font-size:10px;font-style:italic;opacity:.85}
+
+@media(max-width:780px){
+  .err-hd{grid-template-columns:80px 1fr 60px;gap:8px}
+  .err-wf,.err-node,.err-mode{display:none}
+}
+@media(max-width:640px){
+  header{flex-wrap:wrap;gap:10px;padding:10px 14px}
+  main{padding:14px}
+  .kpis{grid-template-columns:repeat(2,1fr);gap:10px}
+  nav.tabs{padding:0 10px}
+  nav.tabs .tab-btn{padding:11px 12px;font-size:12px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <span class="logo-mk">⚠</span>
+    <span>Symptoms</span>
+    <span class="logo-tag">System errors and workflow alerts</span>
+  </div>
+  <div class="spacer"></div>
+  <button class="icon-btn" onclick="toggleTheme()" title="Toggle theme">🌓</button>
+</header>
+
+<nav class="tabs">
+  <button class="tab-btn active" data-tab="recent" onclick="switchTab('recent')">Recent</button>
+  <button class="tab-btn" data-tab="workflows" onclick="switchTab('workflows')">By Workflow</button>
+  <button class="tab-btn" data-tab="sources" onclick="switchTab('sources')">Sources</button>
+  <button class="tab-btn" data-tab="resolved" onclick="switchTab('resolved')">Resolved</button>
+</nav>
+
+<main>
+  <div class="kpis">
+    <div class="kpi kpi-red"><div class="kpi-l">Errors Today</div><div class="kpi-v">—</div><div class="kpi-d">across all sources</div></div>
+    <div class="kpi kpi-amber"><div class="kpi-l">This Week</div><div class="kpi-v">—</div><div class="kpi-d">last 7 days</div></div>
+    <div class="kpi kpi-blue"><div class="kpi-l">Active Sources</div><div class="kpi-v">1</div><div class="kpi-d">workflows monitored</div></div>
+    <div class="kpi kpi-green"><div class="kpi-l">Most Recent</div><div class="kpi-v" style="font-size:18px">—</div><div class="kpi-d">time since last error</div></div>
+  </div>
+
+  <section class="tab-panel active" id="tab-recent">
+    <div class="cd">
+      <div class="cd-h">
+        <div>
+          <div class="cd-t">Recent Errors</div>
+          <div class="cd-st">most recent first · click any row to expand details</div>
+        </div>
+      </div>
+
+      <div class="filter-bar">
+        <span class="filter-bar-l">Time</span>
+        <button class="filter-pill on">All</button>
+        <button class="filter-pill">24h</button>
+        <button class="filter-pill">7d</button>
+        <button class="filter-pill">30d</button>
+        <span class="filter-bar-l" style="margin-left:14px">Severity</span>
+        <button class="filter-pill on">All</button>
+        <button class="filter-pill">Severe</button>
+        <button class="filter-pill">Warn</button>
+        <button class="filter-pill">Info</button>
+      </div>
+
+      <div class="err severe">
+        <div class="err-hd" onclick="toggleErr(this)">
+          <span class="err-time">— —</span>
+          <span class="err-msg">Error message placeholder</span>
+          <span class="err-wf">workflow_name</span>
+          <span class="err-node">failed_node</span>
+          <span class="err-mode unknown">mode</span>
+          <span class="err-toggle">▾</span>
+        </div>
+        <div class="err-bd">
+          <div class="err-bd-sec">
+            <div class="err-bd-l">Full Error Message</div>
+            <div class="err-bd-tx">The full error message goes here when an actual error is logged. This will mirror exactly what the n8n Error Trigger sends.</div>
+          </div>
+          <div class="err-bd-sec">
+            <div class="err-bd-l">Stack Trace</div>
+            <div class="err-bd-tx">Stack trace will appear here for runtime exceptions.</div>
+          </div>
+          <a class="err-bd-link" href="#" onclick="event.preventDefault()">View execution in n8n ↗</a>
+        </div>
+      </div>
+
+      <div class="err warn">
+        <div class="err-hd" onclick="toggleErr(this)">
+          <span class="err-time">— —</span>
+          <span class="err-msg">Auth or credential warning placeholder</span>
+          <span class="err-wf">workflow_name</span>
+          <span class="err-node">failed_node</span>
+          <span class="err-mode unknown">mode</span>
+          <span class="err-toggle">▾</span>
+        </div>
+        <div class="err-bd">
+          <div class="err-bd-sec">
+            <div class="err-bd-l">Full Error Message</div>
+            <div class="err-bd-tx">Warning-level errors that don't halt execution but need attention.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="err info">
+        <div class="err-hd" onclick="toggleErr(this)">
+          <span class="err-time">— —</span>
+          <span class="err-msg">Informational alert placeholder</span>
+          <span class="err-wf">workflow_name</span>
+          <span class="err-node">failed_node</span>
+          <span class="err-mode unknown">mode</span>
+          <span class="err-toggle">▾</span>
+        </div>
+        <div class="err-bd">
+          <div class="err-bd-sec">
+            <div class="err-bd-l">Full Message</div>
+            <div class="err-bd-tx">Info-level events for context, not failures.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ph-hint">
+        Layout preview only. Real errors will appear here when STS Error Alerts (or any future error workflow) writes to the data source. Decide: log errors to a Google Sheet for the dashboard to read, or build a separate aggregator workflow.
+      </div>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="tab-workflows">
+    <div class="cd">
+      <div class="cd-h">
+        <div>
+          <div class="cd-t">Errors Grouped by Workflow</div>
+          <div class="cd-st">which n8n workflows are throwing the most errors</div>
+        </div>
+      </div>
+      <div class="empty-state">
+        <div class="empty-state-ic">📊</div>
+        <div class="empty-state-t">No grouped data yet</div>
+        <div class="empty-state-d">Once errors are logged, this view groups them by workflow name to surface which automations are unstable.</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="tab-sources">
+    <div class="cd">
+      <div class="cd-h">
+        <div>
+          <div class="cd-t">Error Sources</div>
+          <div class="cd-st">workflows feeding this dashboard</div>
+        </div>
+      </div>
+      <div class="kpis" style="grid-template-columns:repeat(auto-fit,minmax(280px,1fr))">
+        <div class="source-card">
+          <span class="source-status up"></span>
+          <div class="source-name">STS Error Alerts</div>
+          <span class="source-meta">connected</span>
+        </div>
+        <div class="source-card" style="opacity:.5">
+          <span class="source-status warn"></span>
+          <div class="source-name">DCD Classification (future)</div>
+          <span class="source-meta">not wired</span>
+        </div>
+        <div class="source-card" style="opacity:.5">
+          <span class="source-status warn"></span>
+          <div class="source-name">DCD Daily Report (future)</div>
+          <span class="source-meta">not wired</span>
+        </div>
+        <div class="source-card" style="opacity:.5">
+          <span class="source-status warn"></span>
+          <div class="source-name">DCD Dashboard Feed A3 (future)</div>
+          <span class="source-meta">not wired</span>
+        </div>
+      </div>
+      <div class="ph-hint">
+        Each source represents a workflow whose Error Trigger feeds into Symptoms. STS Error Alerts is currently configured. To add another, set its workflow's "Error Workflow" setting to "STS Error Alerts" in n8n.
+      </div>
+    </div>
+  </section>
+
+  <section class="tab-panel" id="tab-resolved">
+    <div class="cd">
+      <div class="cd-h">
+        <div>
+          <div class="cd-t">Resolved Errors</div>
+          <div class="cd-st">errors marked as fixed or dismissed</div>
+        </div>
+      </div>
+      <div class="empty-state">
+        <div class="empty-state-ic">✓</div>
+        <div class="empty-state-t">Nothing resolved yet</div>
+        <div class="empty-state-d">Errors moved out of the active queue will land here for historical reference.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Symptoms · v0 placeholder · <span class="mono">layout preview only</span>
+  <div class="mark-attr">Powered by <span class="mark-name">M.A.R.K.</span> <span class="mark-sub">Machine Assisted Routing Kit</span></div>
+</footer>
+
+<script>
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === id));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === 'tab-' + id));
+  try { localStorage.setItem('symptoms_tab', id); } catch(e) {}
+}
+
+function toggleErr(headerEl) {
+  const body = headerEl.parentElement.querySelector('.err-bd');
+  body.classList.toggle('open');
+  const toggle = headerEl.querySelector('.err-toggle');
+  toggle.textContent = body.classList.contains('open') ? '▴' : '▾';
+}
+
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-t');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-t', next);
+  try { localStorage.setItem('symptoms_theme', next); } catch(e) {}
+}
+
+(function() {
+  try {
+    const t = localStorage.getItem('symptoms_theme');
+    if (t) document.documentElement.setAttribute('data-t', t);
+    const tab = localStorage.getItem('symptoms_tab');
+    if (tab && document.getElementById('tab-' + tab)) switchTab(tab);
+  } catch(e) {}
+})();
+</script>
+</body>
+</html>

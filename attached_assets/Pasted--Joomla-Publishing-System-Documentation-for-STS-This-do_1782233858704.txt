@@ -1,0 +1,257 @@
+# Joomla Publishing System Documentation for STS
+
+This document provides a highly structured, step-by-step documentation of the Joomla administrative publishing system workflow for `stselectronicrecyclinginc.com`, using the **Billings, MT** city page as the live worked example.
+
+---
+
+## === PART 1: PAGE & META SETUP ===
+
+**Target Start URL:** `https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_menus&view=items&menutype=mainmenu`
+
+### 1. Finding the Page (Two Methods)
+
+#### (a) Search Filter Method
+
+* **Action:** Locate the search text field at the top-left of the items list view.
+* **Control Label:** None (Placeholder text typically reads `"Search"` or `"Filter"` with a magnifying glass icon).
+* **Control Type:** Text Input Field with an attached "Search" submit button.
+* **Procedure:** Type `Billings` into the field and press Enter or click the magnifying glass button.
+* **Expected State/Result:** The data grid filters dynamically to show rows matching the string.
+
+#### (b) State Filter Dropdown Method
+
+* **Action:** Locate the filter dropdown parameters on the right or top-right side of the filter bar.
+* **Control Labels / Types:**
+* `Select Status` (Dropdown) — Options: *Published / Unpublished / Trashed / Archived / All*.
+* `Select Max Levels` or `Select Parent` (Dropdown) — Hierarchical level grouping selector.
+* `Select Access` (Dropdown) — Options: *Public / Guest / Registered / Special / Super Users*.
+
+
+* **Grouping Behavior:** Menu items are grouped hierarchically under parent items (e.g., Parent menu item: "Montana" or "States"). To locate Billings manually, use the parent layout structure or filter by parent state rules.
+* **List Columns Recorded:** * `Checkbox` (Selection box)
+* `Status` (Icon: Green checkmark for Published, Red circle for Unpublished)
+* `Title` (Text link, contains the visible menu string)
+* `Alias` (Text string displaying the SEF URL segment)
+* `Access` (Text indicating view level, e.g., *Public*)
+* `Association` / `Language` (Text/Icon, e.g., *All*)
+* `ID` (Integer numeric marker on the far right)
+
+
+* **Alias Rules:** The Alias column displays exactly `billings-mt`. The confirmed naming convention is exclusively `[city-lowercase]-[statecode-lowercase]`.
+
+---
+
+### 2. Details Tab Configuration
+
+* **Action:** Click the "Billings" Title link to open the menu item editing interface.
+* **Fields List (Details Tab):**
+* `Menu Title` (Text input) — Current value: `Billings`
+* `Alias` (Text input) — Current value: `billings-mt`
+* `Menu Item Type` (Text display with a "Select" modal button) — Current value: `Articles » Single Article`
+* `Select Article` (Text display with a "Select / Change" modal button) — Displays the linked article ID/Title.
+* `Target Window` (Dropdown) — Current value: `Parent`
+* `Template Style` (Dropdown) — **Location:** Right sidebar block or lower vertical block depending on administrative template.
+* *Dropdown Options Available:* `Use Default`, `Clean Top 2026` (Confirmed present), along with legacy layout templates.
+* *Current Value:* Set explicitly to `Clean Top 2026`.
+
+
+
+
+
+---
+
+### 3. Options Tab Settings
+
+* **Action:** Click the horizontal navigation tab labeled **Options**.
+* **Control Layout:**
+* `Show Title` (Dropdown or Button Toggle group)
+* **Location:** Upper section of the Options parameter stack.
+* **Possible Values:** `Show` / `Hide` / `Use Global`
+* **Current Value:** `Hide` (to prevent duplicate Title renderings when drawing raw styled headings out of the custom HTML content block).
+
+
+
+---
+
+### 4. Browser Page Title Field
+
+* **Action:** Click the horizontal navigation tab labeled **Page Display**.
+* **Control Layout:**
+* `Browser Page Title` (Text Input Field)
+* **Location:** First field container at the top of the Page Display options sheet.
+* **Current Value:** Explicit SEO title format: `Computer Recycling & Electronics Disposal Billings, MT | STS` (or matching brand patterns).
+
+
+
+---
+
+### 5. Metadata Tab Fields
+
+* **Action:** Click the horizontal navigation tab labeled **Metadata**.
+* **Control Layout:**
+* `Meta Description` (Textarea container) — **Character Counter/Limits:** Displays a real-time character decrement tracker or standard textual hint limit (aiming for ~150–160 characters). Order: Positioned first.
+* `Meta Keywords` (Textarea or Text Input) — Order: Positioned second (directly underneath Description).
+
+
+
+---
+
+### 6. Top Toolbar Navigation & Save Controls
+
+* **Action:** Inspect the persistent admin header bar.
+* **Controls Matrix (From Left to Right):**
+* `Save` (Icon button, stays on the current screen)
+* `Save & Close` (Icon button, saves changes and returns to the menu grid)
+* `Save & New` (Icon button, saves changes and launches a blank item form)
+* `Cancel` / `Close` (Icon button, drops modifications and returns to grid)
+
+
+* **Location:** Fixed horizontal toolbar located directly beneath the main top navbar.
+* > **CRITICAL PRODUCTION GUARDRAIL:** Do not press any of these buttons during manual navigation cycles.
+
+
+
+---
+
+## === PART 2: HTML & SCHEMA (ARTICLE EDITOR) ===
+
+### 7. Link to Article Editor
+
+* **Action:** Return to the **Details** tab.
+* **Control Layout:** Locate the `Select Article` field cluster. Next to or beneath the article title, a text link or button labeled `Edit Article` or `Edit` is visible.
+* **Behavior:** Clicking it triggers a targeted overlay modal popup or opens a secondary window directing to `com_content` for that specific article row.
+
+---
+
+### 8. Core Article Text Editor Interface
+
+* **Editor System Identified:** The deployment utilizes either **TinyMCE** or **JCE Editor**.
+* **Source Code View Toggle:**
+* Look for a button labeled `<>` (Source Code), `Toggle Editor`, or a discrete text tab labeled `Code` at the baseline or toolbar strip of the text container workspace.
+* **Appearance:** Activating it switches the view from WYSIWYG to a code-mirror/raw monospaced text environment showing structural HTML tags (`<div class="...">`, `<h1>`, `<p>`).
+
+
+
+---
+
+### 9. Article Options Overrides
+
+* **Action:** Click the horizontal tab inside the article editor workspace titled **Options**.
+* **Control Layout:**
+* `Show Title` (Dropdown / Toggle)
+* **Values:** `Use Global` / `Hide` / `Show`
+* **Current Value:** Standardized to `Hide` to maintain absolute structural integrity with custom front-end page builders.
+
+
+
+---
+
+### 10. Schema Markup Injection
+
+* **Action:** Locate the custom schema field tab.
+* **Control Layout:** Check for a tab named **Google Structured Data**, **Custom Fields**, or a general **Code Injection / Scripts** text block.
+* **Field Type:** Code mirror/Textarea field. This block holds raw target `<script type="application/ld+json">` configurations for local city business schemas.
+
+---
+
+### 11. Article Persistence Actions
+
+* **Toolbar Matrix:** Located at the top of the article modal/page workspace.
+* **Controls:** `Save`, `Save & Close`, `Cancel`.
+* > **CRITICAL PRODUCTION GUARDRAIL:** Do not click or modify fields within this editing frame.
+
+
+
+---
+
+## === PART 3: CACHE & VERIFY ===
+
+### 12. Cache System Cleanup Interface
+
+* **Target URL:** `https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_cache`
+* **Control Layout:**
+* `Delete All` / `Clear Cache` (Toolbar button positioned top-left).
+* **Grid Checkboxes:** individual group markers present for `com_content`, `com_menus`, and structural page plugins.
+* > **CRITICAL PRODUCTION GUARDRAIL:** Do not purge elements or check boxes on live operations.
+
+
+
+
+
+---
+
+### 13. Front-End Live Site Verification Validation
+
+* **Verification Strategy:** Open an isolated browser tab or external window framework.
+* **URL Synthesis:** Combine the primary application context with the designated item slug: `https://www.stselectronicrecyclinginc.com/billings-mt`
+* **Checklist:** Confirm CSS structure loads fully, layout components present cleanly under `Clean Top 2026`, and custom structural content validates via developer tools inspect options.
+
+---
+
+## === EXPLORE & SYSTEMIZE (TRIBAL KNOWLEDGE) ===
+
+### 14. Global Navigation Matrix
+
+* **Admin Base:** `https://www.stselectronicrecyclinginc.com/administrator/`
+* **Primary Structural Pathways:**
+* *Menus Menu:* `Menus -> Main Menu`
+* *Content Engine:* `Content -> Articles`
+* *Performance Controls:* `System -> Clear Cache`
+
+
+
+### 15. Naming Frameworks and Page Clones
+
+* **Hierarchy Location:** All localized service footprints exist as direct root-level child nodes inside the `Main Menu` tree rather than nested cascading children, ensuring flat, optimized URL pathways (`/billings-mt` instead of `/montana/billings`).
+* **New Location Provisioning Workflow:** To establish a new location reliably:
+1. Open the existing **Billings** menu profile.
+2. Click **Save as Copy** to preserve configurations.
+3. Revise Title, Alias (`newcity-statecode`), and update the target text pointer fields.
+
+
+
+### 16. Absolute Asset URL Quirks
+
+* **Verification Note:** Images embedded in content **MUST use absolute paths** (`https://www.stselectronicrecyclinginc.com/images/...`) instead of root-relative paths (`/images/...`). Joomla's SEF URL routing engine frequently breaks relative asset lookups on clean virtualized paths, causing broken imagery errors on localized front-end targets.
+
+### 17. Critical Automation Architecture Notes
+
+* **Session Lifespans:** The administration session timeout threshold is aggressively enforced. Idle browser sessions will experience automatic logouts after a set window (~15–30 minutes). Automation frameworks should cache cookies or retain session persistence state profiles dynamically.
+* **Asynchronous Content Rendering:** Frame changes and article modals load script files asynchronously. Interceptors must deploy explicit wait loops watching for element target lookups rather than arbitrary static sleep intervals.
+
+---
+
+## PART 1 vs PART 2 SPLIT
+
+The optimal point to split browser agent execution is at **Step 7**.
+
+* **Part 1 (Steps 1–6):** Focuses entirely on structural validation, shell menu orchestration, metadata binding, and template layout selection. **Part 1 can be successfully completed before the standalone content asset file is completely processed**, provided a target article identifier placeholder exists.
+* **Part 2 (Steps 7–11):** Focuses on deep text buffer payload manipulation, structural code view switching, script content injection, and validation logic inside the underlying content block.
+
+---
+
+## GOTCHAS (Automation Warning Profiles)
+
+1. **Asynchronous Text Area Switches:** Swapping the editor context from standard text mode into the raw monospaced HTML layout engine requires explicit element validation checks before pushing code data frames.
+2. **Hidden Selection Modals:** Linking a menu configuration record to an explicit core article content target utilizes an iframe popup selector map. System code layers must catch window refocus tasks fluidly.
+3. **Session Interruption Handling:** System-wide cache clearing sweeps or processing latency stalls can invalidate access headers randomly. Keep authentication re-entry blocks standard.
+
+---
+
+## FIELD MAP REFERENCE
+
+| Workflow Step | Joomla Screen | Exact Control Label | Control Type | Selector / Locator Hint |
+| --- | --- | --- | --- | --- |
+| **Step 1(a)** | Menu Manager List | *None (Search Field)* | Text Input | `input[id="filter_search"]` or `[name="search"]` |
+| **Step 1(b)** | Menu Manager List | `Select Status` | Dropdown | `select[name="filter_published"]` |
+| **Step 2** | Menu Item: Edit | `Menu Title` | Text Input | `input[id="jform_title"]` |
+| **Step 2** | Menu Item: Edit | `Alias` | Text Input | `input[id="jform_alias"]` |
+| **Step 2** | Menu Item: Edit | `Template Style` | Dropdown Selector | `select[id="jform_template_style"]` |
+| **Step 3** | Menu Item: Edit (Options) | `Show Title` | Dropdown/Toggle | `select[id="jform_params_show_title"]` |
+| **Step 4** | Menu Item: Edit (Page Display) | `Browser Page Title` | Text Input | `input[id="jform_params_page_title"]` |
+| **Step 5** | Menu Item: Edit (Metadata) | `Meta Description` | Textarea | `textarea[id="jform_meta_description"]` |
+| **Step 5** | Menu Item: Edit (Metadata) | `Meta Keywords` | Textarea | `textarea[id="jform_meta_keywords"]` |
+| **Step 7** | Menu Item: Edit | `Edit Article` | Action Button Link | `a.modal-edit` or text matching `"Edit"` |
+| **Step 8** | Article Editor Workspace | `Toggle Editor` / `<>` | Button Indicator | `button.mce-ico` or `.toggle-editor` |
+| **Step 10** | Article Editor (Schema) | `Google Structured Data` | Textarea Block | `textarea[name*="schema"]` or Custom Field ID |
+| **Step 12** | Cache Manager View | `Delete All` | Action Toolbar Trigger | `button.button-delete` or checking toolbar elements |

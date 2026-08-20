@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hub+Spoke Terminal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --navy: #1e3a5f; --navy-light: #2d4a6f; --navy-dark: #152a45;
+            --gold: #c9a962; --gold-light: #d4bc7d; --gold-dark: #b8954d;
+            --cream: #fdfbf7; --white: #ffffff;
+            --text-primary: #1a1a2e; --text-secondary: #64748b; --text-muted: #94a3b8;
+            --border-light: #e8e4dc;
+            --shadow-soft: rgba(30,58,95,0.08); --shadow-medium: rgba(30,58,95,0.12);
+            --orange: #f97316; --orange-dark: #ea580c;
+            --green: #16a34a; --green-light: #dcfce7; --green-border: #86efac;
+            --red: #dc2626;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Inter',sans-serif; background:var(--cream); color:var(--text-primary); line-height:1.6; padding-bottom:80px; }
+
+        .container { max-width:1200px; margin:40px auto; padding:0 30px; }
+        .card { background:var(--white); border-radius:14px; border:1px solid var(--border-light); box-shadow:0 2px 8px var(--shadow-soft); margin-bottom:20px; overflow:hidden; transition:box-shadow .3s; }
+        .card:hover { box-shadow:0 4px 20px var(--shadow-medium); }
+        .setup-section { padding:40px; border-left:3px solid var(--gold); }
+
+        .form-group { margin-bottom:15px; }
+        .form-group label { display:block; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.5px; color:var(--text-secondary); margin-bottom:8px; }
+        .form-group input, .form-group textarea, .form-group select { width:100%; padding:14px 16px; border:1px solid var(--border-light); border-radius:6px; font-family:'Inter',sans-serif; font-size:15px; background:var(--white); transition:border-color .2s,box-shadow .2s; }
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus { outline:none; border-color:var(--navy); box-shadow:0 0 0 3px rgba(30,58,95,.1); }
+        .form-group input[readonly] { background:var(--cream); color:var(--text-secondary); border-style:dashed; }
+        .input-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px; }
+        .input-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; margin-bottom:20px; }
+        .paste-area { width:100%; padding:12px; border:1px solid var(--border-light); border-radius:8px; font-family:'JetBrains Mono',monospace; font-size:13px; background:var(--white); resize:vertical; transition:border-color .2s; line-height:1.8; }
+        .paste-area:focus { outline:none; border-color:var(--navy); box-shadow:0 0 0 3px rgba(30,58,95,.1); }
+
+        .url-counter { display:flex; align-items:center; gap:10px; margin-top:8px; font-size:13px; }
+        .url-count-num { font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--navy); font-size:18px; }
+        .url-count-label { color:var(--text-secondary); }
+        .url-count-warn { color:#dc2626; font-weight:600; font-size:12px; display:none; }
+
+        .btn { display:inline-flex; align-items:center; gap:10px; padding:12px 22px; border-radius:6px; font-size:13px; font-weight:600; border:none; cursor:pointer; transition:all .2s; text-transform:uppercase; letter-spacing:.3px; position:relative; overflow:hidden; }
+        .btn:active { transform:scale(.98); }
+        .btn-primary { background:var(--navy); color:var(--white); }
+        .btn-primary:hover { background:var(--navy-dark); box-shadow:0 4px 12px rgba(30,58,95,.3); }
+        .btn-accent { background:var(--gold); color:var(--white); }
+        .btn-accent:hover { background:var(--gold-dark); box-shadow:0 4px 12px rgba(201,169,98,.3); }
+        .btn-ghost { background:var(--cream); color:var(--navy); border:1px solid var(--border-light); }
+        .btn-ghost:hover { background:var(--white); border-color:var(--navy); }
+        .btn-ghost.sm { padding:6px 12px; font-size:12px; }
+        .btn.processing { pointer-events:none; opacity:.9; }
+        .btn.processing::after { content:''; position:absolute; top:0; left:-100%; width:100%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.3),transparent); animation:btnSweep .6s ease-out forwards; }
+        @keyframes btnSweep { 0%{left:-100%}100%{left:100%} }
+        .btn.success { background:var(--gold) !important; }
+
+        .launch-row { display:flex; gap:12px; margin-top:20px; }
+        .launch-btn { flex:1; padding:20px; border:none; border-radius:8px; background:linear-gradient(135deg,var(--navy),var(--navy-dark)); color:var(--white); font-family:'Inter',sans-serif; font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; transition:all .3s; letter-spacing:.5px; }
+        .launch-btn:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(30,58,95,.4); }
+        .launch-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+
+        .launcher-box { background:linear-gradient(135deg,var(--navy),var(--navy-dark)); border-radius:12px; padding:25px; text-align:center; margin-bottom:15px; border:1px solid var(--gold); }
+        .model-warning { background:#dc2626; color:white; padding:10px 16px; border-radius:8px; margin:10px 0; font-weight:700; font-size:13px; display:flex; align-items:center; justify-content:center; gap:8px; }
+        .open-btn { display:inline-flex; align-items:center; gap:10px; padding:12px 24px; background:var(--gold); color:var(--white); font-weight:600; font-size:14px; border-radius:6px; text-decoration:none; margin-top:12px; transition:all .2s; }
+        .open-btn:hover { transform:translateY(-2px); background:var(--gold-dark); }
+
+        .data-box { background:var(--cream); border:1px solid var(--border-light); border-radius:8px; padding:20px; margin:15px 0; }
+        .warning-box { background:#fef7f7; border:1px solid #f5d5d5; border-left:3px solid #dc2626; padding:15px; border-radius:6px; font-size:13px; margin-top:10px; }
+        .info-box { background:#fdfbf7; border:1px solid var(--border-light); border-left:3px solid var(--gold); padding:15px; border-radius:6px; font-size:13px; }
+        .instruction-box { background:#faf5ff; border:1px solid #d8b4fe; border-left:4px solid #9333ea; padding:12px 15px; border-radius:8px; font-size:13px; margin:10px 0; }
+        .instruction-box code { background:#f3e8ff; padding:2px 6px; border-radius:4px; font-family:'JetBrains Mono',monospace; font-size:12px; }
+
+        /* SUMMARY PANEL */
+        .summary-panel { background:linear-gradient(135deg,var(--navy-dark),var(--navy)); border-radius:14px; padding:28px; margin-top:20px; border:1px solid var(--gold); }
+        .summary-title { color:var(--white); font-size:15px; font-weight:600; display:flex; align-items:center; gap:8px; margin-bottom:16px; }
+        .summary-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; }
+        .summary-item { background:rgba(255,255,255,.06); border:1px solid rgba(201,169,98,.2); border-radius:8px; padding:14px; }
+        .summary-item-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; color:var(--gold-light); margin-bottom:4px; }
+        .summary-item-value { font-family:'JetBrains Mono',monospace; font-size:14px; color:var(--white); font-weight:600; }
+
+        /* PHASES */
+        .phase { position:relative; }
+        .phase.phase-complete { border-color:var(--gold); box-shadow:0 2px 12px rgba(201,169,98,.15); }
+        .phase.phase-complete .phase-header { background:linear-gradient(135deg,#fdfbf7,#f9f6f0); border-left:3px solid var(--gold); }
+        .phase.phase-complete .phase-num { background:var(--gold); color:var(--white); }
+        .phase.phase-complete::after { content:'✓'; position:absolute; top:18px; right:20px; background:var(--gold); color:var(--white); width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; }
+        .phase.active { border-color:var(--navy); box-shadow:0 2px 16px var(--shadow-medium); }
+        .phase.active .phase-num { background:var(--navy); }
+        .phase.active .phase-header { background:var(--cream); border-left:3px solid var(--gold); }
+        .phase.phase-unlocking { animation:phaseUnlock .5s ease; }
+        @keyframes phaseUnlock { 0%{opacity:.7;transform:translateY(-5px)}100%{opacity:1;transform:translateY(0)} }
+        .phase-header { padding:24px 30px; background:var(--white); border-bottom:1px solid var(--border-light); cursor:pointer; display:flex; justify-content:space-between; align-items:center; transition:background .2s; }
+        .phase-header:hover { background:var(--cream); }
+        .phase-title { font-size:16px; font-weight:600; color:var(--navy); display:flex; align-items:center; gap:14px; }
+        .phase-num { background:var(--navy); color:var(--white); width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; transition:all .3s; }
+        .phase-time { font-size:13px; color:var(--text-muted); }
+        .phase-content { padding:30px; display:none; background:var(--white); }
+        .phase.active .phase-content { display:block; }
+
+        .step { display:flex; gap:18px; padding:18px 20px; border-radius:8px; margin-bottom:10px; border:1px solid transparent; transition:all .2s; align-items:flex-start; background:var(--white); }
+        .step > div { flex:1; }
+        .step input[type="checkbox"] { order:2; width:24px; height:24px; accent-color:var(--gold); cursor:pointer; margin-top:2px; flex-shrink:0; }
+        .step:hover { background:var(--cream); border-color:var(--border-light); }
+        .step.checked { background:#fdfbf7; border-color:var(--gold); border-left:3px solid var(--gold); }
+        .step-label { font-weight:500; font-size:15px; color:var(--text-primary); }
+        .step-sub { font-size:13px; color:var(--text-secondary); margin-top:4px; }
+
+        .divider { border-top:1px solid var(--border-light); margin:20px 0; }
+        .part-header { background:linear-gradient(90deg,var(--navy),var(--navy-light)); color:white; padding:10px 15px; border-radius:8px; font-weight:700; font-size:14px; margin-bottom:15px; display:flex; align-items:center; gap:10px; }
+
+        .quick-links { display:flex; gap:10px; flex-wrap:wrap; margin:10px 0; }
+        .quick-link { display:inline-flex; align-items:center; gap:8px; padding:12px 18px; background:var(--white); border:1px solid var(--border-light); border-radius:6px; font-size:13px; font-weight:600; color:var(--navy); text-decoration:none; transition:all .2s; }
+        .quick-link:hover { background:var(--navy); color:var(--white); border-color:var(--navy); }
+
+        /* ===== CSV PAGE CARDS ===== */
+        .page-card { border:1px solid var(--border-light); border-radius:12px; margin-bottom:14px; overflow:hidden; transition:all .2s; }
+        .page-card.done { border-color:var(--green-border); background:var(--green-light); }
+        .page-card-header { padding:16px 20px; display:flex; align-items:center; gap:14px; cursor:pointer; transition:background .2s; }
+        .page-card-header:hover { background:var(--cream); }
+        .page-card.done .page-card-header { background:var(--green-light); }
+        .page-card-status { padding:4px 10px; border-radius:6px; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; white-space:nowrap; }
+        .page-card-status.keep { background:rgba(34,197,94,.12); color:var(--green); border:1px solid var(--green-border); }
+        .page-card-status.rename { background:rgba(249,115,22,.12); color:var(--orange); border:1px solid #fdba74; }
+        .page-card-status.build { background:rgba(30,58,95,.1); color:var(--navy); border:1px solid rgba(30,58,95,.3); }
+        .page-card-status.flagged { background:rgba(220,38,38,.1); color:var(--red); border:1px solid #fca5a5; }
+        .page-card-tier { padding:3px 8px; border-radius:4px; font-size:10px; font-weight:700; background:var(--cream); color:var(--text-secondary); border:1px solid var(--border-light); white-space:nowrap; }
+        .page-card-name { flex:1; font-weight:600; font-size:14px; color:var(--text-primary); }
+        .page-card-check { width:22px; height:22px; accent-color:var(--gold); cursor:pointer; flex-shrink:0; }
+        .page-card-body { display:none; padding:0 20px 20px; }
+        .page-card.expanded .page-card-body { display:block; }
+        .page-card-row { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
+        .page-card-row-label { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.5px; color:var(--text-muted); min-width:110px; }
+        .page-card-row-value { flex:1; font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-primary); background:var(--cream); border:1px solid var(--border-light); border-radius:4px; padding:6px 10px; word-break:break-all; }
+        .page-card-row-copy { background:var(--gold); color:var(--white); border:none; border-radius:4px; padding:4px 8px; font-size:10px; font-weight:700; cursor:pointer; white-space:nowrap; transition:all .15s; flex-shrink:0; }
+        .page-card-row-copy:hover { background:var(--gold-dark); }
+        .page-card-row-copy:active { transform:scale(.95); }
+        .page-card-desc { font-size:12px; color:var(--text-secondary); margin-top:8px; padding:8px 12px; background:var(--cream); border-radius:6px; line-height:1.5; }
+        .redirect-group { background:rgba(249,115,22,.04); border:1px solid rgba(249,115,22,.2); border-radius:8px; padding:12px; margin-top:10px; }
+        .redirect-group-title { font-size:11px; font-weight:700; color:var(--orange); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px; display:flex; align-items:center; gap:6px; }
+
+        /* STATS BAR */
+        .stats-bar { display:flex; gap:12px; flex-wrap:wrap; margin:16px 0; }
+        .stat-chip { display:flex; align-items:center; gap:6px; padding:8px 14px; border-radius:8px; font-size:13px; font-weight:700; }
+        .stat-chip.keep { background:var(--green-light); color:var(--green); border:1px solid var(--green-border); }
+        .stat-chip.rename { background:rgba(249,115,22,.1); color:var(--orange); border:1px solid #fdba74; }
+        .stat-chip.build { background:rgba(30,58,95,.08); color:var(--navy); border:1px solid rgba(30,58,95,.2); }
+        .stat-chip.flagged { background:rgba(220,38,38,.08); color:var(--red); border:1px solid #fca5a5; }
+        .stat-chip .stat-num { font-family:'JetBrains Mono',monospace; font-size:16px; }
+
+        /* FILTER TABS */
+        .filter-tabs { display:flex; gap:4px; margin-bottom:16px; border-bottom:2px solid var(--border-light); padding-bottom:0; }
+        .filter-tab { padding:10px 16px; border:none; background:none; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; color:var(--text-muted); cursor:pointer; border-bottom:3px solid transparent; margin-bottom:-2px; transition:all .2s; }
+        .filter-tab:hover { color:var(--navy); }
+        .filter-tab.active { color:var(--navy); border-bottom-color:var(--gold); }
+
+        /* PARSE BUTTON */
+        .parse-btn { width:100%; padding:18px; border:none; border-radius:8px; background:linear-gradient(135deg,var(--gold),var(--gold-dark)); color:var(--white); font-family:'Inter',sans-serif; font-size:15px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px; transition:all .3s; letter-spacing:.5px; }
+        .parse-btn:hover { transform:translateY(-2px); box-shadow:0 8px 25px rgba(201,169,98,.4); }
+
+        .toast { position:fixed; bottom:30px; right:30px; background:var(--navy); color:var(--white); padding:14px 24px; border-radius:6px; box-shadow:0 10px 40px rgba(30,58,95,.3); display:flex; align-items:center; gap:10px; transform:translateY(100px); transition:transform .3s; z-index:2000; font-size:12px; font-weight:500; }
+        .toast.show { transform:translateY(0); }
+
+        .completion-overlay { display:none; position:fixed; inset:0; background:linear-gradient(135deg,rgba(21,42,69,.97),rgba(30,58,95,.97)); z-index:9999; justify-content:center; align-items:center; flex-direction:column; }
+        .completion-overlay.active { display:flex; }
+        .completion-box { border:2px solid var(--gold); border-radius:16px; padding:50px 70px; text-align:center; background:var(--white); box-shadow:0 25px 80px rgba(0,0,0,.4); }
+        .completion-title { font-size:28px; font-weight:300; letter-spacing:4px; color:var(--navy); margin-bottom:30px; text-transform:uppercase; }
+        .completion-title span { color:var(--gold); }
+        .completion-stats { font-size:15px; color:var(--text-secondary); line-height:2.2; margin-bottom:35px; }
+        .completion-stats span { color:var(--navy); font-weight:600; }
+        .completion-close { background:linear-gradient(135deg,var(--gold),var(--gold-dark)); color:var(--white); border:none; padding:14px 50px; border-radius:6px; font-family:'Inter',sans-serif; font-weight:600; font-size:12px; letter-spacing:1px; text-transform:uppercase; cursor:pointer; transition:all .3s; }
+        .completion-close:hover { transform:translateY(-2px); }
+        .confetti { position:absolute; width:8px; height:8px; opacity:0; }
+        .confetti.active { animation:confettiFall 3s ease-out forwards; }
+        @keyframes confettiFall { 0%{opacity:1;transform:translateY(-100vh) rotate(0deg)}100%{opacity:0;transform:translateY(100vh) rotate(720deg)} }
+
+        .error-box { background:#fef2f2; border:1px solid #fecaca; border-left:3px solid #dc2626; padding:14px 16px; border-radius:6px; font-size:13px; color:#991b1b; margin-top:12px; display:none; }
+        .error-box.visible { display:block; }
+
+        .progress-mini { display:flex; align-items:center; gap:10px; margin:12px 0; }
+        .progress-mini-bar { flex:1; height:6px; background:var(--border-light); border-radius:3px; overflow:hidden; }
+        .progress-mini-fill { height:100%; background:linear-gradient(90deg,var(--navy),var(--gold)); transition:width .4s; border-radius:3px; }
+        .progress-mini-text { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--navy); font-weight:600; min-width:40px; text-align:right; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <!-- ===== MISSION CONTROL ===== -->
+    <div class="card setup-section">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+            <h2 style="color:var(--navy);font-size:20px;">🔗 Mission Control (Hub+Spoke Terminal)</h2>
+            <button class="btn btn-ghost" onclick="resetAll()" style="border-color:#ef4444;"><span style="color:#ef4444;">⚠️</span> Reset</button>
+        </div>
+
+        <div class="input-grid-3">
+            <div class="form-group">
+                <label>VA Name</label>
+                <input type="text" id="vaName" placeholder="Enter your name">
+            </div>
+            <div class="form-group">
+                <label>City</label>
+                <input type="text" id="cityInput" placeholder="e.g. Indianapolis">
+            </div>
+            <div class="form-group">
+                <label>State</label>
+                <input type="text" id="stateInput" placeholder="e.g. Indiana">
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Existing Page URLs <span style="color:var(--text-muted);font-weight:400;text-transform:none;">(one per line — full URLs starting with https://)</span></label>
+            <textarea id="urlsInput" class="paste-area" style="height:180px;" placeholder="https://www.stselectronicrecyclinginc.com/city-e-waste-recycling&#10;https://www.stselectronicrecyclinginc.com/city-itad&#10;https://www.stselectronicrecyclinginc.com/city-data-destruction&#10;..."></textarea>
+        </div>
+        <div class="url-counter">
+            <span class="url-count-num" id="urlCount">0</span>
+            <span class="url-count-label">URLs detected</span>
+            <span class="url-count-warn" id="urlWarn"></span>
+        </div>
+
+        <!-- SUMMARY -->
+        <div class="summary-panel" id="summaryPanel" style="display:none;">
+            <div class="summary-title"><i class="fas fa-map-signs" style="color:var(--gold);"></i> Mission Summary</div>
+            <div class="summary-grid">
+                <div class="summary-item"><div class="summary-item-label">City</div><div class="summary-item-value" id="sumCity">—</div></div>
+                <div class="summary-item"><div class="summary-item-label">Existing Pages</div><div class="summary-item-value" id="sumUrls">—</div></div>
+            </div>
+        </div>
+
+        <div class="launch-row">
+            <button class="launch-btn" id="launchBtn" onclick="copyPromptAndLaunch()">
+                <i class="fas fa-rocket"></i>
+                <span>Copy H+S Prompt → Open Claude</span>
+            </button>
+        </div>
+        <div style="text-align:center;margin-top:8px;font-size:11px;color:var(--text-muted);">Copies the full v8.5 prompt with your inputs injected, then opens the STS Claude Project</div>
+    </div>
+
+    <!-- ===== PHASES ===== -->
+    <div id="phases">
+
+        <!-- ═══════ PHASE 1: RUN IN CLAUDE ═══════ -->
+        <div class="card phase" id="phase1">
+            <div class="phase-header" onclick="togglePhase('phase1')">
+                <div class="phase-title"><span class="phase-num">1</span> Run H+S Planner in Claude</div>
+                <div class="phase-time">~15 min</div>
+            </div>
+            <div class="phase-content">
+                <div class="launcher-box">
+                    <div style="font-size:18px;font-weight:600;color:white;display:flex;align-items:center;justify-content:center;gap:12px;"><i class="fas fa-brain"></i> Claude Project — STS</div>
+                    <div class="model-warning"><i class="fas fa-exclamation-triangle"></i> ⚠️ MUST USE CLAUDE SONNET 4.6 — NOT OPUS ⚠️</div>
+                    <div style="color:#fca5a5;font-size:11px;margin-bottom:8px;">Check model selector bottom-left of Claude chat</div>
+                    <a href="https://claude.ai/project/019aef3e-df18-7142-a666-8397254c5fe8" target="_blank" class="open-btn" style="flex-direction:column;gap:4px;">
+                        <span style="display:flex;align-items:center;gap:8px;"><i class="fas fa-external-link-alt"></i> Open Claude Project</span>
+                        <span style="font-size:11px;opacity:.8;">⚡ SELECT SONNET 4.6 ⚡</span>
+                    </a>
+                </div>
+
+                <div class="info-box" style="margin-bottom:15px;"><i class="fas fa-clipboard" style="color:var(--gold);"></i> <strong>Prompt already copied.</strong> Paste into Claude — it runs Steps 1–2, then pauses for your confirmation.</div>
+
+                <div class="step"><input type="checkbox" id="p1-1" onchange="updateProgress()"><div class="step-label">Prompt pasted into Claude — running Steps 1–2 (URL fetch + verify)</div></div>
+
+                <div class="divider"></div>
+                <div class="part-header" style="background:linear-gradient(90deg,var(--orange),var(--orange-dark));"><i class="fas fa-hand-paper"></i> CHECKPOINT — Claude pauses here</div>
+                <div class="warning-box" style="margin-bottom:15px;">
+                    <strong>Claude stops after Step 2.</strong> Verify URL counts, then type <code style="background:#fee2e2;padding:2px 6px;border-radius:3px;">confirmed</code> to proceed. If counts are wrong → <code style="background:#fee2e2;padding:2px 6px;border-radius:3px;">recount</code>.
+                </div>
+                <div class="step"><input type="checkbox" id="p1-2" onchange="updateProgress()"><div><div class="step-label">Step 2C checkpoint — URL counts verified</div><div class="step-sub">Typed "confirmed" to unlock Steps 3–10</div></div></div>
+                <div class="step"><input type="checkbox" id="p1-3" onchange="updateProgress()"><div class="step-label">Claude completed Steps 3–10 — CSV + linking reference delivered</div></div>
+
+                <div class="divider"></div>
+                <div class="part-header"><i class="fas fa-download"></i> DOWNLOAD DELIVERABLES</div>
+                <div class="step"><input type="checkbox" id="p1-4" onchange="updateProgress()"><div><div class="step-label">Downloaded <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px;">{city}_consolidation.csv</code></div></div></div>
+                <div class="step"><input type="checkbox" id="p1-5" onchange="updateProgress()"><div><div class="step-label">Downloaded <code style="background:#f1f5f9;padding:1px 5px;border-radius:3px;">{city}_linking_reference.md</code></div><div class="step-sub">Save this — it's the linking bible for the Page Builder</div></div></div>
+            </div>
+        </div>
+
+        <!-- ═══════ PHASE 2: PASTE CSV → GENERATE CHECKLIST ═══════ -->
+        <div class="card phase" id="phase2">
+            <div class="phase-header" onclick="togglePhase('phase2')">
+                <div class="phase-title"><span class="phase-num">2</span> Import CSV → Build Checklist</div>
+                <div class="phase-time">1 min</div>
+            </div>
+            <div class="phase-content">
+                <div class="info-box" style="margin-bottom:15px;"><i class="fas fa-file-csv" style="color:var(--gold);"></i> Open the CSV in a text editor (or Google Sheets → download as CSV). <strong>Copy all rows including the header</strong> and paste below.</div>
+
+                <div class="form-group">
+                    <label>Paste CSV Content</label>
+                    <textarea id="csvInput" class="paste-area" style="height:200px;" placeholder="Status,Tier,Menu ID,Menu Page Name,New URL Alias (+Joomsef Change),NEW Menu Page Title,301 Redirect #1,301 Redirect #2,301 Redirect #3,301 Redirect #4,Page Description&#10;KEEP,Tier 1,1234,Indianapolis E-Waste Recycling,indianapolis-e-waste-recycling,...&#10;RENAME,Tier 2,5678,Indianapolis Server Recycling,indianapolis-server-recycling,...&#10;BUILD NEW,Tier 4,,Indianapolis Healthcare ITAD,indianapolis-healthcare-itad,..."></textarea>
+                </div>
+
+                <button class="parse-btn" onclick="parseCSV()">
+                    <i class="fas fa-cogs"></i> Parse CSV → Generate Page Checklists
+                </button>
+
+                <div class="error-box" id="csvError"></div>
+
+                <!-- Parsed summary -->
+                <div id="csvSummary" style="display:none;">
+                    <div class="stats-bar" id="statsBar"></div>
+                    <div class="step"><input type="checkbox" id="p2-1" onchange="updateProgress()"><div class="step-label">CSV parsed — page checklists generated below</div></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════ PHASE 3: KEEP PAGES (verify only) ═══════ -->
+        <div class="card phase" id="phase3" style="display:none;">
+            <div class="phase-header" onclick="togglePhase('phase3')">
+                <div class="phase-title"><span class="phase-num">3</span> KEEP Pages — Verify</div>
+                <div class="phase-time" id="phase3Time">—</div>
+            </div>
+            <div class="phase-content">
+                <div class="info-box" style="margin-bottom:15px;"><i class="fas fa-check-circle" style="color:var(--green);"></i> These pages keep their current URLs. Just verify they're loading correctly.</div>
+                <div class="progress-mini"><div class="progress-mini-bar"><div class="progress-mini-fill" id="keepProgress" style="width:0%"></div></div><div class="progress-mini-text" id="keepProgressText">0/0</div></div>
+                <div id="keepCards"></div>
+            </div>
+        </div>
+
+        <!-- ═══════ PHASE 4: RENAME PAGES (update alias + redirects) ═══════ -->
+        <div class="card phase" id="phase4" style="display:none;">
+            <div class="phase-header" onclick="togglePhase('phase4')">
+                <div class="phase-title"><span class="phase-num">4</span> RENAME Pages — Update Aliases + 301s</div>
+                <div class="phase-time" id="phase4Time">—</div>
+            </div>
+            <div class="phase-content">
+                <div class="warning-box" style="margin-bottom:15px;border-left-color:var(--orange);background:#fff7ed;border-color:#fed7aa;"><i class="fas fa-exchange-alt" style="color:var(--orange);"></i> <strong>Each RENAME needs: URL alias update + 4 redirects.</strong> Expand each card for copy buttons.</div>
+
+                <div class="quick-links" style="margin-bottom:15px;">
+                    <a href="https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_menus&view=items&menutype=mainmenu" target="_blank" class="quick-link"><i class="fas fa-bars"></i> Joomla Menu Manager</a>
+                    <a href="https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_sef&controller=sefurls&viewmode=3" target="_blank" class="quick-link"><i class="fas fa-link"></i> SEF URL Manager</a>
+                </div>
+
+                <div class="progress-mini"><div class="progress-mini-bar"><div class="progress-mini-fill" id="renameProgress" style="width:0%"></div></div><div class="progress-mini-text" id="renameProgressText">0/0</div></div>
+                <div id="renameCards"></div>
+            </div>
+        </div>
+
+        <!-- ═══════ PHASE 5: BUILD NEW PAGES ═══════ -->
+        <div class="card phase" id="phase5" style="display:none;">
+            <div class="phase-header" onclick="togglePhase('phase5')">
+                <div class="phase-title"><span class="phase-num">5</span> BUILD NEW Pages → Page Terminal</div>
+                <div class="phase-time" id="phase5Time">—</div>
+            </div>
+            <div class="phase-content">
+                <div class="info-box" style="margin-bottom:15px;"><i class="fas fa-hammer" style="color:var(--gold);"></i> Each BUILD NEW page goes through the <strong>Page Terminal</strong>. Use the linking reference as the internal linking bible.</div>
+
+                <div class="progress-mini"><div class="progress-mini-bar"><div class="progress-mini-fill" id="buildProgress" style="width:0%"></div></div><div class="progress-mini-text" id="buildProgressText">0/0</div></div>
+                <div id="buildCards"></div>
+            </div>
+        </div>
+
+        <!-- ═══════ PHASE 6: FLAGGED PAGES ═══════ -->
+        <div class="card phase" id="phase6" style="display:none;">
+            <div class="phase-header" onclick="togglePhase('phase6')">
+                <div class="phase-title"><span class="phase-num">6</span> 🚩 Flagged Pages — Fix Issues</div>
+                <div class="phase-time" id="phase6Time">—</div>
+            </div>
+            <div class="phase-content">
+                <div class="warning-box" style="margin-bottom:15px;"><i class="fas fa-flag"></i> <strong>These pages have content issues.</strong> Review the description for each and fix in Joomla.</div>
+                <div class="progress-mini"><div class="progress-mini-bar"><div class="progress-mini-fill" id="flaggedProgress" style="width:0%"></div></div><div class="progress-mini-text" id="flaggedProgressText">0/0</div></div>
+                <div id="flaggedCards"></div>
+            </div>
+        </div>
+
+        <!-- ═══════ PHASE 7: VERIFY + LOG ═══════ -->
+        <div class="card phase" id="phase7">
+            <div class="phase-header" onclick="togglePhase('phase7')">
+                <div class="phase-title"><span class="phase-num">7</span> Cache Clear + Verify + Log</div>
+                <div class="phase-time">10 min</div>
+            </div>
+            <div class="phase-content">
+                <div class="part-header"><i class="fas fa-broom"></i> CACHE + SPOT CHECK</div>
+                <div class="quick-links" style="margin-bottom:12px;">
+                    <a href="https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_cache" target="_blank" class="quick-link"><i class="fas fa-broom"></i> Clear Cache</a>
+                </div>
+                <div class="step"><input type="checkbox" id="p7-1" onchange="updateProgress()"><div class="step-label">System → Clear Cache → <strong>Delete All</strong></div></div>
+                <div class="step"><input type="checkbox" id="p7-2" onchange="updateProgress()"><div class="step-label">Spot-check 3 KEEP pages — loading correctly</div></div>
+                <div class="step"><input type="checkbox" id="p7-3" onchange="updateProgress()"><div class="step-label">Spot-check 3 RENAME redirects — old → new URL works</div></div>
+                <div class="step"><input type="checkbox" id="p7-4" onchange="updateProgress()"><div class="step-label">Spot-check 2 BUILD NEW pages — rendering correctly</div></div>
+
+                <div class="divider"></div>
+                <div class="part-header" style="background:linear-gradient(90deg,#dc2626,#b91c1c);"><i class="fas fa-clipboard-list"></i> LOG TO TRACKER</div>
+                <div class="step"><input type="checkbox" id="p7-5" onchange="updateProgress()"><div class="step-label">✅ Logged to tracker — city, page counts, VA name, date</div></div>
+            </div>
+        </div>
+
+    </div><!-- end #phases -->
+
+    <!-- COMPLETION -->
+    <div class="card" style="text-align:center;padding:40px;" id="completionCard">
+        <h2 style="color:var(--gold);margin-bottom:20px;">🎉 Completion Report</h2>
+        <p style="color:#64748b;margin-bottom:20px;">All phases complete. Export your mission log.</p>
+        <button class="btn btn-accent btn-compile" onclick="generateReport()" style="font-size:16px;padding:14px 30px;"><i class="fas fa-clipboard-check"></i> Export Mission Log</button>
+    </div>
+
+    <div style="text-align:center;padding:30px 0;">
+        <button class="btn btn-ghost" onclick="resetAll()" style="border-color:#ef4444;"><span style="color:#ef4444;">⚠️</span> Reset &amp; Start New City</button>
+    </div>
+
+</div>
+
+<div id="toast" class="toast"><i class="fas fa-check-circle"></i><span id="toastMsg">Done</span></div>
+
+<div class="completion-overlay" id="completionOverlay">
+    <div class="completion-box">
+        <div class="completion-title">Hub+Spoke <span>Complete</span></div>
+        <div class="completion-stats">
+            <div>City: <span id="completionCity">—</span></div>
+            <div>Pages: <span id="completionPages">—</span></div>
+            <div>VA: <span id="completionVA">—</span></div>
+            <div>Time: <span id="completionTime">—</span></div>
+            <div>Status: <span style="color:var(--gold);">Consolidated</span></div>
+        </div>
+        <button class="completion-close" onclick="closeCompletion()">Continue</button>
+    </div>
+</div>
+
+<script>
+// ===== STATE =====
+let S = {
+    vaName:'', city:'', state:'',
+    urls:[], startTime:null, checks:{},
+    csvRows:[], completionTriggered:false
+};
+
+// ===== URL COUNTER =====
+document.getElementById('urlsInput').addEventListener('input', function(){
+    const lines = this.value.split('\n').map(l=>l.trim()).filter(l=>l.length>0);
+    const valid = lines.filter(l=>l.startsWith('https://'));
+    document.getElementById('urlCount').textContent = valid.length;
+    const warn = document.getElementById('urlWarn');
+    if(lines.length>0 && valid.length<lines.length){ warn.style.display='inline'; warn.textContent=`⚠️ ${lines.length-valid.length} line(s) don't start with https://`; }
+    else { warn.style.display='none'; }
+});
+
+// ===== COPY PROMPT + LAUNCH =====
+function copyPromptAndLaunch(){
+    const vaName=document.getElementById('vaName').value.trim();
+    const city=document.getElementById('cityInput').value.trim();
+    const state=document.getElementById('stateInput').value.trim();
+    const urlsRaw=document.getElementById('urlsInput').value.trim();
+    const urls=urlsRaw.split('\n').map(l=>l.trim()).filter(l=>l.startsWith('https://'));
+    if(!vaName){showToast('Enter VA name',true);return;}
+    if(!city){showToast('Enter city',true);return;}
+    if(!state){showToast('Enter state',true);return;}
+    if(urls.length===0){showToast('Paste at least one URL',true);return;}
+
+    S.vaName=vaName;S.city=city;S.state=state;S.urls=urls;
+    if(!S.startTime) S.startTime=Date.now();
+    document.getElementById('sumCity').textContent=city+', '+state;
+    document.getElementById('sumUrls').textContent=urls.length;
+    document.getElementById('summaryPanel').style.display='block';
+
+    const prompt=buildPrompt(city,state,urls);
+    navigator.clipboard.writeText(prompt).then(()=>{
+        showToast('H+S prompt copied! Opening Claude...');
+        const p1=document.getElementById('phase1');
+        if(!p1.classList.contains('active')){p1.classList.add('phase-unlocking','active');setTimeout(()=>p1.classList.remove('phase-unlocking'),500);}
+        setTimeout(()=>window.open('https://claude.ai/project/019aef3e-df18-7142-a666-8397254c5fe8','_blank'),300);
+        saveState();
+    }).catch(()=>showToast('Copy failed',true));
+}
+
+function buildPrompt(city,state,urls){
+    const citySlug=city.toLowerCase().replace(/\s+/g,'-');
+    return `⛔ MODEL CHECK: If you are Claude Opus, STOP NOW. Tell the user: "Switch to Sonnet 4.6 in the model selector (bottom-left of chat). This prompt is optimized for Sonnet and must not run on Opus." Do NOT proceed on Opus under any circumstances.
+
+HUB+SPOKE URL CONSOLIDATION PLANNER v8.5
+
+INPUT:
+City: ${city}
+State: ${state}
+URLs:
+${urls.join('\n')}
+
+## ABSOLUTE RULES (critical constraints, reinforced at point of use)
+
+- EVERY existing page STAYS ALIVE. No consolidation. Ever.
+- NO leading slashes on any URL or redirect path
+- Target ~26-30 total pages (all existing KEEP/RENAME + BUILD NEW to fill gaps)
+- Use Python csv.writer with utf-8 encoding for CSV output
+- Tier 5 ALWAYS includes General IT Asset Disposal Guide
+- User checkpoint after Step 2 is mandatory. BLOCKED from Step 3 until confirmed
+- Fetch EVERY URL individually. No pattern recognition, no sampling, no assumptions.
+- Flagged pages stay alive in their correct tier with 🚩 marker
+
+## INPUT FORMAT
+
+User provides: City, State, City Size (Large/Medium/Small), URLs (one per line)
+
+If URLs are concatenated (Excel/Sheets formatting): STOP. Tell user to paste through plain text editor first. Do not attempt to parse.
+
+---
+
+## STEP 1: PARSE URLS
+
+Split by newline, strip whitespace, filter empties. Each line = one complete URL starting with https://. If first fetch fails, STOP with Excel formatting warning.
+
+## STEP 2: FETCH AND VERIFY EVERY URL
+
+At start: Count URLs (N). State: "I will fetch all N URLs." Create numbered tracking list, all PENDING.
+
+**FETCH STRATEGY (progressive):**
+
+- First pass: web_fetch(url, text_content_token_limit=500). Captures title, H1, meta, opening text
+- If city/service unclear at 500: retry at web_fetch(url, text_content_token_limit=1000)
+- Extract: title, H1, opening paragraph. Verify city match + service match.
+
+**SERVICE DETECTION (by keyword density):**
+
+| Service Key | Keywords |
+| --- | --- |
+| E_WASTE | e-waste, ewaste, electronic waste, electronics recycling |
+| FREE_ELECTRONICS | free, no charge, complimentary, free recycling |
+| ITAD | ITAD, IT asset disposition, asset management |
+| DATA_DESTRUCTION | data destruction, secure erase, NIST 800-88 |
+| DEGAUSSING | degaussing, degausser, magnetic erasure |
+| HARD_DRIVE_SHREDDING | hard drive shredding, mobile shredding |
+| COMPUTER_LIQUIDATION | liquidation, resale, remarketing |
+| CERTIFICATE_DESTRUCTION | certificate of destruction, CoD |
+| MAIL_IN | mail-in, ship, mail recycling |
+| LEASE_BUYOUT | lease buyout, lease return |
+| ASSET_TAGGING | asset tagging, barcode, asset tracking |
+| ASSET_LIFECYCLE | asset lifecycle, lifecycle management |
+| REVERSE_LOGISTICS | reverse logistics, returns |
+| MSP | managed service provider, MSP |
+| MEDICAL_EQUIPMENT | medical equipment, hospital IT |
+| SERVER_RECYCLING | server recycling, rack, data center |
+| LAPTOP_RECYCLING | laptop recycling, laptop disposal |
+| SCHOOL_ELECTRONICS | school, education, K-12 |
+| HARD_DRIVE_WIPING | hard drive wiping, software erase |
+| IT_ASSET_GUIDE | guide, download, whitepaper, how to dispose |
+
+**URL ACTION:**
+
+- Path segments ≤ 2 → KEEP (preserve authority). Redirects: all N/A
+- Path segments > 2 → RENAME to {city}-{service-slug}. Generate 4 redirects:
+  - Original full path (no leading /)
+  - Base slug extracted (no leading /)
+  - Full path + /amp
+  - Base slug + /amp
+- URL > 2000 chars → mark ⚠️ FAILED, recommend RENAME in CSV
+
+Update tracking list every 5 URLs. Show final list when complete.
+
+## STEP 2C: COMPLETION + USER CHECKPOINT
+
+Show: URLs provided (N), web_fetch calls made (must ≥ N), verified at 5%/10%/failed counts. Then STOP. Output:
+
+> "Step 2 complete. URLs provided: N | Fetched: N | Verified 5%: X | Verified 10%: Y | Failed: Z
+> Type 'confirmed' to proceed to Step 3. Type 'recount' if numbers don't match."
+
+WAIT. Do not proceed until user confirms.
+
+## STEP 3: MARKET DISCOVERY (4 searches minimum)
+
+After user confirms Step 2:
+
+- web_search("{city} {state} major employers")
+- web_search("{city} {state} largest hospital healthcare system")
+- web_search("{city} {state} universities colleges")
+- web_search("{city} {state} government offices")
+
+Store: healthcare systems, universities, government presence, financial hubs, legal centers with specifics (names, employee counts, bed counts, student populations).
+
+**Entity count discipline:** Prefer LOCAL/METRO counts over global (e.g., Booz Allen Hamilton DMV = 15,200, not global 35,000). Cite source year when available. Mark uncertain figures as ~N. These counts flow into the Step 9 handoff and feed downstream Page Builder. Wrong counts here propagate.
+
+## STEP 4: KEYWORD VOLUME ESTIMATION
+
+Skip live keyword volume searches. They rarely return actual volumes. Instead, estimate from city size:
+
+| City Size | E-Waste | Free Electronics | ITAD | Data Destruction | HD Shredding | Computer Liquidation | Degaussing |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Large (500K+) | 120-200 | 60-100 | 30-60 | 40-80 | 20-40 | 15-30 | 10-20 |
+| Medium (100-500K) | 50-120 | 30-60 | 15-30 | 20-40 | 10-20 | 8-15 | 5-10 |
+| Small (<100K) | 15-50 | 10-30 | 5-15 | 8-20 | 5-10 | 3-8 | 2-5 |
+
+Use midpoint of range. Adjust up if Step 3 reveals unusually strong vertical presence (e.g., major medical center boosts data destruction volume).
+
+## STEP 5: COMPETITOR ANALYSIS (4-6 tool calls)
+
+- web_search("{city} e-waste recycling"): identify top 3 unique commercial competitors (skip Yelp, BBB, directories)
+- web_fetch each competitor (3 fetches minimum, use saved keyword search budget for more if needed)
+
+Analyze per competitor: word count, service page count, verticals mentioned, content depth, lead magnets/guides.
+
+**Competition level:**
+
+- HIGH: 5+ competitors AND avg >1000 words
+- MEDIUM: 3+ competitors AND avg >700 words
+- LOW: everything else
+
+## STEP 6: TIER 4 & 5 SCORING
+
+**TIER 4 SCORING (Vertical Service Pages), select top 4-6:**
+
+| Criterion | Points |
+| --- | --- |
+| Keyword volume ≥ 20/mo | +3 |
+| Keyword volume 10-19/mo | +2 |
+| Keyword volume 5-9/mo | +1 |
+| No competitor targets this vertical | +3 |
+| Only 1 competitor targets it | +2 |
+| Weak competitor content | +1 |
+| Major local institution exists for vertical | +2 |
+| Existing page with KEEP status | +3 |
+| Existing page with RENAME status | +2 |
+| Complements Tier 1 services | +1 |
+| Minimum score to select: 4 |  |
+
+Options: Healthcare ITAD, Education IT Disposal, Government Electronics Recycling, Legal Firm Data Destruction, Financial Services IT Recycling, Asset Tagging Services, Asset Lifecycle Management, Reverse Logistics, Managed Service Providers (MSP)
+
+**TIER 5 SCORING (Lead Gen Guides), select top 4-6, ALWAYS include General:**
+
+| Criterion | Points |
+| --- | --- |
+| Major institution exists for vertical | +3 |
+| High compliance vertical (HIPAA/Legal/SOX) | +2 |
+| Medium compliance (FERPA/Govt) | +1 |
+| Competitors offer 0 guides | +3 |
+| Competitors offer 1 guide | +2 |
+| Matching Tier 4 service exists | +2 |
+| Existing guide content | +2 |
+| Minimum score to select: 4 |  |
+
+Options: General IT Asset Disposal Guide (ALWAYS), Healthcare ITAD Compliance Guide, Education IT Disposal & FERPA Guide, Legal Data Destruction Guide, Financial Services IT Security Guide, Government IT Procurement Guide
+
+## STEP 7: ASSIGN TO TIERS
+
+| Tier | Pages | Services |
+| --- | --- | --- |
+| Tier 1 | 6 | E-Waste Recycling (HUB), ITAD, Data Destruction, Hard Drive Shredding, Computer Liquidation, Lease Buyout |
+| Tier 2 | 6 | Free Electronics Recycling, Medical Equipment Recycling, Server Recycling, Laptop Recycling, School Electronics Recycling, Certificate of Destruction |
+| Tier 3 | 4 | Mail-In Recycling, Degaussing Services, Mobile Shredding, Hard Drive Wiping |
+| Tier 4 | 4-6 | Selected via Step 6 scoring |
+| Tier 5 | 4-6 | Selected via Step 6 scoring (always includes General Guide) |
+
+**Assignment:**
+
+- Every fetched URL → tier based on detected service
+- Multiple pages for same service → BOTH stay alive, but FLAG in handoff: each must be differentiated by distinct intent or audience (e.g., commercial vs residential, pickup vs mail-in), NOT recolored duplicates. Same-service pages with identical structure are the doorway pattern Google's June 2026 spam update targets.
+- BUILD NEW fills remaining tier slots: prioritize Tier 1 gaps → Tier 2 → Tier 3 → Tier 4 → Tier 5
+- Flagged pages: place in correct tier with 🚩 prefix
+
+## STEP 8: GENERATE CSV (Python csv.writer)
+
+**COLUMNS (11, exact order):**
+
+1. **Status**: KEEP | RENAME | BUILD NEW | 🚩 KEEP - FIX CONTENT | 🚩 RENAME
+2. **Tier**: Tier 1-5 (flagged: 🚩 Tier X)
+3. **Menu ID**: Match if provided, else "NEED_ID", or "BUILD NEW"
+4. **Menu Page Name**: {City} {Service}
+5. **New URL Alias (+Joomsef Change)**: No leading slash. KEEP=original path. RENAME/BUILD NEW={city}-{service-slug}. Guides: {city}-{vertical}-guide
+6. **NEW Menu Page Title**: {Service} {City} {State} | {Benefit} | STS (max 60 chars)
+   Examples: "E-Waste Recycling Indianapolis IN | Free Pickup | STS" / "Healthcare ITAD Guide Indianapolis IN | HIPAA Compliance | STS"
+7. **301 Redirect #1**: KEEP/BUILD NEW=N/A. RENAME=original full path (no leading /)
+8. **301 Redirect #2**: Short slug (no leading /)
+9. **301 Redirect #3**: Full path + /amp
+10. **301 Redirect #4**: Short slug + /amp
+11. **Page Description**: 1-2 sentences, under 150 chars. Include target audience, key value prop. Tier 5: emphasize gated content. Flagged: explain the issue.
+    R2 COMPLIANCE: Never write R2, R2v3, R2:2020, Responsible Recycling, NAID, or NAID AAA in this column. It is a short slot beside a city name, which implies local certification. STS holds R2v3 at Jacksonville, Texas and Houston, Texas only; every other location is a collection and service point. Use approved terms instead: Secure Recycling, Accurate Reporting, Chain of Custody, Secure, Transparent, Sustainable. Rotate across pages so 580+ descriptions do not read identically. "Certified" is allowed in long-form prose but NOT here, and never beside a location-implying noun (facility, center, plant, site). Other standards (NIST, HIPAA, SOX, FERPA, ISO) are unaffected and stay as-is.
+    Examples:
+    - Tier 1: "Hub page for all {City} electronics recycling. Targets businesses with free pickup and chain of custody documentation."
+    - Tier 4: "Healthcare ITAD targeting {Hospital}. HIPAA compliance, PHI destruction, medical IT disposal."
+    - Tier 5: "Healthcare ITAD compliance guide. HIPAA requirements, PHI protocols, BAA templates. Gated PDF."
+    - Flagged: "🚩 Content shows {wrong city}. Fix content, preserve Menu ID for authority."
+
+Write to /home/claude/{city}_consolidation.csv, copy to /mnt/user-data/outputs/
+
+Do NOT echo CSV content or verbose Python output to chat. The CSV is in the file; chat output adds nothing and burns context.
+
+## STEP 9: GENERATE PAGE BUILDER HANDOFF
+
+Write markdown file: /mnt/user-data/outputs/{city}_linking_reference.md
+
+**Structure:**
+
+\`\`\`
+# {City} {State} - Internal Linking Reference
+
+**Total Pages:** {total}
+
+## Linking Instructions
+- 3-4 internal links per page in content sections (NOT hero)
+- Link format: https://www.stselectronicrecyclinginc.com/{url}
+- Priority: Tier 1 → Related services → Tier 5 guides for CTAs
+- MANDATORY: City spoke links required per Page Builder Master v3.0 Gate 12 Step H
+- Sacred equipment links are SEPARATE from 3-4 body link budget
+- DIFFERENTIATION: Any two pages targeting the same service must diverge in intent, audience, or content structure, not swapped keywords over identical layout. This is the uniqueness floor against doorway classification.
+- R2v3 AUTHORITY PAGE SLOT: RESERVED, EMPTY. A dedicated R2v3 page is planned as the internal-link destination for certification context. URL not yet supplied. Do not invent one. Leave this slot empty until the real URL is provided.
+
+## Tier 1: Hub + Core Services
+**{url}**: {description}
+[all Tier 1]
+
+## Tier 2: Verticals + Equipment
+[all Tier 2]
+
+## Tier 3: Methods
+[all Tier 3]
+
+## Tier 4: Strategic Verticals
+[all Tier 4 with scores]
+
+## Tier 5: Lead Gen Guides ⭐
+[all Tier 5]
+
+## HANDOFF_ENTITIES (pre-curated, skip verification in Gate 4)
+
+### Major Employers
+- {Name} ({employee_count} employees), {industry}
+[4-5 from market discovery]
+
+### Healthcare Systems
+[if applicable]
+
+### Education
+[if applicable]
+
+## Industry Verticals Cross-Links (Tier 3 priority)
+
+NICHE-MATCHED (max 1 vertical cross-link per page, counts toward 3-4 body budget):
+
+**Healthcare/Medical:**
+- {city}-medical-equipment-recycling
+- {city}-healthcare-itad
+- {city}-healthcare-itad-guide
+- Cross-link: /industries-we-serve/industries-1/healthcare-electronic-recycling
+
+**Education:**
+- {city}-school-electronics-recycling
+- {city}-education-it-disposal
+- {city}-education-it-disposal-guide
+- Cross-link: /industries-we-serve/industries-1/school-university-and-education-electronics-recycling-and-itad
+
+**Financial:**
+- {city}-financial-services-it-recycling
+- {city}-financial-services-guide
+- Cross-link: /industries-we-serve/industries-4/banking-and-financial-industry-electronics-recycling-and-itad
+
+**Legal:**
+- {city}-legal-firm-data-destruction
+- {city}-legal-data-destruction-guide
+- Cross-link: /industries-we-serve/industries-4/law-firm-electronics-recycling-and-itad
+
+**Government:**
+- {city}-government-electronics-recycling
+- {city}-government-it-procurement-guide
+- Cross-link: /industries-we-serve/industries-4/federal-state-and-local-government-electronics-recycling-and-itad
+
+**Corporate/General:**
+- {city}-e-waste-recycling (hub)
+- {city}-itad
+- {city}-general-it-asset-guide
+- Cross-link: /industries-we-serve/industries-3/call-center-electronics-recycling-and-itad
+
+## Local Context
+{City description: economic drivers, industries, population, key institutions}
+\`\`\`
+
+## STEP 10: OUTPUT
+
+**CSV VALIDATION (run before presenting. Fix any failure, do not present a failing CSV):**
+
+- Exactly 11 columns, in the exact order specified in Step 8
+- Zero leading slashes in any URL alias or redirect cell
+- Every RENAME row has 4 redirects; every KEEP and BUILD NEW row has N/A in all 4 redirect cells
+- Tier 5 contains General IT Asset Disposal Guide
+- Every Page Title is under 60 characters; every Page Description is under 150 characters
+- KEEP + RENAME + BUILD NEW counts sum to the total page count
+- R2 COMPLIANCE: zero instances of R2, R2v3, R2:2020, Responsible Recycling, NAID, or NAID AAA in the Page Description column. Report the count. If any appear, replace with approved terms before presenting.
+
+Then:
+
+- Confirm all steps completed (URLs fetched, market discovered, competitors analyzed, tiers scored)
+- Present BOTH files: CSV first, then Handoff
+- Summary: X KEEP + Y RENAME + Z BUILD NEW = total. List Tier 4 & 5 selections with scores.
+- STOP. No methodology explanation. No implementation steps. No markdown reports.
+
+---
+
+## EXPECTED TOOL CALLS: N + 8-10 (N = URL count)
+
+- N web_fetch calls (one per URL, some may need retry at 1000 tokens)
+- 4 market discovery searches
+- 0 keyword searches (estimated from city size table)
+- 1 competitor identification search + 3-5 competitor fetches
+- Total: N + 8-10
+
+Begin now.`;
+}
+
+// ===== CSV PARSER =====
+function parseCSV(){
+    const raw=document.getElementById('csvInput').value.trim();
+    const errBox=document.getElementById('csvError');
+    errBox.classList.remove('visible');
+    if(!raw){showToast('Paste CSV content first',true);return;}
+
+    try {
+        const rows=parseCSVText(raw);
+        if(rows.length<2) throw new Error('Need header + at least 1 data row');
+
+        const header=rows[0].map(h=>h.trim().toLowerCase());
+        const statusIdx=header.findIndex(h=>h.includes('status'));
+        const tierIdx=header.findIndex(h=>h.includes('tier'));
+        const menuIdIdx=header.findIndex(h=>h.includes('menu id'));
+        const nameIdx=header.findIndex(h=>h.includes('menu page name')||h.includes('page name'));
+        const aliasIdx=header.findIndex(h=>h.includes('url alias')||h.includes('new url alias'));
+        const titleIdx=header.findIndex(h=>h.includes('menu page title')||h.includes('new menu page title'));
+        const r1Idx=header.findIndex(h=>h.includes('redirect #1')||h.includes('redirect 1'));
+        const r2Idx=header.findIndex(h=>h.includes('redirect #2')||h.includes('redirect 2'));
+        const r3Idx=header.findIndex(h=>h.includes('redirect #3')||h.includes('redirect 3'));
+        const r4Idx=header.findIndex(h=>h.includes('redirect #4')||h.includes('redirect 4'));
+        const descIdx=header.findIndex(h=>h.includes('description'));
+
+        if(statusIdx<0||nameIdx<0) throw new Error('Could not find Status or Page Name columns. Check header row.');
+
+        const pages=[];
+        for(let i=1;i<rows.length;i++){
+            const r=rows[i];
+            if(!r||r.length<2) continue;
+            const status=(r[statusIdx]||'').trim();
+            if(!status) continue;
+            pages.push({
+                status, tier:(r[tierIdx]||'').trim(),
+                menuId:(r[menuIdIdx]||'').trim(), name:(r[nameIdx]||'').trim(),
+                alias:(r[aliasIdx]||'').trim(), pageTitle:(r[titleIdx]||'').trim(),
+                r1:(r[r1Idx]||'').trim(), r2:(r[r2Idx]||'').trim(),
+                r3:(r[r3Idx]||'').trim(), r4:(r[r4Idx]||'').trim(),
+                desc:(r[descIdx]||'').trim(), done:false
+            });
+        }
+        if(pages.length===0) throw new Error('No data rows found');
+
+        S.csvRows=pages;
+        renderPageCards(pages);
+        saveState();
+        showToast(pages.length+' pages parsed! Checklists generated.');
+
+    } catch(e){
+        errBox.textContent='Parse error: '+e.message;
+        errBox.classList.add('visible');
+        showToast('CSV parse failed',true);
+    }
+}
+
+function parseCSVText(text){
+    const rows=[]; let row=[]; let cell=''; let inQuote=false;
+    for(let i=0;i<text.length;i++){
+        const c=text[i];
+        if(inQuote){
+            if(c==='"'&&text[i+1]==='"'){cell+='"';i++;}
+            else if(c==='"'){inQuote=false;}
+            else{cell+=c;}
+        } else {
+            if(c==='"'){inQuote=true;}
+            else if(c===','){row.push(cell);cell='';}
+            else if(c==='\n'||c==='\r'){
+                if(c==='\r'&&text[i+1]==='\n') i++;
+                row.push(cell);cell='';
+                if(row.some(c=>c.trim())) rows.push(row);
+                row=[];
+            } else {cell+=c;}
+        }
+    }
+    row.push(cell);
+    if(row.some(c=>c.trim())) rows.push(row);
+    return rows;
+}
+
+function classifyStatus(s){
+    const sl=s.toLowerCase();
+    if(sl.includes('\uD83D\uDEA9')||sl.includes('flag')||sl.includes('fix')) return 'flagged';
+    if(sl.includes('build new')||sl.includes('build')) return 'build';
+    if(sl.includes('rename')) return 'rename';
+    return 'keep';
+}
+
+function renderPageCards(pages){
+    const keep=[],rename=[],build=[],flagged=[];
+    pages.forEach((p,i)=>{
+        p._idx=i;
+        const cls=classifyStatus(p.status);
+        if(cls==='flagged') flagged.push(p);
+        else if(cls==='build') build.push(p);
+        else if(cls==='rename') rename.push(p);
+        else keep.push(p);
+    });
+
+    // Stats
+    const statsBar=document.getElementById('statsBar');
+    statsBar.innerHTML=`
+        <div class="stat-chip keep"><span class="stat-num">${keep.length}</span> KEEP</div>
+        <div class="stat-chip rename"><span class="stat-num">${rename.length}</span> RENAME</div>
+        <div class="stat-chip build"><span class="stat-num">${build.length}</span> BUILD NEW</div>
+        ${flagged.length?`<div class="stat-chip flagged"><span class="stat-num">${flagged.length}</span> \uD83D\uDEA9 FLAGGED</div>`:''}
+        <div class="stat-chip" style="background:var(--cream);color:var(--navy);border:1px solid var(--border-light);"><span class="stat-num">${pages.length}</span> TOTAL</div>`;
+    document.getElementById('csvSummary').style.display='block';
+
+    // KEEP cards
+    renderCardGroup('keepCards',keep,'keep');
+    document.getElementById('phase3').style.display=keep.length?'':'none';
+    document.getElementById('phase3Time').textContent=keep.length+' pages';
+
+    // RENAME cards
+    renderCardGroup('renameCards',rename,'rename');
+    document.getElementById('phase4').style.display=rename.length?'':'none';
+    document.getElementById('phase4Time').textContent=rename.length+' pages';
+
+    // BUILD NEW cards
+    renderCardGroup('buildCards',build,'build');
+    document.getElementById('phase5').style.display=build.length?'':'none';
+    document.getElementById('phase5Time').textContent=build.length+' pages';
+
+    // FLAGGED cards
+    renderCardGroup('flaggedCards',flagged,'flagged');
+    document.getElementById('phase6').style.display=flagged.length?'':'none';
+    document.getElementById('phase6Time').textContent=flagged.length+' pages';
+
+    updateCategoryProgress();
+}
+
+function renderCardGroup(containerId, pages, type){
+    const container=document.getElementById(containerId);
+    container.innerHTML='';
+    pages.forEach(p=>{
+        const card=document.createElement('div');
+        card.className='page-card';
+        card.id='pc-'+p._idx;
+        card.dataset.idx=p._idx;
+
+        let bodyHTML='';
+
+        // Common fields
+        bodyHTML+=makeRow('Page Name',p.name);
+        bodyHTML+=makeRow('New URL Alias',p.alias);
+        bodyHTML+=makeRow('Page Title',p.pageTitle);
+        if(p.menuId&&p.menuId!=='BUILD NEW'&&p.menuId!=='NEED_ID') bodyHTML+=makeRow('Menu ID',p.menuId);
+
+        // Redirects for RENAME
+        if(type==='rename' && (p.r1||p.r2||p.r3||p.r4)){
+            bodyHTML+=`<div class="redirect-group">
+                <div class="redirect-group-title"><i class="fas fa-directions"></i> 301 Redirects — add all 4 in SEF URL Manager</div>
+                ${p.r1?makeRow('Redirect #1',p.r1):''}
+                ${p.r2?makeRow('Redirect #2',p.r2):''}
+                ${p.r3?makeRow('Redirect #3',p.r3):''}
+                ${p.r4?makeRow('Redirect #4',p.r4):''}
+            </div>`;
+        }
+
+        if(p.desc) bodyHTML+=`<div class="page-card-desc">${escHTML(p.desc)}</div>`;
+
+        // Per-type instructions
+        if(type==='keep'){
+            bodyHTML+=`<div style="margin-top:10px;font-size:12px;color:var(--green);font-weight:600;"><i class="fas fa-check"></i> No changes needed — verify page loads correctly</div>`;
+        }
+        if(type==='rename'){
+            bodyHTML+=`<div class="instruction-box" style="margin-top:10px;">
+                <strong>Steps:</strong><br>
+                1. Find in Menu Manager (ID: ${p.menuId||'search by name'})<br>
+                2. Update URL Alias to: <code>${escHTML(p.alias)}</code><br>
+                3. Save menu item<br>
+                4. Add 4 redirects above in SEF URL Manager
+            </div>`;
+        }
+        if(type==='build'){
+            bodyHTML+=`<div class="instruction-box" style="margin-top:10px;">
+                <strong>Build in Page Terminal:</strong><br>
+                \u2022 Page name: <code>${escHTML(p.name)}</code><br>
+                \u2022 Slug: <code>${escHTML(p.alias)}</code><br>
+                \u2022 Use linking reference for internal links
+            </div>`;
+        }
+        if(type==='flagged'){
+            bodyHTML+=`<div class="warning-box" style="margin-top:10px;"><i class="fas fa-flag"></i> <strong>Issue:</strong> ${escHTML(p.desc||'Review content and fix')}</div>`;
+        }
+
+        card.innerHTML=`
+            <div class="page-card-header" onclick="toggleCard(${p._idx})">
+                <span class="page-card-status ${type}">${escHTML(p.status)}</span>
+                <span class="page-card-tier">${escHTML(p.tier)}</span>
+                <span class="page-card-name">${escHTML(p.name)}</span>
+                <input type="checkbox" class="page-card-check" id="pcc-${p._idx}" onclick="event.stopPropagation();markCardDone(${p._idx})" onchange="updateCategoryProgress()">
+            </div>
+            <div class="page-card-body">${bodyHTML}</div>`;
+        container.appendChild(card);
+
+        // Restore checked state
+        if(S.checks['pcc-'+p._idx]){
+            const cb=card.querySelector('.page-card-check');
+            cb.checked=true;
+            card.classList.add('done');
+        }
+    });
+}
+
+function makeRow(label,value){
+    if(!value||value==='N/A'||value==='n/a') return '';
+    const id='copy-'+Math.random().toString(36).substr(2,6);
+    return `<div class="page-card-row">
+        <div class="page-card-row-label">${label}</div>
+        <div class="page-card-row-value" id="${id}">${escHTML(value)}</div>
+        <button class="page-card-row-copy" onclick="event.stopPropagation();copyVal('${id}')"><i class="fas fa-copy"></i> Copy</button>
+    </div>`;
+}
+
+function copyVal(id){
+    const el=document.getElementById(id);
+    if(!el) return;
+    navigator.clipboard.writeText(el.textContent).then(()=>showToast('Copied!')).catch(()=>showToast('Copy failed',true));
+}
+
+function toggleCard(idx){
+    const card=document.getElementById('pc-'+idx);
+    if(card) card.classList.toggle('expanded');
+}
+
+function markCardDone(idx){
+    const card=document.getElementById('pc-'+idx);
+    const cb=document.getElementById('pcc-'+idx);
+    if(card&&cb){ card.classList.toggle('done',cb.checked); }
+    saveState();
+    updateCategoryProgress();
+    updateProgress();
+}
+
+function updateCategoryProgress(){
+    const groups=[
+        {container:'keepCards',bar:'keepProgress',text:'keepProgressText'},
+        {container:'renameCards',bar:'renameProgress',text:'renameProgressText'},
+        {container:'buildCards',bar:'buildProgress',text:'buildProgressText'},
+        {container:'flaggedCards',bar:'flaggedProgress',text:'flaggedProgressText'}
+    ];
+    groups.forEach(g=>{
+        const cards=document.getElementById(g.container)?.querySelectorAll('.page-card-check')||[];
+        const total=cards.length;
+        const done=Array.from(cards).filter(c=>c.checked).length;
+        const pct=total>0?Math.round(done/total*100):0;
+        const bar=document.getElementById(g.bar);
+        const txt=document.getElementById(g.text);
+        if(bar) bar.style.width=pct+'%';
+        if(txt) txt.textContent=done+'/'+total;
+    });
+}
+
+// ===== PROGRESS =====
+function updateProgress(){
+    document.querySelectorAll('#phases > .card > .phase-content .step input[type="checkbox"]').forEach(cb=>{
+        const s=cb.closest('.step');
+        if(s){cb.checked?s.classList.add('checked'):s.classList.remove('checked');}
+    });
+    saveState();
+    checkPhaseCompletion();
+}
+
+function checkPhaseCompletion(){
+    const phases=Array.from(document.querySelectorAll('.phase')).filter(p=>p.style.display!=='none');
+    phases.forEach((ph,idx)=>{
+        // For phases with page cards, check those too
+        const stepBoxes=ph.querySelectorAll('.step input[type="checkbox"]');
+        const cardBoxes=ph.querySelectorAll('.page-card-check');
+        const allBoxes=[...stepBoxes,...cardBoxes];
+        const checkedBoxes=allBoxes.filter(cb=>cb.checked);
+
+        if(allBoxes.length>0&&allBoxes.length===checkedBoxes.length){
+            if(!ph.classList.contains('phase-complete')){
+                ph.classList.add('phase-complete');
+                const next=phases[idx+1];
+                if(next&&!next.classList.contains('active')){
+                    setTimeout(()=>{
+                        next.classList.add('phase-unlocking','active');
+                        showToast('\u2713 Phase complete \u2192 Next unlocked');
+                        setTimeout(()=>{next.scrollIntoView({behavior:'smooth',block:'center'});next.classList.remove('phase-unlocking');},300);
+                    },400);
+                }
+            }
+        } else { ph.classList.remove('phase-complete'); }
+    });
+
+    // Full completion
+    const allV=Array.from(document.querySelectorAll('#phases input[type="checkbox"]')).filter(cb=>{
+        const ph=cb.closest('.phase'); return !ph||ph.style.display!=='none';
+    });
+    const allC=allV.filter(cb=>cb.checked);
+    if(allV.length>0&&allV.length===allC.length&&!S.completionTriggered){
+        S.completionTriggered=true;setTimeout(triggerCompletion,500);
+    } else if(allC.length<allV.length){S.completionTriggered=false;}
+}
+
+function triggerCompletion(){
+    const ov=document.getElementById('completionOverlay');
+    document.getElementById('completionCity').textContent=S.city+', '+S.state;
+    const k=S.csvRows.filter(r=>classifyStatus(r.status)==='keep').length;
+    const rn=S.csvRows.filter(r=>classifyStatus(r.status)==='rename').length;
+    const b=S.csvRows.filter(r=>classifyStatus(r.status)==='build').length;
+    document.getElementById('completionPages').textContent=`${k} KEEP + ${rn} RENAME + ${b} NEW = ${S.csvRows.length}`;
+    document.getElementById('completionVA').textContent=S.vaName||'\u2014';
+    const diff=S.startTime?Math.floor((Date.now()-S.startTime)/1000):0;
+    document.getElementById('completionTime').textContent=Math.floor(diff/60)+':'+String(diff%60).padStart(2,'0');
+    ov.classList.add('active');createConfetti();
+}
+function closeCompletion(){document.getElementById('completionOverlay').classList.remove('active');}
+function createConfetti(){
+    const colors=['#c9a962','#d4bc7d','#1e3a5f','#f97316','#34d399'];
+    const ov=document.getElementById('completionOverlay');
+    for(let i=0;i<40;i++){const c=document.createElement('div');c.className='confetti';c.style.cssText=`left:${Math.random()*100}%;background:${colors[i%colors.length]};animation-delay:${Math.random()*2}s;animation-duration:${2.5+Math.random()*2}s`;ov.appendChild(c);setTimeout(()=>c.classList.add('active'),10);setTimeout(()=>c.remove(),5000);}
+}
+
+// ===== REPORT =====
+async function trackToWorkLog(payload){
+    if(!payload||!payload.newUrl){ return; }
+    const resp=await fetch('/api/mc/work-log',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const raw=await resp.text(); let data; try{data=JSON.parse(raw);}catch(e){throw new Error('Invalid tracker response');}
+    if(!resp.ok) throw new Error(data.error||('Tracker error '+resp.status));
+    return data;
+}
+
+function workLogBaseOrigin(){
+    const sample=(S.urls&&S.urls.find(u=>/^https?:\/\//i.test(u)))||(S.csvRows&&(S.csvRows.find(r=>/^https?:\/\//i.test(r.r1))||{}).r1)||'';
+    try{ return sample?new URL(sample).origin:''; }catch(e){ return ''; }
+}
+
+async function logToTracker(){
+    const rows=(S.csvRows||[]).filter(r=>{const c=classifyStatus(r.status);return c==='build'||c==='rename';});
+    if(rows.length===0){ showToast('No build/rename pages to log',true); return; }
+    const base=workLogBaseOrigin();
+    if(!base){ showToast('Cannot log: no site origin found in existing URLs/redirects',true); return; }
+    let ok=0, fail=0;
+    for(const r of rows){
+        const slug=(r.alias||'').replace(/^\/+|\/+$/g,'');
+        if(!slug){ fail++; continue; }
+        try{
+            await trackToWorkLog({
+                newUrl: base+'/'+slug,
+                oldUrl: /^https?:\/\//i.test(r.r1)?r.r1:undefined,
+                city: S.city||undefined,
+                state: S.state||undefined,
+                pageName: r.name||undefined,
+                pageType: (r.tier||'').toLowerCase().includes('hub')?'hub':'spoke',
+                tier: r.tier||undefined,
+                vaName: S.vaName||undefined,
+                source: 'old-tool',
+                status: r.done?'done':'in_progress',
+                notes: `M.A.R.K. hub-spoke (${classifyStatus(r.status)})`
+            });
+            ok++;
+        }catch(e){ fail++; }
+    }
+    showToast(fail?`Logged ${ok}, ${fail} failed`:`Logged ${ok} pages to tracker`, fail>0);
+}
+
+function generateReport(){
+    logToTracker().catch(()=>{});
+    const allV=Array.from(document.querySelectorAll('#phases input[type="checkbox"]')).filter(cb=>{const ph=cb.closest('.phase');return !ph||ph.style.display!=='none';});
+    const chk=allV.filter(cb=>cb.checked).length;
+    const pct=allV.length>0?Math.round(chk/allV.length*100):0;
+    const diff=S.startTime?Math.floor((Date.now()-S.startTime)/1000):0;
+    const k=S.csvRows.filter(r=>classifyStatus(r.status)==='keep').length;
+    const rn=S.csvRows.filter(r=>classifyStatus(r.status)==='rename').length;
+    const b=S.csvRows.filter(r=>classifyStatus(r.status)==='build').length;
+    const f=S.csvRows.filter(r=>classifyStatus(r.status)==='flagged').length;
+    const report=`\uD83D\uDD17 M.A.R.K. HUB+SPOKE REPORT\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\uD83C\uDFD9\uFE0F ${S.city}, ${S.state}\n\uD83D\uDCCA ${k} KEEP + ${rn} RENAME + ${b} BUILD NEW${f?' + '+f+' FLAGGED':''} = ${S.csvRows.length} pages\n\uD83D\uDD17 ${S.urls.length} existing URLs processed\n\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\u2501\n\uD83D\uDC64 VA: ${S.vaName||'N/A'}\n\u23F1\uFE0F Time: ${Math.floor(diff/60)}:${String(diff%60).padStart(2,'0')}\n\uD83D\uDCCA ${chk}/${allV.length} (${pct}%) ${chk===allV.length?'\u2705 COMPLETE':'\u26A0\uFE0F INCOMPLETE'}\n\uD83D\uDCC5 ${new Date().toLocaleDateString()}`;
+    navigator.clipboard.writeText(report).then(()=>showToast('Report copied!'));
+}
+
+// ===== PERSISTENCE =====
+function saveState(){
+    S.vaName=document.getElementById('vaName').value||S.vaName;
+    S.city=document.getElementById('cityInput').value||S.city;
+    S.state=document.getElementById('stateInput').value||S.state;
+    document.querySelectorAll('input[type="checkbox"]').forEach(cb=>{S.checks[cb.id]=cb.checked;});
+    try{localStorage.setItem('markHubSpokeV2',JSON.stringify(S));}catch(e){}
+}
+
+function loadState(){
+    try{
+        const raw=localStorage.getItem('markHubSpokeV2');
+        if(!raw) return;
+        const saved=JSON.parse(raw);
+        S={...S,...saved};
+        if(saved.vaName) document.getElementById('vaName').value=saved.vaName;
+        if(saved.city) document.getElementById('cityInput').value=saved.city;
+        if(saved.state) document.getElementById('stateInput').value=saved.state;
+        if(saved.urls&&saved.urls.length) document.getElementById('urlsInput').value=saved.urls.join('\n');
+        if(saved.city&&saved.state){
+            document.getElementById('sumCity').textContent=saved.city+', '+saved.state;
+            document.getElementById('sumUrls').textContent=(saved.urls||[]).length;
+            document.getElementById('summaryPanel').style.display='block';
+        }
+        if(saved.csvRows&&saved.csvRows.length>0){
+            renderPageCards(saved.csvRows);
+        }
+        if(saved.checks) Object.entries(saved.checks).forEach(([id,v])=>{
+            const el=document.getElementById(id);
+            if(el){el.checked=v;if(v){el.closest('.step')?.classList.add('checked');el.closest('.page-card')?.classList.add('done');}}
+        });
+        document.getElementById('urlsInput').dispatchEvent(new Event('input'));
+        updateCategoryProgress();
+        setTimeout(()=>checkPhaseCompletion(),100);
+    }catch(e){}
+}
+
+function resetAll(){
+    if(!confirm('Reset all data and start a new city?')) return;
+    try{localStorage.removeItem('markHubSpokeV2');}catch(e){}
+    location.reload();
+}
+
+// ===== UTILS =====
+function togglePhase(id){document.getElementById(id).classList.toggle('active');}
+function escHTML(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function showToast(msg,isErr=false){
+    const t=document.getElementById('toast');
+    t.innerHTML=`<i class="fas ${isErr?'fa-exclamation-circle':'fa-check-circle'}"></i> <span>${msg}</span>`;
+    t.style.borderLeft=isErr?'4px solid #ef4444':'4px solid #34d399';
+    t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+window.onload=function(){loadState();};
+</script>
+</body>
+</html>

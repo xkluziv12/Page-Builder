@@ -1,0 +1,77 @@
+{
+  "candidates": [
+    {
+      "id": "A",
+      "code": 82,
+      "css": 85,
+      "design": 88,
+      "schema": 90,
+      "seo": 89,
+      "notes": "Single clean <h1> ('R2 Certified Electronics Recycling for Billings, MT') with question-based h2s used as query targets ('How Does Secure Data Destruction Work in Billings?'). Real alt text on images and loading=lazy present, but heavy inline-style sprawl and reliance on div[style*=...] media-query hacks hurt maintainability; also leaks author name in an HTML comment. Schema is the richest of the set: proper @graph wiring with stable @id refs (#business, #webpage, #howto, #faqpage, #breadcrumb), 21-item OfferCatalog, HowTo, 8-Q FAQPage, and honest NAP (Billings service-area LocalBusiness + Jacksonville TX parentOrganization). ~2578 words with strong E-E-A-T (NIST 800-88, HIPAA 45 CFR §164.312 citations); named-entity claims (Billings Clinic, BNSF, ExxonMobil) risk mild fabrication but are hedged as 'typical'."
+    },
+    {
+      "id": "B",
+      "code": 78,
+      "css": 84,
+      "design": 84,
+      "schema": 88,
+      "seo": 80,
+      "notes": "Well-formed single <h1> and consistent section rhythm; adds a nice .stats-section with tokenized stat cards. Weaknesses: the giant 'ZERO-LANDFILL LAWS' headline is invented/misleading (Montana has no such law), and a bare div with a stray loading attribute (<div style=...background:url(...) loading=\"lazy\">) is invalid since loading only applies to img/iframe. Content skews vague-corporate ('major industrial offices', 'current industrial reports') and cites NIST SP 800-88 'Rev. 2' inconsistently against Rev.1 elsewhere. Schema strong: LocalBusiness+RecyclingCenter array type, 20-item OfferCatalog, HowTo, 8-Q FAQ, breadcrumb, correct parent-org NAP. tel:8446992913 in ContactAction drops the +1 and is malformed."
+    },
+    {
+      "id": "C",
+      "code": 84,
+      "css": 86,
+      "design": 87,
+      "schema": 42,
+      "seo": 88,
+      "notes": "Best-structured HTML of the batch: indented, commented sections, extracted reusable classes (.faq-card, .process-step, .process-num-blue), preconnect hints added, and a .form-hold placeholder instead of a raw iframe. Single <h1> with keyword-question h2s throughout. Content is deep (~2600 words) with genuine citations (IBM $4.88M breach, UN 17.4%, Montana has no EPR law) and strong internal links. The fatal flaw is SCHEMA: a single flat LocalBusiness with only makesOffer[] — no @graph, no @id, no FAQPage/BreadcrumbList/WebPage/HowTo, no NAP parent org, no telephone. It throws away the rich-result potential every other top candidate captured."
+    },
+    {
+      "id": "D",
+      "code": 83,
+      "css": 80,
+      "design": 79,
+      "schema": 86,
+      "seo": 82,
+      "notes": "Most honest/defensible copy: explicitly corrects the common error ('NIST SP 800-88 is a media-sanitization standard used to guide destruction workflows, rather than a certification held by STS'), hedges pickup ('may be available'), and cites sourced stats (Billings Chamber $2.8B, ITU/UNITAR 2024). Single <h1>, semantic FAQ. CSS is heavily minified into one dense line reducing maintainability, and word count (~2340) is a bit lighter with fewer sections. Schema is solid @graph (LocalBusiness+Organization, 19-item OfferCatalog, HowTo, 8-Q FAQPage with unusually thorough answers, breadcrumb, webpage) — though parentOrganization omits the street address other candidates include."
+    },
+    {
+      "id": "E",
+      "code": 68,
+      "css": 82,
+      "design": 80,
+      "schema": 40,
+      "seo": 66,
+      "notes": "Renders well and reuses the shared design system, but heading hierarchy is flawed: multiple h4-in-cards without intermediate structure and 'Telecom Equipment Disposal' link points to /corporate-data-security-disposal (mismatched anchor→URL). Makes riskier unhedged entity claims ('major employers like ExxonMobil', asserted as clients). Schema is the thin flat LocalBusiness+makesOffer only — no FAQPage/HowTo/breadcrumb despite the page having a visible FAQ, a big missed opportunity. ~2405 words but thinner substantive depth; keyword coverage decent but E-E-A-T weaker than A/C."
+    },
+    {
+      "id": "F",
+      "code": 85,
+      "css": 85,
+      "design": 85,
+      "schema": 44,
+      "seo": 84,
+      "notes": "Cleanest markup discipline among the flat-schema group: single <h1>, question h2s ('Who Provides Certified Electronics Recycling in Billings?'), consistent AUDIT_TARGET comments, and notably restrained/honest claims ('help support HIPAA 45 CFR §164.312, GLBA, FERPA'), no phone-number fabrication (email-only CTAs). Good compliance coverage (Clear/Purge/Destroy categories, R2v3:2020). Strong ~2555-word body with realistic service-area detail (I-90/I-94, King Ave, Shiloh). Held back badly by SCHEMA: only a flat LocalBusiness with makesOffer[] — no FAQ/HowTo/breadcrumb/@graph, so it forfeits rich results the content would otherwise earn."
+    },
+    {
+      "id": "G",
+      "code": 58,
+      "css": 80,
+      "design": 78,
+      "schema": 38,
+      "seo": 55,
+      "notes": "Renders attractively but riddled with accuracy/integrity problems: title/description carry a DIFFERENT phone number '(470) 226-5361' (Georgia area code, NAP inconsistency) never repeated in body; claims 'HIPAA-Certified' and 'HIPAA-certified data destruction' (HIPAA is not a certification); a self-referential link ('Hard Drive Destruction' → /billings-mt) is a broken internal anchor. Unhedged assertions that ExxonMobil 'depend on STS' risk fabrication. Shortest body (~2215 words). Schema is the thin flat LocalBusiness+makesOffer only, and the makesOffer NAP even lacks the fabricated phone. Weakest overall on trust signals."
+    }
+  ],
+  "categoryWinners": {
+    "code": "F",
+    "css": "C",
+    "design": "A",
+    "schema": "A",
+    "seo": "A"
+  },
+  "overallRanking": ["A", "D", "B", "C", "F", "E", "G"],
+  "winner": "A",
+  "rationale": "Candidate A wins because it is the only entry that pairs a polished, conversion-oriented rendered page with a genuinely rich, correctly-wired JSON-LD @graph — the single biggest differentiator in this batch. Its schema stitches WebSite, LocalBusiness (with additionalType RecyclingCenter/WasteManagementService and a Wikidata reference), a 21-item Service OfferCatalog, HowTo, an 8-question FAQPage, BreadcrumbList and WebPage together with stable @id references, and — critically — keeps NAP honest by modeling the Billings location as a service-area business while placing the real street address on the Jacksonville, TX parentOrganization. Its ~2578-word body targets queries through question-headings and cites real standards (NIST SP 800-88, HIPAA 45 CFR §164.312) for strong E-E-A-T. D is the runner-up and the most intellectually honest page (it openly corrects the NIST-is-not-a-certification error and hedges pickup/claims) with a near-equally strong @graph, but it's a touch shorter, more minified, and slightly less visually rich. B ranks third on schema richness but is dragged down by the fabricated 'ZERO-LANDFILL LAWS' headline and a malformed tel: entry. C and F have arguably the cleanest HTML/CSS and the deepest, best-sourced copy in the field, yet both self-sabotage with a bare flat LocalBusiness+makesOffer schema that discards FAQ/HowTo/Breadcrumb rich-result eligibility — the reason they fall behind the @graph candidates despite superior craft. E is thinner and has an anchor/URL mismatch plus riskier claims. G ranks last on integrity: a wrong (470) Georgia phone number in its meta, 'HIPAA-Certified' misstatements, and a self-referential broken internal link undermine trust that no amount of visual polish can offset."
+}

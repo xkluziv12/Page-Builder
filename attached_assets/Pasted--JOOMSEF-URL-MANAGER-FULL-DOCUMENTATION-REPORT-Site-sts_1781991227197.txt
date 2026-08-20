@@ -1,0 +1,334 @@
+---
+
+# JOOMSEF URL MANAGER — FULL DOCUMENTATION REPORT
+**Site:** stselectronicrecyclinginc.com | **Audit date:** 2026-06-20 | **READ-ONLY — no data was changed**
+
+---
+
+## COMPONENT MAP
+
+**Component identifier:** `com_sef`
+**Component name:** ARTIO JoomSEF
+**Installed version:** 4.7.9
+**Newest available:** 4.7.10
+**Release date:** 26 October 2020
+**Author:** ARTIO s.r.o. (artio.net)
+**License:** GNU/GPL
+**Joomla version:** 3.9.26
+
+### Top-level tabs on the Control Panel dashboard
+
+The Control Panel (`index.php?option=com_sef`) has five horizontal tabs across the top content area:
+
+| Tab label | What it contains |
+|---|---|
+| JoomSEF Configuration | Global Configuration, Extensions Management, Edit .htaccess, Check Updates |
+| URLs Management | (shortcut to SEF URLs list) |
+| Extras Management | (meta tags, sitemap tools) |
+| Maintenance | (cache/maintenance utilities) |
+| Help & Support | (documentation links) |
+
+### Left-sidebar navigation (present on every JoomSEF screen)
+
+These are the operational sections a visual agent will use:
+
+| Sidebar link label | URL | Purpose |
+|---|---|---|
+| Control Panel | `?option=com_sef` | Dashboard + version info |
+| Configuration | `?option=com_sef&controller=config&task=edit` | Global SEF settings |
+| Manage Extensions | `?option=com_sef&controller=extension` | Per-component SEF settings |
+| Edit .htaccess | `?option=com_sef&controller=htaccess` | .htaccess file editor |
+| **Manage SEF URLs** | `?option=com_sef&controller=sefurls&viewmode=3` | **Operation A — edit slugs** |
+| Manage Meta Tags | `?option=com_sef&controller=metatags` | Per-URL meta overrides |
+| SiteMap | `?option=com_sef&controller=sitemap` | Sitemap management |
+| **Manage 301 Redirects** | `?option=com_sef&controller=movedurls` | **Operation B — add redirects** |
+| Statistics | `?option=com_sef&view=statistics` | Hit/usage stats |
+| Upgrade | `?option=com_sef&task=showUpgrade` | Version upgrade page |
+| Help & Support | `?option=com_sef&controller=info&task=help` | Help docs |
+
+---
+
+## OPERATION (A) — EDIT / SHORTEN A SEF URL ALIAS
+
+### Screen 1 — Manage SEF URLs List
+
+**Page title (browser tab):** `JoomSEF URL Manager — [site name] — Administration`
+**Page heading (H1 in blue bar):** `JoomSEF URL Manager`
+**Direct URL:** `administrator/index.php?option=com_sef&controller=sefurls&viewmode=3`
+
+#### Toolbar buttons (top bar, left to right)
+
+| Button label | Type | Color | Notes |
+|---|---|---|---|
+| *(bulk scope dropdown)* | `<select name="sef_selection">` | — | Options: "Only selected" / "All filtered" |
+| *(bulk action dropdown)* | `<select name="sef_actions">` | — | Options: Enable, Disable, SEF, Don't SEF, Lock, Unlock, ---, Copy to cache, Update URLs, Update Sitemap, Update Meta Tags, Change meta tags, ---, Delete, Export |
+| **Proceed** | `<input type="button">` | grey | Executes the bulk action on selected/filtered rows |
+| **+ New** | `<button>` | green | Creates a new blank SEF URL record |
+| **Edit** | `<button>` | grey with pencil icon | Opens selected row(s) for editing |
+| **Import** | `<button>` | grey | Import URLs from file |
+| **◀ Back** | `<button>` | grey | Returns to previous screen |
+
+#### Filters bar (below toolbar)
+
+| Filter label | Control type | HTML `name` | Notes |
+|---|---|---|---|
+| ViewMode | `<select name="viewmode">` | `viewmode` | Options: "Show All Redirects" (val=3), "Show Custom Redirects" (val=2), "Show SEF URLs" (val=0), "Show cached URLs" (val=6), "Show Links to Homepage", "Show 404 Log", "Show Duplicities" |
+| Hits (comparator) | `<select name="filterHitsCmp">` | `filterHitsCmp` | Options: `=`, `>`, `<` |
+| Hits (value) | `<input type="text" name="filterHitsVal">` | `filterHitsVal` | Numeric hit count to filter by |
+| Itemid: Use RE ☐ | `<input type="checkbox">` | — | Regex mode toggle for Itemid filter |
+| *(Itemid value)* | `<input type="text" name="filterItemid">` | `filterItemid` | Filter by Joomla menu item ID |
+| Filter SEF URLs: Use RE ☐ | `<input type="checkbox">` | — | Regex mode toggle for SEF URL search |
+| *(SEF URL search box)* | `<input type="text" name="filterSEF">` | `filterSEF` | **Primary search field** — type city name here (e.g. "billings") |
+| Filter Real URLs: | `<input type="text" name="filterReal">` | `filterReal` | Filter by the Joomla-internal `index.php?…` real URL |
+| Component | `<select name="comFilter">` | `comFilter` | "(All)" + one option per installed component (Articles, K2, etc.) |
+| **Reset** | `<button>` | grey | Clears all filters |
+
+#### List columns (sortable, column headers are clickable links)
+
+| Column | Sortable | Content |
+|---|---|---|
+| Num | No | Sequential row number |
+| *(checkbox)* | No | Row selector for bulk actions |
+| **Hits** | Yes | Integer — number of times this URL has been served |
+| **SEF URL** | Yes (default sort, ascending ▲) | The public-facing slug (e.g. `billings-mt`) — **click this to open the edit form** |
+| **Real URL** | Yes | The internal Joomla URL (e.g. `index.php?option=com_content&catid=90&id=107&view=article&Itemid=970`) |
+| **Enabled** | Yes | ⊙ circle icon — green = yes, red = no |
+| **SEF** | Yes | ⊙ circle icon |
+| **Locked** | Yes | 🔒 lock icon — padlock = locked |
+| **Active** | Yes | Page/document icon |
+| **Cached** | Yes | Red ● dot icon |
+| **Host** | No | Hostname if multi-domain |
+
+**Pagination:** `<select name="limit">` at bottom-left — options: 5, 10, 15, **20** (default), 25, 30, 50, 100, All
+
+#### Worked example — "billings" city page
+
+Filtering `filterSEF` = `billings` returns 2 rows:
+
+| # | Hits | SEF URL | Real URL |
+|---|---|---|---|
+| 1 | 8998 | `billings-mt` | `index.php?option=com_content&catid=90&id=107&view=article&Itemid=970` |
+| 2 | 0 | `billings-mt/areas-of-service/billings/edit` | `index.php?option=com_content&a_id=107&catid=90&id=107&task=article.edit&view=article&Itemid=970` |
+
+**Row 1 is the canonical city page.** Its current SEF alias is `billings-mt`.
+
+---
+
+### Screen 2 — SEF URL Edit Form
+
+**How to open:** Click the blue SEF URL slug link in the list (e.g. `billings-mt`)
+**Page title (browser tab):** `JoomSEF - SEF URL [ Edit ] — [site name] — Administration`
+**Page heading (H1 in blue bar):** `JoomSEF - SEF URL [ Edit ]`
+**Direct URL pattern:** `administrator/index.php?option=com_sef&controller=sefurls&task=edit&id=558` (558 = record ID for billings-mt)
+
+#### Toolbar buttons
+
+| Button | Type | Position | Color |
+|---|---|---|---|
+| **Save & Close** | `<button>` | Top-left | Green with checkmark |
+| **Close** | `<button>` | Top-left, next to Save | Red X |
+
+#### Tab structure
+
+The form uses a `<dl class="tabs">` accordion/tab structure with 5 `<dt>` tab headers. Each panel opens/closes on click. **The active tab is remembered from the last visit — the form does NOT always open on the URL tab.**
+
+| Tab label | DT CSS class | Panel ID hint |
+|---|---|---|
+| **URL** | `tabs url-panel` | Contains the slug field — **this is the target tab** |
+| Aliases | `tabs alias-panel` | Alias list textarea |
+| Meta Tags | `tabs meta-panel` | Title, description, keywords etc. |
+| SiteMap | `tabs sitemap-panel` | Sitemap indexed, date, frequency, priority |
+| Internal links | `tabs internal-panel` | Linked words selector |
+
+#### URL tab — all fields
+
+(This is the tab that must be clicked first if it is not already open.)
+
+| Field label | HTML `name` | Control type | Current value (billings-mt) | Notes |
+|---|---|---|---|---|
+| **New SEF URL** | `sefurl` | `<input type="text">` | `billings-mt` | **This is the slug to edit/shorten.** No leading slash. No trailing slash. |
+| **Old Non-SEF URL** | `origurl` | `<input type="text">` | `index.php?option=com_content&catid=90&id=107&view=article` | The internal Joomla URL. Editable but normally left as-is. |
+| **Itemid** | `Itemid` | `<input type="text">` | `970` | Joomla menu item ID. Normally left as-is. |
+| **Save as Custom Redirect** | `customurl` | `<input type="radio">` Yes/No | `Yes` = `id="customurl1"`, `No` = `id="customurl0"` | **Set to Yes when shortening a slug** — auto-creates a 301 from old slug to new |
+| **Enabled** | `enabled` | `<input type="radio">` Yes/No | Yes (`id="enabled1"`) | Whether JoomSEF serves this URL |
+| **SEF** | `sef` | `<input type="radio">` Yes/No | Yes (`id="sef1"`) | Whether JoomSEF rewrites this URL |
+| **Locked** | `locked` | `<input type="radio">` Yes/No | Yes (`id="locked1"`) | Prevents JoomSEF from auto-regenerating the slug |
+
+#### Aliases tab — fields
+
+| Field label | HTML `name` | Control type | Notes |
+|---|---|---|---|
+| **Alias list** | `aliases` | `<textarea id="aliases">` | One alias per line. Alternative slugs that also resolve to this page. |
+
+#### Summary of Operation A workflow
+
+1. Navigate to `Manage SEF URLs` (sidebar)
+2. In `filterSEF` text box, type the city name (e.g. `billings`) and press Enter
+3. Click the blue slug link in the SEF URL column (e.g. `billings-mt`) — **full-page navigation, not a modal**
+4. If the URL tab is not already open (shown as the active/expanded panel), click the **URL** tab header
+5. The **New SEF URL** field (`name="sefurl"`) shows the current slug — clear it and type the new short slug. **No leading slash.**
+6. Set **Save as Custom Redirect** to **Yes** (radio `id="customurl1"`) to auto-create a 301
+7. Click **Save & Close** (top-left green button)
+
+---
+
+## OPERATION (B) — ADD A 301 REDIRECT
+
+### Screen 3 — Manage 301 Redirects List
+
+**Page title (browser tab):** `JoomSEF 301 Redirects Manager — [site name] — Administration`
+**Page heading (H1 in blue bar):** `JoomSEF 301 Redirects Manager`
+**Direct URL:** `administrator/index.php?option=com_sef&controller=movedurls`
+
+#### Info banner (always visible, collapsible)
+
+Blue info box reads: *"This page allows you to define custom 301 redirects from one SEF URL to another. Please remember that it works only for internal SEF URLs, so you can't use it to redirect between domains or from non-SEF URL to SEF."*
+
+#### Toolbar buttons
+
+| Button | Type | Color | Notes |
+|---|---|---|---|
+| **+ New** | `<button>` | Green | Opens blank add-redirect form |
+| **Edit** | `<button>` | Grey | Opens selected row for editing |
+| **Delete** | `<button>` | Grey with X | Deletes selected rows |
+| **Delete All Filtered** | `<button>` | Grey | Deletes all rows matching current filter |
+| **◀ Back** | `<button>` | Grey | Returns to previous screen |
+
+#### Filters bar
+
+| Filter label | Control | HTML name/type | Notes |
+|---|---|---|---|
+| Filter Moved from URL | `<input type="text">` | — | Placeholder: "To filter shown URLs by Moved from URL, enter part of it into this field and hit ENTER" |
+| Filter Moved to URL | `<input type="text">` | — | Placeholder: "To filter shown URLs by Moved to URL, enter part of it into this field and hit ENTER" |
+| Not used for (days) | `<input type="text">` | — | Default `0`. Filter out entries unused for N days. |
+| **Reset** | `<button>` | Grey | Clears all filters |
+
+#### List columns
+
+| Column | Sortable | Content |
+|---|---|---|
+| Num | No | Sequential row number |
+| *(checkbox)* | No | Row selector |
+| **Moved from URL** | Yes (default sort ▲) | Old/source path — **no leading slash** |
+| **Moved to URL** | Yes | New/destination path — **no leading slash** |
+| **Last used** | Yes | Datetime stamp when the redirect was last triggered, or "Never" |
+
+#### Real-world example of the 4-redirect pattern (confirmed in live data)
+
+Looking at existing entries for a page previously titled `a-closer-look-at-managed-service-providers-in-houston`, the exact 4-redirect set appears as rows 9–11 (with row 10 being the base slug):
+
+| Row | Moved from URL | Moved to URL |
+|---|---|---|
+| 9 | `a-closer-look-at-managed-service-providers-in-houston/areas-of-service/managed-service-provider-houston` | `houston-managed-service-provider` |
+| 10 | `a-closer-look-at-managed-service-providers-in-houston/areas-of-service/managed-service-provider-houston` | `houston-managed-service-provider` |
+| 11 | `a-closer-look-at-managed-service-providers-in-houston/areas-of-service/managed-service-provider-houston/amp` | `houston-managed-service-provider` |
+
+The degaussing-dallas set (rows 6–8) shows the same pattern with /amp variant.
+
+---
+
+### Screen 4 — New / Edit 301 Redirect Form
+
+**How to open:** Click **+ New** button in the toolbar on the 301 Redirects list
+**Page title (browser tab):** `301 Redirect: [ New ] — [site name] — Administration`
+**Page heading (H1 in blue bar):** `301 Redirect: [ New ]` (or `[ Edit ]` when editing)
+**Form action:** `administrator/index.php` (POST)
+
+#### Toolbar buttons
+
+| Button | Type | Color |
+|---|---|---|
+| **Save & Close** | `<button>` | Green with checkmark |
+| **Cancel** | `<button>` | Red X |
+
+#### Form section header
+
+A grey bar labelled **URL** spans the full width above the two fields.
+
+#### All fields — complete
+
+| Field label | HTML `name` | Control type | Placeholder | Notes |
+|---|---|---|---|---|
+| **Moved from URL** | `old` | `<input type="text">` | *(empty)* | SOURCE / old path. **No leading slash.** Enter the slug exactly as it appears in the browser address bar, minus the domain. |
+| **Moved to URL** | `new` | `<input type="text">` | *(empty)* | DESTINATION / new path. **No leading slash.** Enter the target slug only. |
+
+#### Redirect type selector
+
+**There is NO redirect type dropdown on this form.** All entries in this manager are implicitly 301 Moved Permanently. The component name ("301 Redirects Manager") and the info banner confirm this. There are no options for 302, 307, or any other type.
+
+#### Hidden fields (identify what is being saved)
+
+| `name` | value |
+|---|---|
+| `option` | `com_sef` |
+| `controller` | `movedurls` |
+| `task` | *(empty, set on submit)* |
+| `id` | `0` (new) |
+
+#### Confirming the 4-redirect-per-page pattern
+
+The form is **single-entry only** — one "Moved from" → one "Moved to" per submit. There is no batch entry UI. All four redirects for a renamed page must be added as four separate round-trips through this form:
+
+| Redirect # | Moved from URL (no leading slash) | Moved to URL (no leading slash) |
+|---|---|---|
+| 1 | original full path (e.g. `old-city-name-mt/areas-of-service/city-name`) | new short slug (e.g. `city-name-mt`) |
+| 2 | short base slug (e.g. `old-city-name-mt`) | new short slug (e.g. `city-name-mt`) |
+| 3 | original full path + `/amp` | new short slug |
+| 4 | short base slug + `/amp` | new short slug |
+
+This matches the live data pattern confirmed in the list (rows 6–8 for degaussing-dallas, rows 9–11 for Houston).
+
+---
+
+## FIELD MAP TABLE
+
+| Operation | Screen | Exact control label | Control type | HTML name / id hint |
+|---|---|---|---|---|
+| A | SEF URLs list | Filter SEF URLs search box | `<input type="text">` | `name="filterSEF"` |
+| A | SEF URLs list | SEF URL (column, click to edit) | `<a href="javascript:void(0);">` | Row link, triggers edit navigation |
+| A | SEF URL Edit — URL tab | New SEF URL | `<input type="text">` | `name="sefurl"` |
+| A | SEF URL Edit — URL tab | Old Non-SEF URL | `<input type="text">` | `name="origurl"` |
+| A | SEF URL Edit — URL tab | Itemid | `<input type="text">` | `name="Itemid"` |
+| A | SEF URL Edit — URL tab | Save as Custom Redirect — Yes | `<input type="radio">` | `name="customurl" id="customurl1"` |
+| A | SEF URL Edit — URL tab | Save as Custom Redirect — No | `<input type="radio">` | `name="customurl" id="customurl0"` |
+| A | SEF URL Edit — URL tab | Enabled — Yes | `<input type="radio">` | `name="enabled" id="enabled1"` |
+| A | SEF URL Edit — URL tab | SEF — Yes | `<input type="radio">` | `name="sef" id="sef1"` |
+| A | SEF URL Edit — URL tab | Locked — Yes | `<input type="radio">` | `name="locked" id="locked1"` |
+| A | SEF URL Edit — Aliases tab | Alias list | `<textarea>` | `name="aliases" id="aliases"` |
+| A | SEF URL Edit | Save & Close (toolbar) | `<button>` | Top-left, text "Save & Close" |
+| A | SEF URL Edit | Close (toolbar) | `<button>` | Top-left next to Save, text "Close" |
+| B | 301 Redirects list | + New (toolbar) | `<button>` | Green button, text "+ New" / "New" |
+| B | 301 Redirects list | Filter Moved from URL | `<input type="text">` | No name attr, first filter box |
+| B | 301 Redirects list | Filter Moved to URL | `<input type="text">` | No name attr, second filter box |
+| B | 301 Redirect New/Edit | Moved from URL | `<input type="text">` | `name="old"` |
+| B | 301 Redirect New/Edit | Moved to URL | `<input type="text">` | `name="new"` |
+| B | 301 Redirect New/Edit | Save & Close (toolbar) | `<button>` | Top-left, text "Save & Close" |
+| B | 301 Redirect New/Edit | Cancel (toolbar) | `<button>` | Top-left next to Save, text "Cancel" |
+
+---
+
+## GOTCHAS
+
+**1. Tab state is sticky (most critical gotcha for Operation A).** The SEF URL edit form uses a `<dl class="tabs">` accordion structure. The open/closed state of each panel persists from the last visit via session. When the edit form opens, it will land on whichever tab was last active — which may be Aliases, Meta Tags, SiteMap, or Internal links. A visual agent MUST explicitly click the **URL** tab header before attempting to interact with the `sefurl` field. The URL tab `<dt>` has CSS class `tabs url-panel`; when closed it also has class `closed`, when open it has class `open`.
+
+**2. Clicking the SEF URL slug causes a full-page navigation, not a modal.** The slug links in the list use `href="javascript:void(0);"` but trigger a standard page load to the edit form. There is no lightbox, modal, or inline editing. Wait for the full page to load before interacting.
+
+**3. ViewMode filter must be correct.** The SEF URLs list has a `viewmode` dropdown. The URL `viewmode=3` = "Show All Redirects" which shows both SEF URLs and custom redirect entries. To see only canonical SEF URLs (the ones you'd edit to shorten slugs), set viewmode to `0` ("Show SEF URLs"). The filter at `viewmode=3` is the default direct URL but may show unexpected rows when searching.
+
+**4. Leading slash rule — both forms, no leading slash, ever.** Both the `sefurl` field (Operation A) and the `old`/`new` fields (Operation B) store paths without a leading slash. Confirmed by live data: existing values are `billings-mt` not `/billings-mt`, and `2026-e-waste-regulations-.../blog/...` not `/2026-e-waste...`. Entering a leading slash will likely create a broken redirect.
+
+**5. No redirect type selector — always 301.** The "Manage 301 Redirects" manager only creates 301 Moved Permanently redirects. There is no dropdown to choose 302 or other types. If a different redirect type is ever needed it cannot be done through this UI.
+
+**6. "Save as Custom Redirect" on the SEF URL edit form auto-creates the 301.** When shortening a slug via Operation A, setting this radio to Yes will auto-generate a redirect entry in the 301 Redirects Manager from the old slug to the new one. However this only creates one redirect (the old primary slug → new slug). The other three redirects of the 4-redirect set (full path, /amp variants) still need to be added manually via Operation B.
+
+**7. The 301 Redirects form shows only 2 fields — do not look for more.** A visual agent should not wait for or search for a redirect type selector, status toggle, or any other field on the New/Edit 301 form. The form has exactly two text inputs (`old` and `new`) plus Save & Close / Cancel buttons. Nothing else.
+
+**8. Batch entry does not exist.** All four redirects per renamed page must be submitted one at a time. Each requires: click New → fill Moved from URL → fill Moved to URL → click Save & Close → repeat.
+
+**9. Pagination default is 20 rows.** The SEF URLs list shows 20 rows by default. If searching without a filter on a large site, results will paginate. Use the `filterSEF` search box to narrow results to the specific city page before attempting to click an entry.
+
+**10. "Moved to URL" can be empty on existing entries.** Live data shows row 12 (`accurate-electronics-carbon-footprint-calculator/`) has an empty "Moved to URL" column. This is valid — it appears to be a redirect to the site root or a catch-all. A visual agent should not assume both fields are always populated when reading the list.
+
+**11. The component is internal-SEF-only.** The info banner on the 301 Redirects Manager explicitly states it only works for internal SEF-to-SEF URL redirects. It cannot redirect from a non-SEF URL to a SEF URL, and cannot redirect between domains.
+
+**12. Cache after save.** After saving either an edited SEF URL (Op A) or a new redirect (Op B), the changes are live but JoomSEF's internal cache may still serve old URLs for cached pages. The bulk action "Copy to cache" or "Update URLs" in the SEF URLs list toolbar can be used to force a cache refresh, but this is a separate step and requires selecting rows and clicking Proceed.

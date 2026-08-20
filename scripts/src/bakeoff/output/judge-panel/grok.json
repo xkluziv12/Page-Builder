@@ -1,0 +1,100 @@
+{
+  "judgeId": "grok",
+  "judgeLabel": "Grok (xAI)",
+  "judgeModel": "grok-4.5",
+  "provider": "xAI",
+  "generatedAt": "2026-07-10T18:21:12.175Z",
+  "elapsedSec": 24,
+  "usage": {
+    "inputTokens": 121928,
+    "cachedInputTokens": 128,
+    "outputTokens": 1400,
+    "reasoningTokens": 0
+  },
+  "parsed": true,
+  "verdict": {
+    "candidates": [
+      {
+        "id": "A",
+        "code": 86,
+        "css": 88,
+        "design": 90,
+        "schema": 96,
+        "seo": 93,
+        "notes": "Single h1 ('R2 Certified Electronics Recycling for Billings, MT'), deep local content (~2,500+ words) with neighborhoods (Heights, West End, Lockwood), hospitals, and FAQs. CSS uses :root tokens, grid-2/3/4, hover states, and multi-breakpoint media queries; many decorative styles still live inline on cards. Schema is the richest @graph (WebSite, LocalBusiness, HowTo, FAQPage, BreadcrumbList, WebPage) with parent org NAP in Jacksonville, TX, credentials, and a 20-service OfferCatalog. Minor code debt: Joomla-style {loadposition city-hero-form}, heavy inline style attributes, and no landmark roles beyond divs."
+      },
+      {
+        "id": "B",
+        "code": 84,
+        "css": 90,
+        "design": 91,
+        "schema": 94,
+        "seo": 88,
+        "notes": "Strong semantic structure with one h1 and logical h2/h3; polished stats-section, industry-hero, and liquidation block. CSS is the cleanest of the set—tokens, luxury-card hovers, stat-card glassmorphism, responsive collapse. Schema mirrors A with LocalBusiness+RecyclingCenter, HowTo, FAQPage, BreadcrumbList, and full OfferCatalog. SEO is slightly thinner on neighborhood depth than A and leans corporate jargon ('ZERO-LANDFILL LAWS', 'Request a Logistics Strategy'); still solid entity coverage and internal links."
+      },
+      {
+        "id": "C",
+        "code": 85,
+        "css": 87,
+        "design": 89,
+        "schema": 28,
+        "seo": 90,
+        "notes": "Excellent content architecture: process steps, 4 FAQs, deep About Billings, equipment grids, and strong local entities (MSU Billings, BLM, Rimrock). Code quality is high with one h1 and good alt text, but still relies on inline padding/grid styles. Schema collapses to a bare LocalBusiness + makesOffer list with no @graph, no FAQPage, no BreadcrumbList, no telephone/email, and no credentials—catastrophic for rich results despite ~2,600-word body."
+      },
+      {
+        "id": "D",
+        "code": 82,
+        "css": 80,
+        "design": 82,
+        "schema": 93,
+        "seo": 86,
+        "notes": "Valid single-h1 hierarchy and careful, non-hallucinatory claims ('NIST is a standard, not a certification'). Schema is nearly as rich as A/B with HowTo, 8 FAQs, OfferCatalog, and parent org. Design is competent but flatter: fewer hover flourishes, shorter sections, less visual variety. Word count (~2,340) and local density are solid but below A/C; CSS minified with fewer state styles than B."
+      },
+      {
+        "id": "E",
+        "code": 80,
+        "css": 86,
+        "design": 84,
+        "schema": 28,
+        "seo": 82,
+        "notes": "Clean hero and industry cards, good alt text, single h1. Content is thinner (~2,000–2,400 words) with a sparse About Billings block and only 4 FAQs. Schema is the same minimal LocalBusiness+makesOffer stub as C/F/G—no NAP phone, no FAQ, no graph wiring. Design looks professional when rendered but conversion path is shorter and local specificity weaker than A–D."
+      },
+      {
+        "id": "F",
+        "code": 83,
+        "css": 85,
+        "design": 86,
+        "schema": 28,
+        "seo": 87,
+        "notes": "Balanced spoke with good heading questions, service-area columns, and related-services links. Code is well-formed with one h1 and lazy-loaded images. Schema again is only LocalBusiness+makesOffer—no credentials, no FAQPage, no HowTo. SEO benefits from ~2,555 words and honest free-pickup language, but missing rich schema and slightly lighter compliance depth keep it mid-pack."
+      },
+      {
+        "id": "G",
+        "code": 72,
+        "css": 84,
+        "design": 83,
+        "schema": 25,
+        "seo": 70,
+        "notes": "Visually similar shell, but meta description invents phone '(470) 226-5361' (wrong number), hero claims 'HIPAA-Certified Data Destruction' (overclaim), and hard-drive link points to /billings-mt itself. Schema is the thin LocalBusiness stub. SEO is hurt by accuracy issues and slightly lower word count (~2,215). Still usable layout, but trust and E-E-A-T are the weakest of the set."
+      }
+    ],
+    "categoryWinners": {
+      "code": "A",
+      "css": "B",
+      "design": "B",
+      "schema": "A",
+      "seo": "A"
+    },
+    "overallRanking": [
+      "A",
+      "B",
+      "D",
+      "C",
+      "F",
+      "E",
+      "G"
+    ],
+    "winner": "A",
+    "rationale": "Candidate A wins overall because it pairs the deepest on-page SEO (neighborhoods, hospitals, 6 FAQs, ~2,500+ words, strong internal links) with the richest, valid @graph schema (LocalBusiness with credentials, parent Jacksonville NAP, HowTo, FAQPage, BreadcrumbList, 20-service OfferCatalog) and a polished conversion-focused design. B is extremely close on CSS/design polish and nearly equal schema, but its content is slightly more generic and less neighborhood-specific. D has careful, accurate schema and clean copy yet less visual energy and depth. C and F write strong bodies but ship nearly useless schema. E is a thinner clone of the design system with the same broken schema. G is disqualified from contention by invented phone number, overclaimed 'HIPAA-Certified' language, and a self-referential hard-drive link."
+  }
+}

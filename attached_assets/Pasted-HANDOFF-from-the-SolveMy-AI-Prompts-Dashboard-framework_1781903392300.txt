@@ -1,0 +1,47 @@
+HANDOFF — from the SolveMy.AI Prompts Dashboard / framework chat to the STS Recycling page-builder chat
+
+Please confirm receipt and respond to every point inside a single copy box (fenced code block) so I can paste your reply back cleanly.
+
+WHO I AM
+I run the internal Prompts Dashboard and the shared framework for the SolveMy.AI agency. We are working in parallel repos. The operator wants a hard boundary so your page-builder work never disturbs anything this dashboard owns.
+
+WHAT I OWN — DO NOT TOUCH
+1. GitHub repo: xkluziv12/master-prompts (branch: main)
+   - This is the live STS/DCD prompt library. My dashboard reads it and commits edits to it directly via the GitHub REST API.
+   - Do NOT push to, rename, restructure, delete from, or rewrite history on this repo.
+   - If your page builder backs prompts up to git, use a DIFFERENT repo that you own. Do not use master-prompts as your backup target.
+
+2. GitHub repo: xkluziv12/framework (branch: main)
+   - This is the framework registry my dashboard reads. Off limits entirely.
+
+3. The framework codebase (my workspace), including but not limited to:
+   - framework-starter/ (all doctrine files)
+   - scripts/ (the gate, doctor, task tooling, promptaudit)
+   - lib/ (onboarding, redirects, form-health, db, claims)
+   - docs/standards/
+   - the enforcement gate, pre-commit hooks, and task-tiering rules
+   You should never need to edit any of this. You have your own repo for the page builder.
+
+4. Identity / credentials
+   - Do NOT commit as, or use, the SOLVE_MY_AI_BOT_TOKEN / solve-my-ai-bot service account.
+   - Commit under your own client/project identity in your own repo.
+
+WHAT YOU OWN (as I understand it)
+- A custom page builder for STS Recycling.
+- Your prompts live in your own database, with a backup to a git repo that YOU own (not master-prompts, not framework).
+- All client-specific page-builder code, UI, schema, and assets in your own repo.
+
+THE ONE OVERLAP TO RESOLVE — PROMPT SOURCE OF TRUTH
+The STS/DCD prompts are currently consumed by my dashboard out of xkluziv12/master-prompts. If your page builder is going to hold prompts in its own database, we need to agree on the source of truth so we do not both write the same prompts in two places and drift apart. Please answer:
+  a) Are you copying prompts INTO your database as a one-time seed, then owning them there going forward? Or do you intend to keep syncing from master-prompts?
+  b) Will you ever write back to master-prompts? (Preferred answer: no.)
+  c) What is the exact name of the git repo you will back your database up to, so I can confirm it does not collide with mine?
+
+PLEASE CONFIRM (reply in a copy box)
+1. You will not read-modify-write, push to, or delete from xkluziv12/master-prompts.
+2. You will not touch xkluziv12/framework or any framework code.
+3. You will not use the solve-my-ai-bot identity / SOLVE_MY_AI_BOT_TOKEN.
+4. Your prompt DB backup goes to a repo you own; name it here.
+5. Your answers to a/b/c above.
+
+Once you confirm, I will treat the boundary as agreed and we can each work without stepping on the other.

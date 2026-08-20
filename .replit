@@ -1,0 +1,84 @@
+modules = ["nodejs-24", "python-3.11", "postgresql-16"]
+
+[deployment]
+router = "application"
+deploymentTarget = "autoscale"
+
+[deployment.postBuild]
+args = ["pnpm", "store", "prune"]
+env = { "CI" = "true" }
+
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Bake-Off Run"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Bake-Off Judge Panel"
+
+[[workflows.workflow]]
+name = "Bake-Off Run"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "BAKEOFF_SCENARIOS=no-gmb pnpm --filter @workspace/scripts run bakeoff"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "Bake-Off Judge Panel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pnpm --filter @workspace/scripts run bakeoff:judge"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[agent]
+stack = "PNPM_WORKSPACE"
+expertMode = true
+integrations = ["github:1.0.0", "google-drive:1.0.0"]
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 20000
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
+
+[[ports]]
+localPort = 8081
+externalPort = 80
+
+[[ports]]
+localPort = 19951
+externalPort = 3000
+
+[[ports]]
+localPort = 23464
+externalPort = 3002
+
+[[ports]]
+localPort = 26054
+externalPort = 3001
+
+[nix]
+channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+GITHUB_SOURCE_REPO = "xkluziv12/master-prompts"

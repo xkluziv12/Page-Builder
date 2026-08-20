@@ -1,0 +1,100 @@
+{
+  "judgeId": "gemini",
+  "judgeLabel": "Gemini 3.1 Pro",
+  "judgeModel": "gemini-3.1-pro-preview",
+  "provider": "Google",
+  "generatedAt": "2026-07-10T18:22:37.504Z",
+  "elapsedSec": 109,
+  "usage": {
+    "inputTokens": 132466,
+    "cachedInputTokens": 0,
+    "outputTokens": 11546,
+    "reasoningTokens": 9484
+  },
+  "parsed": true,
+  "verdict": {
+    "candidates": [
+      {
+        "id": "A",
+        "code": 72,
+        "css": 70,
+        "design": 84,
+        "schema": 94,
+        "seo": 92,
+        "notes": "Maintains semantic HTML5 with a solid h1 through h4 outline and good alt text (alt=\"Billings electronics recycling laptop...\"), but relies far too heavily on inline styles like <div style=\"padding:48px 56px;background:linear-gradient...\">. Utility classes like .grid-2 and .grid-4 establish a grid system, but the layout relies on rigid @media(max-width:968px) breakpoints instead of modern fluid typography. The .industry-hero and dark data safety section create a strong visual hierarchy, but the repeated, uniform use of .luxury-card components feels slightly monotonous over a long scroll. Rich, fully-wired @graph containing LocalBusiness, FAQPage, and HowTo schemas with stable @id routing ensures it is highly eligible for rich snippets. Excellent entity coverage with references to BNSF operations and NIST SP 800-88 Rev. 1, though the ~2500-word count borders on dense for a local spoke page."
+      },
+      {
+        "id": "B",
+        "code": 74,
+        "css": 76,
+        "design": 88,
+        "schema": 98,
+        "seo": 96,
+        "notes": "Uses exactly one <h1> (<h1>R2 Certified <span class=\"accent\">Electronics Recycling</span>...</h1>) and cascades logically to h2 and h3, with loading=\"lazy\" on images, though it still suffers from inline-style sprawl. Demonstrates modern techniques in the .stats-section with backdrop-filter:blur(16px) and hardware-accelerated hover states (transform:translateY(-6px) on .stat-card), though it lacks fluid clamp() typography. The dark .stats-section provides an excellent visual break in the page rhythm, and the varied use of .luxury-card and .industry-card prevents visual fatigue while maintaining strong conversion architecture. Flawless JSON-LD @graph implementation that wires @id references perfectly and uniquely injects hyper-local entities directly into the OfferCatalog descriptions (e.g., citing Phillips 66 Billings Refinery and Montana State University Billings). Exceptional local relevance and E-E-A-T signals across ~2300 words, effortlessly weaving hyper-specific entities like Midland Empire and complex regulations (HIPAA 45 CFR §164.312) into the copy without keyword stuffing."
+      },
+      {
+        "id": "C",
+        "code": 73,
+        "css": 72,
+        "design": 85,
+        "schema": 25,
+        "seo": 84,
+        "notes": "Extracts structural elements into reusable classes like .process-step and .process-num, slightly improving code maintainability over candidates that rely solely on inline styles for unique blocks. Uses Flexbox effectively in .process-step, but responsive design relies entirely on rigid media queries rather than fluid techniques like clamp(). The custom .process-step section breaks up text walls beautifully, and the Billings by the Numbers grid adds strong localized trust signals to the layout. Negligent JSON-LD implementation utilizing a flat, minimal LocalBusiness object that completely misses the @graph, FAQPage, HowTo, and BreadcrumbList, abandoning rich result opportunities. Strong body content featuring exact local targets like Rocky Mountain College and BLM field offices, but the abysmal schema actively undermines the page's search potential."
+      },
+      {
+        "id": "D",
+        "code": 72,
+        "css": 68,
+        "design": 78,
+        "schema": 90,
+        "seo": 86,
+        "notes": "Standard semantic markup featuring exactly one <h1> and reasonable heading nesting, but severely hampered by inline style blobs (<div style=\"background:var(--white);padding:52px 44px...\">). Basic utility classes (.grid-3, .text-c) combined with extensive inline rules; it lacks a unified design token system for spacing and fluid typography. Clean but relatively generic layout; the How Does STS Protect Data section relies on simple cards that don't command as much visual authority as other candidates' dark-themed trust sections. Valid @graph with stable @id references bridging WebSite and LocalBusiness alongside FAQPage, but the OfferCatalog descriptions lack the hyper-local entity injections seen in top candidates. Good use of E-E-A-T signals and soft targets, but at ~2340 words the content feels slightly generic, though it does specifically mention St. Vincent Healthcare and NIST SP 800-88 Rev. 2."
+      },
+      {
+        "id": "E",
+        "code": 70,
+        "css": 68,
+        "design": 76,
+        "schema": 25,
+        "seo": 80,
+        "notes": "Valid HTML5 with a functional heading hierarchy, but marred by messy inline CSS (<div style=\"padding:48px 56px;background:linear-gradient...\">) and somewhat basic alt text. Defines --primary:#2c5aa0 in :root but fails to utilize variables consistently in inline styles (hardcoding colors like #fefce8), demonstrating conflicting styling approaches. Information architecture is acceptable, but the visual flow is highly repetitive, leaning too heavily on identical white .luxury-card blocks which causes scrolling fatigue. Extremely poor schema execution providing only a basic LocalBusiness snippet without an @graph, omitting FAQPage and severely limiting organic SERP real estate. Incorporates local entities like ExxonMobil and Montana State University Billings, but the lack of schema depth and slightly thinner semantic correlation holds it back."
+      },
+      {
+        "id": "F",
+        "code": 71,
+        "css": 68,
+        "design": 78,
+        "schema": 25,
+        "seo": 82,
+        "notes": "Semantic markup is present (<h1> down to <h3>), but structural layouts rely entirely on sprawling inline styles like <div style=\"display:grid;grid-template-columns:440px 1fr...\">. Relies on legacy media query breakpoints rather than fluid techniques, and the inline-style sprawl violates modern maintainability and DRY principles. The .industry-hero provides a nice visual break, but the related services and FAQ sections feel blocky and lack polished, conversion-focused spacing rhythm. Barebones JSON-LD that completely omits the @graph array, BreadcrumbList, and FAQPage, offering zero technical support for advanced rich results. The content mentions Billings Clinic and Global E-waste Monitor to build E-E-A-T, but the complete lack of advanced structured data is a critical technical SEO failure."
+      },
+      {
+        "id": "G",
+        "code": 72,
+        "css": 69,
+        "design": 79,
+        "schema": 25,
+        "seo": 81,
+        "notes": "Valid HTML nesting with a solitary <h1> and reasonable h2/h3 flow, but again crippled by rampant inline styling across major layout blocks (<div style=\"background:#fff;padding:60px 56px...\">). Utilizes CSS variables and basic grid classes (.grid-4), but lacks modern state styles (hover/focus) on most interactive elements outside of the primary CTAs. The Billings by the Numbers section is visually striking, but the overall rhythm feels disconnected and lacks the cohesive polish of a top-tier local service page. A severely deficient schema block consisting of a single flat LocalBusiness object with generic Offer strings and no @id graph wiring whatsoever. Local relevance is decent with mentions of Musselshell County and ExxonMobil's Billings refinery, but overall performance is hampered by the negligent schema implementation."
+      }
+    ],
+    "categoryWinners": {
+      "code": "B",
+      "css": "B",
+      "design": "B",
+      "schema": "B",
+      "seo": "B"
+    },
+    "overallRanking": [
+      "B",
+      "A",
+      "D",
+      "C",
+      "G",
+      "F",
+      "E"
+    ],
+    "winner": "B",
+    "rationale": "Candidate B delivers a masterclass in programmatic local SEO and frontend conversion design. Its JSON-LD schema perfectly wires a rich @graph and uniquely injects hyper-local entities (like Phillips 66 Refinery) directly into the OfferCatalog, ensuring maximum semantic relevance. The design is elevated by a distinct .stats-section with backdrop filters that breaks up the text density, and the body copy masterfully weaves in specific compliance standards (NIST SP 800-88 Rev. 2) and local institutions without feeling keyword-stuffed. Candidates A and D are strong runners-up with valid schema graphs, but they lack B's level of localized entity injection in the structured data and B's visual polish. Candidates C, E, F, and G fail critically due to negligent, flat schema implementations that miss huge rich-result opportunities."
+  }
+}

@@ -1,0 +1,418 @@
+## SECTION 1: THE WHOLE RUN, TOP TO BOTTOM
+
+**Q1. Walk through one complete city build start to finish.**
+
+Based on Jacksonville TX as the actual example:
+
+1. Human creates a new chat, uploads the handoff document (28-page Jacksonville Hub+Spoke plan) as inline text
+2. Human uploads three files: STS_SEO_DATA_2026.xlsx, 1_MINI_Page_Builder.docx, 2_5_TIER_1_Master_Design_Bible_CODE.docx
+3. I run Gate analysis (Bible version hash, competition level, page type, entity verification)
+4. I write the full HTML (~62KB) in one shot to `/mnt/user-data/outputs/`
+5. I run automated validation (sacred links, div balance, facility language, images, email format)
+6. I fix whatever the validator catches — typically 2-4 surgical patches
+7. Human downloads HTML, reviews it visually
+8. Human pastes "execute checking of the design harshly" prompt — I re-read the bible and run structural diff
+9. Human pastes it a second time (happened twice in this build) — I run a deeper programmatic comparison
+10. Human uploads 3_MINI_SEO_AUDIT.docx, triggers SEO Audit phase
+11. I web-search for entities (JEDCO employers page), competitors, IBM stats, UN e-waste data
+12. I run all 16 techniques in sequence, expanding AUDIT_TARGET paragraphs, rewriting persona intro, adding micro-anchors, updating statistics
+13. Human triggers SEO Verification — I re-check compliance and run modern-standards web search
+14. Two auto-fixes applied in verification (facility language, alt text)
+15. Human uploads 4_MINI_Schema_Generator.docx, triggers Schema phase
+16. I build all 6 schema objects (WebSite, WebPage, Business, HowTo, FAQPage, BreadcrumbList) and validate
+17. Human asks for SEO metadata — I output title/description/keywords in code blocks and re-present both files
+18. Human triggers link verification — I scan all 64 hrefs
+19. Human asks "is this 100% SEO optimized" — I run a 47-check full audit and find 2 more issues (facility language in FAQ callout, IBM stat rollback), fix both
+20. Human uploads IMAGE_PATH_RULE.docx — I find all 5 img tags are root-relative and fix them
+
+**Q2. Roughly how long did a full city take, wall-clock?**
+
+Rough estimates based on this build:
+
+- Hub+Spoke plan creation: Not done in this session (was pre-built in the handoff). If generated fresh: 30-45 min
+- Build phase (Gates + HTML generation + first validation): 25-35 min of wall-clock (most of which is me executing, not human waiting)
+- Design Bible audit (two rounds): 15-20 min
+- SEO Audit (web research + all 16 techniques): 20-30 min
+- Schema generation: 15-20 min
+- SEO verification + link check + final QA: 15-20 min
+- Image path fix: 3 min
+
+Total active human time: roughly 60-90 min of prompting/reviewing across maybe 3-4 hours of wall-clock session time.
+
+**Q3. Pages per city: 1 hub + how many spokes?**
+
+Jacksonville has 28 total pages: 1 hub + 5 Tier 1 core services + 6 Tier 2 verticals + 4 Tier 3 methods + 6 Tier 4 strategic verticals + 6 Tier 5 guides. In practice, production priority is the hub + Tier 1-2 pages (12 pages) before the rest. Akron (from memory) was being built out similarly — hub plus laptop/server/medical spokes at Tier 2.
+
+**Q4. Slowest or most painful steps:**
+
+1. Design Bible compliance audit — required two separate "brutal audit" passes because the first pass had checklist symbol format, AUDIT_TARGET placement, and card ordering errors. The bible is dense; catching every CSS property value deviation requires systematic diff logic, not just reading.
+2. Image path rule — got missed entirely until a separate dedicated prompt. This should have been caught in the build validator but wasn't because the validator checked for the wrong pattern.
+3. SEO Audit word count — the page kept landing just under the 2000 floor (1652 → 1883 → 1944 → 1995 → 2000) requiring 4 rounds of targeted expansions. The AUDIT_TARGET paragraphs don't always add enough words automatically; I have to estimate before running.
+4. The IBM stat rollback — I updated $4.88M → $10.22M in the audit phase but the replacement silently failed because the old text in the file used a slightly different surrounding sentence than what my replace script targeted. It only surfaced in the final QA pass.
+
+---
+
+## SECTION 2: HUB+SPOKE
+
+**Q5. What inputs does Hub+Spoke need?**
+
+From the human:
+- City name, state, county
+- GMB CID (decimal format) — must be human-verified; no way to derive this programmatically
+- GMB full address, phone, hours (from the actual listing)
+- Competition level (or enough data to determine it — typically a web search for "{service} {city} {state}")
+- Confirmation of which pages already exist (KEEP / RENAME / BUILD NEW status)
+- Any pre-existing GSC data (optional but changes word count targets)
+
+These come from: the human looking at GMB directly, running a quick competitor search, and checking the live site. None of this can be reliably automated without either GMB API access or a browser agent.
+
+**Q6. What does Hub+Spoke output, and what depends on it?**
+
+It outputs:
+- A 28-page (or variable count) URL list with descriptions, competition scores, entity names, and cross-link instructions
+- The HANDOFF_ENTITIES block — pre-curated named organizations, estimated employee counts, healthcare systems, government agencies
+- Industry vertical cross-link assignments (which spoke page links to which industry page)
+- Local context paragraph (geographic, economic, demographic facts)
+
+Downstream dependencies:
+- Page Builder uses HANDOFF_ENTITIES to skip reverification (Gate 4 bypass)
+- Page Builder uses the city spoke URL list for body link placement
+- Schema Generator uses the same entity list for hasOfferCatalog service descriptions
+- SEO Audit uses the local context facts as research brief starting point
+- ALL pages in the spoke derive their internal link budget from this one document
+
+If the handoff is wrong or missing, the Page Builder either invents spoke URLs (bad) or builds with zero city-specific internal links (also bad).
+
+**Q7. How often did the Hub+Spoke plan come back wrong?**
+
+In my experience across builds: roughly 25-30% of handoffs have at least one entity that needed correction. Common issues:
+- Employee counts that don't match verified sources (handoff says "estimated 600-800 employees" for Jacksonville ISD; JEDCO says 965)
+- Spoke URLs that conflict with actual live site URL structure
+- Competition level set to MEDIUM when a web search shows zero ITAD competitors (should be LOW)
+- Healthcare entity names that don't match the Medicare/JEDCO-verified form (e.g., "CHRISTUS Trinity Mother Frances Hospital-Jacksonville" vs "CHRISTUS Mother Frances Hospital")
+
+The handoff is the single biggest upstream error source because if entity data is wrong there, it propagates into every page in the city.
+
+---
+
+## SECTION 3: PAGE BUILDER
+
+**Q8. Which research steps are independent vs. dependent?**
+
+Independent (can run in parallel):
+- Competition research (web search for "{service} {city}")
+- City facts / local context (population, employers, geography)
+- GSC page data lookup (if API-accessible)
+- Competitor word count analysis
+- Entity employee count verification (JEDCO or equivalent)
+
+Dependent (sequential):
+- COMPETITION_LEVEL must be determined before FINAL_TARGET word count
+- FINAL_TARGET must be known before deciding whether to include optional sections
+- BIBLE_VERSION (A/B hash) must be set before image path assignments
+- PAGE_TYPE (HUB/SPOKE/TIER) must be determined before section list
+
+So: research can all run in parallel. Section selection and image assignment depend on the synthesis step after research.
+
+**Q9. If I handed you ONE combined research brief, could you build just as well?**
+
+Yes, completely. Here's exactly what that brief needs:
+
+```
+CITY: Jacksonville
+STATE: TX
+COUNTY: Cherokee
+PAGE_URL: jacksonville-tx-e-waste-recycling
+PAGE_TYPE: HUB
+BIBLE: B
+COMPETITION: LOW
+WORD_TARGET: 2000-2400
+GMB_ADDRESS: 1653 N Bolton St, Jacksonville, TX 75766
+GMB_PHONE: 903-589-3705
+GMB_CID: 2633689675265688157
+GMB_HOURS: Mon-Fri 9AM-5PM, Sat-Sun Closed
+VERIFIED_ENTITIES:
+  - Jacksonville ISD | 965 employees | JEDCO | Aug 2024
+  - CHRISTUS Mother Frances Hospital | 306 employees | JEDCO | Aug 2024
+  [etc.]
+COMPETITOR_URLS: none found
+COMPETITOR_AVG_WORDS: 0 (floor: 1500)
+NEIGHBOR_CITIES: Tyler, Rusk, Henderson, Alto, Nacogdoches
+HIGHWAYS: US-69, US-79, US-175
+SPOKE_LINKS_ALLOWED:
+  jacksonville-tx-itad
+  jacksonville-tx-data-destruction
+  [etc. — full list]
+STATS:
+  IBM 2025 US breach avg: $10.22M
+  IBM healthcare: $9.77M
+  UN e-waste: 62M tonnes, 22.3% recycled
+PERSONA: Manufacturing IT Manager
+```
+
+Without this brief, I either run all the research inline (slower, inconsistent) or skip it and use placeholders (bad output).
+
+**Q10. How often did a built page come back with a mistake needing fixing?**
+
+Every single build had at least one catch — 100% rate. In this Jacksonville build specifically: the first validation caught 3 equipment card issues (duplicate links, wrong card order) and 1 facility language phrase. The design audit caught 4 more (checklist symbols, bullet chars, AUDIT_TARGET missing, card 2 link order, comment text differences). The SEO verification caught 2 more. The QA pass caught 2 more. The image path check caught 5 more. Total: 17 discrete fixes across the pipeline on a single page.
+
+That said, most of these were small (wrong entity character encoding, wrong HTML entity for checkmark). The HTML was structurally correct and never broken.
+
+**Q11. Specific recurring mistakes, frequency, and cause:**
+
+| Mistake | Frequency | Root cause |
+|---|---|---|
+| Root-relative image paths | Every build | The Design Bible uses root-relative paths in its code blocks. I copy the bible structure and forget to absolutize. A build-phase validator should catch this but wasn't written until the IMAGE_PATH_RULE prompt arrived late. |
+| `&#10003;` instead of literal `✓` | Every build | My training defaults to safe HTML entity encoding. The bible uses literal Unicode characters. This is a generation habit I revert to without explicit instruction. |
+| `&#8226;` instead of literal `•` | Same as above | Same cause. |
+| AUDIT_TARGET missing on one or more WHY STS reasons | ~60% of builds | The bible has 4 AUDIT_TARGET tags in WHY STS but I lose count while writing the section. Fixed by programmatic diff. |
+| Equipment card link order wrong | ~40% of builds | The bible has a specific link order (Cell Phone, Tablet, Network, Cable, Battery) but I reassemble cards in a logical-seeming order that doesn't match. |
+| IBM stat not persisting through audit | Happened once here | The SEO audit script used a `str.replace()` on a string that didn't exactly match because the surrounding sentence had been modified by an earlier replacement in the same phase. Silent failure. |
+| `fa-industry` icon used twice | First design audit catch | I pick thematically appropriate icons without checking for duplicates against other sections. |
+| Facility language in boilerplate copy | ~30% of builds | The FAQ "Still Have Questions?" callout uses "Our Jacksonville team" as a template phrase. The facility language validator missed it because the pattern didn't match the explicit strings it was checking. |
+| CHRISTUS name format | First build here | The handoff used the full legal name; JEDCO uses a shorter form. I used the handoff name in the build and only corrected it during SEO Audit when I actually fetched the JEDCO page. |
+| Hero section spoke link in CTAs | Rare | Tel and mailto links in hero are fine; city spoke content links are never added there. Occurred zero times in this build. |
+
+**Q12. Which did I catch vs. the human?**
+
+I caught (via validators): Equipment card issues, div imbalance (if any), sacred link missing/duplicate, facility language (main patterns), CloudFlare email, map emoji, fa-file-shield, word count shortfall.
+
+Human caught (via prompt): "brutal design audit" passes (the design bible diffs — I only run these when asked), image path rule (needed a separate document prompt to trigger), the second round of AUDIT_TARGET verification.
+
+The human was essentially acting as a QA gate at the end of each phase. Without those "execute checking harshly" prompts, the design bible violations would have shipped.
+
+---
+
+## SECTION 4: SURGICAL EDITS
+
+**Q13. What kinds of surgical edits happened? Real examples:**
+
+From this build:
+- "Replace all `&#10003;` with literal `✓`" — character encoding fix
+- "Card 2 link order should be Cell Phone → Tablet → Network → Cable → Battery" — structural order fix
+- "Add AUDIT_TARGET to WHY STS reason 4" — missing tag addition
+- "Fix facility language: 'Mobile shredding for Jacksonville locations' → 'throughout the Jacksonville area'" — one phrase change
+- "Change Industries card 4 icon fa-industry → fa-cogs" — one attribute change
+
+From other builds (Akron, LA): adding the correct tablet recycling path `/331-tablet-recycling` which was missing in early builds; correcting the NIST callout icon from fa-file-shield; fixing the broken law firm URL `/industries-4/law-firm-electronics-recycling...` → correct path.
+
+**Q14. Rounds of surgical edits before approval:**
+
+Jacksonville: approximately 4 distinct rounds (post-build validation, design audit round 1, design audit round 2, SEO audit + post-audit QA). Each round had 2-6 individual fixes. No single round fully cleared all issues.
+
+**Q15. Do I rewrite the whole page or change just the targeted part?**
+
+Targeted changes only — `str.replace()` or `re.sub()` on the specific strings, never a full regeneration unless asked. I preserve everything else by operating on the file as a string and making only the named replacement. The risk is that `str.replace()` fails silently when the target string was modified by a previous operation (which is what caused the IBM stat issue).
+
+**Q16. What makes a surgical edit go wrong?**
+
+1. Silent `str.replace()` failure — I construct the old string from memory or earlier context, but the file was modified between when I read it and when I write it. The replacement finds no match, writes nothing, no error. I sometimes check and sometimes don't.
+
+2. Over-broad regex — e.g., replacing "Jacksonville facility" catches "our Jacksonville facility" but also a sentence fragment that uses "facility" in a different context. I use word-boundary matching to avoid this but it's not always applied.
+
+3. Multi-occurrence strings — if the same sentence appears twice in the file (e.g., in a section and in a related services card), `str.replace()` without `count=1` changes both. I try to use `count=1` on sensitive replacements.
+
+4. Encoding issues — when the target string contains em dashes (U+2014) or smart quotes, Python string literals in heredocs sometimes get mangled depending on how the script is written. This caused one fix to fail in this build and required a rewrite with explicit Unicode escapes.
+
+Rate: roughly 1 in 6-8 surgical edit attempts has a silent failure that I catch on verification. 1 in 15-20 silently changes something adjacent.
+
+**Q17. Can a fresh chat make surgical edits safely without build context?**
+
+Yes, with this minimum context:
+- The current HTML file (the output, not the original bible)
+- The specific change instruction
+- The handoff allowlist of valid URLs (to avoid accidentally introducing invented URLs)
+- The facility language rule (to not introduce a violation while fixing something else)
+- The Bible version (A or B) — determines which images are correct
+
+What you do NOT need: the original Page Builder prompt, the competition research, the gates analysis, or the SEO Audit brief. The HTML is self-contained enough for targeted edits. The schema file is completely separate and doesn't affect HTML edits.
+
+---
+
+## SECTION 5: SEO AUDIT
+
+**Q18. Which techniques are analysis vs. actual HTML editing?**
+
+Analysis only (no HTML change):
+- Gate 0A/0B (read registries, build research brief)
+- Technique 1B (sacred lock check — just reads, doesn't write)
+- Technique 1P (GEO structure audit — reads, scores)
+- Fan-out coverage check (1J analysis portion)
+- Link budget calculation (1O analysis portion)
+
+Actual HTML editing:
+- 1A facility language (writes fixes)
+- 1C tightening (removes redundant phrases)
+- 1D entity precision (replaces AUDIT_TARGET paragraphs)
+- 1E semantic variants (swaps word choices)
+- 1F attribution patterns (adds "Under HIPAA" etc.)
+- 1G persona targeting (rewrites intro paragraph)
+- 1H geographic (adds near-me, logistics sentences)
+- 1I voice search conversions
+- 1J question H2 conversions
+- 1K micro-anchor insertions
+- 1L answer block replacements
+- 1M statistics updates
+- 1N alt text rewrites
+
+**Q19. Could analysis run in parallel and editing in one pass?**
+
+Mostly yes. You could run all 16 analysis steps in parallel, produce a change-list, then apply all changes in a single pass. This would be both faster and safer (fewer cumulative string-replacement collision risks).
+
+Where it would break: Technique 1G (persona targeting) rewrites the intro paragraph. If 1D (entity precision) also targets the same paragraph (services_intro AUDIT_TARGET), they could conflict if both are in the change-list. The resolution is: 1G targets the paragraph BEFORE the AUDIT_TARGET tag, and 1D replaces the paragraph AFTER it — these are adjacent but different elements. As long as the change-list preserves paragraph-level addressing, they don't collide.
+
+The real risk is word count: you can't know if the combined changes will land in 2000-2400 until you apply them all. You might need a final word-count check and micro-adjustment pass after the batch apply.
+
+**Q20. Which audit steps depend on a previous step's result?**
+
+- 1C (tightening target) depends on 0A word count measurement
+- 1D (entity placement) depends on 0B research brief (entity data)
+- 1M (statistics) depends on 0B research (what stats were found)
+- 1K (micro-anchor count/placement) depends on 1G (where the intro paragraph ends up, to maintain 3+ paragraph spacing)
+- 1L (answer blocks) depends on 1D (the AUDIT_TARGET paragraphs must not already be replaced by 1D before 1L runs — in practice 1D and 1L are merged into one operation)
+- Final word count target check depends on all editing steps completing
+
+**Q21. How often did the audit introduce a new mistake?**
+
+In this build: once. The IBM $10.22M stat replacement targeted a string that had been modified by the 1G persona rewrite (the surrounding sentence changed), so the replacement silently failed. The original $4.88M remained in the file until the final QA pass caught it 3 phases later.
+
+I'd estimate a 15-20% chance of at least one silent editing failure per audit run, typically caught within the same session if a post-audit validation script runs.
+
+---
+
+## SECTION 6: SCHEMA GENERATOR
+
+**Q22. Schema inputs and where they come from:**
+
+From earlier phases:
+- Page URL (from Hub+Spoke)
+- Page type (HUB/SPOKE — determines schema type and address strategy)
+- Meta title and description (from SEO Audit 0D)
+- Verified entities with employee counts (from SEO Audit research)
+- Neighbor cities and service areas (from Page Builder 1H research)
+- Spoke URL list (from Hub+Spoke, used for service catalog)
+
+From the human directly:
+- CID (decimal format) — human must verify this from the live GMB listing
+- GMB address, phone, hours — human must pull from live GMB
+- Bible version (determines which social profiles to include)
+
+The schema is the most human-data-dependent phase. If the CID or address is wrong, the entire LocalBusiness entity is wrong and there's no way to detect this programmatically.
+
+**Q23. CID verification — what exactly is being verified, and can it be made faster?**
+
+What's being verified: that the decimal CID string (e.g., `2633689675265688157`) actually corresponds to the STS Electronic Recycling GMB listing in the correct city, and not a different business, a merged listing, or a stale listing from a closed location.
+
+Why it matters: the CID goes into `identifier`, `hasMap`, and `sameAs` fields. A wrong CID links to the wrong map pin. This is a permanent structured-data error that search engines cache.
+
+Ways to make it faster/safer:
+1. Build a lookup function: take the GMB URL from the handoff (which the human already confirmed when creating the Hub+Spoke plan), parse the CID from it, and cross-reference against the address. If the CID was in the original handoff document (as it was for Jacksonville), you skip the manual step.
+2. Use the Maps Embed URL to visually confirm: the map iframe in the HTML already embeds coordinates near the address. If the CID-based map doesn't show the right pin, the embed will look wrong in preview.
+3. Store verified CIDs in a database keyed by city — once verified, never re-verify for that city.
+
+**Q24. How often did schema output need fixing?**
+
+In this build: zero post-delivery fixes, but two validator bugs were found during the build phase (string pattern mismatches in the 16-point checker that showed false failures — the actual JSON was correct). The `@id` "duplicate" check falsely flagged valid cross-references.
+
+Across other builds (Akron, LA from memory): schema occasionally had the wrong `additionalType` for page type, or used `fa-file-certificate` (FA Pro, renders blank) in the parentOrganization block. Both were caught programmatically.
+
+---
+
+## SECTION 7: HANDOFFS BETWEEN PHASES
+
+**Q25. What passes between phases?**
+
+Build → Audit:
+- The HTML file itself (primary artifact)
+- The PAGE_BUILDER_V3 metadata comment (embedded in HTML) containing: bible, competition, word_count, entities_placed, soft_targets, sections_included
+- The handoff document (city entities, spoke URLs, local context) — the Audit re-reads this or it's passed as context
+- Implicit: the city/state/service/CID from the original prompt
+
+Audit → Schema:
+- The audited HTML (for extracting meta title/description, image URL, internal link structure)
+- The verified entity list with employee counts (the Audit enriched these)
+- The page URL and canonical
+- Implicitly: everything from Build → Audit
+
+Schema → Joomla deployment:
+- The schema .txt file (pasted into `<head>` field)
+- The HTML file (pasted into article body — schema-free)
+- The Joomla metadata fields: Browser Page Title, Meta Description, Meta Keywords
+
+What happens if something is missing: if the PAGE_BUILDER_V3 metadata comment is missing from the HTML, the Audit runs blind on competition level and section selection. It still works but may target incorrect word counts. If AUDIT_TARGET tags were never placed (missing from build), the Audit has no soft expansion targets and has to add content organically, which produces less entity-rich output.
+
+**Q26. Have phases failed because of a wrong handoff? Examples:**
+
+Yes:
+- In Akron builds: a page was built without the `/331-tablet-recycling` link in the equipment cards because that URL wasn't in the original handoff's sacred links section — the handoff predated that URL being added to the system. Pages shipped without tablet recycling links until a mid-production rule update propagated.
+- The broken law firm URL (`/industries-4/law-firm-electronics-recycling...`) is a handoff error that propagates into every page that cross-links to it. The correct path is `/industries-we-serve/industries-3/courts-and-legal...`. This was in the handoff as a static cross-link but the live URL is different.
+- Jacksonville handoff had "CHRISTUS Trinity Mother Frances Hospital-Jacksonville" — this is factually the legal brand name but JEDCO uses "CHRISTUS Mother Frances Hospital" (306 employees). The Schema Generator used the handoff name; the SEO Audit corrected it after JEDCO lookup. The two artifacts briefly had different entity names for the same organization.
+
+---
+
+## SECTION 8: AUTOMATION RISKS
+
+**Q27. Top risks ranked for unattended server runs:**
+
+1. **Image paths left root-relative.** The bible template uses root-relative paths. Without an explicit validation step that checks every `src=` attribute, every single build ships broken images. Silent failure on Joomla. This is the highest-frequency, highest-impact invisible defect.
+
+2. **IBM/statistics rollback.** The SEO Audit updates statistics but `str.replace()` targets can silently fail if surrounding text was modified by a prior technique in the same phase. The old stat stays in the file with no error. The page ships with an outdated or fabricated number attributed to a real source.
+
+3. **Invented URLs in body links.** When the handoff doesn't explicitly list a spoke URL for a given context (e.g., "the healthcare ITAD cross-link"), I may construct a plausible URL that doesn't exist on the live site. The link checker catches explicit `example.com` patterns but not well-formed invented STS URLs. Example risk: `/jacksonville-tx-medical-equipment-disposal` invented vs. actual `/jacksonville-tx-medical-equipment-recycling`.
+
+4. **Wrong CID or missing GMB data.** If the CID in the schema is wrong, the LocalBusiness entity points to the wrong map pin. There's no automated way to verify CID correctness without GMB API access or a human visual check.
+
+5. **AUDIT_TARGET silent expansion failure.** If the SEO Audit's entity-replacement scripts fail on more than 3 AUDIT_TARGET paragraphs, the page ships with the generic build-phase placeholder text (generic, non-entity-rich paragraphs) instead of verified content. This is hard to detect because the paragraphs look fine — they're just not optimized.
+
+6. **Word count under floor.** The page can exit the audit at 1,900 words and not trigger a failure if the word count check threshold is too lenient. A page at 1,900 vs. 2,000 is probably fine for rankings but violates the system's own standard and will show up as non-compliant in audits.
+
+7. **Bible version wrong (A vs. B images).** If the Bible version hash is computed incorrectly or the handoff hardcodes the wrong version, the page uses Bible A images on a Bible B page or vice versa. This means the hero shows the wrong background image in Joomla.
+
+**Q28. Which human checkpoints are truly necessary vs. habit?**
+
+Truly necessary:
+- CID verification (can't automate without GMB API)
+- Competition level sanity check (automated search can misclassify)
+- Visual review of the rendered page (catches layout breaks the code can't see)
+- Approval before Joomla publish (irreversible once live)
+
+Were mostly habit:
+- The "brutal design audit" passes — these should be automated structural diffs against the bible, not human prompts
+- The "is this 100% SEO optimized" final check — this should be a CI-style checklist that runs automatically at end of pipeline
+- The link verification prompt — already fully automatable
+
+Could be removed entirely in automation:
+- Manual file uploads/downloads (replace with API file I/O)
+- Copy-paste of code blocks into Joomla (replace with Joomla API or content management API)
+
+**Q29. What recurring guardrails did I need to be told repeatedly?**
+
+In rough order of how often the correction came up across all builds:
+
+1. **Image paths must be absolute HTTPS** — told this explicitly in nearly every city build. Never internalized into default behavior because the bible template uses root-relative paths.
+
+2. **Never use em dashes** — the training default for connecting clauses is `—`. This persists across ALL outputs (HTML, schema, descriptions, even this answer I'm writing now). Has to be explicitly suppressed.
+
+3. **fa-file-shield is FA Pro, use fa-shield-alt** — the bible template itself uses `fa-file-shield`. I copy it from the template until the rule is explicitly applied.
+
+4. **Schema goes in a separate file, never embedded in HTML** — tendency is to produce a complete page with schema included. The separation requirement is non-obvious and must be stated.
+
+5. **No target="_blank" on internal links** — generated by default for any link that "opens to a new resource." Has to be explicitly prohibited.
+
+6. **Facility language: "from our 600,000 sq ft facility" requires serve-from phrasing** — I reintroduce violation phrases during SEO Audit expansions (e.g., "Our Jacksonville team") when I'm writing new content rather than just replacing existing content.
+
+7. **CHRISTUS name format** — the handoff name, JEDCO name, and schema name differ. Without explicit instruction to use the JEDCO-verified form, I use whatever appeared first.
+
+8. **Don't add NIST 800-88 as a held certification** — standard phrasing I use is "NIST 800-88 certified" which implies it's a credential. The rule requires "NIST 800-88 compliant" (it's a compliance standard, not a certification body).
+
+**Q30. Anything else before automating:**
+
+**On context window management:** The full pipeline for one page (build + audit + schema + QA) uses roughly 80-90% of a large context window. By the end of a session, early build decisions are outside the active context. When the system compacted this session, critical details like exact AUDIT_TARGET replacement text and which fixes had already been applied were summarized. The IBM stat failure happened partly because the compaction summary didn't capture that a specific replacement had failed silently. In automation, don't rely on conversational context across phases — pass explicit state files.
+
+**On determinism:** The same prompt on the same HTML will not always produce byte-identical output. Word choices, sentence structure, and entity placement vary between runs. The structure is consistent (section order, div hierarchy) but paragraph content is non-deterministic. Build a content hash comparison into your QA layer, not a byte comparison.
+
+**On phase order coupling:** Schema must come after SEO Audit because the schema's service descriptions use the JEDCO-verified entity names and employee counts that only exist after the Audit's research phase. If Schema runs off the raw Build output, the service descriptions will have placeholder entity names (e.g., "Madix Inc." without counts, "CHRISTUS Trinity Mother Frances" in the unverified form).
+
+**On the design bible as ground truth:** The bible is a Word document that is manually maintained. If the bible changes (new section added, CSS value updated), every page already built is immediately out of compliance but shows no error. There is no version-controlled single source of truth for the design system — it's a docx. Any automation pipeline needs to either lock the bible version per build or build a diff-detector that runs against the current bible on each QA cycle.
+
+**On the "invented URL" problem specifically:** This is the highest-risk undetectable defect in unattended mode. I will construct grammatically valid, semantically plausible STS URLs for entities that don't exist in the handoff. The only reliable prevention is a post-build link validator that checks every internal href against a known-good URL registry (the Hub+Spoke handoff allowlist). This check was done manually in this build but must be automated and must fail loudly (not just warn).

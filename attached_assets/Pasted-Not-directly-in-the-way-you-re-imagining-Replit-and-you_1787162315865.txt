@@ -1,0 +1,64 @@
+Not directly in the way you’re imagining. Replit and your Mac are separate environments.
+
+There are three possible setups:
+
+## 1. Recommended: Mac is the always-available coding workstation
+
+```text
+Mac terminal + Claude/Cowork/Grok
+            ↓
+        GitHub sync
+            ↓
+Replit preview, workflows, and validation
+```
+
+Claude works locally on your Mac, where its OAuth session persists. You commit and push changes, and Replit pulls or auto-syncs them.
+
+This is the safest and most reliable setup. It is not literally live file sharing, but changes can be synchronized continuously.
+
+## 2. Mac terminal connects into Replit
+
+Replit supports SSH, but the direction is:
+
+```text
+Mac terminal → Replit App
+```
+
+That lets you use your Mac terminal to access the Replit project. It does **not** let Replit call back into your Mac.
+
+The SSH session also ends if your Mac sleeps, the terminal closes, or the network drops.
+
+## 3. Replit connects into your Mac
+
+This is technically possible, but requires:
+
+- An always-running service on your Mac
+- A reverse SSH tunnel or secure tunnel such as Tailscale/Cloudflare Tunnel
+- Firewall and access-control configuration
+- Your Mac staying awake and online
+
+It would expose a path into your computer and is not a good default for a project that handles credentials and source code. Replit does not provide this as a normal built-in feature.
+
+## Best setup for us
+
+Use your Mac as the persistent Claude/Grok operator and Replit as the project runtime:
+
+```bash
+cd ~/src/page-terminal
+git pull --ff-only
+claude
+```
+
+After Claude works:
+
+```bash
+git add .
+git commit -m "Update Mission Control prompt sources"
+git push
+```
+
+Then Replit can pull those changes through Git or GitHub Auto-sync.
+
+One important rule: choose one active writer at a time. If Claude is editing the Mac clone, don’t simultaneously edit the same files in Replit, or Git conflicts can occur.
+
+So the answer is: **we can keep Claude and Grok available continuously from your Mac, and keep Replit synchronized, but Replit cannot natively use your Mac terminal as a permanent remote worker.**

@@ -1,0 +1,25 @@
+{
+  "ranAt": "",
+  "target": {
+    "url": "https://www.stselectronicrecyclinginc.com/billings-mt",
+    "city": "Billings",
+    "state": "MT",
+    "niche": "electronics recycling",
+    "pageType": "SPOKE",
+    "classification": "NEW_BUILD",
+    "competition": "MEDIUM"
+  },
+  "grounding": { "source": "", "content": "" },
+  "scenarios": [
+    {
+      "id": "produce",
+      "label": "Produced Page",
+      "description": "Run \"run this through 1 llm\" (single engine) or \"run this through the multi llm\" (routed, with GPT-5.4 backup) to populate this.",
+      "notes": [
+        "No page has been produced yet. The agent runs this via the bakeoff:single or bakeoff:multi script; the produced page (HTML, schema, checker report) then appears here."
+      ],
+      "models": []
+    }
+  ],
+  "referenceScreenshot": null
+}

@@ -1,0 +1,22 @@
+- [Page Terminal (M.A.R.K.) architecture](page-terminal-architecture.md) — React shell hosts self-contained static HTML tools via iframe; do not rewrite tools into React.
+- [No-GMB meta/schema source of truth](no-gmb-meta-source-of-truth.md) — deterministic R2/NAID/ITAD templates via buildNoGmbPayloads; any feature emitting No-GMB meta must reuse it, never improvise.
+- [Mission Control architecture](mission-control-architecture.md) — page-builder pipeline app; reusable mc-core engine behind AIEngine seam, /api/mc/* on shared server, research gated by external n8n webhook.
+- [MC location verification](mc-location-verification.md) — page-content city/state cross-check: never block, correct STATE not CITY, equivalence-only city match (no substrings).
+- [Replit-Agent engine mode + toggle](replit-engine-mode.md) — second engine = operator-driven ReplitEngine reusing the same orchestrator/checkers; replit runs queue, don't auto-run, parity gate is automatic.
+- [Mission Control post-publish QC](mission-control-qc.md) — dashboard-only GTmetrix + JSON-LD checks; keys off run's published alias URL so it's universal across GMB/non-GMB, blog/page, hub/spoke — no per-variant branching.
+- [Unified work-log tracker](worklog-tracker.md) — one canonical mc_work_log keyed by normalized URL (www/slash collapse); old tools + MC + import all upsert into it; Master Grid surfaces it; Sheets/GSC syncs gated + fail-loud.
+- [Verify integrations by exercising them](env-visibility-verify-by-exercising.md) — secret/viewEnvVars listing misses some live runtime keys; confirm external calls by hitting them, not by reading the list.
+- [Multi-LLM Bake-Off harness](bakeoff-harness.md) — out-of-tree faithful MC pipeline across models; never special-case a model; dead-simple input = URL + verified GMB block; No-GMB prompts stay byte-identical; verify turns fail loud without an explicit PASS; resumable run.
+- [Bake-off visual judge](bakeoff-visual-judge.md) — renders pages to screenshots (Nix chromium + playwright-core, fixed viewport) and scores perceptual + vision-LLM; rescore reuses saved HTML, don't re-run LLMs.
+- [Background process reaping](background-process-reaping.md) — detached bash processes die when the launching tool call returns; run long one-shot jobs as a console workflow and make them resumable.
+- [Prompt Manager publish/sync](prompt-publish-sync.md) — publish fans out to DB+GitHub+Drive via the Replit connectors proxy; no auto-publish, per-target status, drive.file scope quirk.
+- [Replit config guard during rebase](replit-config-rebase-guard.md) — git can't write .replit/replit.nix during rebase (guard); use keep-ours merge driver, then materialize union via verifyAndReplaceDotReplit.
+- [Meta research location resolution](meta-research-location.md) — trust the model's page-read city/state over the URL slug; "in"→Indiana + STS HQ footer poison parseCityState/extractLocations.
+- [Model-id display redaction trap](model-id-display-redaction.md) — Anthropic ids are masked on screen (claude-sonnet-4-6→n-4-6); never hand-type them or you 404; import from mc-core.
+- [MC shared prompt builders](mc-shared-prompt-builders.md) — builders.ts is the single per-phase prompt source for both modes; No-GMB byte-for-byte, ctx.gmb drives the branch, schema phase fails loud.
+- [TechnoCycle WordPress stack](technocycle-wordpress-stack.md) — TC tool copies target WordPress/Beaver Builder/Yoast/Kinsta (not Joomla); Themer banner = page H1, output is an H2-start fragment, schema slim-to-gaps.
+- [M.A.R.K. canonical prompt set](mark-prompt-source-of-truth.md) — current build prompts = `(4.7)`-prefixed files in Drive folder "MY STS PROMPTS"; STS page model (single H1 in hero, absolute-HTTPS images).
+- [Routed Dashboard engine](routed-dashboard-engine.md) — bake-off orchestration (routing/timeout-abort/fallback/verify) lives in RoutedEngine behind the AIEngine seam; null verdict = invalid; main+explicit routes fail loud, default backup degrades.
+- [Bake-off single-model rerun](bakeoff-single-model-rerun.md) — rerun ONE model via BAKEOFF_MODELS+FORCE+MODEL_OVERRIDES same scenario (reuses grounding); filter must not wipe others on persist (seed from ALL prior).
+- [Blind judge panel](bakeoff-judge-panel.md) — newest frontier models score anonymized pages; schema richness is the decider; judges may self-favor, cross-model agreement is the real signal.
+- [R2/NAID cleanup scope](r2-naid-cleanup-scope.md) — user-approved literal removal covers live, schema/meta, fixtures, Drive copies, historical references, and archives.

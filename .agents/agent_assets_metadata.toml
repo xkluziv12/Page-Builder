@@ -1,0 +1,68 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "YK0SL_fX0uHD_X635rBO_"
+uri = "file://exports/bake-off-bundle.tar.gz"
+type = "unspecified"
+title = "Bake-Off bundle (app + harness + mc-core)"
+
+[[outputs]]
+id = "luA2PQ5bxh1ltqprBmA-e"
+uri = "file://scripts/src/judge/output/seo-judge-report.md"
+type = "text"
+title = "SEO/AIO/GEO Judging Report — all 5 audits + rankings"
+
+[[outputs]]
+id = "zgcIRRFqWtY5w1WHrxeQg"
+uri = "file://scripts/src/judge/output/seo-judge-pages.tar.gz"
+type = "unspecified"
+title = "The 3 pages judged (Sonnet 4.6, GPT-5.5, Gemini 3.1 Pro HTML)"
+
+[[outputs]]
+id = "RioRUG80Us1KH-5JY8H8l"
+uri = "file://docs/seo-aio-geo-judging-master-findings.md"
+type = "text"
+title = "Master Findings — Cross-Model SEO/AIO/GEO Judging Round"
+
+[[outputs]]
+id = "n34RGb7XlvnaTxn2_7_gI"
+uri = "file://scripts/src/bakeoff/output/reviews/claude.md"
+type = "text"
+title = "Review — Claude Opus 4.8"
+
+[[outputs]]
+id = "egYgS_0DbhiHh5eMMTzas"
+uri = "file://scripts/src/bakeoff/output/reviews/openai-std.md"
+type = "text"
+title = "Review — OpenAI GPT-5.5"
+
+[[outputs]]
+id = "cX8VyEKIVcVI3lNv61yjP"
+uri = "file://scripts/src/bakeoff/output/reviews/gemini.md"
+type = "text"
+title = "Review — Gemini 3.1 Pro"
+
+[[outputs]]
+id = "ySYx0CCc8apy7OTIaD4AP"
+uri = "file://scripts/src/bakeoff/output/reviews/grok.md"
+type = "text"
+title = "Review — Grok (xAI)"
+
+[[outputs]]
+id = "9l5gqqHgvKBbnq2URy_Us"
+uri = "file://exports/bakeoff-dossier.md"
+type = "text"
+title = "Bake-Off Dossier (the document sent to reviewers)"
+
+[[outputs]]
+id = "YF09NpuPyeo9wGU2zP0c7"
+uri = "file://exports/bakeoff-full.zip"
+type = "unspecified"
+title = "Bake-Off — full review package (zip)"
+
+[[outputs]]
+id = "z2kTfbHXt2gpk8x4ZVeX-"
+uri = "file://artifacts/page-terminal/TECHNOCYCLE_HANDOFF.md"
+type = "text"
+title = "TechnoCycle Brand Mode — Status & Handoff"

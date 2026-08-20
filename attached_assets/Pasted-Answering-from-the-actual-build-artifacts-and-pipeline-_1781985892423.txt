@@ -1,0 +1,317 @@
+Answering from the actual build artifacts and pipeline experience. Concrete numbers and exact values where I have them.
+
+---
+
+## 1. URL Registry — Where does the valid URL list come from?
+
+There is no single canonical master list. The valid URLs per city come from three distinct sources that must be merged:
+
+**Source A — The Hub+Spoke handoff document.** Every city build generates a handoff listing every spoke URL for that city. For Jacksonville that was 28 URLs, all in the format `/{city-state-slug}`. These are city-specific and net-new for every clean-slate city.
+
+**Source B — The global STS service page registry.** These are site-wide URLs that exist regardless of city. The exact confirmed list from builds:
+
+```
+/services/itad-it-asset-disposition
+/data-center-decommissioning
+/server-destruction-services
+/on-site-hard-drive-shredding
+/naid-certified-data-destruction
+/certificate-of-destruction-services
+/hipaa-compliant-hard-drive-destruction
+/CONTACT-STS-PAGE
+/quote
+```
+
+**Source C — The sacred equipment links.** These are the 10-11 fixed equipment category URLs that must appear on every page regardless of city:
+
+```
+/97-recyclable-electronics/317-computer-recycling
+/97-recyclable-electronics/318-laptop-recycling
+/iphone-smartphone-and-cell-phone-recycling
+/97-recyclable-electronics/319-cell-phone-recycling
+/97-recyclable-electronics/320-networking-equipment-recycling
+/97-recyclable-electronics/321-printer-recycling
+/97-recyclable-electronics/322-copy-machine-recycling
+/97-recyclable-electronics/323-server-equipment-recycling
+/97-recyclable-electronics/324-ink-and-toner-recycling
+/97-recyclable-electronics/325-monitor-recycling
+/97-recyclable-electronics/326-old-electronics-recycling
+/97-recyclable-electronics/327-battery-recycling
+/97-recyclable-electronics/328-cable-recycling
+/97-recyclable-electronics/329-keyboard-mouse-recycling
+/97-recyclable-electronics/331-tablet-recycling
+```
+
+**Source D — The industry cross-links.** These are page-type-specific and defined in the Hub+Spoke handoff under "Industry Verticals Cross-Links." The confirmed real paths from multiple builds:
+
+```
+/industries-we-serve/industries-1/healthcare-electronic-recycling
+/industries-we-serve/industries-1/school-university-and-education-electronics-recycling-and-itad
+/industries-we-serve/industries-4/banking-and-financial-industry-electronics-recycling-and-itad
+/industries-we-serve/industries-4/federal-state-and-local-government-electronics-recycling-and-itad
+/industries-we-serve/industries-3/call-center-electronics-recycling-and-itad
+```
+
+One confirmed broken URL that must be in the registry as a redirect: `/industries-4/law-firm-electronics-recycling-and-itad` is the broken form. The correct path is `/industries-we-serve/industries-3/courts-and-legal-industry-electronics-recycling-and-itad`. Any checker must hard-fail if the broken form appears.
+
+**How the checker should work:** Build the registry by merging Sources A+B+C+D. Check every internal `href` on the built page against this merged list. Any STS URL not on the list is either invented or missing from the handoff — flag as hard failure with the full URL shown. The checker should never "guess" that a URL might be real.
+
+---
+
+## 2. Word Count Floors — By Page Type
+
+The targets are defined by the Page Builder's competition tiers, not by page type per se. But page type and competition are correlated:
+
+| Page Type | Competition Tier | Floor | Ceiling |
+|---|---|---|---|
+| Tier 1 HUB (e-waste hub) | Usually LOW | 2,000 | 2,400 |
+| Tier 1 HUB (competitive market) | MEDIUM | 2,400 | 2,800 |
+| Tier 2 SPOKE (laptop, server, etc.) | LOW | 2,000 | 2,400 |
+| Tier 2 SPOKE (competitive) | MEDIUM | 2,400 | 2,800 |
+| Tier 3/4 (methods, verticals) | LOW | 2,000 | 2,400 |
+| Tier 5 GUIDE | Guide-specific | 2,400 | 4,500+ |
+| STS Blog | N/A | Not confirmed | Not confirmed |
+
+The 2,000 floor is the Design Bible Floor — the minimum for any page built from the full Tier 1 or Tier 2 template with all sections included. For trimmed sections (LOW competition with optional sections removed), the floor can be lower in theory, but in practice the full template is always used and the floor holds at 2,000.
+
+The 1,652 → 2,000 loop on Jacksonville was the build-phase output vs. post-audit target. The build phase intentionally underbuilds (AUDIT_TARGET paragraphs are placeholders) and the SEO Audit expands to the floor. This is by design. The build-phase output should be expected to land at 1,600-1,800 for a LOW page; the audit closes the gap.
+
+For the automation feedback loop: the word count check should run **after** the SEO Audit completes, not after the build. Checking word count after build will always flag a low count. That is normal and correct.
+
+---
+
+## 3. The 14 Gates — Machine-Readable?
+
+They live only as prose inside two documents: the Master Page Builder (the full version — `1_MINI_Page_Builder.docx` is the lean version used in production) and the MINI Page Builder. Neither is machine-readable. There is no JSON or checklist form of the gates.
+
+The source of truth is the Page Builder document, specifically the section titled "MASTER GATE SEQUENCE" or equivalent. In the MINI version used for production, the gates are compressed into a shorter execution checklist.
+
+For automation purposes, the gates can be extracted and hardcoded as a JSON config. Here's the structure based on what I actually execute:
+
+```json
+{
+  "gate_0": "validate_required_files",
+  "gate_1": "parse_page_url_determine_niche",
+  "gate_2": "determine_bible_version_hash",
+  "gate_3": "classify_page_type_hub_spoke_tier",
+  "gate_4": "parse_handoff_entities_skip_reverification",
+  "gate_5": "extract_gmb_data_normalize_phone_cid",
+  "gate_6": "store_facility_language_rules",
+  "gate_7": "check_gsc_data_new_build_vs_existing",
+  "gate_8": "competition_research_set_word_target",
+  "gate_9": "classify_page_new_build_vs_rewrite",
+  "gate_10": "generate_meta_title_description_keywords",
+  "gate_11": "city_research_entities_geography",
+  "gate_12": "build_html_all_sections",
+  "gate_13": "post_build_validation_20_checks"
+}
+```
+
+Gate 8 (competition research) is the one that requires a live web search and is the bottleneck for parallelization. Everything before it can run from the handoff data alone. Gates 11 and 12 can run in parallel with each other if research is separated from build.
+
+---
+
+## 4. Entity Verification Beyond Texas
+
+For Texas, JEDCO and equivalent county EDC (Economic Development Corporation) sites are the primary source. The pattern that works:
+
+**Texas cities:** `{city} EDC major employers` or `{city} economic development corporation major employers` — most Texas EDCs publish a downloadable or web-viewable employer list with employee counts. JEDCO's was at `jacksonvilletxedc.com/major-employers/` and was last updated August 2024.
+
+**For other states, confirmed working sources by type:**
+
+| Entity Type | Source Pattern |
+|---|---|
+| Hospitals | Medicare Provider of Services file (CMS.gov) — has every registered hospital with staffing data. Also: `{hospital name} Medicare enrolled` returns employee headcount in results. |
+| School districts | NCES (National Center for Education Statistics) — nces.ed.gov, search by district name, returns enrollment and staff counts. |
+| Local government | City/county annual budget documents — nearly all publish FTE counts. Search: `{city} TX annual budget FTE` |
+| Large private employers | State workforce commission data — e.g., Texas Workforce Commission publishes employer data. Or `{company} {city} employees site:linkedin.com` for rough counts. |
+| Manufacturers | NAICS/Dun & Bradstreet via free lookups — less reliable but usable for estimates. |
+
+The honest answer: it is **ad hoc per city** right now. There is no single unified national source. The automation research step should follow this decision tree:
+
+1. Search for `{city} EDC major employers` — if an EDC page returns a tabular employer list, parse it
+2. For any healthcare entity, fetch from CMS Medicare Provider file
+3. For any school district, fetch from NCES
+4. For entities not found via steps 1-3, flag as "unverified estimate" and surface to human
+
+The human gate on entity verification exists precisely because steps 1-3 don't always return data. Don't try to fully automate entity counts — automate the lookup attempt, flag what couldn't be verified, let the human fill the gaps. This is faster than manual-only and more accurate than automation-only.
+
+---
+
+## 5. Design Bible Diff — Hard Fail vs. Warn
+
+**Hard fail** (these mean the template structurally changed and the page must be rebuilt or manually corrected):
+
+- Section count: Tier 1 must have exactly 18 sections, Tier 2 exactly 12. If the bible adds or removes a section, all existing pages are missing or have an extra section. Hard fail.
+- Section order: The sequence of HTML comment section markers must match the bible exactly. Any reordering is a hard fail.
+- Sacred equipment card structure: 3 cards, 5 links each, specific card titles ("Computer & IT Equipment", "Mobile & Telecom", "Office Equipment"). Title change = hard fail.
+- CSS `:root` variable values: The color variables (`--primary:#1e3a8a`, `--emerald:#059669`, etc.) must match exactly. A color change affects the entire visual system. Hard fail.
+- Grid class names (`grid-2`, `grid-3`, `grid-4`) and the `.card`, `.btn`, `.hero` class definitions. Structure depends on these.
+- `.hero` margin-top value (`-30px` for Tier 1, `-35px` for Tier 2). Wrong value = hero overlaps navbar or leaves a gap.
+
+**Warn only** (visual drift, not structural failure):
+
+- Individual card padding values (e.g., `padding:40px` vs `padding:32px` in a card) — affects spacing but not functionality
+- Font weight variations within a section
+- Button padding changes
+- Section background color changes (gray-50 vs white alternation)
+- Eyebrow text changes
+- `border-radius` values
+
+**The minimal set that means "the template actually changed" (check these 5 things):**
+
+1. CSS `:root` block — hash of the entire block
+2. Section comment sequence — ordered list of `<!-- SECTION_NAME -->` markers
+3. `.hero` margin-top value
+4. Equipment card titles (3 strings)
+5. Sacred link URL list (15 URLs)
+
+If all 5 match the stored bible version hash, the page is structurally compliant. Changes to anything else are cosmetic drift and warrant a warning, not a rebuild.
+
+---
+
+## 6. Joomla Publish Specifics
+
+**No helper PHP file exists.** It is net-new. Currently the process is manual paste by a VA or by the user directly.
+
+**The exact three writes and their field locations in Joomla admin:**
+
+```
+Write 1 — Article body HTML
+  Location: Content tab → Article editor (TinyMCE or plain HTML view)
+  Field in DB: jos_content.introtext (short content) or jos_content.fulltext
+  Note: Paste body HTML only — no DOCTYPE, no <html>, no <head>, no <body> tags.
+        Joomla strips all JavaScript event handlers (onerror, onclick, etc.) on save.
+        Schema must NOT be here.
+
+Write 2 — Schema JSON-LD
+  Location: Publishing tab → "Page Display Options" → "Page heading" is NOT it.
+            Actual location: Metadata tab → field labeled something like 
+            "Additional <head> HTML" or via a metadata plugin.
+  Field in DB: jos_content.metadata (JSON field) or a custom plugin field.
+  IMPORTANT: The exact field name depends on the Joomla version and 
+             which head-injection plugin is installed. In older Joomla 
+             (2.5/3.x), there is no native head-injection field in core.
+             Most sites use "Sourcerer" plugin or custom module positions.
+             This needs to be verified against the actual site.
+
+Write 3 — SEO metadata
+  Location: Publishing tab (Joomla 3.x) or Metadata tab
+  Fields:
+    - "Browser Page Title" → overrides the <title> tag at runtime
+    - "Meta Description" → the meta description shown in SERP
+    - "Meta Keywords" → the meta keywords field
+  DB fields: jos_content.metadata (serialized or JSON)
+
+Write 4 — URL alias (SEF slug)
+  Location: Publishing tab → "Alias" field
+  DB field: jos_content.alias
+  This is the URL slug. Must match the Hub+Spoke handoff URL exactly.
+  Example: jacksonville-tx-e-waste-recycling
+
+Write 5 — Category assignment
+  Location: Publishing tab → "Category" dropdown
+  DB field: jos_content.catid
+  Each city has its own category. Must match.
+
+Write 6 — Published state
+  Location: Publishing tab → "Status" dropdown
+  DB field: jos_content.state (1 = published, 0 = unpublished)
+  Should default to unpublished (0) and only flip to 1 on human approval click.
+```
+
+**Security for the helper file:** Token in the POST request header, compared against a stored secret. The file should also whitelist the calling server IP if possible, though that's optional for v1. Never expose the endpoint URL publicly. Store the secret in an environment variable, not hardcoded in the PHP file.
+
+One concrete flag: the exact field name for the schema head injection depends on what's actually installed on the STS Joomla instance. Before writing the helper file, someone needs to check whether Sourcerer, a custom module, or a template override is handling `<head>` injection on the live site. This is the one unknown that could break the schema write and needs a 10-minute check on the actual Joomla admin before the helper is written.
+
+---
+
+## 7. Sacred Links + Facility Language — Exact Rules
+
+**Sacred links — complete exact list:**
+
+These 10 must be present on every page (Tier 1 and Tier 2), appearing exactly once each in the equipment showcase section:
+
+```
+https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/317-computer-recycling
+https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/318-laptop-recycling
+https://www.stselectronicrecyclinginc.com/iphone-smartphone-and-cell-phone-recycling
+https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/320-networking-equipment-recycling
+https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/321-printer-recycling
+https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/322-copy-machine-recycling
+https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/323-server-equipment-recycling
+https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/324-ink-and-toner-recycling
+https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/325-monitor-recycling
+https://www.stselectronicrecyclinginc.com/97-recyclable-electronics/326-old-electronics-recycling
+```
+
+Additional equipment links present but NOT "sacred" (they appear but duplicates are allowed):
+```
+/97-recyclable-electronics/327-battery-recycling
+/97-recyclable-electronics/328-cable-recycling
+/97-recyclable-electronics/329-keyboard-mouse-recycling
+/97-recyclable-electronics/331-tablet-recycling
+```
+
+The checker rule: each of the 10 sacred URLs must appear `>= 1` time. If any appear `0` times: hard fail. The checker should also warn (not fail) if any sacred URL appears more than 2 times, which can indicate a template duplication error.
+
+**Facility language — exact rule:**
+
+The rule exists because STS does not have a physical presence in most cities it serves. The 600,000 sq ft facility is in Jacksonville TX. Pages for other cities must not imply a local facility.
+
+**Forbidden patterns (hard fail, any city except Jacksonville TX):**
+```
+our [CITY] facility
+[CITY] facility
+facility in [CITY]
+our [CITY] location
+[CITY] location
+[CITY] office
+our [CITY] office
+[CITY] recycling center
+our [CITY] team
+```
+
+**Approved patterns (these are fine):**
+```
+serving [CITY] from our 600,000 sq ft [R2v3 certified] facility
+our 600,000 sq ft facility serves [CITY]
+equipment is transported to our 600,000 sq ft facility
+STS serves [CITY] from our 600,000 sq ft facility
+we serve [CITY] businesses from our certified facility
+```
+
+**Implementation note on the checker:** The forbidden pattern `our [CITY] team` is what caught the "Our Jacksonville team is ready to discuss" violation that persisted until the final QA pass. The original checker only looked for `[city] facility`, `[city] location`, and `our [city]` with the city name inline — it matched `our jacksonville` but the actual phrase was `Our Jacksonville team` with a capital O and no word "facility" nearby. The regex must be case-insensitive and must check for `our [CITY]` as a bigram regardless of what follows it. This specific pattern missed three validation rounds before being caught.
+
+**The checker regex that actually works:**
+
+```python
+import re
+
+def check_facility_language(html, city):
+    city_lower = city.lower()
+    patterns = [
+        rf'our {city_lower}\b',           # "our jacksonville" (catches "our jacksonville team")
+        rf'{city_lower} facility\b',       # "jacksonville facility"  
+        rf'facility in {city_lower}\b',    # "facility in jacksonville"
+        rf'{city_lower} location\b',       # "jacksonville location"
+        rf'our {city_lower} office\b',     # "our jacksonville office"
+        rf'{city_lower} recycling center\b', # "jacksonville recycling center"
+    ]
+    violations = []
+    html_lower = html.lower()
+    for pattern in patterns:
+        for m in re.finditer(pattern, html_lower):
+            context = html[max(0, m.start()-60):m.start()+80]
+            context_clean = re.sub(r'<[^>]+>', '', context).strip()
+            violations.append({'pattern': pattern, 'context': context_clean})
+    return violations
+```
+
+The key is `\b` word boundaries and case-insensitive matching on `html.lower()`. The earlier checker that missed "Our Jacksonville team" was doing `p.lower() in html.lower()` without word boundaries — it checked for `"our jacksonville"` as a substring of the lowercased HTML, but the HTML had `"Our Jacksonville team"` which contains `"our jacksonville"` as a substring... actually this should have matched. Let me be precise: the checker DID eventually catch it. The issue was it ran only when the facility language check was explicitly triggered, not as a post-edit assertion after every write. The fix is to run the facility check after every single HTML modification, not just at phase boundaries.
+
+---
+
+**One thing that belongs in the plan that wasn't in the questions:**
+
+The `no em-dash` rule needs to be enforced as a pre-write filter, not a post-write checker. Every time I write new content (AUDIT_TARGET replacements, micro-anchors, persona rewrites), I default to em-dashes in connecting clauses. A post-write checker catches them, but a pre-write filter that substitutes ` — ` (space-endash-space) or restructures the sentence before it hits the HTML is more reliable. In the Python pipeline, this is a single `html = html.replace('\u2014', ' ').replace('&mdash;', ' ').replace('&#8212;', ' ')` applied after every content-writing step. This should be in the pipeline as a sanitizer layer, not just a checker.

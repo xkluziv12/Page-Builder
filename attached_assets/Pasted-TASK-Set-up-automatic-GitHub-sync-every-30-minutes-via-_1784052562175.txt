@@ -1,0 +1,165 @@
+TASK: Set up automatic GitHub sync every 30 minutes via Scheduled Deployment.
+
+This is a one-time setup. After this, every change is automatically pushed
+to GitHub every 30 minutes with no manual steps ever needed.
+
+---
+STEP 1: CONFIRM GITHUB SYNC SCRIPT EXISTS
+------------------------------------------
+
+Check if scripts/src/github-sync.ts exists.
+
+If it does NOT exist, create it:
+
+scripts/src/github-sync.ts:
+
+import { writeFileSync, rmSync } from "node:fs";
+import { execFileSync } from "node:child_process";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const rootDir = join(__dirname, "..", "..");
+const DEFAULT_REPO = "[owner]/[repo-name]";
+const repo = process.env["GITHUB_SYNC_REPO"] || DEFAULT_REPO;
+const remoteUrl = `https://github.com/${repo}.git`;
+const remoteName = "github-sync-tmp";
+const tokenFile = "/tmp/.github-sync-token";
+const askpassFile = "/tmp/.github-sync-askpass.sh";
+
+function git(args: string[], opts: { env?: NodeJS.ProcessEnv } = {}) {
+  return execFileSync("git", ["-C", rootDir, ...args], {
+    encoding: "utf-8",
+    env: opts.env ?? process.env,
+  });
+}
+
+async function fetchToken(): Promise<string> {
+  const hostname = process.env["REPLIT_CONNECTORS_HOSTNAME"];
+  const xReplitToken = process.env["REPL_IDENTITY"]
+    ? "repl " + process.env["REPL_IDENTITY"]
+    : process.env["WEB_REPL_RENEWAL"]
+      ? "depl " + process.env["WEB_REPL_RENEWAL"]
+      : null;
+  if (!hostname || !xReplitToken) {
+    throw new Error("REPLIT_CONNECTORS_HOSTNAME and token env var required");
+  }
+  const url = `https://${hostname}/integrations/v1/github/connectors`;
+  const resp = await fetch(url, {
+    headers: { Authorization: xReplitToken, Accept: "application/json" },
+  });
+  if (!resp.ok) throw new Error(`Connector query failed: ${resp.status}`);
+  const data = await resp.json();
+  const conn = (data.connections || []).find(
+    (c: any) => c.connectorId === "github" || c.connectorConfigId === "github"
+  );
+  if (!conn) throw new Error("No GitHub connection found");
+  const s = conn.settings || {};
+  const token = s.token || s.accessToken || s.access_token || s.GITHUB_TOKEN;
+  if (!token) throw new Error("No token in GitHub connection settings");
+  return token;
+}
+
+function setupAskpass(token: string) {
+  writeFileSync(tokenFile, token, { mode: 0o600 });
+  const askpass = `#!/bin/sh\nif [ "$1" = "Username" ]; then echo "x-oauth-basic"; exit 0; fi\ncat "${tokenFile}"`;
+  writeFileSync(askpassFile, askpass, { mode: 0o700 });
+}
+
+function teardown() {
+  try { rmSync(tokenFile); } catch {}
+  try { rmSync(askpassFile); } catch {}
+  try { git(["remote", "remove", remoteName]); } catch {}
+}
+
+function getBranch() {
+  const out = git(["rev-parse", "--abbrev-ref", "HEAD"]).trim();
+  return out && out !== "HEAD" ? out : git(["rev-parse", "--short", "HEAD"]).trim();
+}
+
+async function main() {
+  const branch = getBranch();
+  const sha = git(["rev-parse", "--short", "HEAD"]).trim();
+  console.log(`Syncing branch "${branch}" (${sha}) -> ${remoteUrl}`);
+  try {
+    const token = await fetchToken();
+    setupAskpass(token);
+    const env = { ...process.env, GIT_ASKPASS: askpassFile, GIT_TERMINAL_PROMPT: "0" };
+    git(["remote", "add", remoteName, remoteUrl], { env });
+    try {
+      git(["push", remoteName, `${branch}:${branch}`], { env });
+      console.log(`Synced: ${repo} now matches local ${branch} (${sha}).`);
+    } catch (e: any) {
+      const msg = (e.stderr ?? e.message ?? "").toString();
+      if (msg.includes("non-fast-forward") || msg.includes("rejected")) {
+        if (process.argv.includes("--force")) {
+          git(["push", "--force", remoteName, `${branch}:${branch}`], { env });
+          console.log(`Force-pushed: ${repo} overwritten with local ${branch}.`);
+        } else {
+          console.error("GitHub has diverged. Rerun with -- --force to overwrite mirror.");
+          process.exit(1);
+        }
+      } else { throw e; }
+    }
+  } finally { teardown(); }
+}
+
+main().catch((e) => { console.error(e.message); process.exit(1); });
+
+---
+STEP 2: CONFIRM SCRIPT IS IN PACKAGE.JSON
+-------------------------------------------
+
+In scripts/package.json, confirm this exists under "scripts":
+
+  "github-sync": "tsx ./src/github-sync.ts"
+
+If it is missing, add it.
+
+---
+STEP 3: CONFIRM GITHUB INTEGRATION IS CONNECTED
+-------------------------------------------------
+
+In Replit, go to Tools > Git > Connections.
+GitHub must show as "Active".
+If it is not Active, connect it before continuing.
+
+---
+STEP 4: SET UP THE SCHEDULED DEPLOYMENT (one time, never touch again)
+-----------------------------------------------------------------------
+
+1. Click Deploy (top right of Replit)
+2. Choose Scheduled
+3. Set the command:
+   pnpm --filter @workspace/scripts run github-sync
+4. Set the schedule (every 30 minutes):
+   */30 * * * *
+5. Save it
+
+After saving, GitHub will automatically receive every committed change
+within 30 minutes. No shell. No manual steps. Ever.
+
+If you ever need an immediate push (before the 30 minutes), run:
+  pnpm --filter @workspace/scripts run github-sync
+
+---
+VERIFY IT IS WORKING
+---------------------
+
+After the first scheduled run, check the GitHub repo.
+The latest commits from Replit should appear there.
+If they do not appear, check the Scheduled Deployment logs in Replit.
+
+---
+IMPORTANT NOTES
+----------------
+
+- This script is push-only. It never commits and never pulls.
+  Replit manages all commits. GitHub is a read-only mirror.
+- If GitHub has diverged and the sync fails, rerun with:
+  pnpm --filter @workspace/scripts run github-sync -- --force
+- The GitHub token is fetched at runtime from the Replit connector,
+  held only in memory and a temporary /tmp file, then deleted.
+  It is never stored in the codebase or environment variables.
+- Do NOT make this a workflow. Workflows run on every project restart.
+  The Scheduled Deployment is the correct home for this.

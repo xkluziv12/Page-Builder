@@ -1,0 +1,89 @@
+=== CLAUDE CODE SETUP + WORKING RULES FOR THIS PROJECT (mark@stsrecycle.com) ===
+
+--- SETUP (agent does steps 1, 2, 4 — Mark handles secrets) ---
+
+1. Install Claude Code CLI:
+   npm install -g @anthropic-ai/claude-code
+   claude --version
+
+2. Fix API key naming to prevent billing collision:
+   - Change every process.env["ANTHROPIC_API_KEY"] in this codebase to process.env["APP_ANTHROPIC_KEY"]
+   - Never create a secret named ANTHROPIC_API_KEY — Claude Code checks that name first
+     and silently bills metered credits instead of the OAuth token if it exists
+   - For this project: the app does NOT currently make raw Anthropic API calls, so no code change is needed.
+     Just confirm ANTHROPIC_API_KEY is absent.
+
+3. Secrets (Mark will add in the Secrets panel):
+   - CLAUDE_CODE_OAUTH_TOKEN — Max plan OAuth token for mark@stsrecycle.com (sk-ant-oat01...)
+   - APP_ANTHROPIC_KEY — only needed if this app later makes runtime Anthropic API calls
+   - Delete ANTHROPIC_API_KEY if it exists
+
+4. Write CLAUDE.md at the repo root — see spec below.
+
+5. Verify:
+   echo "collision: [$ANTHROPIC_API_KEY]"   <- want empty
+   claude → /status                          <- want Max subscription, not API key
+
+--- GIT RULES ---
+
+- This project has its own dedicated GitHub repo: https://github.com/xkluziv12/avarecycling
+  Git is the source of truth. Every change from every tool — Replit, Claude Code desktop, Claude Code iOS — lands
+  in git first. Nothing exists if it is not committed.
+- Use the included github-sync script to push:
+    pnpm --filter @workspace/scripts run github-sync
+  Or with force:
+    pnpm --filter @workspace/scripts run github-sync -- --force
+  Or dry-run:
+    pnpm --filter @workspace/scripts run github-sync -- --dry-run
+- Never commit directly to main. Always work on a branch named claude/<short-task-name>.
+  Push that branch. Main is merged manually after review — that merge is the deliberate "yes, ship it" gate.
+- When actively building, Claude Code is the sole committer on its branch.
+
+--- ROLES ---
+
+Replit = director and visual layer.
+  - Plans features, writes build specs, reviews running previews.
+  - Handles minor one-file edits too small to warrant a full Claude Code session.
+  - Does NOT build large features — that is Claude Code's job.
+  - When a build is needed: Replit writes the spec to docs/build-spec.md and commits it.
+    Claude Code reads that file and builds. The file is the handoff.
+
+Claude Code = builder.
+  - Reads docs/build-spec.md and CLAUDE.md, then implements.
+  - Commits as it goes, pushes to a claude/<task> branch, never to main.
+  - Runs on the Max plan OAuth token for mark@stsrecycle.com — no metered API credits.
+
+--- PHONE vs DESKTOP ---
+
+Desktop (Replit shell):
+  - Open Shell tab → claude → "Read docs/build-spec.md and build it"
+  - Best for large builds — live preview pane updates as Claude works.
+  - For headless/unattended runs:
+    claude -p "Build per docs/build-spec.md. Commit each unit of work." \
+      --permission-mode acceptEdits > build.log 2>&1 &
+
+Phone (Claude Code iOS, no laptop needed):
+  - Quick edits: open Claude Code iOS → pick this repo → describe the change directly.
+    No spec file needed. Claude edits, commits, pushes.
+  - Planned builds: Replit has already committed docs/build-spec.md →
+    open Claude Code iOS → "Read docs/build-spec.md and build it, open a PR"
+  - Claude Code iOS does the work. GitHub app (optional) is for reviewing the PR diff.
+  - You do not need to open Replit at all for phone edits.
+
+Two modes in practice:
+  Big planned build  →  Replit writes spec  →  Claude Code builds (desktop shell or phone)
+  Quick edit on go   →  Claude Code iOS directly, skip Replit entirely
+
+--- CLAUDE.md SPEC (write this file at repo root) ---
+
+Include:
+- One-paragraph project description: AVA Recycling static marketing site rebuild
+- Hard rules: every public route keeps its exact .html slug; every lead form uses LeadFormIframe; no native forms
+- Full stack: Vite + React + TypeScript + Tailwind CSS + shadcn/ui, static prerendering via scripts/prerender.mjs
+- File/folder map: artifacts/ava-recycling/src/pages/, src/components/, src/lib/site.ts, src/routes.tsx
+- Routes: 33 prerendered pages (home + 32 interior pages from NAV)
+- Commands to typecheck and build before pushing:
+    pnpm --filter @workspace/ava-recycling run build
+- This line verbatim:
+  "Always work on a branch named claude/<task-name>. Never commit to main directly.
+   Commit after each logical unit of work and push the branch."

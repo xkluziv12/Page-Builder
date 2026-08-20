@@ -1,0 +1,585 @@
+# STS Joomla Publishing System — Full Documentation Report
+**Site:** stselectronicrecyclinginc.com | **Joomla Version:** 3.9.26 | **Template:** at_corporation (Helix framework) | **Date Researched:** 2026-06-20
+
+---
+
+## STEP 1 — FINDING THE PAGE (TWO METHODS)
+
+### Starting URL
+```
+https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_menus&view=items
+```
+Page title: **"Menus: All Menu Items"** (or filtered: "Menus: Items (Montana Service Areas)")
+
+### List Columns (visible on menu items list)
+| Column | Notes |
+|---|---|
+| (checkbox) | Row selector |
+| Status | Green checkmark = Published |
+| Title | Shows full title + **(Alias: xxx)** inline + type on second line |
+| Menu | Which named menu the item belongs to |
+| Home | Star icon (filled = default page) |
+| Access | Public / Registered / etc. |
+| Language | All |
+| ID | Numeric integer |
+
+A lock icon (🔒) appears before the item title if it is checked out/locked by another session.
+
+---
+
+### Method 1a — Search Box
+
+**Location:** Filter bar, third element from left. Placeholder text: "Search". Adjacent search-icon button triggers the search. Pressing Enter also works.
+
+**Steps:**
+1. Navigate to `index.php?option=com_menus&view=items`
+2. Click the Search box (top filter bar, roughly center of page)
+3. Type `Billings`
+4. Press Enter or click the search icon (magnifying glass button)
+5. Result: exactly 1 row — **"Billings, MT" (Alias: billings-mt)**, Menu: Montana Service Areas, ID: 970
+
+> ⚠️ **GOTCHA:** The search searches Title text only, not alias. Searching "billings-mt" would also work since the alias is shown in the title column text.
+
+---
+
+### Method 1b — Menu Filter Dropdown (State-based browse)
+
+**Location:** Second dropdown in filter bar. Default label: "- Select Menu -". Has an internal search box when open.
+
+**Steps:**
+1. Click "- Select Menu -" dropdown
+2. Type `Montana` in the in-dropdown search field
+3. Select **"Montana Service Areas"** from results
+4. Page reloads as **"Menus: Items (Montana Service Areas)"** showing 1 row
+
+**All available Search Tools filter dropdowns** (revealed by clicking "Search Tools" button):
+- **- Select Status -** (dropdown) — filters by Published/Unpublished/Trashed/All
+- **- Select Access -** (dropdown) — Public, Registered, Special, etc.
+- **- Select Language -** (dropdown) — All, English, etc.
+- **- Select Max Levels -** (dropdown) — depth level filter
+- **- Select Parent Menu Item -** (dropdown) — filter by parent in menu tree
+
+**Note on menu naming convention:** State-level menus are named `[State] Service Areas` or `[State] Service Locations` (e.g., "Montana Service Areas", "Texas Service Locations", "Alabama Service Locations"). City pages live as direct children of the state menu, with Parent Item = Menu Item Root.
+
+**Alias naming convention confirmed:** `[city]-[2-letter state code]` → e.g., `billings-mt`, `san-antonio-itad` (service-specific variant), `mail-in-recycling-services-in-north-las-vegas-sts-electronic-recycling`.
+
+---
+
+## STEP 2 — MENU ITEM: DETAILS TAB
+
+**Direct URL to edit this item:**
+```
+/administrator/index.php?option=com_menus&task=item.edit&id=970
+```
+Page title: **"Menus: Edit Item"**
+
+### Header Fields (always visible, above tabs)
+
+| Label | Field Type | Current Value | Notes |
+|---|---|---|---|
+| Menu Title * | text input | `Billings, MT` | Required field |
+| Alias | text input | `billings-mt` | Auto-generated from title; URL slug |
+
+### Tabs (in order, left to right)
+**Details** | Options | Link Type | Page Display | Metadata | Mootools enable/disable | Helix Mega Menu Options | Helix Page Title | Module Assignment
+
+---
+
+### Details Tab Fields (left column)
+
+| Label | Field Type | Current Value | Notes |
+|---|---|---|---|
+| Menu Item Type * | read-only text + "Select" button | `Single Article` | Blue "≡ Select" button opens type picker modal |
+| Select Article * | read-only text + "Edit" + "Clear" | `Free Computer, PC, Laptc...` (truncated) | Full: "Free Computer, PC, Laptop and Electronics Recycling, Billings, MT". Edit = opens Edit Article MODAL. Article ID = 107. |
+| Link | read-only text input (gray bg) | `index.php?option=com_content&view=article&id=107` | Auto-generated. Not editable. |
+| Target Window | dropdown | `Parent` | Options: Parent, New Window With Navigation, New Window Without Navigation |
+| **Template Style** | **dropdown** | **`- Use Default -`** | See full list below |
+
+### Details Tab Fields (right column)
+
+| Label | Field Type | Current Value | Notes |
+|---|---|---|---|
+| Menu * | dropdown | `Montana Service Areas` | Determines which state menu this belongs to |
+| Parent Item | dropdown | `Menu Item Root` | For city pages = always Root (flat structure, no nesting) |
+| Ordering | dropdown | `Billings, MT` | Shows current position; used to reorder |
+| Status | dropdown/toggle (colored) | `Published` (green) | Options: Published, Unpublished, Trashed |
+| Default Page | Yes/No toggle | `No` (red) | Whether this is the site homepage |
+| Access | dropdown | `Public` | Controls who can view |
+| Language | dropdown | `All` | |
+| Note | textarea | (empty) | Internal note |
+
+### Template Style Dropdown — Full Option List
+*(Field label: "Template Style", Location: Details tab, left col, 4th field)*
+- `- Use Default -` ← **current value for Billings, MT**
+- **at_corporation** (group header)
+  - -----------(cls fix)
+  - at_corporation - Default
+  - at_corporation - Default (2)
+  - at_corporation - Default (3)
+  - **CLEAN TOP 2026** ← ✅ confirmed present
+  - GRID: LOGO TOP LEFT (idea)
+  - NEW template GRID
+  - TOP LOGO 2026
+  - frontend - Default
+- **lt_stable** (group header)
+  - lt_stable - Default
+- **os-basetemplate** (group header)
+  - os-basetemplate - Default
+- **protostar** (group header)
+  - protostar - Default
+- **shaper_xeon** (group header)
+  - shaper_xeon - Default
+- **wbAMP** (group header)
+  - wbAMP - Default
+
+> ⚠️ **GOTCHA:** "CLEAN TOP 2026" is listed under the `at_corporation` template family. It is a **style** of at_corporation, not a separate template. The dropdown uses a searchable select2-style control with an internal type-filter box.
+
+---
+
+## STEP 3 — OPTIONS TAB: "SHOW TITLE"
+
+**Tab:** Options (2nd tab)
+
+| Label | Field Type | Location | Current Value | All Possible Values |
+|---|---|---|---|---|
+| **Show Title** | dropdown | Options tab, 1st field | `Use Global (Show)` | Use Global (Show) / Show / Hide |
+
+**All fields in Options tab** (all dropdowns, all currently "Use Global (...)"):
+Show Title, Linked Titles, Show Intro Text, Position of Article Info, Article Info Title, Show Category, Link Category, Show Parent, Link Parent, Show Associations, Show Author, Link Author, Show Create Date, Show Modify Date, Show Publish Date, Show Navigation, Show Voting, Show Icons, Show Print, Show Email, Show Hits, Show Tags, Show Unauthorised Links, Positioning of the Links
+
+---
+
+## STEP 4 — BROWSER PAGE TITLE
+
+**Tab:** Page Display (4th tab)
+
+| Label | Field Type | Location | Current Value | Notes |
+|---|---|---|---|---|
+| **Browser Page Title** | single-line text input | Page Display tab, 1st field | **(EMPTY)** | When empty, Joomla falls back to article title + site name |
+
+**⚠️ CRITICAL FINDING:** The "Browser Page Title" field in the Page Display tab is **EMPTY** for Billings, MT. Yet the live `<title>` tag reads: `"Billings Electronics Recycling | STS Electronic Recycling"`. This title is NOT set here. It appears to be generated by the **Helix template's SEO/title plugin** (separate from this field). The actual short SEO title for city pages is likely controlled by an SEO plugin (e.g., OSMeta, sh404SEF) or the template — **the human workflow for setting the page title must involve a step not visible in these standard tabs**.
+
+**Other Page Display tab fields:**
+
+| Label | Field Type | Current Value |
+|---|---|---|
+| Show Page Heading | dropdown | `Use Global (No)` |
+| Page Heading | text input | (empty) |
+| Page Class | text input | (empty) |
+
+---
+
+## STEP 5 — METADATA TAB (Menu Item Level)
+
+**Tab:** Metadata (5th tab)
+
+| Label | Field Type | Size/Limit | Current Value |
+|---|---|---|---|
+| **Meta Description** | textarea (resizable) | No character counter visible | **(EMPTY)** |
+| **Meta Keywords** | textarea (resizable) | No character counter visible | **(EMPTY)** |
+| Robots | dropdown | — | Use Global |
+| Secure | dropdown | — | Ignore |
+| Canonical URL | text input with "Auto" button | — | (empty / Auto mode) |
+
+> ⚠️ **CRITICAL FINDING:** The menu item Metadata tab is blank for Billings, MT. The **actual meta description lives in the Article's Publishing tab** (see Step 8/Publishing). Live meta description: *"Electronics Recycling in Billings Montana. Free, Secure Computer, PC, Laptop and Electronics Recycling Service, Billings, Mt, Montana Computer Recycling Service."*
+
+---
+
+## STEP 6 — TOOLBAR SAVE CONTROLS (Menu Item Editor)
+
+**Location:** Horizontal toolbar, top of page, below Joomla admin header bar.
+
+| Button | Position (L→R) | Icon | Action |
+|---|---|---|---|
+| **Save** | 1st (green) | pencil/floppy | `article.apply` — saves and stays on same form |
+| **Save & Close** | 2nd | checkmark | `article.save` — saves and returns to list |
+| **Save & New** | 3rd | plus sign | `article.save2new` — saves and opens blank new item |
+| **Save as Copy** | 4th | copy pages icon | `article.save2copy` — duplicates the item |
+| **Close** | 5th | red ✗ | `article.cancel` — discards changes, returns to list |
+| Help | far right | ? circle | Opens Joomla help popup |
+
+> ⚠️ **DO NOT CLICK Save, Save & Close, Save & New, Save as Copy** on production.
+
+---
+
+## STEP 7 — "EDIT ARTICLE" LINK (How to Reach Article Editor from Menu Item)
+
+**Location:** Details tab, "Select Article" row. Next to the article name text box are two buttons: **"✎ Edit"** and **"✗ Clear"**.
+
+**What happens when "Edit" is clicked:** A Joomla **modal dialog** overlays the page (not a new browser tab). The modal is titled **"Edit Article"** and is a full iframe rendering of the article editor. The modal darkens the parent menu-item form behind it.
+
+**Modal toolbar (bottom of modal):** Close | Save & Close | Save
+
+**Automation note:** The modal is technically an iframe. Clicking "Edit" fires Joomla's Bootstrap modal. The article can also be accessed directly (without the modal) via:
+```
+/administrator/index.php?option=com_content&task=article.edit&id=107
+```
+The direct URL is better for automation as it avoids iframe complexity.
+
+---
+
+## STEP 8 — ARTICLE EDITOR (Full-page view)
+
+**Direct URL:**
+```
+/administrator/index.php?option=com_content&task=article.edit&id=107
+```
+Page title: **"Articles: Edit"**
+
+### Article Header Fields
+
+| Label | Field Type | Current Value |
+|---|---|---|
+| Title * | text input | `Free Computer, PC, Laptop and Electronics Recycling, Billings, MT` |
+| Alias | text input | `billings` ← ⚠️ Note: article alias ≠ menu alias! |
+
+### Article Editor Tabs (in order)
+**Content** | Images and Links | Options | **Google Structured Data** | ✖ Helix Blog Options | Publishing | Configure Edit Screen | Permissions
+
+### Content Tab — Editor Type
+
+**Editor toggle buttons** (two-button group, top of editing area):
+- **"Joomla Editor"** (currently active/selected = dark background)
+- **"SP Page Builder"** (alternative visual builder)
+
+**Editor type when "Joomla Editor" is selected:** Plain `<textarea>` — Joomla's "No Editor" setting is active. The textarea ID is `#jform_articletext`, name `jform[articletext]`, parent class `js-editor-none`. **There is no TinyMCE, JCE, or CodeMirror.** Raw HTML is entered directly into the textarea.
+
+**Content preview (existing HTML structure):**
+```html
+<br> {loadposition imageblock}
+<br>
+<p style="color:#444444">STS Electronic Recycling offers safe secure...
+<br> {loadposition Flowchart}
+<h1 style="color:#444444">What types of electronic equipment...
+<table style="width:100%">...
+```
+
+**Key observations:**
+- `{loadposition imageblock}` and `{loadposition Flowchart}` are Joomla module position shortcodes
+- Inline styles used extensively: `style="color:#444444"`
+- Content length: ~5,735 characters
+
+**Editor insert toolbar** (below textarea, full row of buttons):
+Helix Shortcodes | JSN UniForm | Code | Module | Menu | Contact | Article | Image | Page Break | Read More
+
+**Right sidebar fields:**
+
+| Label | Field Type | Current Value |
+|---|---|---|
+| Status | dropdown/toggle | Published (green) |
+| Category * | dropdown | Areas of Service |
+| Featured | Yes/No toggle | No |
+| Access | dropdown | Public |
+| Language | dropdown | All |
+| Tags | tag input | (empty) |
+| Note | text input | (empty) |
+| Version Note | text input | (empty) |
+
+### Article Save Toolbar
+
+| Button | Position | Action |
+|---|---|---|
+| **Save** | 1st (green) | Saves, stays on form |
+| **Save & Close** | 2nd | Saves, returns to article list |
+| **Save & New** | 3rd | Saves, opens new article form |
+| **Save as Copy** | 4th | Duplicates article |
+| **Versions** | 5th | Opens version history modal |
+| **Close** | 6th (red ✗) | Discards, returns to list |
+
+---
+
+## STEP 9 — ARTICLE OPTIONS TAB: SHOW TITLE
+
+**Tab:** Options (3rd article tab)
+
+| Label | Field Type | Current Value | Options |
+|---|---|---|---|
+| Layout | dropdown | Use Global | — |
+| **Show Title** | dropdown | `Use Global (Show)` | Use Global (Show) / Show / Hide |
+| Linked Titles | dropdown | Use Global (No) | — |
+| Show Tags | dropdown | Use Global (Hide) | — |
+| Show Intro Text | dropdown | Use Global (Show) | — |
+| …and more | dropdown | Use Global (…) | (mirrors Menu Item Options tab) |
+
+---
+
+## STEP 10 — GOOGLE STRUCTURED DATA TAB
+
+**Tab:** Google Structured Data (4th article tab)
+
+| Element | Description |
+|---|---|
+| Tab label | "Google Structured Data" |
+| Content when empty | Single green "+ Add Structured Data" button |
+| Content when populated | Would show structured data blocks/entries |
+| Underlying mechanism | When "+ Add Structured Data" is clicked, it opens a **#gsdModal** — an iframe-based modal |
+| Save buttons in modal | `document.querySelector('#gsdModal iframe').content` — Save & Close, Save |
+
+**⚠️ CRITICAL:** The Google Structured Data tab uses a **nested iframe modal** (#gsdModal). For Billings MT, this tab is currently **empty** — no structured data entries exist. The live page DOES have JSON-LD (Organization, BreadcrumbList, Article schemas) — these appear to come from a separate Joomla plugin/extension, not from this tab.
+
+**Where JSON-LD schema would paste:** When "+ Add Structured Data" is clicked, a modal opens allowing schema entry. This is NOT a raw JSON-LD textarea — it appears to be a structured form. For pasting raw `<script type="application/ld+json">` blocks, you may need to find an alternative (e.g., article custom fields, template header injection, or a different plugin).
+
+---
+
+## STEP 11 — ARTICLE PUBLISHING TAB (Meta Description lives here)
+
+**Tab:** Publishing (6th article tab)
+
+**Left column:**
+
+| Label | Field Type | Current Value |
+|---|---|---|
+| Start Publishing | date/time + calendar picker | `2018-02-28 17:20:17` |
+| Finish Publishing | date/time + calendar picker | (empty) |
+| Created Date | date/time + calendar picker | `2011-04-20 19:30:06` |
+| Created By | text + person-picker button | Brad Guidry |
+| Created by Alias | text input | (empty) |
+| Modified Date | read-only | `2018-02-26 23:44:55` |
+| Modified By | read-only | Josh Crow |
+| Revision | read-only | 3 |
+| Hits | read-only | 14714 |
+
+**Right column — SEO FIELDS:**
+
+| Label | Field Type | Current Value |
+|---|---|---|
+| **Meta Description** | textarea (resizable) | `Free, Secure Computer, PC, Laptop and Electronics Recycling Service, Billings, Mt,` |
+| **Meta Keywords** | textarea (resizable) | (empty) |
+| Key Reference | text input | (empty) |
+| Robots | dropdown | Use Global |
+| Author | text input | (empty) |
+| Content Rights | textarea | (empty) |
+| External Reference | text input | (empty) |
+| Canonical URL | text input + "Auto" button | (Auto) |
+
+> ⚠️ **THIS IS WHERE META DESCRIPTION IS ACTUALLY STORED.** The live page meta description ("Electronics Recycling in Billings Montana. Free, Secure Computer, PC, Laptop...") is the article-level Meta Description from this Publishing tab. The menu item's Metadata tab is unused/empty for all city pages observed.
+
+---
+
+## STEP 12 — CACHE MANAGEMENT
+
+**URL:**
+```
+https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_cache
+```
+**Page title:** "Maintenance: Clear Cache (Site)"
+
+**Navigation paths to reach it:**
+- Top nav: **System → Clear Cache**
+- Left sidebar: "Clear Cache" (active) or "Clear Expired Cache"
+
+**Toolbar buttons:**
+
+| Button | Position | Description |
+|---|---|---|
+| **Delete** (✗) | 1st | Deletes SELECTED cache group rows (checkbox required) |
+| **Delete All** (✗) | 2nd | Deletes ALL cache groups — this is the "nuke all" button |
+| Options | far right | Cache settings |
+
+**Cache groups listed (current):**
+
+| Cache Group | Files | Size |
+|---|---|---|
+| advportfoliopro | 12 | 1.55 MB |
+| joomsef | 1 | 30.00 b |
+| page | 265 | **28.43 MB** ← primary page cache |
+
+**Per-group deletion:** Check the row checkbox, then click "Delete".
+
+**Full site clear:** Click "Delete All" (no row selection needed).
+
+> ⚠️ **DO NOT CLICK Delete or Delete All** on production without authorization. The `page` group at 28.43 MB contains cached HTML for ~265 pages.
+
+---
+
+## STEP 13 — LIVE PAGE VERIFICATION
+
+**URL pattern:** `https://www.stselectronicrecyclinginc.com/[alias]`
+
+For Billings: `https://www.stselectronicrecyclinginc.com/billings-mt`
+
+After saving article + menu item changes, navigate to this URL in a new tab. Hard-refresh (Cmd+Shift+R / Ctrl+Shift+R) if a cached version appears.
+
+---
+
+## STEP 14 — ADMIN LOGIN & MENU STRUCTURE
+
+**Login URL:** `https://www.stselectronicrecyclinginc.com/administrator/`
+
+**Top navigation bar items (left to right):**
+
+| Menu | Key sub-items |
+|---|---|
+| **System** | Control Panel, Global Configuration, Global Check-in, **Clear Cache**, Clear Expired Cache, System Information |
+| **Users** | Users, Groups, Access Levels, Notes, Note Categories, Mass Mail |
+| **Menus** | Manage, All Menu Items, then every named menu (50+ listed by state/category) |
+| **Content** | Articles, Featured Articles, Categories, Media, Fields, Field Groups |
+| **Components** | Various (Contacts, Banners, etc.) |
+| **Extensions** | Manage, Modules, Plugins, Templates → **Styles** / Templates, Language(s) |
+| **Help** | — |
+| **SP Page Builder** | — (third-party visual builder) |
+
+**Bottom status bar:** View Site | Visitor count | Administrators count | Messages | Log out | Joomla version
+
+**Joomla version:** 3.9.26
+
+---
+
+## STEP 15 — NAMING CONVENTIONS & MENU TREE
+
+**State menus:** Named `[State] Service Areas` or `[State] Service Locations`.
+**City pages within state menus:** Direct children (Parent Item = Menu Item Root).
+**Menu item alias:** `[city]-[2-letter-state]` → `billings-mt`, `phoenix-az`, etc.
+**Article alias:** Typically just the city name → `billings` (NOT `billings-mt`).
+
+> ⚠️ **Menu alias ≠ Article alias.** The URL `/billings-mt` comes from the MENU ITEM alias, not the article alias. The article alias `billings` would produce `/billings` if accessed directly by Joomla's article routing, but the menu item route takes precedence and generates `/billings-mt`.
+
+**Creating a NEW city page workflow (not performed — documentation only):**
+1. Create a new Article: Content → Articles → New; set Title, Alias (city only), Category = "Areas of Service"; paste HTML content; set Meta Description in Publishing tab; Save.
+2. Create a new Menu Item: Menus → [State] Service Areas → New; set Menu Title (City, ST), Alias (city-st), Menu Item Type = Single Article, Select Article (link to new article), Template Style (CLEAN TOP 2026 or default), Status = Published; then set tabs; Save.
+
+**Editing an EXISTING page:** Find via search or state-filter, open menu item for meta/page settings, use "Edit" button to open article editor.
+
+---
+
+## STEP 16 — IMAGE URL FORMAT (Root-Relative vs Absolute)
+
+**Observed on live /billings-mt page source:**
+
+```
+/images/STS_logo_full_horz_green_cmyk.jpg             ← root-relative (no domain)
+/images/Industries-We-Serve-2.png                     ← root-relative
+https://www.stselectronicrecyclinginc.com/images/...  ← absolute
+```
+
+**In article HTML content:** Links use relative paths WITHOUT a leading slash:
+```html
+href="97-recyclable-electronics/317-computer-recycling"
+```
+(Joomla SEF routing resolves these from the site root.)
+
+**Verdict:** Root-relative paths (`/images/...`) **DO work** — Joomla does not break them. Both `/images/...` and `https://www.stselectronicrecyclinginc.com/images/...` are valid. However, for automating image URLs in the HTML content body, using the absolute `https://www.stselectronicrecyclinginc.com/images/[path]` is safest for portability and to avoid any CDN/multisite edge cases.
+
+---
+
+## STEP 17 — ADDITIONAL AUTOMATION KNOWLEDGE
+
+1. **Article ID is critical.** The menu item references the article by ID (`&id=107`). When automating a new page, you must first create the article, capture its ID, then create the menu item referencing that ID.
+
+2. **Two separate "Meta Description" fields exist.** There is one in the Menu Item → Metadata tab (empty, unused) AND one in the Article → Publishing tab (populated, used). The live `<meta name="description">` comes from the **article-level** field. Always write to the article Publishing tab.
+
+3. **The `<title>` tag is not set via "Browser Page Title."** For Billings, the Browser Page Title field is empty, yet the `<title>` is "Billings Electronics Recycling | STS Electronic Recycling". This custom title is being set elsewhere — likely by a Joomla SEO plugin (sh404SEF, OSMeta, or similar) or the Helix template. An automation must account for this; simply filling "Browser Page Title" in the Page Display tab may not be sufficient.
+
+4. **Session check-in:** If a menu item or article is opened but not saved/closed cleanly, Joomla marks it as checked out (lock icon appears in list). Another editor cannot open it. Automation must always Close or Save & Close properly.
+
+5. **The article editor is a plain textarea (editor=none).** HTML is entered/replaced directly. No WYSIWYG intermediary. The textarea ID is `#jform_articletext`. An automation can directly set `document.querySelector('#jform_articletext').value = '[html string]'` — but must also trigger the change event for Joomla's form validation to recognize the update.
+
+6. **Template Style `- Use Default -`** means the system default template is applied. For city pages, this appears to be the intended state. If "CLEAN TOP 2026" needs to be assigned explicitly, the select control uses a searchable dropdown (likely Select2 or Chosen) that requires a click + type sequence, not a simple `<select>` value change.
+
+7. **Module positions in content.** The article uses `{loadposition imageblock}` and `{loadposition Flowchart}` — these are Joomla module position shortcodes. They are NOT in the textarea; they ARE in the article content. The modules assigned to these positions are managed separately under Extensions → Modules.
+
+8. **Joomla version is 3.9.26** — this is end-of-life Joomla 3.x. The admin interface differs significantly from Joomla 4/5. All selectors and workflows documented here are specific to J3.
+
+9. **`advportfoliopro` cache group** (1.55 MB) is also in cache — this appears to be a portfolio/testimonials plugin. Clearing only the `page` group may be sufficient for city page updates.
+
+10. **GSD (Google Structured Data) uses an iframe modal.** The `#gsdModal` iframe complicates automation. Selectors inside the modal must be accessed through the iframe document context, not the parent document.
+
+---
+
+## PART 1 vs PART 2 SPLIT
+
+### PART 1 — Page/Meta Setup (Menu Item screens)
+**Can be completed BEFORE the HTML content file exists? YES**, with one caveat: the Menu Item's "Select Article" field requires an article to exist first (you need the article ID). But the article can be created as a stub (empty content + title/alias/meta) to get the ID, then Part 1 can proceed, and Part 2 fills in the HTML content.
+
+**Part 1 steps:**
+- Step 1: Locate/search the menu item
+- Step 2: Open menu item → Details tab (Menu Item Type, Select Article, Template Style)
+- Step 3: Options tab (Show Title)
+- Step 4: Page Display tab (Browser Page Title — NOTE: see Gotcha #3)
+- Step 5: Metadata tab (Menu item meta — currently unused; skip)
+- Step 6: Save (Menu Item) — toolbar
+
+### PART 2 — HTML + Schema + Content (Article editor)
+**Requires the HTML content file to exist before execution.**
+
+**Part 2 steps:**
+- Step 7: Open article editor via "Edit" button or direct URL
+- Step 8: Content tab — paste/replace HTML in textarea (`#jform_articletext`)
+- Step 9: Article Options tab (Show Title)
+- Step 10: Google Structured Data tab (click "+ Add Structured Data", handle iframe modal)
+- Step 11: Article Publishing tab — set Meta Description (THIS is where live meta description lives)
+- Step 11b: Save article
+
+### PART 3 — Cache & Verify
+- Step 12: Clear cache (`com_cache` → Delete All or select `page` group → Delete)
+- Step 13: Visit `https://www.stselectronicrecyclinginc.com/billings-mt` to verify
+
+**Recommended split point:** After stub article creation → Part 1 completes menu item setup → HTML file arrives → Part 2 fills article content + meta → Part 3 cache + verify.
+
+---
+
+## GOTCHAS (Fragile/Non-Obvious for Automation)
+
+| # | Gotcha | Impact |
+|---|---|---|
+| G1 | **`<title>` tag NOT controlled by "Browser Page Title" field** (empty for Billings; title comes from unknown plugin/template) | High — need to identify and automate the correct SEO title field |
+| G2 | **Meta description lives in ARTICLE Publishing tab**, not Menu Item Metadata tab | High — writing to menu item meta does nothing on live page |
+| G3 | **"Edit Article" opens a modal/iframe**, not a new page | Medium — automation must switch to iframe context; better to use direct article URL |
+| G4 | **Template Style dropdown is a searchable Select2 control** — not a plain `<select>` | Medium — requires click + type + select sequence |
+| G5 | **Google Structured Data uses a nested iframe (#gsdModal)** | Medium — double iframe context for schema entry |
+| G6 | **Menu alias ≠ Article alias** (billings-mt vs billings) | Medium — don't confuse the two when constructing URLs |
+| G7 | **Article editor is "No Editor" (plain textarea)**, not TinyMCE/JCE | Medium — setting value via JS must trigger change event for form validation |
+| G8 | **Check-out lock icon** — if session crashes mid-edit, item locks; need Global Check-in before retry | Medium |
+| G9 | **Cache `page` group = 28 MB** — clearing it may cause a brief site slowdown as pages re-cache | Low |
+| G10 | **Joomla 3.9.26 is EOL** — JS/CSS selectors and form structure differ from J4/J5 | Background context |
+| G11 | **New article requires creating article FIRST to get ID**, then linking from menu item | Process order matters |
+| G12 | **Module position shortcodes** `{loadposition imageblock}` etc. must be preserved in content HTML | Content integrity |
+| G13 | **State menu dropdown in menu items list has an in-dropdown search box** — automation must type inside the dropdown, not the main search box | Selector precision |
+
+---
+
+## FIELD MAP TABLE
+
+| Workflow Step | Joomla Screen | Exact Control Label | Control Type | Selector / Locator Hint |
+|---|---|---|---|---|
+| Find by city name | Menu Items list | Search | text input | `#adminForm input[name="search"]` or `input[placeholder="Search"]` |
+| Filter by state | Menu Items list | - Select Menu - | searchable dropdown | 2nd `select` or `div.chzn-container` in filter bar |
+| Search Tools expand | Menu Items list | Search Tools | button | `button:contains('Search Tools')` |
+| Filter by parent | Menu Items list | - Select Parent Menu Item - | dropdown | 5th filter control in expanded Search Tools |
+| Open menu item | Menu Items list | Title (link) | anchor | `a[href*='task=item.edit&id=970']` |
+| Menu Title | Menu: Edit Item | Menu Title * | text input | `#jform_title` |
+| Alias | Menu: Edit Item | Alias | text input | `#jform_alias` |
+| Details tab | Menu: Edit Item | Details | tab link | `a[href='#details']` or first tab |
+| Template Style | Menu: Edit Item > Details | Template Style | searchable dropdown | `#jform_template_style_id` (may be Select2) |
+| Menu (right col) | Menu: Edit Item > Details | Menu * | dropdown | `#jform_menutype` |
+| Status | Menu: Edit Item > Details | Status | dropdown | `#jform_published` |
+| Options tab | Menu: Edit Item | Options | tab link | `a[href='#attrib-com_content']` |
+| Show Title (menu) | Menu: Edit Item > Options | Show Title | dropdown | `#jform_params_show_title` |
+| Page Display tab | Menu: Edit Item | Page Display | tab link | `a[href='#attrib-page-options']` |
+| Browser Page Title | Menu: Edit Item > Page Display | Browser Page Title | text input | `#jform_params_page_title` |
+| Metadata tab | Menu: Edit Item | Metadata | tab link | `a[href='#attrib-metadata']` |
+| Menu Meta Description | Menu: Edit Item > Metadata | Meta Description | textarea | `#jform_params_menu-meta_description` (inspect to confirm) |
+| Save (menu item) | Menu: Edit Item | Save | button | `Joomla.submitbutton('item.apply')` |
+| Edit Article button | Menu: Edit Item > Details | Edit (next to Select Article) | button | Button adjacent to `#jform_request_id` display |
+| Article editor direct | Articles: Edit | — | page | `/administrator/index.php?option=com_content&task=article.edit&id=107` |
+| Article Title | Articles: Edit | Title * | text input | `#jform_title` |
+| Article Alias | Articles: Edit | Alias | text input | `#jform_alias` |
+| Content tab | Articles: Edit | Content | first article tab | `a[href='#editor']` or first tab |
+| HTML textarea | Articles: Edit > Content | (editor area) | textarea | `#jform_articletext` (parent class: `.js-editor-none`) |
+| Article Options tab | Articles: Edit | Options | tab link | `a[href='#attrib-com_content']` |
+| Show Title (article) | Articles: Edit > Options | Show Title | dropdown | `#jform_attribs_show_title` |
+| Google Structured Data tab | Articles: Edit | Google Structured Data | tab link | `a[href='#attrib-gsd']` or similar |
+| Add Structured Data | Articles: Edit > GSD | + Add Structured Data | button | `.btn-success` in GSD tab; opens `#gsdModal` iframe |
+| Publishing tab | Articles: Edit | Publishing | tab link | `a[href='#publishing']` |
+| Article Meta Description | Articles: Edit > Publishing | Meta Description | textarea | `#jform_metadesc` |
+| Article Meta Keywords | Articles: Edit > Publishing | Meta Keywords | textarea | `#jform_metakey` |
+| Save (article) | Articles: Edit | Save | button | `Joomla.submitbutton('article.apply')` |
+| Save & Close (article) | Articles: Edit | Save & Close | button | `Joomla.submitbutton('article.save')` |
+| Cache page | Clear Cache | — | page | `/administrator/index.php?option=com_cache` |
+| Delete All cache | Clear Cache | Delete All | button | `button.btn[onclick*='deleteAll']` or toolbar btn 2 |
+| Delete selected cache | Clear Cache | Delete | button | toolbar btn 1 (requires row checkbox selected first) |
+| Verify live page | browser | — | navigation | `https://www.stselectronicrecyclinginc.com/billings-mt` |
+
+---
+
+*End of report. All observations are read-only; no data was modified. Joomla 3.9.26, at_corporation/Helix template, site: stselectronicrecyclinginc.com, researched 2026-06-20.*

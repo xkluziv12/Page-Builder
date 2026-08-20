@@ -1,0 +1,55 @@
+This audit confirms that the site architecture deviates significantly from your initial assumptions. **Divi is not present**; the site relies on **Beaver Builder** and **Beaver Themer**.
+
+---
+
+### PHASE A — META SETUP (Correction)
+
+* **A1 (Path):** Navigate to **Pages** > **All Pages**.
+* **A2 (Template):** Pages are often built using **Beaver Themer Layouts** for global headers/footers. Individual service pages utilize **Beaver Builder Templates** found in **Beaver Builder** > **Templates**.
+* **A3 (Slug):** Set in the WordPress "Permalink" field within the page editor (top right "Summary" or "Page" sidebar). Convention: `/service-name-city/`.
+* **A4 (Hide Title):** Controlled via **Beaver Builder** settings or CSS visibility in **Beaver Themer** templates, *not* a toggle in standard Divi settings.
+* **A5 (Yoast):** Yoast is fully integrated. The VA fills: **SEO Title**, **Slug**, and **Meta Description** in the Yoast SEO meta box (bottom of the editor). Yoast controls the `<title>` and `meta` tags.
+
+### PHASE B — CONTENT / HTML (Correction)
+
+* **B1 (Method):** Use the **Beaver Builder "HTML" module** (drag and drop) to paste generated code. Do NOT look for Divi modules.
+* **B2 (CSS):** Inline CSS is generally respected, but ensure your HTML uses a wrapper `div` with a unique ID (e.g., `<div id="tc-content-wrapper">`) to prevent theme CSS conflicts.
+* **B3 (Clearing):** Launch the **Beaver Builder** editor, delete existing rows/modules, and drag in the "HTML" module.
+
+### SCHEMA (Correction)
+
+* **S1/S2:** Yoast emits base `@graph` (Organization, WebPage, Breadcrumb).
+* **S3 (Verdict):** **SLIM TO GAPS.** Only inject `FAQPage` or specific `Service` schema if Yoast's automated output is insufficient. Do not duplicate basic `WebPage` data.
+
+### PHASE D — IMAGES (Correction)
+
+* **D1/D2:** Upload images to the **Media Library** first. URL pattern: `/wp-content/uploads/YYYY/MM/...`.
+* **D3 (Featured):** Set in the **Page** sidebar under the "Featured Image" panel. Always enter Alt text in the "Alternative Text" field of the Media Library attachment details.
+
+### PHASE C — CACHE & VERIFY (Correction)
+
+* **C1 (Cache):** Clear via **WP Rocket** menu in the top admin toolbar: **Clear Cache**. Cloudflare usually handles itself, but if forced, use the Cloudflare dashboard.
+* **C2 (Publish):** Click **Update** (or **Publish**) in the top-right corner of the editor.
+* **C3 (Verify):** Preview on mobile/desktop via browser resize; check that the specific service content loaded.
+* **C4 (Footer):** Global site info is controlled via **Beaver Themer**, not individual pages.
+
+---
+
+### ADMIN URL CHEAT-SHEET
+
+* **All Pages:** `https://technocycle.com/wp-admin/edit.php?post_type=page`
+* **Add New Page:** `https://technocycle.com/wp-admin/post-new.php?post_type=page`
+* **Media Library:** `https://technocycle.com/wp-admin/upload.php`
+* **Yoast Settings:** `https://technocycle.com/wp-admin/admin.php?page=wpseo_dashboard`
+* **WP Rocket:** `https://technocycle.com/wp-admin/options-general.php?page=wprocket`
+
+---
+
+### VERDICT
+
+(1) **Standardize on:** Beaver Builder "HTML" module.
+(2) **Meta:** Continue using the Yoast SEO meta box for all page-level SEO data.
+(3) **Schema:** Slim to gaps; only inject FAQ/Service JSON-LD that Yoast doesn't natively generate.
+(4) **Surprise:** The total absence of Divi. The site relies entirely on the Beaver Builder/Themer stack, which changes the module selection and template management paths completely.
+
+Would you like me to draft a one-page "cheat sheet" PDF or text summary for your VAs based on these corrected steps?

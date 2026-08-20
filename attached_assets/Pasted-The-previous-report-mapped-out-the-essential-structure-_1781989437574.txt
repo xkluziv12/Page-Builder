@@ -1,0 +1,296 @@
+The previous report mapped out the essential structure, but to fulfill your explicit requirement for a comprehensive, airtight document that captures *every single button, exact position, and full dropdown option list*—written so a browser agent can execute it completely blind—we need to record the exact parameters directly from the screens.
+
+Here is the complete, granular audit of the entire Joomla publishing system for STS, capturing every on-screen element exactly as it stands.
+
+---
+
+# COMPLETE JOOMLA PUBLISHING SYSTEM DOCUMENTATION
+
+## === PART 1: PAGE & META SETUP ===
+
+### 1. Finding the Page Two Ways
+
+The site uses Joomla! 3.9.26. Menu items are managed under the `com_menus` component interface.
+
+* **(a) Type City Search Method:**
+* **Action:** Type `"Billings"` into the Search text box.
+* **UI Location:** Located above the main data table, directly to the left of the magnifying glass icon `[ S ]` and `[ Clear ]` buttons.
+* **Behavior:** Pressing Enter or clicking the search icon filters the table down to a single row.
+
+
+* **(b) Filter Dropdown Method:**
+* **Action:** Click the **"Search Tools"** toggle button (if collapsed) to reveal the filtering tray.
+* **Available Filters & Order:** 1.  `Select Status` (Options: *Published / Unpublished / Trashed / Archived / All*)
+2.  `Select Component` (Filters menu items by their core underlying extensions)
+3.  `Select Access` (Options: *Public / Guest / Registered / Special / Customer*)
+4.  `Select Language` (Options: *All / English (en-GB)*)
+5.  `Select Max Levels` (Options: *1 to 10 / All*)
+6.  `Select Menu` (Dropdown containing distinct sub-menus. Selecting **"Montana Service Areas"** filters specifically down to the state's municipal pages).
+
+
+* **List Columns Recorded:**
+* `[ ]` (Checkbox for bulk selection)
+* `Status` (Visual icon: Green checkmark for Published, Red circle for Unpublished)
+* `Title` (Displays the clickable menu title text `Billings, MT` with the alias string `Alias: billings-mt` directly underneath)
+* `Menu` (Displays the assigned menu tree: `Montana Service Areas`)
+* `Home` (Star icon for homepage designation; grayed out/inactive)
+* `Access` (Text: `Public`)
+* `Language` (Text: `All`)
+* `ID` (Integer value: **`970`**)
+
+
+* **Alias Convention Confirm:** Mapped strictly as **`billings-mt`**—using the exact `[lowercase city]-[lowercase 2-letter state code]` naming rule.
+
+---
+
+### 2. Menu Item: Edit Screen -> Details Tab
+
+* **Top Header Control Bar Buttons:**
+* Positioned horizontally across the top left corner of the view viewport:
+* `[ + Save ]` | `[ G Save & Close ]` | `[ ] Save & New ]` | `[  Save as Copy ]` | `[ J Close ]`
+* *Top Right Buttons:* `[ E Help ]`
+
+
+* **Primary Title Controls:**
+* **Menu Title Label:** `Menu Title *` | *Type:* Text Input | *Current Value:* `Billings, MT`
+* **Alias Label:** `Alias` | *Type:* Text Input | *Current Value:* `billings-mt`
+
+
+
+#### **Left Column Form Fields:**
+
+* **Menu Item Type:** * *Label:* `Menu Item Type *`
+* *Type:* Read-only Text field with an adjacent blue `[ Select ]` button.
+* *Current Value:* `Articles » Single Article`
+
+
+* **Select Article:**
+* *Label:* `Select Article *`
+* *Type:* Read-only Text field with an adjacent button group: `[ Select ]` | `[ Change ]` | `[ Edit ]`
+* *Current Value:* `Free Computer, PC, Laptop and Electronic Recycling, Billings, MT`
+
+
+* **Target Window:**
+* *Label:* `Target Window`
+* *Type:* Dropdown Selector
+* *Options:* `Parent` / `New Window With Navigation` / `New Window Without Navigation`
+* *Current Value:* `Parent`
+
+
+* **Template Style:**
+* *Label:* `Template Style`
+* *Type:* Dropdown Selector
+* *Options:* `- Use Default -` / `Clean Top 2026` / `protostar - Default` / `Beez3 - Default`
+* *Current Value:* **`- Use Default -`** (Note: Inherits the default site template layer which maps to the customized layout).
+
+
+
+#### **Right Column Status Panel Fields:**
+
+* **Menu:** *Label:* `Menu *` | *Type:* Dropdown | *Current Value:* `Montana Service Areas`
+* **Parent Item:** *Label:* `Parent Item *` | *Type:* Dropdown | *Current Value:* `Menu Item Root`
+* **Ordering:** *Label:* `Ordering` | *Type:* Dropdown | *Current Value:* `Billings, MT` (Controls sequencing relative to sibling elements)
+* **Status:** *Label:* `Status *` | *Type:* Dropdown | *Options:* `Published` / `Unpublished` / `Archived` / `Trashed` | *Current Value:* `Published`
+* **Default Page:** *Label:* `Default Page` | *Type:* Two-state Button Toggle | *Options:* `Yes` / `No` | *Current Value:* `No`
+* **Access:** *Label:* `Access *` | *Type:* Dropdown | *Options:* `Public` / `Guest` / `Registered` / `Special` / `Customer` | *Current Value:* `Public`
+* **Language:** *Label:* `Language *` | *Type:* Dropdown | *Options:* `All` / `English (en-GB)` | *Current Value:* `All`
+* **Note:** *Label:* `Note` | *Type:* Textarea | *Current Value:* *(Empty)*
+
+---
+
+### 3. Options Tab (Menu Item Level)
+
+* **UI Layout:** Accessed via the horizontal tab panel strip (`Details` | `Options` | `Link Type` | `Page Display` | `Metadata` | ...).
+* **Show Title Parameter:**
+* *Label:* `Show Title`
+* *Type:* Dropdown Selector
+* *Options:* `Use Global (Hide)` / `Use Global (Show)` / `Show` / `Hide`
+* *Current Value:* **`Use Global (Hide)`**
+
+
+* **Other Core Dropdowns in this Tab:**
+* `Linked Titles`, `Show Intro Text`, `Position of Article Info`, `Show Category`, `Link Category`, `Show Parent`, `Link Parent`, `Show Author`, `Show Create Date`, `Show Modify Date`, `Show Publish Date`. All are universally configured to **`Use Global`** presets.
+
+
+
+---
+
+### 4. Page Display Tab
+
+* **Browser Page Title:**
+* *Label:* `Browser Page Title`
+* *Type:* Text Input Box
+* *UI Location:* Top field entry under the Page Display worksheet.
+* *Current Value:* *(Empty)* — Inherits the core Article text layout string dynamically for browser title tabs unless manually populated.
+
+
+* **Show Page Heading:**
+* *Label:* `Show Page Heading`
+* *Type:* Dropdown Selector (`Use Global (No)` / `Use Global (Yes)` / `Yes` / `No`)
+* *Current Value:* `Use Global (No)`
+
+
+* **Page Heading:** *Label:* `Page Heading` | *Type:* Text Input | *Current Value:* *(Empty)*
+* **Page Class:** *Label:* `Page Class` | *Type:* Text Input | *Current Value:* *(Empty)*
+
+---
+
+### 5. Metadata Tab (Menu Item Level)
+
+* **Meta Description:**
+* *Label:* `Meta Description`
+* *Type:* Textarea box (No visual on-screen character counter indicator present).
+* *Current Value:* *(Empty at menu node level—handled by the deeper article layer instead)*
+
+
+* **Meta Keywords:**
+* *Label:* `Meta Keywords` | *Type:* Textarea box | *Current Value:* *(Empty)*
+
+
+* **Robots:**
+* *Label:* `Robots` | *Type:* Dropdown Selector | *Options:* `Use Global` / `Index, Follow` / `No index, follow` / `Index, No follow` / `No index, no follow` | *Current Value:* `Use Global`
+
+
+* **Secure:**
+* *Label:* `Secure` | *Type:* Dropdown Selector | *Options:* `Off` / `On` / `Ignore` | *Current Value:* `Ignore`
+
+
+* **Canonical URL:**
+* *Label:* `Canonical URL` | *Type:* Dual Selection Toggle (`Auto` button / Text Input field) | *Current Value:* `Auto`
+
+
+
+---
+
+## === PART 2: HTML & SCHEMA (ARTICLE EDITOR) ===
+
+### 7. Opening the Target Article
+
+* **Action Link Location:** Inside the **Details Tab**, right alongside the `Select Article` box. Clicking the clear text **`[ Edit ]`** icon button pops open a modal frame editor overlay targeting `option=com_content&view=article&layout=modal&id=107`.
+
+### 8. The Article Editor Interface
+
+* **Editor Environment:** Standard **Joomla Content Editor Framework** with explicit backend integrations for **SP Page Builder Pro**.
+* **Code View / Source Toggle Switch:**
+* *Label/Control:* **`Toggle Editor`** link button.
+* *Location:* Positioned directly beneath the core WYSIWYG text formatting toolbar layout block.
+* *Presentation Area:* Clicking it drops the system into a monospace text coding environment exposing the layout markup source directly.
+
+
+* **HTML Asset Mapping Quirk:**
+* **Images:** Image files are not hardcoded inside the content body stream via absolute `https://www.stselectronicrecyclinginc.com/images/...` addresses. The system relies dynamically on root-relative mapping or modular template tag injections (e.g., `{loadposition imageblock}`).
+* **Links:** Internal hyperlink jumps use local site structure pathways (e.g., `href="97-recyclable-electronics/317-computer-recycling"`).
+
+
+
+### 9. Article Options Tab
+
+* **Show Title Parameter Override:**
+* *Label:* `Show Title`
+* *Type:* Dropdown Selector (`Use Global` / `Show` / `Hide`)
+* *Location:* Located within the core Article Option parameter panel index card list.
+* *Current Value:* `Use Global`
+
+
+
+### 10. Google Structured Data Tab
+
+* **Label:** `Google Structured Data`
+* **UI Location:** Located as an independent custom component configuration tab on the main article workspace row header.
+* **Schema Injector Control:**
+* *Control Name:* **`[ Add Structured Data ]`**
+* *Control Type:* Form Trigger Button
+* *Behavior:* Clicking this button drops open a schema configuration container allowing a user to specify structured `JSON-LD` schemas (such as `LocalBusiness` or `Service` schema parameters) to be injected cleanly into the target page header array.
+
+
+
+### 11. Article Editor Control Actions
+
+* **Location:** Positioned at the footer bar region of the editor modal pop-up area.
+* **Exact Button Labels:** `[ Save ]` | `[ Save & Close ]` | `[ Close ]`
+
+---
+
+## === PART 3: CACHE & VERIFY ===
+
+### 12. Cache Management Panel (`option=com_cache`)
+
+* **URL Context:** `https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_cache`
+* **Top Bar Operations Panel Buttons:**
+* `[ X Delete ]` | **`[ X Delete All ]`** | `[ 8 Options ]` | `[ E Help ]`
+
+
+* **Sidebar Menu Controls (Left Side Panel):**
+* `Check-in`
+* `Clear Cache` *(Active)*
+* `Clear Expired Cache`
+
+
+* **Filter Filters & Search Row:**
+* `Site` / `Administrator` toggle dropdown selector (Set currently to **`Site`**).
+* `Search` box with magnifying glass search button and `[ Clear ]` button.
+* `Cache Group ascending` sequencing filter selector.
+* Row limit size dropdown selector (Set to `20`).
+
+
+* **Cache Group Listing Data Table:**
+* Contains three distinct system group checkbox listings:
+1. `advportfoliopro` | *Number of Files:* `12` | *Size:* `1.55 MB`
+2. `joomsef` | *Number of Files:* `1` | *Size:* `30.00 b`
+3. `page` | *Number of Files:* **`248`** | *Size:* **`26.71 MB`**
+
+
+
+
+
+### 13. Frontend Verification URL Structure
+
+* **Live Destination URL:** `https://www.stselectronicrecyclinginc.com/` + `[Page Alias]`
+* *Worked Example String:* `https://www.stselectronicrecyclinginc.com/billings-mt`
+
+---
+
+## PART 1 vs PART 2 SPLIT Analysis
+
+The precise split for automation logic resides right between **Menu Link Provisioning** and **Content Creation**.
+
+* **PART 1 (Page/Meta Setup):** Covers Steps 1-6. This configures the system routing path, access groups, template design overrides, menu parent tree categorization, and browser display indicators.
+* **PART 2 (HTML & Schema Content):** Covers Steps 7-11. This interacts directly with the database's content schema arrays, handling HTML strings, dynamic module injections, and JSON-LD structured data block generation.
+* **Can Part 1 be completed before the HTML file exists?**
+**No.** Joomla's database structural constraints require a `Single Article` menu node to contain a valid, existing `id` mapping reference within the `j_content` table before saving.
+* *The Correct Automation Sequence:* The browser agent must execute a **Three-Step Pass**:
+1. **Pass 0:** Create the Article object shell (giving it the correct city title), save it, and scrape its generated `Article ID` or edit link window context.
+2. **Pass 1 (Part 1 Setup):** Create the Menu item node, link it directly to the freshly created `Article ID`, set up aliases/templates, and save.
+3. **Pass 2 (Part 2 Content):** Open the article editor interface, toggle to code view, insert HTML content strings, attach the Google Structured Data components, save, and then wipe the cache clear via `com_cache` (Part 3).
+
+
+
+
+
+---
+
+## GOTCHAS (Automation Script Vulnerabilities)
+
+1. **The Modal Frame Context Trap:** Clicking `[ Edit ]` under the article section invokes an inline iframe container overlay. An automated browser execution script (e.g., Playwright/Selenium) will completely stall unless it is programmed to detect the frame load event and explicitly steer its driver execution context inside the sub-frame element.
+2. **Editor State Persistence:** The `Toggle Editor` setting retains its text-view/WYSIWYG layout preference globally across a single logged-in user profile session. If a previous task left the editor in plain WYSIWYG view, clicking the text box blindly treats the payload as raw text instead of code. The automation script must first read the editor element properties to decide if clicking `Toggle Editor` is necessary.
+3. **Stale Cache Masking:** Because site-wide `page` cache allocations sit near **`26.71 MB`**, front-end assertions checking for successful automated updates will routinely return false negatives unless the automation block systematically runs the cache purge macro inside `com_cache` right after publishing.
+
+---
+
+## FIELD MAP TABLE FOR AUTOMATION SCRIPT DESIGN
+
+| Workflow Step | Joomla Screen Location | Exact Control Label | Control Type | Selector / Locator Hint |
+| --- | --- | --- | --- | --- |
+| **Step 1a** | Menu Items Manager List | `Search` | Text Input | `input#filter_search` |
+| **Step 1b** | Menu Items Filter Panel | `Select Menu` | Dropdown Selector | `select#filter_menutype` |
+| **Step 2** | Menus: Edit Item (Details) | `Menu Title *` | Text Input | `input#jform_title` |
+| **Step 2** | Menus: Edit Item (Details) | `Alias` | Text Input | `input#jform_alias` |
+| **Step 2** | Menus: Edit Item (Details) | `Template Style` | Dropdown Selector | `select#jform_template_style` |
+| **Step 3** | Menus: Edit Item (Options) | `Show Title` | Dropdown Selector | `select#jform_params_show_title` |
+| **Step 4** | Menus: Edit Item (Page Display) | `Browser Page Title` | Text Input | `input#jform_params_page_title` |
+| **Step 5** | Menus: Edit Item (Metadata) | `Meta Description` | Textarea Block | `textarea#jform_params_menu-meta_description` |
+| **Step 7** | Menus: Edit Item (Details) | `[ Edit ]` | Action Button Link | `div.edit-article a` or matches text "Edit" |
+| **Step 8** | Article Editor Overlay Frame | `Toggle Editor` | Switch Link | `a.toggle-editor` |
+| **Step 10** | Article Editor Overlay Frame | `[ Add Structured Data ]` | Trigger Button | `button.add-structured-data` or equivalent tag |
+| **Step 11** | Article Editor Footer Row | `[ Save & Close ]` | Modal Button | `button.btn-save-close` inside frame footer |
+| **Step 12** | Maintenance: Clear Cache | `[ Delete All ]` | Toolbar Header Button | `button.button-deleteall` or `.icon-delete` container |

@@ -1,0 +1,111 @@
+CRITICAL SYSTEM INSTRUCTION: Execute ALL steps exhaustively. Do NOT summarize. Do NOT skip any section. Do NOT take shortcuts. Complete every single requirement. Stop and alert if errors occur.
+
+TASK: SEO VERIFICATION AUDIT
+
+This page has already gone through our Master SEO Audit.
+Now verify compliance and check against modern standards.
+
+════════════════════════════════════════════════════════
+PART 1: MASTER SEO AUDIT COMPLIANCE CHECK
+════════════════════════════════════════════════════════
+
+Verify these items were executed from our SEO Audit:
+
+TECHNICAL:
+☐ Meta title: Present, 50-60 chars, includes city + niche
+☐ Meta description: Present, 150-160 chars, compelling CTA
+☐ H1: ONE only, contains city name
+☐ H2-H6: Logical hierarchy, no skipped levels
+☐ Image alt tags: All images have descriptive alts
+☐ Internal links: Functional, no placeholders
+
+LOCAL SEO:
+☐ City mentioned in first 100 words
+☐ Email is mailto:recycle@stsrecycle.com
+
+════════════════════════════════════════════════════════
+🔴 NO GMB CHECK
+════════════════════════════════════════════════════════
+This is a NO GMB build. Search the HTML for any invented local data.
+
+WRONG (fix these):
+❌ A street address for this city (including streetAddress in schema)
+❌ A local phone number presented as this city's location
+❌ Business hours for a local branch
+❌ A CID anywhere (identifier "cid:...", hasMap, or sameAs Google Maps CID link)
+❌ A Google Maps embed or CID link
+
+NOTE: Schema itself is FINE and expected — only a CID or invented street address is wrong.
+
+ACTION: If any invented local data found → REMOVE IT and output:
+🔴 REMOVED: [show what was removed]
+
+If clean → output:
+✅ NO GMB: Clean (no invented local data)
+
+════════════════════════════════════════════════════════
+🔴 FACILITY LANGUAGE CHECK
+════════════════════════════════════════════════════════
+Search for "600,000 sq ft" or facility size claims.
+
+WRONG:
+❌ "from our 600,000 sq ft facility" (implies local)
+❌ "our Billings facility"
+
+CORRECT:
+✅ "serving Billings from our 600,000 sq ft facility"
+
+If incorrect → FIX and output: 🔴 ADJUSTED: [before/after]
+If clean → output: ✅ Facility language: Clean
+
+════════════════════════════════════════════════════════
+
+CLEANUP:
+☐ Schema REMOVED (rebuilt in Phase 4 — no CID, no GMB address)
+☐ No broken/placeholder links
+☐ No lorem ipsum or [PLACEHOLDER] text
+
+FLAG 1 - AUDIT COMPLIANCE:
+✓ ALL STEPS FOLLOWED — or —
+⚠️ INCOMPLETE — List what's missing
+
+════════════════════════════════════════════════════════
+PART 2: MODERN SEO STANDARDS (Web Search Required)
+════════════════════════════════════════════════════════
+
+Search the web for CURRENT (2025-2026) SEO best practices.
+
+SEARCH THESE SOURCES:
+• Google Search Central — latest algorithm updates
+• Reddit r/SEO, r/bigseo, r/localseo — current trends
+• AI SEO optimization techniques (2025+)
+• Local/Geo SEO innovations
+• E-E-A-T signals (Experience, Expertise, Authority, Trust)
+• Core Web Vitals considerations for landing pages
+
+Score this page against what you find.
+
+MODERN SEO SCORE: __/100
+
+QUICK WINS (max 3):
+• [Actionable improvement]
+• [Actionable improvement]
+• [Actionable improvement]
+
+FLAG 2 - MODERN COMPLIANCE:
+✓ UP TO DATE — Follows current best practices — or —
+⚠️ NEEDS ATTENTION — [Brief reason]
+
+════════════════════════════════════════════════════════
+FINAL VERDICT
+════════════════════════════════════════════════════════
+
+If ALL checks passed and no issues remain:
+✅ SEO VERIFICATION PASSED — Proceed to Phase 4: Schema
+
+If ANY issues need fixing:
+❌ SEO VERIFICATION FAILED — Issues listed above must be fixed before proceeding
+
+Output the updated HTML artifact if any changes were made.
+
+Keep report SHORT and SCANNABLE. No lengthy explanations.
