@@ -149,8 +149,8 @@ LINK INTEGRITY:
 3. NO made-up URLs, NO example.com, NO placeholder/empty hrefs
 
 FACILITY LANGUAGE:
-WRONG: "from our 600,000 sq ft facility" / "our ${ctx.city} facility"
-CORRECT: "serving ${ctx.city} from our 600,000 sq ft facility"${gmbBlock(ctx, "verify")}${noGmb}
+WRONG: "from our 200,000 sq ft facility" / "our ${ctx.city} facility"
+CORRECT: "serving ${ctx.city} from our 200,000 sq ft facility"${gmbBlock(ctx, "verify")}${noGmb}
 
 VERDICT:
 If everything is correct: ✅ VERIFIED — Proceed to publish

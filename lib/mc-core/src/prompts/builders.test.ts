@@ -2,7 +2,13 @@ import { describe, expect, it } from "vitest";
 import { buildRegistry } from "../registry";
 import { describeContext } from "../engine/context";
 import type { GmbProfile, RunContext } from "../types";
-import { auditPagePrompt, buildPagePrompt, promptForPhase, schemaPrompt } from "./builders";
+import {
+  auditPagePrompt,
+  buildPagePrompt,
+  promptForPhase,
+  schemaPrompt,
+  verifyPrompt,
+} from "./builders";
 
 function ctx(extra: Partial<RunContext> = {}): RunContext {
   return {
@@ -90,6 +96,16 @@ describe("shared prompt builders — GMB-aware branch", () => {
     const gmb = schemaPrompt(ctx({ gmb: GMB }), HTML).user;
     expect(gmb).toContain("cid:123");
     expect(gmb).toContain("1 Main St");
+  });
+});
+
+describe("verify prompt — facility language", () => {
+  it("states the 200,000 sq ft facility size and no stale 600,000 figure", () => {
+    for (const c of [ctx(), ctx({ gmb: GMB })]) {
+      const { user } = verifyPrompt(c, HTML);
+      expect(user).toContain(`CORRECT: "serving ${c.city} from our 200,000 sq ft facility"`);
+      expect(user).not.toContain("600,000");
+    }
   });
 });
 
