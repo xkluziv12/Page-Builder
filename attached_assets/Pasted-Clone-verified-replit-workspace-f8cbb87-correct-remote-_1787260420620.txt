@@ -1,0 +1,93 @@
+Clone verified — `replit-workspace` @ `f8cbb87`, correct remote, 806 files. Surveying.
+
+Review complete. Read-only — no files edited, no Drive access, `main` untouched.
+
+---
+
+## OWNER SUMMARY
+
+- **One finding dominates everything else: the Mission Control API has no authentication at all.** All 20 endpoints in `mc.ts` are open. An admin-token system exists and works — it's just never applied to this router.
+- **The worst consequence:** approving the `schema` phase auto-runs `publish`. So an anonymous HTTP request can publish a page to the live Joomla site. The human approve-ladder is the safety architecture, and it's currently openable by anyone.
+- **Second:** anyone can spend your API budget. `POST /mc/runs` immediately fires SerpAPI + Perplexity + an LLM build, unauthenticated, unrated-limited.
+- **This isn't theoretical.** `.replit` maps external ports and sets `deploymentTarget = "autoscale"` — it's deployed publicly, not container-local.
+- **The good news:** the *engineering* is strong. SSRF redirect handling, atomic publish, the approve-state guard, fail-loud verification — this is careful work. The gap is a missing middleware line, not a broken design.
+- **For our Precision factory:** two lessons transfer directly. Their OpenAI engine reads `output_text` via the SDK, which synthesizes it — confirming my raw-HTTP parse bug was mine alone, not inherited. And their retry logic has the same no-backoff flaw I should avoid porting.
+
+---
+
+## Findings by severity
+
+### CRITICAL
+
+**C1. The entire Mission Control control plane is unauthenticated.**
+`artifacts/api-server/src/routes/index.ts:11-13` mounts `mcRouter`, `mcWorkLogRouter`, and `githubSyncRouter` with no gate. `mc.ts` (1,052 lines, 20 endpoints) contains zero references to `requireAdmin`. The middleware is correct and fails closed — it is simply only wired into `prompts.ts`.
+
+Three concrete impacts:
+
+- **Anonymous publish to the live site.** `mc.ts:583-588` — approving a phase auto-runs the next one, and the comment states plainly: *"approving schema auto-runs publish."* That reaches `orchestrator.ts:178-233` → the Joomla HTTP publisher whenever `JOOMLA_PUBLISH_URL` is set. The `409` state guard at `mc.ts:554-561` prevents approving an *unrun* phase, but not an unauthenticated caller approving a legitimately-run one.
+- **Anonymous content injection.** `PUT /mc/runs/:id/html` (`mc.ts:1002`) replaces a run's HTML wholesale with an arbitrary string. That HTML is persisted and becomes publishable.
+- **Anonymous spend.** `POST /mc/runs` (`mc.ts:228`) calls `deriveRunInputs` (SerpAPI, `mc-runtime.ts:482`) then `executePhase(row, "research")` (Perplexity + LLM) before responding. Every anonymous POST costs money, with no rate limit.
+
+`DELETE /mc/runs/:id` (`mc.ts:392`) is equally open.
+
+**Exposure is real:** `.replit:58-76` maps external ports and `.replit:5` sets `deploymentTarget = "autoscale"`.
+
+*Fix:* `router.use(mcRouter)` → gate the router, or apply `requireAdmin` per mutating route. One line, correctly-built middleware already available.
+
+### HIGH
+
+**H2. `POST /api/github-sync/now` is an unauthenticated write trigger.**
+`routes/github-sync.ts:18-22`. Runs a full mirror pass using `XKLUZIV12_GITHUB_MASTER_TOKEN` (`lib/github-sync/src/mirror.ts:19`). The inline comment justifies leaving `/status` ungated — reasonable — but the justification silently carried over to the POST. The response also returns `summary.detail`, which echoes GitHub API error text and internal owner/repo/branch names (`mirror.ts:290-296`).
+
+**H3. The webhook fails OPEN; the admin gate fails CLOSED. Same codebase, opposite postures.**
+`routes/prompts.ts:51-53`: if `GITHUB_WEBHOOK_SECRET` is unset, signature verification is skipped entirely and the endpoint accepts anything. Compare `middlewares/adminAuth.ts:11-12`, whose docblock explicitly promises *"Fails closed."* The comment defends the choice as "only triggers a read-only resync," but `syncFromGit({force: true})` writes the prompts table and pulls from git. The HMAC check itself (`prompts.ts:63-66`) is well written — length pre-check before `timingSafeEqual`, avoiding the throw.
+
+**H4. SSRF guard is bypassable via non-dotted-quad IP encodings.**
+`lib/mc-core/src/seo/url.ts:142-152` matches only `\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}`. Anything else returns `false` (allowed):
+- `http://2130706433/` → 127.0.0.1
+- `http://0177.0.0.1/` → 127.0.0.1 (4-digit octet fails `{1,3}`)
+- `http://[::ffff:7f00:1]/` → IPv4-mapped loopback, not covered by the `fc`/`fd`/`fe8` prefix checks at `url.ts:156-158`
+
+Also, the guard inspects the hostname *string*, never the resolved address, so a public DNS name pointing at `169.254.169.254` passes. Combined with C1, this is anonymously reachable via `POST /mc/runs`.
+
+**Credit where due:** `classify.ts:38-39` follows redirects manually and re-checks every hop against the guard. That's the hard part, done right — the gap is only in the parser.
+
+### MEDIUM
+
+**M5. `Number(req.params.id)` is unvalidated in 14 places in `mc.ts`.** Zero `isNaN`/`Number.isFinite` checks in the file. `Number("abc")` → `NaN` → `eq(mcRunsTable.id, NaN)` → Postgres error. Express 5 forwards the rejection, but there is **no error handler anywhere** in `api-server/src`, so Express's default handler responds — including the stack trace unless `NODE_ENV=production`. Notably `index.ts:18` validates `PORT` with exactly the check the routes omit.
+
+**M6. Timing-unsafe admin token comparison.** `adminAuth.ts:19` uses `token === configured`. `prompts.ts:65` in the same package correctly uses `crypto.timingSafeEqual`. The codebase knows the right pattern and applies it inconsistently.
+
+**M7. Unrestricted CORS.** `app.ts:36` — bare `cors()` emits `Access-Control-Allow-Origin: *` across an API with mutating endpoints.
+
+**M8. Input validation is architecturally split.** `prompts.ts` uses zod (6 `safeParse` calls); `mc.ts` and `mc-worklog.ts` use zero. Consequence: `body.pageType ?? "SPOKE"` (`mc.ts:273`) accepts any value, is persisted, then cast `run.pageType as never` into `runCheckers` at `mc.ts:605` and `mc.ts:1017`. There are 15 `as never` casts in `api-server/src` — each one is a place the type system was told to stop checking at exactly the boundary where untrusted input enters.
+
+**M9. Retries have no backoff and no error classification.** `routed.ts:runWithFallback` retries on *any* thrown error, so a `401` or `400` burns the full attempt budget on a guaranteed failure, and a `429` is retried immediately with no delay. Cost amplification compounds on the verify path: `auditPage` wraps `runCorrectiveVerify` around `runWithFallback("verify")`, so worst case is `(corrections+1) × candidates × attempts` = 8 paid verify calls, each with a 600s budget (`transport.ts:20, 26, 32`).
+
+### LOW
+
+**L10.** `openai.ts:60` polls `while (resp.status === "queued" || "in_progress")` with no iteration ceiling — bounded only by the abort signal. A belt-and-braces poll cap would make a stuck job structurally impossible rather than timeout-dependent.
+
+**L11.** `app.ts:31-35` captures `rawBody` into memory for *every* request; exactly one route consumes it.
+
+**L12. Missing tests, and the suite isn't reachable by one command.** `api-server` has **zero** test files against 1,546 lines of routes — including all of the auth surface. Untested elsewhere: `engine/openai.ts`, `engine/gemini.ts`, `engine/replit.ts`, `schema/generator.ts`, `meta/extract.ts`. Separately, root `package.json` defines `build`, `typecheck`, and `system-map` but **no `test` script**, while `lib/mc-core`, `lib/github-sync`, and `scripts` each define `vitest run`. There is no single command that runs everything that exists.
+
+---
+
+## What's genuinely well built
+
+Worth stating, because it changes how you read the list above: the failures are wiring, not design.
+
+- Per-hop SSRF re-checking on redirects (`classify.ts:38-53`) — most implementations miss this.
+- Atomic publish contract with explicit artifact assertion (`joomla.ts:27-38`), and a stub that structurally cannot report success.
+- The approve-ladder state guard (`mc.ts:554-561`) with a genuinely explanatory 409.
+- Refusing to diff against a truncated GitHub tree (`mirror.ts:347`) instead of silently under-syncing.
+- `minimumReleaseAge: 1440` in `pnpm-workspace.yaml` — a real supply-chain defense with a documented rationale.
+- The documented screenshot-directory gotcha in `.agents/memory/bakeoff-visual-judge.md` **is actually held** in both code paths (`run.ts:485-486`, `rescore-visual.ts:52-53`). I checked specifically because a documented gotcha is a common place for regressions. It's clean.
+
+---
+
+## Two notes for our own factory
+
+1. **Their OpenAI engine reads `resp.output_text` via the official SDK** (`openai.ts:81`), which synthesizes that field. That confirms the parse bug that cost us a paid run was introduced by my raw-HTTP port, not inherited from here. Our `extractResponsesText` handles both shapes and is the more portable version.
+2. **Do not port `runWithFallback`'s retry loop as-is.** No backoff, no error classification. Our `RoutedEngine` inherits the same shape and should be fixed before any high-volume run.
