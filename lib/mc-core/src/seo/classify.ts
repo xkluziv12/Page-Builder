@@ -1,4 +1,10 @@
-import { fetchWithValidatedDns, isPublicHostname, type HostnameResolver } from "./url";
+import {
+  fetchWithPageLimits,
+  fetchWithValidatedDns,
+  isPublicHostname,
+  PageFetchLimitError,
+  type HostnameResolver,
+} from "./url";
 import { extractLocations } from "./location";
 import type { Classification, TargetPageProbe } from "./types";
 
@@ -52,7 +58,7 @@ export async function probeTargetPage(
       if (!(await isPublicHostname(host, resolveHostname))) {
         return { exists: false, status: null, wordCount: 0 };
       }
-      res = await pageFetch(current, {
+      res = await fetchWithPageLimits(pageFetch, current, {
         method: "GET",
         headers: { "User-Agent": "Mozilla/5.0 (compatible; MissionControl/1.0)" },
         redirect: "manual",
@@ -74,7 +80,10 @@ export async function probeTargetPage(
       wordCount: estimateWordCount(html),
       locations: extractLocations(html),
     };
-  } catch {
+  } catch (cause) {
+    if (cause instanceof PageFetchLimitError) {
+      return { exists: false, status: null, wordCount: 0, error: cause.message };
+    }
     return { exists: false, status: null, wordCount: 0 };
   }
 }

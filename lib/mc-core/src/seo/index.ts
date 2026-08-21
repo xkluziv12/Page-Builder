@@ -14,6 +14,10 @@ export {
   isPublicHostname,
   resolveHostname,
   fetchWithValidatedDns,
+  fetchWithPageLimits,
+  PageFetchLimitError,
+  PAGE_FETCH_TIMEOUT_MS,
+  PAGE_FETCH_MAX_BYTES,
 } from "./url";
 export type { ParsedLocation, HostnameResolver } from "./url";
 export {

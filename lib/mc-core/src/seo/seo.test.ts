@@ -6,6 +6,8 @@ import {
   isPrivateHostname,
   isPublicHostname,
   fetchWithValidatedDns,
+  fetchWithPageLimits,
+  PAGE_FETCH_MAX_BYTES,
   normalizeStateToAbbr,
 } from "./url";
 import { extractLocations, cityNamesEquivalent } from "./location";
@@ -181,6 +183,33 @@ describe("fetchWithValidatedDns", () => {
       }),
     ).rejects.toThrow("Refusing to connect to a non-public address");
     expect(lookups).toBe(1);
+  });
+});
+
+describe("fetchWithPageLimits", () => {
+  it("aborts a stalled response and reports a useful timeout", async () => {
+    const stalledFetch = (async (_input: string, init?: RequestInit) =>
+      new Promise<Response>((_resolve, reject) => {
+        init?.signal?.addEventListener("abort", () => reject(new DOMException("aborted", "AbortError")), {
+          once: true,
+        });
+      })) as unknown as typeof fetch;
+
+    await expect(
+      fetchWithPageLimits(stalledFetch, "https://public.example.com/page", {}, { timeoutMs: 5 }),
+    ).rejects.toThrow("Target page did not respond within 0.005 seconds");
+  });
+
+  it("rejects a response larger than the safe research limit", async () => {
+    const oversizedFetch = (async () =>
+      new Response("small body", {
+        status: 200,
+        headers: { "content-length": String(PAGE_FETCH_MAX_BYTES + 1) },
+      })) as unknown as typeof fetch;
+
+    await expect(fetchWithPageLimits(oversizedFetch, "https://public.example.com/page")).rejects.toThrow(
+      "Target page response exceeds the 2 MB research limit",
+    );
   });
 });
 

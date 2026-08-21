@@ -77,6 +77,8 @@ export interface TargetPageProbe {
   status: number | null;
   /** Approximate visible word count of the page body. */
   wordCount: number;
+  /** A bounded-fetch failure that the dashboard should show to the operator. */
+  error?: string;
   /**
    * City/state signals scraped from the page body (JSON-LD PostalAddress and
    * "City, ST ZIP" text). Used to confirm/correct the URL-parsed location so

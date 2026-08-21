@@ -3,6 +3,21 @@ import { request as httpRequest } from "node:http";
 import { request as httpsRequest } from "node:https";
 import { isIP, type LookupFunction } from "node:net";
 
+/** Maximum time allowed for an outside page to connect and deliver its body. */
+export const PAGE_FETCH_TIMEOUT_MS = 15_000;
+/** Maximum page body accepted by the research fetcher. */
+export const PAGE_FETCH_MAX_BYTES = 2 * 1024 * 1024;
+
+export class PageFetchLimitError extends Error {
+  readonly code: "timeout" | "size";
+
+  constructor(code: "timeout" | "size", message: string) {
+    super(message);
+    this.name = "PageFetchLimitError";
+    this.code = code;
+  }
+}
+
 /** US state name -> USPS abbreviation (lowercase keys). Includes DC. */
 const STATE_NAME_TO_ABBR: Record<string, string> = {
   alabama: "AL",
@@ -207,9 +222,31 @@ export async function fetchWithValidatedDns(
         lookup,
       },
       (res) => {
+        const contentLength = Number(res.headers["content-length"]);
+        if (Number.isFinite(contentLength) && contentLength > PAGE_FETCH_MAX_BYTES) {
+          req.destroy(
+            new PageFetchLimitError(
+              "size",
+              `Target page response exceeds the ${PAGE_FETCH_MAX_BYTES / 1024 / 1024} MB research limit.`,
+            ),
+          );
+          return;
+        }
         const chunks: Buffer[] = [];
+        let bytes = 0;
         res.on("data", (chunk: Buffer | Uint8Array | string) => {
-          chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+          const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+          bytes += buffer.length;
+          if (bytes > PAGE_FETCH_MAX_BYTES) {
+            res.destroy(
+              new PageFetchLimitError(
+                "size",
+                `Target page response exceeds the ${PAGE_FETCH_MAX_BYTES / 1024 / 1024} MB research limit.`,
+              ),
+            );
+            return;
+          }
+          chunks.push(buffer);
         });
         res.once("error", reject);
         res.once("end", () => {
@@ -227,9 +264,66 @@ export async function fetchWithValidatedDns(
         });
       },
     );
+    const timeout = setTimeout(() => {
+      req.destroy(
+        new PageFetchLimitError(
+          "timeout",
+          `Target page did not respond within ${PAGE_FETCH_TIMEOUT_MS / 1000} seconds.`,
+        ),
+      );
+    }, PAGE_FETCH_TIMEOUT_MS);
+    const clearTimeoutOnFinish = () => clearTimeout(timeout);
+    req.once("close", clearTimeoutOnFinish);
     req.once("error", reject);
     req.end();
   });
+}
+
+/**
+ * Apply the same timeout and size bounds to an injected fetch implementation.
+ * Production fetches enforce these while streaming in fetchWithValidatedDns;
+ * this wrapper keeps alternate transports and tests subject to the same policy.
+ */
+export async function fetchWithPageLimits(
+  fetchImpl: typeof fetch,
+  input: string | URL | Request,
+  init: RequestInit = {},
+  options: { timeoutMs?: number } = {},
+): Promise<Response> {
+  const controller = new AbortController();
+  const timeoutMs = options.timeoutMs ?? PAGE_FETCH_TIMEOUT_MS;
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  const signal = init.signal
+    ? AbortSignal.any([init.signal, controller.signal])
+    : controller.signal;
+  try {
+    const response = await fetchImpl(input, { ...init, signal });
+    const contentLength = Number(response.headers.get("content-length"));
+    if (Number.isFinite(contentLength) && contentLength > PAGE_FETCH_MAX_BYTES) {
+      throw new PageFetchLimitError(
+        "size",
+        `Target page response exceeds the ${PAGE_FETCH_MAX_BYTES / 1024 / 1024} MB research limit.`,
+      );
+    }
+    const body = await response.arrayBuffer();
+    if (body.byteLength > PAGE_FETCH_MAX_BYTES) {
+      throw new PageFetchLimitError(
+        "size",
+        `Target page response exceeds the ${PAGE_FETCH_MAX_BYTES / 1024 / 1024} MB research limit.`,
+      );
+    }
+    return new Response(body, response);
+  } catch (cause) {
+    if (controller.signal.aborted && !(cause instanceof PageFetchLimitError)) {
+      throw new PageFetchLimitError(
+        "timeout",
+        `Target page did not respond within ${timeoutMs / 1000} seconds.`,
+      );
+    }
+    throw cause;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 /**

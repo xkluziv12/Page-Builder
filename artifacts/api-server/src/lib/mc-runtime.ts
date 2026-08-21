@@ -506,6 +506,9 @@ export async function deriveRunInputs(url: string): Promise<DerivedRunInputs> {
     );
   }
   const probe = await probeTargetPage(normalized);
+  if (probe.error) {
+    throw new Error(`Page research failed: ${probe.error}`);
+  }
   const classification = deriveClassification(probe);
 
   // Cross-check the URL-parsed location against what the live page actually says,

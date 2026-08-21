@@ -3,6 +3,7 @@ import {
   cityNamesEquivalent,
   extractLocations,
   fetchWithValidatedDns,
+  fetchWithPageLimits,
   fetchSeoIntel,
   isPublicHostname,
   isPrivateHostname,
@@ -298,7 +299,7 @@ async function fetchHtml(
     if (!(await isPublicHostname(host, resolveHostname))) {
       throw new Error(`Refusing to fetch a private, internal, or unresolved address: ${host}`);
     }
-    const res = await fetchImpl(current, {
+    const res = await fetchWithPageLimits(fetchImpl, current, {
       method: "GET",
       headers: { "User-Agent": "Mozilla/5.0 (compatible; MissionControl/1.0)" },
       redirect: "manual",
