@@ -1,6 +1,9 @@
 import { runGtmetrixSpeedCheck, type GtmetrixOptions } from "./gtmetrix";
 import { scanJsonLd } from "./jsonld";
+import { isPrivateHostname } from "../seo/url";
 import type { GtmetrixCheck, JsonLdScan, QcReport } from "./types";
+
+const MAX_REDIRECTS = 5;
 
 export * from "./types";
 export { scanJsonLd } from "./jsonld";
