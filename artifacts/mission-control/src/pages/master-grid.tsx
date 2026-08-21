@@ -205,15 +205,19 @@ export default function MasterGrid() {
     const Icon = !active ? ArrowUpDown : sortDir === "asc" ? ArrowUp : ArrowDown;
     return (
       <th
-        className={`px-3 py-2 font-semibold whitespace-nowrap cursor-pointer select-none hover:bg-muted/60 ${
-          numeric ? "text-right" : "text-left"
-        }`}
-        onClick={() => toggleSort(k)}
+        aria-sort={active ? (sortDir === "asc" ? "ascending" : "descending") : "none"}
+        className={`px-3 py-2 font-semibold whitespace-nowrap ${numeric ? "text-right" : "text-left"}`}
       >
-        <span className={`inline-flex items-center gap-1 ${numeric ? "flex-row-reverse" : ""}`}>
+        <button
+          type="button"
+          onClick={() => toggleSort(k)}
+          className={`inline-flex items-center gap-1 select-none hover:bg-muted/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded ${
+            numeric ? "flex-row-reverse" : ""
+          }`}
+        >
           {label}
           <Icon className={`h-3 w-3 ${active ? "text-foreground" : "text-muted-foreground/50"}`} />
-        </span>
+        </button>
       </th>
     );
   }

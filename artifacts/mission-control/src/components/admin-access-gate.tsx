@@ -1,4 +1,4 @@
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { LockKeyhole, ShieldCheck } from "lucide-react";
 import { setAuthTokenGetter } from "@workspace/api-client-react";
 import { Button } from "@/components/ui/button";
@@ -13,16 +13,33 @@ function loadSessionToken(): string | null {
 }
 
 let activeToken = loadSessionToken();
+const listeners = new Set<(token: string | null) => void>();
 
 setAuthTokenGetter(() => activeToken);
 
 function saveSessionToken(token: string): void {
   activeToken = token;
   window.sessionStorage.setItem(SESSION_TOKEN_KEY, token);
+  listeners.forEach((listener) => listener(activeToken));
+}
+
+/** Clears the admin session so AdminAccessGate re-locks. Used by the sidebar "Lock" control. */
+export function clearAdminSession(): void {
+  activeToken = null;
+  window.sessionStorage.removeItem(SESSION_TOKEN_KEY);
+  listeners.forEach((listener) => listener(activeToken));
 }
 
 export function AdminAccessGate({ children }: { children: React.ReactNode }) {
   const [isUnlocked, setIsUnlocked] = useState(() => Boolean(activeToken));
+
+  useEffect(() => {
+    const listener = (token: string | null) => setIsUnlocked(Boolean(token));
+    listeners.add(listener);
+    return () => {
+      listeners.delete(listener);
+    };
+  }, []);
   const [token, setToken] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isVerifying, setIsVerifying] = useState(false);

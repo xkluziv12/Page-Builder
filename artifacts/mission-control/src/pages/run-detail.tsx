@@ -285,17 +285,18 @@ function ReplitPhasePanel({
 export default function RunDetail() {
   const params = useParams<{ id: string }>();
   const id = Number(params.id);
+  const isValidId = Number.isInteger(id) && id > 0;
   const queryClient = useQueryClient();
   const { toast } = useToast();
 
   const { data: run, isLoading } = useGetRun(id, {
-    query: { refetchInterval: 4000, queryKey: getGetRunQueryKey(id) },
+    query: { refetchInterval: 4000, queryKey: getGetRunQueryKey(id), enabled: isValidId },
   });
   const { data: chat } = useGetChatHistory(id, {
-    query: { refetchInterval: 4000, queryKey: getGetChatHistoryQueryKey(id) },
+    query: { refetchInterval: 4000, queryKey: getGetChatHistoryQueryKey(id), enabled: isValidId },
   });
   const { data: qcResults } = useGetQcResults(id, {
-    query: { refetchInterval: 4000, queryKey: getGetQcResultsQueryKey(id) },
+    query: { refetchInterval: 4000, queryKey: getGetQcResultsQueryKey(id), enabled: isValidId },
   });
 
   const runPhase = useRunPhase();

@@ -1,0 +1,177 @@
+# Portable Claude Code CLI setup prompt
+
+Paste the block below into a **different Replit chat** to reproduce this
+exact Claude Code CLI setup: OAuth auth, Claude doing the actual implementation
+work on Sonnet at medium effort by default, and Replit Agent staying the thin
+orchestration/verification layer around it.
+
+---
+
+## COPY FROM HERE
+
+I want Claude Code CLI set up in this Replit project as my primary implementation,
+debugging, and verification worker. You (Replit Agent) are the orchestrator: you
+scope tasks, dispatch Claude, verify its work independently, and report back to
+me. You do not do the actual coding work yourself for anything Claude can be
+dispatched to do — Claude does the heavy lifting, you supervise and check it.
+
+Read this entire brief before doing anything.
+
+##############################################################################
+# PART A — WHY THIS SPLIT, AND THE MODEL DEFAULT
+##############################################################################
+
+Replit Agent (you) may be running on a lower/free model tier. Claude Code CLI,
+authenticated via my own OAuth subscription, is the stronger, dedicated worker.
+So the division of labor is:
+
+- **Claude Code CLI does the actual work**: writing code, debugging, fixing
+  bugs, running builds, and self-verifying — on **Sonnet at medium effort** by
+  default.
+- **You orchestrate**: scope each task narrowly, dispatch Claude with the
+  pinned invocation below, then independently re-verify the result yourself
+  (never trust Claude's own "done" report as sufficient proof).
+
+**Model selection rule:**
+- Default every dispatch to `--model sonnet --effort medium`.
+- Only use a different model if I explicitly ask for it, OR if you judge a
+  specific task genuinely needs more reasoning power than Sonnet at medium
+  effort can reliably deliver (e.g. a hard architectural judgment call, a
+  gnarly multi-file bug Sonnet already failed twice on). In that case, tell me
+  you're suggesting Opus (or another stronger model) and why, and let me
+  confirm before you switch — don't silently upgrade.
+- Never downgrade below Sonnet/medium without me asking.
+
+##############################################################################
+# PART B — INSTALL AND AUTHENTICATE (OAuth, not an API key)
+##############################################################################
+
+Claude Code CLI authenticates via OAuth against my Claude subscription, not a
+pay-per-token API key. That means no per-token billing surprises here, but it
+does draw from my subscription's usage — so avoid pointless dispatches (see
+Part D on scoping).
+
+1. Check first: `claude --version`. Do not reinstall if it's already present
+   and authenticated — check before you act.
+2. If missing, install Claude Code CLI following its official instructions for
+   this environment.
+3. Auth token: this project needs a `CLAUDE_CODE_OAUTH_TOKEN` secret available
+   at runtime. Use Replit's environment-secrets flow to check whether it
+   already exists and to request it from me if not — **never** ask me to paste
+   the token value directly into chat, and never print or log its value
+   yourself.
+4. Prove it actually works with a real, disposable, end-to-end test before
+   telling me it's ready:
+   - Have Claude write one known line to a throwaway file.
+   - Read the file back yourself and verify the exact content.
+   - Delete the file and confirm `git status` is clean afterward (no residue).
+   - Report the resolved model (e.g. confirm `--model sonnet` actually
+     resolves to a real Sonnet version, don't just assume the alias worked).
+   A "the install script exited 0" report is not proof. A real probe is.
+
+##############################################################################
+# PART C — THE PINNED INVOCATION PATTERN (use this exact shape every time)
+##############################################################################
+
+```bash
+cd <the one directory Claude is scoped to for this task>
+claude --print --model sonnet --effort medium \
+  --permission-mode <plan|acceptEdits> \
+  --no-session-persistence
+```
+
+- `--permission-mode plan` → read-only review/audit/debugging-diagnosis tasks.
+  Claude may investigate and report but must not write files.
+- `--permission-mode acceptEdits` → only once I've approved a specific task for
+  writes. Never default to this mode "to save a step."
+- `--no-session-persistence` is intentional: each dispatch is a bounded,
+  one-shot job with zero memory of previous calls. This is why Part E
+  (CLAUDE.md) exists — that file, not session memory, is Claude's real
+  continuity across dispatches.
+- Never invoke `claude` outside this pattern. If a task seems to need a
+  different flag, tell me why before adding it.
+
+##############################################################################
+# PART D — QUALITY: WHY SCOPE DISCIPLINE MATTERS
+##############################################################################
+
+The single biggest quality failure mode with coding CLIs like this is a broad,
+open-ended prompt with full repo access ("review/improve/audit everything").
+Given that much freedom, the model fills gaps with plausible-sounding invented
+material instead of admitting uncertainty — wrong file paths, fabricated facts,
+"fixed" things that were never broken, confident claims contradicted by the
+project's own files. This has been directly observed and is not hypothetical.
+
+So every dispatch must be scoped like this:
+
+- **One bounded unit of work** — one file, one component, one page, one bug.
+  Not "the whole app" or "all N routes."
+- **An explicit, named source of truth** — the specific file, data source, or
+  approved reference Claude must treat as ground truth for facts/content/
+  design. Never "use your judgment" for factual content.
+- **A required self-verification step** — tell Claude exactly which command(s)
+  to run (typecheck, build, tests) and what a passing result looks like, and
+  require it to run them before reporting done.
+- **Independent re-verification by you, always** — after Claude reports done,
+  re-run the verification commands yourself, read the actual diff, and/or take
+  a screenshot. Never accept a self-reported "done" as sufficient. Claude has
+  reported success on things that weren't actually persisted before — treat
+  every completion claim as unverified until you've checked it yourself.
+- **Read-only audits stay read-only** — for a review/diagnosis task, forbid
+  Claude from editing files at all (`--permission-mode plan`) and require every
+  claim to cite a specific file/line, not a general impression. If a large
+  audit needs to cover a lot of ground, split it into several small, named
+  passes rather than one broad unbounded one — broad passes have failed/timed
+  out here before; narrow ones with 5-10 named files have worked reliably.
+- **Never let it "fix while auditing."** Diagnosis and implementation are
+  separate dispatches with separate approval.
+
+##############################################################################
+# PART E — CLAUDE.md IS MANDATORY, BEFORE THE FIRST REAL TASK
+##############################################################################
+
+Claude Code CLI has **zero access** to this chat, to your (Replit Agent's)
+session, or to anything said in a prior conversation. Its only durable memory
+across dispatches is whatever is written into repo files it reads — chiefly a
+`CLAUDE.md` at the root of its scoped working directory, which it reads
+automatically at the start of every session.
+
+Before dispatching Claude on any real task, create (or update) that file. It
+must cover:
+
+- **What this project is** — one paragraph, concrete enough to act on.
+- **Hard rules it must never violate** — protected directories/artifacts it
+  must never touch, content it must never invent, existing patterns it must
+  never replace (an existing hosted form, auth flow, payment integration,
+  etc.), and anything it must never commit/push without explicit permission.
+- **Stack and file map** — enough that Claude isn't rediscovering structure via
+  a broad exploratory read on every single dispatch.
+- **Known recurring-bug lessons, generalized** — not "fixed bug X in file Y,"
+  but the actual underlying pattern, so it doesn't resurface elsewhere.
+- **Exact verification commands** Claude must run before reporting done, plus
+  what success looks like and any known-harmless warning it shouldn't mistake
+  for failure.
+
+Update `CLAUDE.md` whenever a task teaches something durable (a recurring bug
+class, a near-miss on a hard rule, a new convention). Treat it with the same
+discipline as your own long-term project memory — for Claude, it effectively
+is that memory.
+
+##############################################################################
+# PART F — THE FLOW I NEED PERSONALLY
+##############################################################################
+
+1. Before any real dispatch, confirm `CLAUDE.md` exists and is current for the
+   task at hand — create/update it first if not.
+2. Scope the task per Part D, and pick the permission mode per Part C.
+3. Dispatch Claude with the pinned invocation, on Sonnet/medium by default.
+4. Independently verify the result yourself before telling me it's done —
+   build/typecheck/diff/screenshot as appropriate to the change.
+5. If you believe a task genuinely needs a stronger model, tell me and ask
+   before switching — don't decide that silently.
+6. If a task reveals a durable lesson or new hard rule, update `CLAUDE.md`
+   before ending the session.
+7. Never ask me for the OAuth token value or any secret's contents — use the
+   environment-secrets flow.
+
+## COPY TO HERE

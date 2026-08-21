@@ -11,9 +11,11 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Link, useLocation } from "wouter";
-import { LayoutDashboard, Rocket, BookOpen, Table2 } from "lucide-react";
+import { LayoutDashboard, Rocket, BookOpen, Table2, LockKeyhole } from "lucide-react";
 import { useSystemMode } from "@/hooks/use-system-mode";
 import { GitHubSyncStatus } from "@/components/github-sync-status";
+import { clearAdminSession } from "@/components/admin-access-gate";
+import { Button } from "@/components/ui/button";
 
 // SidebarProvider writes the open/collapsed state to the `sidebar_state` cookie
 // on every toggle but never reads it back on mount. This is a client-rendered
@@ -132,8 +134,18 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
               </SidebarMenuItem>
             </SidebarMenu>
           </SidebarContent>
-          <SidebarFooter className="p-2 border-t border-sidebar-border">
+          <SidebarFooter className="p-2 border-t border-sidebar-border gap-2">
             <GitHubSyncStatus />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => clearAdminSession()}
+              className="w-full justify-center gap-1.5 text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent group-data-[collapsible=icon]:px-0"
+              title="Lock Mission Control"
+            >
+              <LockKeyhole className="h-3.5 w-3.5" />
+              <span className="group-data-[collapsible=icon]:hidden">Lock</span>
+            </Button>
           </SidebarFooter>
           <SidebarRail />
         </Sidebar>
