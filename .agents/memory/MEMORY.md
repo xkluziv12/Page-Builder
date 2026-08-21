@@ -22,3 +22,4 @@
 - [R2/NAID cleanup scope](r2-naid-cleanup-scope.md) — user-approved literal removal covers live, schema/meta, fixtures, Drive copies, historical references, and archives.
 - [Large GitHub workspace publishing](github-large-workspace-publishing.md) — connector writes are rate-limited; publish large unrelated histories as throttled blobs plus hierarchical Git trees.
 - [Page research SSRF guard](page-research-ssrf.md) — validate DNS at the HTTP connection, not only before fetch, to defeat rebinding into internal networks.
+- [API router authorization tests](api-route-auth-tests.md) — use a temporary CommonJS esbuild bundle for isolated real-router tests in this workspace.
