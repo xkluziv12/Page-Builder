@@ -42,6 +42,7 @@ export default function Dashboard() {
             <button
               key={d.id}
               onClick={() => setDatasetId(d.id)}
+              aria-pressed={d.id === datasetId}
               className={`px-4 py-2 text-sm rounded-md transition-colors font-medium ${
                 d.id === datasetId
                   ? "bg-secondary/20 text-foreground"
@@ -63,6 +64,7 @@ export default function Dashboard() {
             <button
               key={s.id}
               onClick={() => setActiveId(s.id)}
+              aria-pressed={s.id === scenario.id}
               className={`px-4 py-2 text-sm rounded-md transition-colors font-medium ${
                 s.id === scenario.id
                   ? "bg-primary text-primary-foreground"

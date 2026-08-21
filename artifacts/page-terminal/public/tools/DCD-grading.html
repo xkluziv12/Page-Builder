@@ -1039,7 +1039,7 @@ function renderCallBody(c, dead){
     ${c.call_summary?`<div class="cb cb-quote" style="margin-top:14px"><div class="cb-l">Summary</div><div class="cb-tx">${safe(c.call_summary)}</div></div>`:""}
     ${c.transcript_formatted?`<div class="cb cb-quote" style="margin-top:10px"><div class="cb-l">Transcript</div><div class="cb-tx"><pre>${safe(c.transcript_formatted)}</pre></div></div>`:""}
     <div class="call-act">
-      ${c.meeting_url?`<a href="${safe(c.meeting_url)}" target="_blank" class="act-btn">🔗 Open Krisp recording</a>`:""}
+      ${c.meeting_url?`<a href="${safe(c.meeting_url)}" target="_blank" rel="noopener noreferrer" class="act-btn">🔗 Open Krisp recording</a>`:""}
       ${c.order_number?`<button class="act-btn" onclick="navigator.clipboard.writeText('${safe(c.order_number)}')">📋 Copy order #</button>`:""}
       <button class="act-btn" onclick="navigator.clipboard.writeText('${safe(c.call_id)}')">📋 Copy call ID</button>
     </div>

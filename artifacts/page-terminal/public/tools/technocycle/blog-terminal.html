@@ -256,7 +256,7 @@
             </div>
             <div class="launcher" id="tc-launcher" style="display:none;background:var(--tc-green);">
                 <div class="launcher-label"><i class="fas fa-brain"></i> Claude Chat<span class="launcher-warn">Sonnet 4.6 only</span></div>
-                <a href="https://claude.ai" target="_blank" class="launcher-link" style="color:#6ee7b7;border-color:#6ee7b7;">Open Claude ↗</a>
+                <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" class="launcher-link" style="color:#6ee7b7;border-color:#6ee7b7;">Open Claude ↗</a>
             </div>
             <div id="tc-wizard"></div>
         </div>
@@ -341,7 +341,7 @@ function buildWizardHTML(company) {
     // Phase 3: CMS Setup
     {
         phaseContent.push(`<div class="wp-body">
-        <a href="https://technocycle.com/wp-admin/edit.php" target="_blank" class="link-pill" style="margin-bottom:10px;border-color:var(--tc-green);color:var(--tc-green);"><i class="fas fa-plus-circle"></i> WP Admin → Posts ↗</a>
+        <a href="https://technocycle.com/wp-admin/edit.php" target="_blank" rel="noopener noreferrer" class="link-pill" style="margin-bottom:10px;border-color:var(--tc-green);color:var(--tc-green);"><i class="fas fa-plus-circle"></i> WP Admin → Posts ↗</a>
         <div class="step"><input type="checkbox" id="${key}-p3-1" onchange="saveState()"><div><div class="step-label"><strong>Add New Post</strong> → paste title</div>
             <div class="copy-row" style="margin-top:4px;"><div style="flex:1"><div class="copy-label">Title</div><div class="copy-val" id="tc-cs-title">${m.title||'—'}</div></div><button class="copy-btn" onclick="copyCsField('TC','title')">Copy</button></div>
         </div></div>
@@ -364,7 +364,7 @@ function buildWizardHTML(company) {
     // Phase 4: SEO Audit
     phaseContent.push(`<div class="wp-body">
         <div class="step"><input type="checkbox" id="${key}-p4-0" onchange="saveState()"><div><div class="step-label">Upload SEO Blog Audit doc to Claude</div>
-            <a href="https://docs.google.com/document/d/1Vb63LshVu9SYBvOQfESrCGQ1BVnJ3wZ7rRj0dJitFRc/edit" target="_blank" class="link-pill${isDCD?' teal':''}" style="margin-top:4px;"><i class="fas fa-search"></i> SEO Audit Doc ↗</a>
+            <a href="https://docs.google.com/document/d/1Vb63LshVu9SYBvOQfESrCGQ1BVnJ3wZ7rRj0dJitFRc/edit" target="_blank" rel="noopener noreferrer" class="link-pill${isDCD?' teal':''}" style="margin-top:4px;"><i class="fas fa-search"></i> SEO Audit Doc ↗</a>
         </div></div>
         <button class="btn ${btnClass2} btn-full" style="margin:8px 0;" onclick="copyPrompt('${company}','seo');animateButton(this,'Copying...','Copied!')"><i class="fas fa-search"></i> Copy SEO audit prompt</button>
         <div class="step"><input type="checkbox" id="${key}-p4-1" onchange="saveState()"><div class="step-label">Audit complete — design preserved</div></div>
@@ -387,7 +387,7 @@ function buildWizardHTML(company) {
         <div class="section-sep">Verify URL</div>
         <div style="background:var(--cream);border:2px solid var(--tc-green);border-radius:8px;padding:12px;margin:8px 0;">
             <div style="font-size:10px;font-weight:700;color:var(--tc-green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Live blog URL</div>
-            <a id="tc-liveLink" href="${liveUrl||'#'}" target="_blank" style="display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tc-green);word-break:break-all;text-decoration:underline;">${liveUrl||'—'}</a>
+            <a id="tc-liveLink" href="${liveUrl||'#'}" target="_blank" rel="noopener noreferrer" style="display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tc-green);word-break:break-all;text-decoration:underline;">${liveUrl||'—'}</a>
         </div>
         <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-3" onchange="saveState()"><div class="step-label">Live URL loads — no 404</div></div>
         <div class="section-sep">Log to tracker</div>

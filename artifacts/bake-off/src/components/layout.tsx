@@ -21,11 +21,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         <div className="flex-1 overflow-y-auto py-4 px-3 flex flex-col gap-6">
           <nav className="flex flex-col gap-1">
-            <Link href="/" className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${location === '/' ? 'bg-secondary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-secondary/5 hover:text-foreground'}`}>
+            <Link href="/" aria-current={location === '/' ? 'page' : undefined} className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${location === '/' ? 'bg-secondary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-secondary/5 hover:text-foreground'}`}>
               <Home className="w-4 h-4" />
               Leaderboard
             </Link>
-            <Link href="/portland-review" className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${location === '/portland-review' ? 'bg-secondary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-secondary/5 hover:text-foreground'}`}>
+            <Link href="/portland-review" aria-current={location === '/portland-review' ? 'page' : undefined} className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${location === '/portland-review' ? 'bg-secondary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-secondary/5 hover:text-foreground'}`}>
               <MapPin className="w-4 h-4" />
               Portland GMB + Schema
             </Link>
@@ -38,11 +38,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 {scenario.models.map((model) => {
                   const href = `/model/${datasetId}/${scenario.id}/${model.id}`;
                   return (
-                    <Link key={model.id} href={href} className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${location === href ? 'bg-secondary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-secondary/5 hover:text-foreground'}`}>
+                    <Link key={model.id} href={href} aria-current={location === href ? 'page' : undefined} className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${location === href ? 'bg-secondary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-secondary/5 hover:text-foreground'}`}>
                       <FileText className="w-4 h-4" />
                       <span className="truncate">{model.label}</span>
                       {model.status === 'error' && (
-                        <span className="ml-auto w-2 h-2 rounded-full bg-destructive shrink-0" />
+                        <span className="ml-auto w-2 h-2 rounded-full bg-destructive shrink-0" role="img" aria-label="Run failed" />
                       )}
                     </Link>
                   );

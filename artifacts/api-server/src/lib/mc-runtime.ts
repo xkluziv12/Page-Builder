@@ -505,10 +505,10 @@ export async function deriveRunInputs(url: string): Promise<DerivedRunInputs> {
       "SERPAPI_API_KEY is not configured; cannot gather the live SEO data that replaces the quarterly SEO spreadsheet.",
     );
   }
+  // probeTargetPage never throws: a network failure or non-OK response is
+  // treated as "no live page yet" (probe.exists === false), which correctly
+  // classifies as NEW_BUILD below rather than surfacing as a hard error.
   const probe = await probeTargetPage(normalized);
-  if (probe.error) {
-    throw new Error(`Page research failed: ${probe.error}`);
-  }
   const classification = deriveClassification(probe);
 
   // Cross-check the URL-parsed location against what the live page actually says,

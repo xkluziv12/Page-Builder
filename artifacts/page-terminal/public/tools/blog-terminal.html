@@ -262,7 +262,7 @@
             </div>
             <div class="launcher" id="sts-launcher" style="display:none;">
                 <div class="launcher-label"><i class="fas fa-brain"></i> STS Claude Project<span class="launcher-warn">Sonnet 4.6 only</span></div>
-                <a href="https://claude.ai/project/019aef3e-df18-7142-a666-8397254c5fe8" target="_blank" class="launcher-link">Open project ↗</a>
+                <a href="https://claude.ai/project/019aef3e-df18-7142-a666-8397254c5fe8" target="_blank" rel="noopener noreferrer" class="launcher-link">Open project ↗</a>
             </div>
             <div id="sts-wizard"></div>
         </div>
@@ -284,7 +284,7 @@
             </div>
             <div class="launcher dcd" id="dcd-launcher" style="display:none;">
                 <div class="launcher-label"><i class="fas fa-brain"></i> DCD Claude Project<span class="launcher-warn">Sonnet 4.6 only</span></div>
-                <a href="https://claude.ai/project/019c504e-fef3-75e0-862b-85cd4539579f" target="_blank" class="launcher-link">Open project ↗</a>
+                <a href="https://claude.ai/project/019c504e-fef3-75e0-862b-85cd4539579f" target="_blank" rel="noopener noreferrer" class="launcher-link">Open project ↗</a>
             </div>
             <div id="dcd-wizard"></div>
         </div>
@@ -306,7 +306,7 @@
             </div>
             <div class="launcher" id="tc-launcher" style="display:none;background:var(--tc-green);">
                 <div class="launcher-label"><i class="fas fa-brain"></i> Claude Chat<span class="launcher-warn">Sonnet 4.6 only</span></div>
-                <a href="https://claude.ai" target="_blank" class="launcher-link" style="color:#6ee7b7;border-color:#6ee7b7;">Open Claude ↗</a>
+                <a href="https://claude.ai" target="_blank" rel="noopener noreferrer" class="launcher-link" style="color:#6ee7b7;border-color:#6ee7b7;">Open Claude ↗</a>
             </div>
             <div id="tc-wizard"></div>
         </div>
@@ -396,9 +396,9 @@ function buildWizardHTML(company) {
     // Phase 1: Strategize
     phaseContent.push(`<div class="wp-body">
         ${isSTS ? `<div class="info-box" style="margin-bottom:8px;"><i class="fas fa-info-circle" style="color:var(--gold);"></i> Loaded in project — links for reference</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"><a href="https://docs.google.com/document/d/19pAXN_sUNJ8ZOgR3Fv_9Df2CYoFOq_YojSy8yjQW9Zo/edit" target="_blank" class="link-pill"><i class="fas fa-file-alt"></i> STS Prompt v4.3</a><a href="https://docs.google.com/document/d/1gmZMWbIHt408yf6RgyrnwMsewGqWQSXKDuC7MJZZX1o/edit" target="_blank" class="link-pill"><i class="fas fa-palette"></i> Design Bible</a></div>` :
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"><a href="https://docs.google.com/document/d/19pAXN_sUNJ8ZOgR3Fv_9Df2CYoFOq_YojSy8yjQW9Zo/edit" target="_blank" rel="noopener noreferrer" class="link-pill"><i class="fas fa-file-alt"></i> STS Prompt v4.3</a><a href="https://docs.google.com/document/d/1gmZMWbIHt408yf6RgyrnwMsewGqWQSXKDuC7MJZZX1o/edit" target="_blank" rel="noopener noreferrer" class="link-pill"><i class="fas fa-palette"></i> Design Bible</a></div>` :
         isDCD ? `<div class="info-box teal" style="margin-bottom:8px;"><strong>Upload both files first</strong> — DCD Blog Prompt + Design Bible</div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"><a href="https://docs.google.com/document/d/148QH1BGJ2JIsVBC5Vq61-Ja-eo175ycOM9OrC3aIzBI/edit" target="_blank" class="link-pill teal"><i class="fas fa-file-alt"></i> DCD Prompt v1.0</a><a href="https://docs.google.com/document/d/1SfzlHhsowhTQIHIdOUpBSne7vxDvH5NTWD3j7cdOdF0/edit" target="_blank" class="link-pill teal"><i class="fas fa-palette"></i> Design Bible</a></div>` :
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"><a href="https://docs.google.com/document/d/148QH1BGJ2JIsVBC5Vq61-Ja-eo175ycOM9OrC3aIzBI/edit" target="_blank" rel="noopener noreferrer" class="link-pill teal"><i class="fas fa-file-alt"></i> DCD Prompt v1.0</a><a href="https://docs.google.com/document/d/1SfzlHhsowhTQIHIdOUpBSne7vxDvH5NTWD3j7cdOdF0/edit" target="_blank" rel="noopener noreferrer" class="link-pill teal"><i class="fas fa-palette"></i> Design Bible</a></div>` :
         `<div class="info-box" style="margin-bottom:8px;border-left-color:var(--tc-green);"><strong>No prompt doc yet</strong> — using STS v4.3 framework adapted for TechnoCycle. Provide company context in the strategy prompt.</div>`}
         <button class="btn ${btnClass} btn-full" onclick="copyPrompt('${company}','strategy');animateButton(this,'Copying...','Copied!')"><i class="fas fa-compass"></i> Copy strategy prompt</button>
         <div class="step"><input type="checkbox" id="${key}-p1" onchange="saveState()"><div class="step-label">Strategy pasted — plan confirmed</div></div>
@@ -414,7 +414,7 @@ function buildWizardHTML(company) {
     // Phase 3: CMS Setup
     if(isSTS) {
         phaseContent.push(`<div class="wp-body">
-        <a href="https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_menus&view=items&menutype=blog" target="_blank" class="link-pill" style="margin-bottom:10px;"><i class="fas fa-bars"></i> Open Blog Menu ↗</a>
+        <a href="https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_menus&view=items&menutype=blog" target="_blank" rel="noopener noreferrer" class="link-pill" style="margin-bottom:10px;"><i class="fas fa-bars"></i> Open Blog Menu ↗</a>
         <div class="step"><input type="checkbox" id="${key}-p3-1" onchange="saveState()"><div><div class="step-label">New → paste Title + Alias</div>
             <div class="copy-row" style="margin-top:4px;"><div style="flex:1"><div class="copy-label">Title</div><div class="copy-val" id="sts-cs-title">${m.title||'—'}</div></div><button class="copy-btn" onclick="copyCsField('STS','title')">Copy</button></div>
             <div class="copy-row"><div style="flex:1"><div class="copy-label">Alias</div><div class="copy-val" id="sts-cs-slug">${slug||'—'}</div></div><button class="copy-btn" onclick="copyCsField('STS','slug')">Copy</button></div>
@@ -438,7 +438,7 @@ function buildWizardHTML(company) {
     </div>`);
     } else if(isTC) {
         phaseContent.push(`<div class="wp-body">
-        <a href="https://technocycle.com/wp-admin/edit.php" target="_blank" class="link-pill" style="margin-bottom:10px;border-color:var(--tc-green);color:var(--tc-green);"><i class="fas fa-plus-circle"></i> WP Admin → Posts ↗</a>
+        <a href="https://technocycle.com/wp-admin/edit.php" target="_blank" rel="noopener noreferrer" class="link-pill" style="margin-bottom:10px;border-color:var(--tc-green);color:var(--tc-green);"><i class="fas fa-plus-circle"></i> WP Admin → Posts ↗</a>
         <div class="step"><input type="checkbox" id="${key}-p3-1" onchange="saveState()"><div><div class="step-label"><strong>Add New Post</strong> → paste title</div>
             <div class="copy-row" style="margin-top:4px;"><div style="flex:1"><div class="copy-label">Title</div><div class="copy-val" id="tc-cs-title">${m.title||'—'}</div></div><button class="copy-btn" onclick="copyCsField('TC','title')">Copy</button></div>
         </div></div>
@@ -458,7 +458,7 @@ function buildWizardHTML(company) {
     </div>`);
     } else {
         phaseContent.push(`<div class="wp-body">
-        <a href="https://store-w5trgcbv.mybigcommerce.com/manage/app/11680" target="_blank" class="link-pill teal" style="margin-bottom:10px;"><i class="fas fa-external-link-alt"></i> Open Shogun ↗</a>
+        <a href="https://store-w5trgcbv.mybigcommerce.com/manage/app/11680" target="_blank" rel="noopener noreferrer" class="link-pill teal" style="margin-bottom:10px;"><i class="fas fa-external-link-alt"></i> Open Shogun ↗</a>
         <div class="step"><input type="checkbox" id="${key}-p3-1" onchange="saveState()"><div><div class="step-label"><strong>Build a Page</strong> → <strong>Blog Post</strong> → paste name + URL</div>
             <div class="copy-row" style="margin-top:4px;"><div style="flex:1"><div class="copy-label">Page Name</div><div class="copy-val" id="dcd-cs-title">${m.title||'—'}</div></div><button class="copy-btn" onclick="copyCsField('DCD','title')">Copy</button></div>
             <div class="copy-row"><div style="flex:1"><div class="copy-label">URL Slug</div><div class="copy-val" id="dcd-cs-slug">${slug||'—'}</div></div><button class="copy-btn" onclick="copyCsField('DCD','slug')">Copy</button></div>
@@ -475,7 +475,7 @@ function buildWizardHTML(company) {
     // Phase 4: SEO Audit
     phaseContent.push(`<div class="wp-body">
         <div class="step"><input type="checkbox" id="${key}-p4-0" onchange="saveState()"><div><div class="step-label">Upload SEO Blog Audit doc to Claude</div>
-            <a href="https://docs.google.com/document/d/1Vb63LshVu9SYBvOQfESrCGQ1BVnJ3wZ7rRj0dJitFRc/edit" target="_blank" class="link-pill${isDCD?' teal':''}" style="margin-top:4px;"><i class="fas fa-search"></i> SEO Audit Doc ↗</a>
+            <a href="https://docs.google.com/document/d/1Vb63LshVu9SYBvOQfESrCGQ1BVnJ3wZ7rRj0dJitFRc/edit" target="_blank" rel="noopener noreferrer" class="link-pill${isDCD?' teal':''}" style="margin-top:4px;"><i class="fas fa-search"></i> SEO Audit Doc ↗</a>
         </div></div>
         <button class="btn ${btnClass2} btn-full" style="margin:8px 0;" onclick="copyPrompt('${company}','seo');animateButton(this,'Copying...','Copied!')"><i class="fas fa-search"></i> Copy SEO audit prompt</button>
         <div class="step"><input type="checkbox" id="${key}-p4-1" onchange="saveState()"><div class="step-label">Audit complete — design preserved</div></div>
@@ -485,7 +485,7 @@ function buildWizardHTML(company) {
     if(isSTS) {
         phaseContent.push(`<div class="wp-body">
         <div class="step"><input type="checkbox" id="${key}-p5-0" onchange="saveState()"><div><div class="step-label">Upload Schema Generator doc to Claude</div>
-            <a href="https://docs.google.com/document/d/1labL6l4YBkop02jZhGEujg_OfAgKYElCwQ2hctGIXI8/edit" target="_blank" class="link-pill" style="margin-top:4px;"><i class="fas fa-database"></i> Master Schema Generator v1.4 ↗</a>
+            <a href="https://docs.google.com/document/d/1labL6l4YBkop02jZhGEujg_OfAgKYElCwQ2hctGIXI8/edit" target="_blank" rel="noopener noreferrer" class="link-pill" style="margin-top:4px;"><i class="fas fa-database"></i> Master Schema Generator v1.4 ↗</a>
         </div></div>
         <button class="btn btn-gold btn-full" style="margin:8px 0;" onclick="copyPrompt('STS','schema');animateButton(this,'Copying...','Copied!')"><i class="fas fa-code"></i> Copy schema prompt</button>
         <div class="step"><input type="checkbox" id="${key}-p5-1" onchange="saveState()"><div class="step-label">Schema ready — wrapped in script tags</div></div>
@@ -513,11 +513,11 @@ function buildWizardHTML(company) {
         <div style="font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--text-muted);margin:4px 0;" id="sts-joomlaUrl">${joomlaUrl||'—'}</div>
         <div style="display:flex;gap:6px;margin:8px 0;">
             <button class="btn btn-navy" style="flex:1;" onclick="testLiveUrl('STS')"><i class="fas fa-external-link-alt"></i> Test pre-SEF URL</button>
-            <a href="https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_sef&controller=sefurls&viewmode=3" target="_blank" class="btn btn-gold" style="flex:1;text-decoration:none;"><i class="fas fa-link"></i> SEF Manager</a>
+            <a href="https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_sef&controller=sefurls&viewmode=3" target="_blank" rel="noopener noreferrer" class="btn btn-gold" style="flex:1;text-decoration:none;"><i class="fas fa-link"></i> SEF Manager</a>
         </div>
         <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-4" onchange="saveState()"><div class="step-label">SEF URL shortened and saved</div></div>
         <div class="section-sep">Cache + verify</div>
-        <a href="https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_cache" target="_blank" class="link-pill" style="margin-bottom:8px;"><i class="fas fa-broom"></i> Clear Cache ↗</a>
+        <a href="https://www.stselectronicrecyclinginc.com/administrator/index.php?option=com_cache" target="_blank" rel="noopener noreferrer" class="link-pill" style="margin-bottom:8px;"><i class="fas fa-broom"></i> Clear Cache ↗</a>
         <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-5" onchange="saveState()"><div class="step-label">Cache cleared — shortened URL loads</div></div>
         <div class="section-sep">Log to tracker</div>
         <div class="log-preview">
@@ -526,7 +526,7 @@ function buildWizardHTML(company) {
         </div>
         <button class="btn btn-red btn-full" id="sts-logBtn" style="margin-top:8px;" onclick="logBlog('STS')"><i class="fas fa-paper-plane"></i> Log to STS sheet</button>
         <div id="sts-logStatus" style="font-size:10px;color:var(--text-muted);text-align:center;display:none;margin-top:4px;"></div>
-        <a href="https://docs.google.com/spreadsheets/d/1GD45icQKkbfJyt5NvxpgGvMfm35GLoqG5QP5GDfSvBY/edit?gid=774290803" target="_blank" style="display:block;text-align:center;font-size:10px;color:var(--text-muted);margin-top:6px;">Open STS Tracker manually ↗</a>
+        <a href="https://docs.google.com/spreadsheets/d/1GD45icQKkbfJyt5NvxpgGvMfm35GLoqG5QP5GDfSvBY/edit?gid=774290803" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;font-size:10px;color:var(--text-muted);margin-top:6px;">Open STS Tracker manually ↗</a>
     </div>`);
     } else if(isDCD) {
         phaseContent.push(`<div class="wp-body">
@@ -537,7 +537,7 @@ function buildWizardHTML(company) {
         <div class="section-sep">Verify URL</div>
         <div style="background:var(--cream);border:2px solid var(--dcd-teal);border-radius:8px;padding:12px;margin:8px 0;">
             <div style="font-size:10px;font-weight:700;color:var(--dcd-teal);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Live blog URL</div>
-            <a id="dcd-liveLink" href="${liveUrl||'#'}" target="_blank" style="display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dcd-teal);word-break:break-all;text-decoration:underline;">${liveUrl||'—'}</a>
+            <a id="dcd-liveLink" href="${liveUrl||'#'}" target="_blank" rel="noopener noreferrer" style="display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dcd-teal);word-break:break-all;text-decoration:underline;">${liveUrl||'—'}</a>
         </div>
         <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-4" onchange="saveState()"><div class="step-label">Live URL loads — no 404</div></div>
         <div class="section-sep">Log to tracker</div>
@@ -547,7 +547,7 @@ function buildWizardHTML(company) {
         </div>
         <button class="btn btn-red btn-full" id="dcd-logBtn" style="margin-top:8px;" onclick="logBlog('DCD')"><i class="fas fa-paper-plane"></i> Log to DCD sheet</button>
         <div id="dcd-logStatus" style="font-size:10px;color:var(--text-muted);text-align:center;display:none;margin-top:4px;"></div>
-        <a href="https://docs.google.com/spreadsheets/d/1GD45icQKkbfJyt5NvxpgGvMfm35GLoqG5QP5GDfSvBY/edit?gid=1625373374" target="_blank" style="display:block;text-align:center;font-size:10px;color:var(--text-muted);margin-top:6px;">Open DCD Tracker manually ↗</a>
+        <a href="https://docs.google.com/spreadsheets/d/1GD45icQKkbfJyt5NvxpgGvMfm35GLoqG5QP5GDfSvBY/edit?gid=1625373374" target="_blank" rel="noopener noreferrer" style="display:block;text-align:center;font-size:10px;color:var(--text-muted);margin-top:6px;">Open DCD Tracker manually ↗</a>
     </div>`);
     } else {
         phaseContent.push(`<div class="wp-body">
@@ -557,7 +557,7 @@ function buildWizardHTML(company) {
         <div class="section-sep">Verify URL</div>
         <div style="background:var(--cream);border:2px solid var(--tc-green);border-radius:8px;padding:12px;margin:8px 0;">
             <div style="font-size:10px;font-weight:700;color:var(--tc-green);text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;">Live blog URL</div>
-            <a id="tc-liveLink" href="${liveUrl||'#'}" target="_blank" style="display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tc-green);word-break:break-all;text-decoration:underline;">${liveUrl||'—'}</a>
+            <a id="tc-liveLink" href="${liveUrl||'#'}" target="_blank" rel="noopener noreferrer" style="display:block;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--tc-green);word-break:break-all;text-decoration:underline;">${liveUrl||'—'}</a>
         </div>
         <div class="step"><input type="checkbox" id="${key}-p${pubPhaseIdx+1}-3" onchange="saveState()"><div class="step-label">Live URL loads — no 404</div></div>
         <div class="section-sep">Log to tracker</div>

@@ -135,11 +135,13 @@ function App() {
             className="pt-toggle"
             onClick={() => setMenuOpen((open) => !open)}
             aria-label="Toggle menu"
+            aria-expanded={menuOpen}
+            aria-controls="pt-menu"
           >
             <i className="fas fa-bars" />
           </button>
 
-          <div className={`pt-menu${menuOpen ? " open" : ""}`}>
+          <div id="pt-menu" className={`pt-menu${menuOpen ? " open" : ""}`}>
             <div className="pt-tools">
               {TOOLS.map((tool, index) => (
                 <button
@@ -147,6 +149,7 @@ function App() {
                   key={tool.file}
                   className={`pt-item${index === activeIndex ? " active" : ""}`}
                   onClick={() => selectTool(index)}
+                  aria-current={index === activeIndex ? "page" : undefined}
                 >
                   <i className={tool.icon} />
                   {tool.label}

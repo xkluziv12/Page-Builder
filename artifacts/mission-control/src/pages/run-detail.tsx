@@ -610,7 +610,7 @@ export default function RunDetail() {
     <div className="flex flex-col h-full overflow-hidden">
       <header className="h-16 flex items-center justify-between px-6 border-b border-border bg-card shrink-0">
         <div className="flex items-center gap-3 min-w-0">
-          <Button variant="ghost" size="icon" asChild>
+          <Button variant="ghost" size="icon" asChild aria-label="Back to dashboard">
             <Link href="/">
               <ArrowLeft className="h-4 w-4" />
             </Link>

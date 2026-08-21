@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, CheckCircle2, Clock, Copy, Check, Database, LayoutTemplate, Link as LinkIcon, ShieldAlert, FileText, Image as ImageIcon, DollarSign } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useDataset } from "@/contexts/dataset-context";
-import { getDataset } from "@/data/datasets";
+import { DATASETS, getDataset } from "@/data/datasets";
 
 /** Resolve a screenshot path stored in results.json against the app's base URL. */
 function shotUrl(path: string | null | undefined): string | null {
@@ -64,8 +64,12 @@ export default function ModelDetail() {
   // The URL is the source of truth for which dataset this page shows; keep the
   // shared switcher (sidebar/dashboard) in sync when navigating directly here.
   useEffect(() => {
-    if (datasetId && datasetId !== activeId) setActiveId(datasetId);
+    if (datasetId && datasetId !== activeId && DATASETS.some(d => d.id === datasetId)) {
+      setActiveId(datasetId);
+    }
   }, [datasetId, activeId, setActiveId]);
+
+  if (!DATASETS.some(d => d.id === datasetId)) return <NotFound />;
 
   const results = getDataset(datasetId).results;
   const scenario = results.scenarios.find(s => s.id === scenarioId);
