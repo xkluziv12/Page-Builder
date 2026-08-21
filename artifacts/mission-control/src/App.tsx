@@ -2,6 +2,7 @@ import { Switch, Route, Router as WouterRouter } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AdminAccessGate } from "@/components/admin-access-gate";
 import { AppLayout } from "@/components/layout";
 import { SystemModeProvider } from "@/hooks/use-system-mode";
 import Dashboard from "@/pages/dashboard";
@@ -26,18 +27,20 @@ function Router() {
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <SystemModeProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <AppLayout>
-              <Router />
-            </AppLayout>
-          </WouterRouter>
-        </SystemModeProvider>
-        <Toaster />
-      </TooltipProvider>
-    </QueryClientProvider>
+    <AdminAccessGate>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <SystemModeProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <AppLayout>
+                <Router />
+              </AppLayout>
+            </WouterRouter>
+          </SystemModeProvider>
+          <Toaster />
+        </TooltipProvider>
+      </QueryClientProvider>
+    </AdminAccessGate>
   );
 }
 

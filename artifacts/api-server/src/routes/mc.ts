@@ -42,9 +42,11 @@ import {
 import { logger } from "../lib/logger";
 import { recordSnapshot, upsertWorkLog } from "../lib/mc-worklog";
 import { triggerSheetsSyncBestEffort } from "../lib/mc-worklog-external";
+import { requireAdmin } from "../middlewares/adminAuth";
 import { normalizeWorkLogUrl, type KeywordPosition } from "@workspace/mc-core";
 
 const router: IRouter = Router();
+router.use(requireAdmin);
 
 const PHASE_SET = new Set(PHASE_ORDER);
 

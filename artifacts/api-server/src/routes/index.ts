@@ -3,6 +3,7 @@ import githubSyncRouter from "./github-sync";
 import healthRouter from "./health";
 import mcRouter from "./mc";
 import mcWorkLogRouter from "./mc-worklog";
+import { requireAdmin } from "../middlewares/adminAuth";
 import promptsRouter from "./prompts";
 
 const router: IRouter = Router();
@@ -10,7 +11,7 @@ const router: IRouter = Router();
 router.use(healthRouter);
 router.use(githubSyncRouter);
 router.use(mcRouter);
-router.use(mcWorkLogRouter);
+router.use(requireAdmin, mcWorkLogRouter);
 router.use(promptsRouter);
 
 export default router;
