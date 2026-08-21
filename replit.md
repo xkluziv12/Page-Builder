@@ -67,6 +67,26 @@ Apply these on every build in this repo. Full reference: `docs/marks-builder-pro
 
 _Populate as you build — sharp edges, "always run X before Y" rules._
 
+## Claude CLI dispatch (Replit as supervisor)
+
+Adopted from Mark's Replit-Agent rules packet, adapted to this repo's actual architecture. Applies to all new work in this workspace, not only Mission Control.
+
+- **Roles are split.** Claude Code CLI is the implementation, debugging, and verification worker. Replit's own Agent is the scope/dispatch/supervision layer: it defines the task, hands it to the CLI, and independently re-checks the result. Replit does not write the fix itself when the CLI can be dispatched instead.
+- **Default model: Sonnet at medium reasoning effort.** Use a stronger tier only when a task explicitly calls for it, not by default.
+- **Exact invocation** (stdin input, no session persistence — each dispatch is a fresh process, never `--continue`/`--resume`):
+  ```
+  cat <task-file> | claude --print --model sonnet --effort medium --permission-mode plan
+  cat <task-file> | claude --print --model sonnet --effort medium --permission-mode acceptEdits
+  ```
+  Use `plan` for diagnosis/audit-only dispatches and `acceptEdits` only for an already-scoped, approved implementation task.
+- **Bounded, named-file tasks only.** Scope each dispatch to one artifact (Mission Control, Page Terminal, Bake-Off, or the API/shared-core layer) and a named list of files, per the pattern already in `.agents/memory/claude-cli-workflow.md`. Open-ended root-wide "audit and fix" prompts have previously run past the shell execution window without a trustworthy result.
+- **Audit and implementation are separate dispatches.** Run a `plan` pass to diagnose first; only start a separate `acceptEdits` pass once the fix is scoped and approved. Don't fold both into one dispatch.
+- **Completion requires more than exit code 0.** A dispatch is done only when the CLI's exit code is clean AND Replit independently reruns the artifact's own verification commands (see each `artifacts/*/CLAUDE.md`) and inspects the diff. Exit code alone is not proof of a correct change.
+- **Secret checks are presence-only.** When a dispatch needs to confirm a secret is configured, probe for its presence (e.g. that the env var is set) and never print, log, or echo its value. Locally verified secret names actually read by this codebase: `DATABASE_URL`, `ADMIN_TOKEN`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `GEMINI_API_KEY`, `PERPLEXITY_API_KEY`, `SERPAPI_API_KEY`, `DATAFORSEO_LOGIN`, `DATAFORSEO_PASSWORD`, `GTMETRIX_API_KEY`, `GITHUB_WEBHOOK_SECRET`, `GITHUB_SYNC_REPO`, `XKLUZIV12_GITHUB_MASTER_TOKEN`, `JOOMLA_PUBLISH_URL`, `JOOMLA_PUBLISH_TOKEN`, `WORKLOG_SHEET_ID`. Treat any secret name not confirmed by reading current source as unverified.
+- **No new Replit-managed LLM integrations or connectors.** The `[agent] integrations` list in `.replit` currently wires up `github` and `google-drive` only — no Replit-managed AI/LLM connector exists or should be added. Mission Control's model access (`@workspace/integrations-anthropic-ai`, `ANTHROPIC_API_KEY`) is a **pre-existing, deliberate exception**: a direct Anthropic SDK integration chosen by project design before this rules adoption, kept as-is. Any *new* provider work (a new model, a new AI-backed feature) must go through a direct SDK/API-key integration the same way, wired through STS's own key, never through a new Replit blueprint/connector for an LLM. This does not affect "Replit mode" (`docs/replit-agent-runbook.md`), which is a human-driven Mission Control build engine, not an LLM connector.
+- **Google Drive stays out of scope for new work.** The existing Drive connector (prompt-library publish target in `artifacts/api-server/src/lib/googleDrive.ts`) is legacy and unchanged; do not expand its usage or add Drive integration anywhere else (already enforced per-artifact in each `artifacts/*/CLAUDE.md`).
+- **GitHub and deployment boundaries as they actually exist today:** `.replit` deploys this workspace as a single `autoscale` target; outbound GitHub sync is a **one-way mirror** (workspace to `xkluziv12/page-terminal@main`) driven by `github-mirror-scheduler.ts`, gated by the `XKLUZIV12_GITHUB_MASTER_TOKEN` secret, with a separate admin-gated manual trigger (`POST /api/github-sync/now`). Inbound prompt sync from `GITHUB_SOURCE_REPO` is a distinct, read-only path gated by `GITHUB_WEBHOOK_SECRET` + HMAC. Neither Replit nor a Claude CLI dispatch should push to any other GitHub repo, force-push, or change deployment config without an explicit, separate approval.
+
 ## Pointers
 
 - See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
