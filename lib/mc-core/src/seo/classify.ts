@@ -1,4 +1,4 @@
-import { isPrivateHostname } from "./url";
+import { fetchWithValidatedDns, isPublicHostname, type HostnameResolver } from "./url";
 import { extractLocations } from "./location";
 import type { Classification, TargetPageProbe } from "./types";
 
@@ -30,11 +30,16 @@ export function deriveClassification(probe: TargetPageProbe): Classification {
  */
 export async function probeTargetPage(
   url: string,
-  fetchImpl: typeof fetch = fetch,
+  fetchImpl?: typeof fetch,
+  resolveHostname?: HostnameResolver,
 ): Promise<TargetPageProbe> {
   try {
     let current = url;
     let res: Response | null = null;
+    const pageFetch =
+      fetchImpl ??
+      ((input: string | URL | Request, init?: RequestInit) =>
+        fetchWithValidatedDns(String(input), init, resolveHostname));
     // Follow redirects manually so every hop's host is re-checked against the
     // SSRF guard — a public URL must not be able to redirect into internal space.
     for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
@@ -44,10 +49,10 @@ export async function probeTargetPage(
       } catch {
         return { exists: false, status: null, wordCount: 0 };
       }
-      if (isPrivateHostname(host)) {
+      if (!(await isPublicHostname(host, resolveHostname))) {
         return { exists: false, status: null, wordCount: 0 };
       }
-      res = await fetchImpl(current, {
+      res = await pageFetch(current, {
         method: "GET",
         headers: { "User-Agent": "Mozilla/5.0 (compatible; MissionControl/1.0)" },
         redirect: "manual",

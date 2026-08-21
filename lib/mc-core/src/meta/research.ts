@@ -2,7 +2,9 @@ import type Anthropic from "@anthropic-ai/sdk";
 import {
   cityNamesEquivalent,
   extractLocations,
+  fetchWithValidatedDns,
   fetchSeoIntel,
+  isPublicHostname,
   isPrivateHostname,
   normalizeStateToAbbr,
   normalizeTargetUrl,
@@ -40,7 +42,10 @@ export async function researchMeta(
   input: MetaResearchInput,
   deps: MetaResearchDeps,
 ): Promise<MetaResearchResult> {
-  const fetchImpl = deps.fetchImpl ?? fetch;
+  const fetchImpl =
+    deps.fetchImpl ??
+    ((input: string | URL | Request, init?: RequestInit) =>
+      fetchWithValidatedDns(String(input), init, deps.resolveHostname));
   const model = deps.model ?? DEFAULT_MODEL;
   const county = input.county?.trim() ? input.county.trim().replace(/\s+county$/i, "") : null;
 
@@ -59,7 +64,7 @@ export async function researchMeta(
     );
   }
 
-  const html = await fetchHtml(normalized, fetchImpl);
+  const html = await fetchHtml(normalized, fetchImpl, deps.resolveHostname);
   const content = extractPageContent(html);
   const pageLocs = extractLocations(html);
 
@@ -277,7 +282,11 @@ async function synthesizeMeta(
 }
 
 /** GET the page HTML, following redirects with a per-hop SSRF check. Fails loud. */
-async function fetchHtml(url: string, fetchImpl: typeof fetch): Promise<string> {
+async function fetchHtml(
+  url: string,
+  fetchImpl: typeof fetch,
+  resolveHostname?: import("../seo").HostnameResolver,
+): Promise<string> {
   let current = url;
   for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
     let host: string;
@@ -286,8 +295,8 @@ async function fetchHtml(url: string, fetchImpl: typeof fetch): Promise<string> 
     } catch {
       throw new Error(`Invalid URL while fetching the target page: ${current}`);
     }
-    if (isPrivateHostname(host)) {
-      throw new Error(`Refusing to fetch a private/internal address: ${host}`);
+    if (!(await isPublicHostname(host, resolveHostname))) {
+      throw new Error(`Refusing to fetch a private, internal, or unresolved address: ${host}`);
     }
     const res = await fetchImpl(current, {
       method: "GET",

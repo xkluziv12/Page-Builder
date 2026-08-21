@@ -1,5 +1,5 @@
 import type Anthropic from "@anthropic-ai/sdk";
-import type { SeoCompetitor, SeoCredentials } from "../seo";
+import type { HostnameResolver, SeoCompetitor, SeoCredentials } from "../seo";
 
 /** What the caller asks for: a target page URL and an optional county. */
 export interface MetaResearchInput {
@@ -15,6 +15,8 @@ export interface MetaResearchDeps {
   creds: SeoCredentials;
   /** Optional fetch override (tests). */
   fetchImpl?: typeof fetch;
+  /** Optional DNS resolver override (tests). */
+  resolveHostname?: HostnameResolver;
   /** Optional Anthropic model override. */
   model?: string;
 }

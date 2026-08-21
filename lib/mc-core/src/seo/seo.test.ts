@@ -4,6 +4,8 @@ import {
   stateNameForAbbr,
   normalizeTargetUrl,
   isPrivateHostname,
+  isPublicHostname,
+  fetchWithValidatedDns,
   normalizeStateToAbbr,
 } from "./url";
 import { extractLocations, cityNamesEquivalent } from "./location";
@@ -108,6 +110,18 @@ describe("normalizeTargetUrl", () => {
     expect(normalizeTargetUrl("file:///etc/passwd")).toBeNull();
     expect(normalizeTargetUrl("ftp://x.com/a")).toBeNull();
   });
+  it("rejects alternate numeric spellings of private IPv4 addresses", () => {
+    for (const raw of [
+      "http://2130706433/",
+      "http://0177.0.0.1/",
+      "http://0x7f000001/",
+      "http://127.1/",
+      "http://[::ffff:127.0.0.1]/",
+      "http://[::ffff:7f00:1]/",
+    ]) {
+      expect(normalizeTargetUrl(raw)).toBeNull();
+    }
+  });
 });
 
 describe("isPrivateHostname", () => {
@@ -120,6 +134,18 @@ describe("isPrivateHostname", () => {
       "172.16.5.5",
       "169.254.1.1",
       "::1",
+      "::ffff:127.0.0.1",
+      "::ffff:7f00:1",
+      "0.0.0.0",
+      "192.0.2.1",
+      "198.18.0.1",
+      "198.51.100.1",
+      "203.0.113.1",
+      "224.0.0.1",
+      "255.255.255.255",
+      "fc00::1",
+      "fe80::1",
+      "2001:db8::1",
       "metadata.internal",
       "printer.local",
     ]) {
@@ -130,6 +156,31 @@ describe("isPrivateHostname", () => {
     for (const h of ["stsrecycling.com", "8.8.8.8", "172.15.0.1", "172.32.0.1"]) {
       expect(isPrivateHostname(h)).toBe(false);
     }
+  });
+});
+
+describe("isPublicHostname", () => {
+  it("requires every DNS answer to be public", async () => {
+    const resolver = async () => ["93.184.216.34", "10.0.0.8"];
+    await expect(isPublicHostname("public.example.com", resolver)).resolves.toBe(false);
+  });
+
+  it("allows a hostname with only public DNS answers", async () => {
+    const resolver = async () => ["93.184.216.34", "2606:2800:220:1:248:1893:25c8:1946"];
+    await expect(isPublicHostname("public.example.com", resolver)).resolves.toBe(true);
+  });
+});
+
+describe("fetchWithValidatedDns", () => {
+  it("refuses a private answer at the connection lookup boundary", async () => {
+    let lookups = 0;
+    await expect(
+      fetchWithValidatedDns("http://rebind.example.com/austin-tx", {}, async () => {
+        lookups += 1;
+        return ["127.0.0.1"];
+      }),
+    ).rejects.toThrow("Refusing to connect to a non-public address");
+    expect(lookups).toBe(1);
   });
 });
 
@@ -147,19 +198,36 @@ describe("probeTargetPage (SSRF guard)", () => {
 
   it("blocks a redirect into private space", async () => {
     const hosts: string[] = [];
+    const resolver = async (host: string) =>
+      host === "blocked.example.com" ? ["127.0.0.1"] : ["93.184.216.34"];
     const fakeFetch = (async (input: string) => {
       hosts.push(new URL(input).hostname);
       if (new URL(input).hostname === "public.example.com") {
         return new Response(null, {
           status: 302,
-          headers: { location: "http://127.0.0.1/secret" },
+          headers: { location: "https://blocked.example.com/secret" },
         });
       }
       return new Response("should not reach", { status: 200 });
     }) as unknown as typeof fetch;
-    const r = await probeTargetPage("https://public.example.com/redir", fakeFetch);
+    const r = await probeTargetPage("https://public.example.com/redir", fakeFetch, resolver);
     expect(hosts).toEqual(["public.example.com"]);
     expect(r.exists).toBe(false);
+  });
+
+  it("refuses a public hostname that resolves to a private address", async () => {
+    let called = false;
+    const fakeFetch = (async () => {
+      called = true;
+      return new Response("x", { status: 200 });
+    }) as unknown as typeof fetch;
+    const r = await probeTargetPage(
+      "https://rebind.example.com/austin-tx",
+      fakeFetch,
+      async () => ["169.254.169.254"],
+    );
+    expect(called).toBe(false);
+    expect(r).toEqual({ exists: false, status: null, wordCount: 0 });
   });
 
   it("reads a normal public page", async () => {
@@ -167,7 +235,11 @@ describe("probeTargetPage (SSRF guard)", () => {
       new Response("<html><body><p>one two three</p></body></html>", {
         status: 200,
       })) as unknown as typeof fetch;
-    const r = await probeTargetPage("https://public.example.com/austin-tx", fakeFetch);
+    const r = await probeTargetPage(
+      "https://public.example.com/austin-tx",
+      fakeFetch,
+      async () => ["93.184.216.34"],
+    );
     expect(r.exists).toBe(true);
     expect(r.wordCount).toBe(3);
   });

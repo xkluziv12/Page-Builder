@@ -5,8 +5,17 @@ import { stateNameForAbbr } from "./url";
 import type { SeoCredentials, SeoIntel, SeoKeyword } from "./types";
 
 export * from "./types";
-export { parseCityState, stateNameForAbbr, normalizeStateToAbbr, normalizeTargetUrl, isPrivateHostname } from "./url";
-export type { ParsedLocation } from "./url";
+export {
+  parseCityState,
+  stateNameForAbbr,
+  normalizeStateToAbbr,
+  normalizeTargetUrl,
+  isPrivateHostname,
+  isPublicHostname,
+  resolveHostname,
+  fetchWithValidatedDns,
+} from "./url";
+export type { ParsedLocation, HostnameResolver } from "./url";
 export {
   deriveClassification,
   probeTargetPage,
