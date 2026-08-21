@@ -23,6 +23,7 @@
     "github:sync": "tsx ./src/github-sync.ts",
     "seed-prompts": "tsx ./src/seed-prompts.ts",
     "test": "vitest run",
+    "test:api-security": "vitest run ./tests/api-route-security.test.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

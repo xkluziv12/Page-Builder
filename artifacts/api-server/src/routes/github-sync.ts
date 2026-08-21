@@ -3,6 +3,7 @@ import {
   getGitHubSyncStatus,
   runGitHubSyncNow,
 } from "../lib/github-mirror-scheduler";
+import { requireAdmin } from "../middlewares/adminAuth";
 
 const router: IRouter = Router();
 
@@ -14,7 +15,7 @@ router.get("/github-sync/status", (_req, res): void => {
 
 // Manual "sync now" trigger. Runs a full mirror pass immediately and returns
 // the summary; 502 when the push failed so callers can't mistake it for success.
-router.post("/github-sync/now", async (req, res): Promise<void> => {
+router.post("/github-sync/now", requireAdmin, async (req, res): Promise<void> => {
   req.log.info("Manual GitHub sync triggered");
   const summary = await runGitHubSyncNow();
   res.status(summary.ok ? 200 : 502).json(summary);

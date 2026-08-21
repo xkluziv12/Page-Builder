@@ -744,7 +744,9 @@ paths:
       tags:
         - github-sync
       summary: Trigger a GitHub mirror pass now
-      description: Runs a full mirror pass immediately. Returns 502 when the push failed.
+      description: Requires an admin bearer token. Runs a full mirror pass immediately. Returns 502 when the push failed.
+      security:
+        - adminToken: []
       responses:
         "200":
           description: Sync summary
@@ -752,6 +754,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/GithubSyncSummary"
+        "401":
+          description: Missing or invalid admin token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
         "502":
           description: Sync failed
           content:

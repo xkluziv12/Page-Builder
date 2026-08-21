@@ -10,8 +10,11 @@ const router: IRouter = Router();
 
 router.use(healthRouter);
 router.use(githubSyncRouter);
+// Prompt status and published-prompt reads are intentionally public. Mount
+// before the router-wide Mission Control admin gate so it cannot intercept
+// these safe prompt endpoints.
+router.use(promptsRouter);
 router.use(mcRouter);
 router.use(requireAdmin, mcWorkLogRouter);
-router.use(promptsRouter);
 
 export default router;

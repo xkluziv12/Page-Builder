@@ -45,29 +45,33 @@ router.post(
   },
 );
 
-// GitHub push webhook → instant resync. If GITHUB_WEBHOOK_SECRET is set, the
-// X-Hub-Signature-256 HMAC is verified against the raw body; otherwise the
-// endpoint runs unauthenticated (it only triggers a read-only resync).
+// GitHub push webhook → instant resync. This endpoint is disabled unless its
+// signature secret is configured, then verifies the X-Hub-Signature-256 HMAC
+// against the raw body before it can trigger a sync.
 router.post("/prompts/sync/github", (req, res): void => {
   const secret = process.env.GITHUB_WEBHOOK_SECRET?.trim();
-  if (secret) {
-    const signature = req.get("x-hub-signature-256") ?? "";
-    const raw = (req as unknown as { rawBody?: Buffer }).rawBody;
-    if (!raw) {
-      res.status(400).json({ message: "Missing raw body for signature check." });
-      return;
-    }
-    const expected =
-      "sha256=" +
-      crypto.createHmac("sha256", secret).update(raw).digest("hex");
-    const valid =
-      signature.length === expected.length &&
-      crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
-    if (!valid) {
-      res.status(401).json({ message: "Invalid webhook signature." });
-      return;
-    }
+  if (!secret) {
+    res.status(503).json({ message: "Webhook signature verification is not configured." });
+    return;
   }
+
+  const signature = req.get("x-hub-signature-256") ?? "";
+  const raw = (req as unknown as { rawBody?: Buffer }).rawBody;
+  if (!raw) {
+    res.status(400).json({ message: "Missing raw body for signature check." });
+    return;
+  }
+  const expected =
+    "sha256=" +
+    crypto.createHmac("sha256", secret).update(raw).digest("hex");
+  const valid =
+    signature.length === expected.length &&
+    crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expected));
+  if (!valid) {
+    res.status(401).json({ message: "Invalid webhook signature." });
+    return;
+  }
+
   // Acknowledge fast; run the sync in the background.
   res.status(202).json({ accepted: true });
   void syncFromGit({ force: true });
