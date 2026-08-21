@@ -19,6 +19,8 @@ The root `replit.md` "Claude CLI dispatch" section and the standalone root `CLAU
 - Any *new* provider/model work must follow the same direct SDK/API-key pattern (see `OpenAIEngine`/`GeminiEngine` in `mc-runtime.ts`); no new Replit-managed LLM integration goes into `.replit`'s `[agent] integrations` list.
 - Google Drive is frozen at its existing legacy usage (`googleDrive.ts`, `promptSync.ts`) — out of scope for any new work, in any artifact.
 - Protected paths (`.replit`, `artifact.toml`, `replit.nix`, `.env*`, lockfiles, `attached_assets/`) and the actual GitHub/deployment boundaries (one-way outbound mirror only, no other pushes/force-pushes/deploy-config changes) are enumerated in root `CLAUDE.md`, not reinvented per dispatch.
+- Grok and Codex remain dormant unless their installation and workflow are verified locally. Do not fabricate wrappers, health checks, gates, hooks, or task systems from the universal packet.
+- Long jobs require a managed workflow or human-owned Shell tab, and imported operational claims must retain their evidence classification until reproduced here.
 
 **Why:** Without a written boundary, a dispatch could plausibly "improve" the Anthropic integration into a Replit connector, expand Drive usage, or push to an unintended remote — all plausible-looking but unauthorized changes.
 

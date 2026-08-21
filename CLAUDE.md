@@ -2,6 +2,10 @@
 
 This file governs Claude Code CLI dispatches in this workspace. It stands alone: read it even if you were not given `replit.md` or an artifact `CLAUDE.md` in your task context. Replit's own Agent is the layer that scopes, dispatches, and independently verifies your work; you are the implementation, debugging, and verification worker for the bounded task you were given.
 
+## Communication and planning
+
+Call the operator Mark. Use plain, concise, scannable language. Lead with the answer, challenge flawed assumptions, state uncertainty instead of guessing, and plan before editing. Never present partial work as complete. Do not use em dashes in new deliverables.
+
 ## Root workspace boundary
 
 This is a pnpm workspace monorepo (`pnpm-workspace.yaml`) with four independently deployed frontend artifacts under `artifacts/*` sharing packages under `lib/*`. A dispatch scoped to one artifact must not edit files in another artifact, `lib/*`, or root config unless the task explicitly names those files. If a fix in your scope appears to require a change outside it, stop and report that instead of reaching across the boundary.
@@ -56,7 +60,17 @@ Never print, log, echo, or write a secret value in any tool output, commit, or r
 
 ## No unapproved GitHub or deployment operations
 
-The only sanctioned GitHub write path from this workspace is the existing one-way outbound mirror to `xkluziv12/page-terminal@main` (already implemented, admin-gated, token-gated). Do not push to any other repo, do not force-push, do not touch deployment config (`.replit` `[deployment]`, `artifact.toml` files) unless the task explicitly names that as the work.
+The only sanctioned application runtime GitHub write path from this workspace is the existing one-way outbound mirror to `xkluziv12/page-terminal@main` (already implemented, admin-gated, token-gated). Do not manually commit or push, push to any other repo, force-push, or touch deployment config (`.replit` `[deployment]`, `artifact.toml` files) unless Mark explicitly names that as the work.
+
+## Long jobs and dormant tools
+
+Long work must be owned by a managed workflow or a human-owned Shell tab. Backgrounding from an agent shell with `&`, `nohup`, `setsid`, or a subshell is not reliable. Grok and Codex are dormant in this project because their installations and workflows are not locally verified. Do not create wrappers, health checks, or workflows for them as part of ordinary work.
+
+This repository does not have the packet's `.marks-rules` gate, pre-commit hook, task-tiering, build-discipline, or decision-log infrastructure. Do not fabricate or claim those controls.
+
+## Evidence discipline
+
+Classify operational claims as directly verified here, verified elsewhere, general recommendation, or requires local verification. Imported packet guidance is not local proof. A timeout, missing terminal result, interrupted process, or partial log is stopped or unknown, not success.
 
 ## Bounded-task and completion contract
 
