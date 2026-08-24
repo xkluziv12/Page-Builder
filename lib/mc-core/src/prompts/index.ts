@@ -1,6 +1,4 @@
-export { pageBuilderPrompt } from "./pageBuilder";
-export { schemaGeneratorPrompt } from "./schemaGenerator";
-export { seoAuditPrompt } from "./seoAudit";
+export { pageBuilderPrompt, schemaGeneratorPrompt, seoAuditPrompt } from "./editorialReview";
 export {
   buildPagePrompt,
   auditPagePrompt,

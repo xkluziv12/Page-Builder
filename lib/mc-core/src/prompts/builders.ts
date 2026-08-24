@@ -1,8 +1,6 @@
 import type { RunContext } from "../types";
 import { describeContext } from "../engine/context";
-import { pageBuilderPrompt } from "./pageBuilder";
-import { schemaGeneratorPrompt } from "./schemaGenerator";
-import { seoAuditPrompt } from "./seoAudit";
+import { pageBuilderPrompt, schemaGeneratorPrompt, seoAuditPrompt } from "./editorialReview";
 
 /**
  * The single source of truth for the per-phase prompt text that BOTH Mission

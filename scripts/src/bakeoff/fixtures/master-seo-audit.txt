@@ -246,7 +246,7 @@ This block exists because rule-following without understanding produced two real
 THE RULE ITSELF:
 Registrar requirement, July 2026. STS IS certified processing and may say so. What is forbidden is leaving the certified LOCATION ambiguous. Only Jacksonville, Texas and Houston, Texas are certified sites. Every other STS location is a collection and service point. A certification claim next to a city name and a local address reads as though that local site is certified. This is a location-clarity rule, not a removal rule.
 
-SCOPE: certified processing, certified processing, certified processing, secure recycling, secure data destruction, secure data destruction. Visible page text only.
+SCOPE: certified processing and secure data destruction. Visible page text only.
 NOT IN SCOPE, LEAVE EXACTLY AS-IS: title tags, meta description, meta keywords, og tags, image alt attributes, JSON-LD schema, HTML comments, and URLs. Do not strip these terms from those locations and do not add compliance handling for them.
 NOT IN SCOPE AT ALL: NIST, HIPAA, ISO 27001, DoD 5220.22-M, SOC 2, FISMA, FERPA, SOX, GLBA, FACTA, EPA, RIOS, e-Stewards. Every other standard is handled exactly as this prompt already handles it.
 
@@ -280,8 +280,8 @@ Secure Recycling = data security plus the service noun, strongest search value. 
 
 BY SLOT (for the slots this audit actually writes):
 - Headings and H2/H3 conversions: EITHER drop the certified processing token and keep "certified", OR lead with Secure. Rotate between the two across pages. "certified processing Electronics Recycling for {CITY}" becomes "Certified Electronics Recycling for {CITY}" or "Secure Electronics Recycling for {CITY}".
-- Body sentences, inline: "certified processing electronics recycling" becomes "secure electronics recycling". "our certified processing facility" becomes "our secure processing facility". "processed at certified processing-certified smelters" becomes "processed with full chain of custody". "secure data destruction certified data destruction" becomes "secure data destruction".
-- Paragraphs and long-form: real room, be specific, the triad works. "certified processing" becomes "secure, transparent, sustainable processing". "certified processing certification ensures downstream tracking" becomes "chain of custody documentation tracks every asset through final processing".
+- Body sentences, inline: "certified processing electronics recycling" becomes "secure electronics recycling". "our certified processing facility" becomes "our secure processing facility". "processed at certified processing-certified smelters" becomes "processed with full chain of custody". "secure data destruction certified data destruction" becomes "documented data destruction".
+- Paragraphs and long-form: real room, be specific, the triad works. "certified processing" becomes "secure, transparent, sustainable processing". "certification claims about downstream tracking" become "chain of custody documentation tracks every asset through final processing".
 - Link anchor text: keep the destination page's own term first. "certified processing electronics recycling" pointing at the e-waste page becomes "secure electronics recycling".
 
 ROTATION. A page must not read like one word was swapped everywhere, and 580 pages must not read like each other.
@@ -294,27 +294,27 @@ MECHANICS FOR EVERY REPLACEMENT:
 - Stay within 5 words of the original length. Within 2 on a card title or chip.
 - Replace the exact substring only. Do not regenerate the surrounding element, paragraph, or tag to change a term inside it.
 - Capitalize correctly. If the token started the sentence, the new first word is capitalized: "certified processing guarantees" becomes "Secure processing guarantees", never lowercase.
-- Fix the article: "an certified processing facility" becomes "a secure facility".
+- Fix the article: "a certified processing facility" becomes "a secure facility".
 - Never delete a sentence. If one resists every option, leave it and log it.
 - Never leave the same word twice in one clause, or the same phrase in two adjacent sentences, as a result of the edit.
 - If dropping the token leaves a phrase that says nothing, use a fuller approved option instead.
 
 THE WORD "CERTIFIED" IS REOPENED, WITH LIMITS (ruling 1, Aug 2 2026). Only the literal string "certified processing" triggers the location-clarity rule, so plain "certified" carries no compliance risk and does carry keyword value. This supersedes the earlier blanket ban.
-- ALLOWED in H1s, section headings, and body prose: "certified processing Electronics Recycling for {CITY}" becomes "Certified Electronics Recycling for {CITY}". "our certified processing facility" becomes "our certified processing facility".
+- ALLOWED in H1s, section headings, and body prose: "certified processing Electronics Recycling for {CITY}" becomes "Certified Electronics Recycling for {CITY}". "our certified processing facility" becomes "our secure processing facility".
 - NOT ALLOWED in trust chips, card titles, or stat labels. Use the approved short-slot terms there. A bare "Certified" beside "NIST SP 800-88 Rev. 2" looks broken; that shipped in production once already.
 - NEVER pair "certified" with a location-implying noun in a SHORT SLOT. "Certified Facility" on a {CITY} page still points at a place.
 - FLAGGED: this is the COO's read of the registrar, not the registrar's direct words. The earlier quote was "any time you advertise that you are certified", which conflicts. Follow the COO. If the registrar contradicts it later, remove "certified" from the vocabulary and nothing else changes.
 
-NO LOCATION-IMPLYING NOUNS IN A REPLACEMENT: facility, center, plant, site, location, warehouse, unless that same element names Jacksonville or Houston. EXCEPTION, SQUARE FOOTAGE (ruling 2): a facility SIZE figure is not a certification claim. "our 200,000 sq ft facility" needs no Jacksonville, no Houston, and no city qualifier. Do not strip the noun and do not add a location to it. Where a size figure sits in the same sentence as an certified processing or secure data destruction claim, fix the claim and keep the number untouched.
+NO LOCATION-IMPLYING NOUNS IN A REPLACEMENT: facility, center, plant, site, location, warehouse, unless that same element names Jacksonville or Houston. EXCEPTION, SQUARE FOOTAGE (ruling 2): a facility SIZE figure is not a certification claim. "our 200,000 sq ft facility" needs no Jacksonville, no Houston, and no city qualifier. Do not strip the noun and do not add a location to it. Where a size figure sits in the same sentence as a certified processing or secure data destruction claim, fix the claim and keep the number untouched.
 DO NOT CHANGE ANY SQUARE FOOTAGE NUMBER. The figure itself is in dispute (200,000 appears in every prompt and page; 200,000 was stated on the Aug 2 call). Report every square footage figure encountered under "Noticed but not fixed" and leave it exactly as found. This is a factual question for the COO, not an audit decision.
 
 NEVER SWAP IN A DIFFERENT STANDARD. If a pattern cites certified processing or secure data destruction, either drop the citation and state the fact plainly, or make it location-clear. Do NOT substitute another authority. A plausible-sounding citation that does not actually support its claim is worse than the problem it replaced.
 
 EDUCATIONAL EXEMPTION: a sentence that teaches what a standard requires, or what a buyer should look for in a vendor, makes no claim about STS. It is exempt, does not count against the budget, and must NOT be rewritten. Test: remove STS from the sentence. If the sentence is still true and still makes sense, it is education. If the sentence asserts or implies that STS holds the certification, it is a claim and the budget applies. Deleting a standard from a neutral checklist makes the guidance worse, not safer.
 
-NEGATIVE-SCOPE DISCLAIMER, EXEMPT AND PROTECTED. Pages cleaned by cleanup policy v4.7 with SCOPE_LINE enabled carry this approved sentence: "Our {CITY} location is a collection and service point. It is not an certified processing facility." It contains an in-scope term, names the local city, and does NOT name Jacksonville or Houston, so a naive location-clarity check will flag it. It is exempt. It is a disclaimer that denies local certification, which is the opposite of the flagged problem and strictly improves compliance. Never rewrite it, never strip its certified processing reference, never count it against the budget, and never "fix" it by adding Jacksonville or Houston. Recognize it by its negating construction: "is not", "does not hold", "is a collection and service point".
+NEGATIVE-SCOPE DISCLAIMER, EXEMPT AND PROTECTED. Pages cleaned by cleanup policy v4.7 with SCOPE_LINE enabled carry this approved sentence: "Our {CITY} location is a collection and service point. It is not a certified processing facility." It contains an in-scope term, names the local city, and does NOT name Jacksonville or Houston, so a naive location-clarity check will flag it. It is exempt. It is a disclaimer that denies local certification, which is the opposite of the flagged problem and strictly improves compliance. Never rewrite it, never strip its certified processing reference, never count it against the budget, and never "fix" it by adding Jacksonville or Houston. Recognize it by its negating construction: "is not", "does not hold", "is a collection and service point".
 
-secure data destruction: ZERO SURVIVORS. Pending confirmation of which STS facilities hold secure data destruction, secure data destruction gets none of the three slots. Every secure data destruction and secure data destruction mention in visible page text gets an approved replacement. Do not guess a facility scope to keep one alive: a survivor must name its certified location in its own sentence, and that sentence cannot be written truthfully until the scope is known. REPORTED BUT UNCONFIRMED (ruling 4): secure data destruction is reported as Houston only, never Jacksonville. Do NOT act on this. It came from an auto-transcript of a garbled sentence and it is a factual claim about certification scope; acting on it would place a certification claim on roughly 2,000 pages on the strength of a transcription. WHEN CONFIRMED IN WRITING, the flip is one line: secure data destruction becomes eligible for SLOT 3 naming Houston only, never Jacksonville. Budget stays at 3. Nothing else moves.
+secure data destruction: ZERO SURVIVORS. Pending confirmation of which STS facilities hold secure data destruction certification, it gets none of the three slots. Every visible-text mention gets an approved replacement. Do not guess a facility scope to keep one alive: a survivor must name its certified location in its own sentence, and that sentence cannot be written truthfully until the scope is known. REPORTED BUT UNCONFIRMED (ruling 4): secure data destruction is reported as Houston only, never Jacksonville. Do NOT act on this. It came from an auto-transcript of a garbled sentence and it is a factual claim about certification scope; acting on it would place a certification claim on roughly 2,000 pages on the strength of a transcription. WHEN CONFIRMED IN WRITING, the flip is one line: secure data destruction becomes eligible for SLOT 3 naming Houston only, never Jacksonville. Budget stays at 3. Nothing else moves.
 
 UNIQUENESS POLICY:
 SEO Audit preserves uniqueness created by Page Builder but does not create it. Uniqueness is Page Builder's responsibility. Track uniqueness metrics as advisory only.
@@ -442,7 +442,7 @@ Build 4 registries:
 
 2. CONVERSION_REGISTRY: CTA buttons (count + positions). Form modules including {loadposition} tags (count + exact text). Phone tel: links (count + href values). Email links — mailto:, CloudFlare /cdn-cgi/l/email-protection#, and obfuscated formats (count + exact patterns). STS_HQ_CALLOUT: the element with class sts-hq-callout (present/absent, exact HTML if present). This block is the mandatory SLOT 1 compliance element per NON_NEGOTIABLES certification COMPLIANCE. Once registered it is preserved character-perfect: never remove it, never rewrite its certification sentence, never move it out of the body.
 
-2B. COMPLIANCE_BASELINE: count in-scope mentions in VISIBLE PAGE TEXT ONLY (exclude head, meta, og, alt attributes, JSON-LD, HTML comments, and URLs). Terms: certified processing, certified processing, certified processing, secure recycling, secure data destruction, secure data destruction. Record R2_secure data destruction_BEFORE = [N], and for each, whether its own sentence names Jacksonville or Houston (location-clear yes/no), and whether it is a claim or education per the EDUCATIONAL EXEMPTION test. This baseline is what Gate 6 measures against.
+2B. COMPLIANCE_BASELINE: count in-scope mentions in VISIBLE PAGE TEXT ONLY (exclude head, meta, og, alt attributes, JSON-LD, HTML comments, and URLs). Terms: certified processing and secure data destruction. Record secure-data-destruction mentions before editing = [N], and for each, whether its own sentence names Jacksonville or Houston (location-clear yes/no), and whether it is a claim or education per the EDUCATIONAL EXEMPTION test. This baseline is what Gate 6 measures against.
 
 3. HEAD_REGISTRY: Canonical URL (exact). Meta robots (exact). Character-perfect preservation required.
 
@@ -708,7 +708,7 @@ For each mentioned 3+ times with 30+ words each: Keep first full explanation, re
 
 Micro-reference strategy — use self-contained abbreviated phrases:
 - Good: "secure processing with documented chain of custody", "NIST 800-88 compliant", "HIPAA-compliant disposal"
-- A micro-reference is a NEVER-SPEND slot: it is too short to name Jacksonville or Houston, so it never carries certified processing, certified processing, certified processing, secure recycling, secure data destruction, or secure data destruction. Use approved vocabulary. Standards outside certification scope (NIST, HIPAA) are unaffected and keep their existing micro-references.
+- A micro-reference is a NEVER-SPEND slot: it is too short to name Jacksonville or Houston, so it never carries certified processing or secure data destruction. Use approved vocabulary. Standards outside certification scope (NIST, HIPAA) are unaffected and keep their existing micro-references.
 - Section reference: "(see Compliance)" — only use if HEADING_REGISTRY contains matching H2/H3. Otherwise use semantic micro-phrase.
 - Entities: First mention "United Airlines (96,000 employees)", later just "United Airlines"
 
@@ -1278,22 +1278,22 @@ Canonical unchanged. Robots unchanged. Character-perfect.
 If fail: Restore from HEAD_REGISTRY. Re-validate.
 
 GATE 6 — certification COMPLIANCE
-Count in-scope mentions in the FINAL HTML, visible page text only. Exclude head, meta, og, alt attributes, JSON-LD, HTML comments, and URLs: those are out of scope and are never counted or altered. Terms: certified processing, certified processing, certified processing, secure recycling, secure data destruction, secure data destruction.
+Count in-scope mentions in the FINAL HTML, visible page text only. Exclude head, meta, og, alt attributes, JSON-LD, HTML comments, and URLs: those are out of scope and are never counted or altered. Terms: certified processing and secure data destruction.
 
 Three separate checks:
 6A. AUDIT-ADDED COMPLIANCE. No mention this audit generated may be non-compliant. Compare final mentions against COMPLIANCE_BASELINE (Phase 0A 2B). For every mention that was NOT in the input, it must be either (a) inside an allocated slot AND location-clear in its own sentence, or (b) educational per the EDUCATIONAL EXEMPTION.
 If fail: this is the audit's own defect. Replace the offending mention with approved vocabulary and re-validate. This check must pass.
 
-6B. secure data destruction ZERO SURVIVORS. Count secure data destruction and secure data destruction in visible page text. Any mention the audit added or preserved in content it rewrote must be zero.
+6B. secure data destruction ZERO SURVIVORS. Count every visible-text mention of secure data destruction. Any mention the audit added or preserved in content it rewrote must be zero.
 If fail: replace with approved vocabulary and re-validate. This check must pass.
 
-6C. PAGE BUDGET. Applies to LOCATION-TARGETED pages only. If Phase 0C resolved NATIONAL or HUB mode (CITY = "national"), skip this check entirely and report "Budget: N/A (national)"; 6A and 6B still run. Otherwise: total claim mentions (educational mentions and the approved negative-scope disclaimer excluded) must be 3 or fewer, and every one location-clear. Before failing any mention for missing a location, check whether it is the approved SCOPE_LINE disclaimer ("Our {CITY} location is a collection and service point. It is not an certified processing facility."). That sentence is exempt and passes.
+6C. PAGE BUDGET. Applies to LOCATION-TARGETED pages only. If Phase 0C resolved NATIONAL or HUB mode (CITY = "national"), skip this check entirely and report "Budget: N/A (national)"; 6A and 6B still run. Otherwise: total claim mentions (educational mentions and the approved negative-scope disclaimer excluded) must be 3 or fewer, and every one location-clear. Before failing any mention for missing a location, check whether it is the approved SCOPE_LINE disclaimer ("Our {CITY} location is a collection and service point. It is not a certified processing facility."). That sentence is exempt and passes.
 If fail AND the excess mentions came from the input rather than from this audit: do NOT roll back and do NOT attempt full remediation. That is the cleanup policy's job, and two prompts remediating the same pages will drift. Report: "COMPLIANCE FAIL, INPUT NON-COMPLIANT: [N] claim mentions, [N] not location-clear. Audit-added: 0. Run cleanup policy before publish." The optimization work still stands; the page is simply not publishable until cleaned.
 If fail AND the excess came from this audit: 6A already caught it; fix there.
 
 CALLOUT CHECK. Location-targeted pages only. Confirm the sts-hq-callout element is present in the final HTML and its certification sentence names Jacksonville and Houston. If absent, report "sts-hq-callout ABSENT, page not publishable as-is." Do not append a new section to manufacture it. On NATIONAL or HUB pages the callout is not required; report "Callout: N/A (national)".
 
-SQUARE FOOTAGE REPORT (not a pass/fail check). List every square footage figure found in the page, with its surrounding phrase, and confirm each is unchanged from input. Size figures are not certification claims, are never counted against the budget, are never given a location qualifier, and are never edited. The figure itself is under review by the COO (200,000 vs 200,000), so this is a report, not a correction.
+SQUARE FOOTAGE REPORT (not a pass/fail check). List every square footage figure found in the page, with its surrounding phrase, and confirm each is unchanged from input. Size figures are not certification claims, are never counted against the budget, are never given a location qualifier, and are never edited. The figure is under review by the COO, so this is a report, not a correction.
 
 Gate 6 output: "Gate 6: certification [N] total in visible text ([N] claims, [N] educational). Location-clear: [N/N]. secure data destruction: [N] (must be 0). Audit-added non-compliant: [N] (must be 0). Callout: [present/ABSENT]. Budget: [PASS / FAIL-INPUT / FAIL-AUDIT]. Sq ft figures found: [list, all unchanged]. Meta appears certified processing-stripped: [yes/no]."
 
@@ -1574,7 +1574,7 @@ https://www.stselectronicrecyclinginc.com/industries-we-serve/industries-4/feder
 RESOURCE:
 https://www.stselectronicrecyclinginc.com/recycling-pollution-effects
 
-RESERVED, NOT YET AVAILABLE: a dedicated certified processing certification page is planned as the internal-link destination for certification context. It does not exist yet. Do NOT invent, guess, or construct a URL for it. Leave the slot empty until the real URL is supplied and added to this allowlist. When it exists it becomes the natural destination for certification anchors and lets city pages carry fewer mentions while keeping the authority signal.
+RESERVED, NOT YET AVAILABLE: a dedicated Certified Processing information page is planned as the internal-link destination for certification context. It does not exist yet. Do NOT invent, guess, or construct a URL for it. Leave the slot empty until the real URL is supplied and added to this allowlist. When it exists it becomes the natural destination for certification anchors and lets city pages carry fewer mentions while keeping the authority signal.
 
 CITY-SPECIFIC URLS: Use city handoff document if provided. Format: https://www.stselectronicrecyclinginc.com/{city-slug}-{service-slug}. Preferred over generic service URLs in body content.
 </APPROVED_URL_ALLOWLIST>

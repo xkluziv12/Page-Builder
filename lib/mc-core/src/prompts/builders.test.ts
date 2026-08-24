@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { buildRegistry } from "../registry";
 import { describeContext } from "../engine/context";
@@ -9,6 +10,7 @@ import {
   schemaPrompt,
   verifyPrompt,
 } from "./builders";
+import { pageBuilderPrompt, schemaGeneratorPrompt, seoAuditPrompt } from "./editorialReview";
 
 function ctx(extra: Partial<RunContext> = {}): RunContext {
   return {
@@ -117,6 +119,60 @@ describe("promptForPhase dispatch", () => {
         const { user } = promptForPhase(phase, c, HTML);
         expect(user.length).toBeGreaterThan(0);
       }
+    }
+  });
+});
+
+describe("reviewed prompt wording", () => {
+  it("removes awkward cleanup artifacts without removing compliance guidance", () => {
+    const prompts = [pageBuilderPrompt, schemaGeneratorPrompt, seoAuditPrompt];
+    const awkwardPhrases = [
+      "an certification",
+      "an certified",
+      "certification certification",
+      "certified processing, certified processing",
+      "secure data destruction and secure data destruction",
+    ];
+
+    expect(
+      awkwardPhrases.filter((phrase) =>
+        prompts.some((prompt) => prompt.toLowerCase().includes(phrase)),
+      ),
+    ).toEqual([]);
+
+    for (const requiredGuidance of ["ITAD", "NIST 800-88", "HIPAA"]) {
+      expect(prompts.every((prompt) => prompt.includes(requiredGuidance))).toBe(true);
+    }
+  });
+
+  it("matches the corresponding reviewed bake-off fixture directives", () => {
+    const fixture = (name: string) =>
+      readFileSync(
+        new URL(`../../../../scripts/src/bakeoff/fixtures/master-${name}.txt`, import.meta.url),
+        "utf8",
+      ).trim();
+
+    const reviewedDirectives = [
+      [
+        pageBuilderPrompt,
+        fixture("page-builder"),
+        "a certification claim sitting next to a city name",
+      ],
+      [
+        schemaGeneratorPrompt,
+        fixture("schema-generator"),
+        "documented data-destruction process supports compliance",
+      ],
+      [
+        seoAuditPrompt,
+        fixture("seo-audit"),
+        "The figure is under review by the COO, so this is a report, not a correction.",
+      ],
+    ];
+
+    for (const [prompt, masterFixture, directive] of reviewedDirectives) {
+      expect(prompt).toContain(directive);
+      expect(masterFixture).toContain(directive);
     }
   });
 });
