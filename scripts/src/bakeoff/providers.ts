@@ -437,7 +437,10 @@ export function makeOpenAIComplete(model: string): CompleteFn {
   // we pin it to a configurable floor (medium). The plain chat tags (e.g. gpt-5.5)
   // run at the API default with no reasoning override. This only tunes HOW HARD a
   // pro model thinks; prompts, history, and turn order are identical everywhere.
-  const isPro = /\bpro\b/i.test(model) || model.toLowerCase().includes("-pro");
+  const isReasoning =
+    /\bpro\b/i.test(model) ||
+    model.toLowerCase().includes("-pro") ||
+    model.toLowerCase().includes("-luna");
   return guarded(model, async (messages, system, opts, signal) => {
     // Submit as a BACKGROUND job and poll to completion. The synchronous Responses
     // endpoint enforces a server-side processing window (~minutes) that the
@@ -460,7 +463,7 @@ export function makeOpenAIComplete(model: string): CompleteFn {
         prompt_cache_key: `bakeoff-${model}`,
         max_output_tokens: opts?.maxOutputTokens ?? OPENAI_MAX_OUTPUT_TOKENS,
         background: true,
-        ...(isPro ? { reasoning: { effort: OPENAI_REASONING_EFFORT } } : {}),
+        ...(isReasoning ? { reasoning: { effort: OPENAI_REASONING_EFFORT } } : {}),
         ...(system ? { instructions: system } : {}),
         // Responses web_search tool, attached ONLY on the flagged turn. It coexists
         // with background poll mode; `resp.output_text` still aggregates the final

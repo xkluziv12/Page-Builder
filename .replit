@@ -28,12 +28,12 @@ args = "Bake-Off Judge Panel"
 name = "Bake-Off Run"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "BAKEOFF_SCENARIOS=no-gmb pnpm --filter @workspace/scripts run bakeoff"
-
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "BAKEOFF_SCENARIOS=no-gmb BAKEOFF_MODELS=grok,gemini-flash,openai BAKEOFF_FORCE=grok,gemini-flash,openai BAKEOFF_OPENAI_REASONING=high BAKEOFF_MODEL_OVERRIDES='{\"grok\":{\"model\":\"grok-4.20-0309-reasoning\",\"label\":\"Grok 4.20 Reasoning (newest live Grok 4.x)\"},\"gemini-flash\":{\"model\":\"gemini-3.7-flash\",\"label\":\"Gemini 3.7 Flash\"},\"openai\":{\"model\":\"gpt-5.6-luna\",\"label\":\"GPT-5.6 Luna\"}}' pnpm --filter @workspace/scripts run bakeoff"
 
 [[workflows.workflow]]
 name = "Bake-Off Judge Panel"

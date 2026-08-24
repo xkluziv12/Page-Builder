@@ -381,6 +381,13 @@ ${v.hubSpoke}
 This page has already gone through our Master SEO Audit.
 Now verify compliance and check against modern standards.
 
+SCOPE OF THIS AUDIT:
+- Audit ONLY the current generated HTML already supplied in this conversation.
+- Use web search ONLY to research general, current SEO practices; do NOT fetch,
+  inspect, score, or require changes to the deployed target URL or any live CMS page.
+- You can revise the supplied generated HTML, but you cannot publish it. Never fail
+  this audit because a live page differs or needs deployment.
+
 ════════════════════════════════════════════════════════
 PART 1: MASTER SEO AUDIT COMPLIANCE CHECK
 ════════════════════════════════════════════════════════
@@ -541,7 +548,8 @@ export function seoVerifyFixPrompt(): string {
 Your SEO VERIFICATION AUDIT returned ❌ SEO VERIFICATION FAILED.
 
 1. Apply EVERY fix for the issues you listed above — do not skip any.
-2. Re-run the full verification checklist against the corrected page.
+2. Re-run the full verification checklist against the corrected generated HTML in
+   this conversation, not a deployed URL or CMS page.
 3. End your reply with the FINAL VERDICT, exactly one of:
    ✅ SEO VERIFICATION PASSED — Proceed to Phase 4: Schema
    ❌ SEO VERIFICATION FAILED — <list the issues that still remain>

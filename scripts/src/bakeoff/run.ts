@@ -334,9 +334,11 @@ async function main(): Promise<void> {
   );
 
   const prior = await loadPrior();
-  // Only needed to author the shared grounding when none is recorded yet; the
-  // per-model complete fns are built (with any overrides) alongside `models`.
-  const claudeComplete = makeClaudeComplete(CLAUDE_MODEL);
+  // Only needed to author the shared grounding when none is recorded yet.
+  // Keep this lazy so a filtered run that reuses existing grounding does not
+  // require an unrelated Claude credential just to construct the harness.
+  const claudeComplete: CompleteFn = (...args) =>
+    makeClaudeComplete(CLAUDE_MODEL)(...args);
 
   const reference = await loadReferenceHtml(TARGET);
   const referenceHtml = reference.html;
@@ -362,7 +364,15 @@ async function main(): Promise<void> {
   // Apply per-model overrides (tag/label) generically by id — the override
   // swaps the provider tag and rebuilds that model's complete fn to match, so
   // the recorded `model` field always reflects what actually ran.
-  let models: ModelSpec[] = baseModels.map((m) => {
+  let selectedBaseModels = baseModels;
+  if (MODEL_FILTER.length) {
+    selectedBaseModels = baseModels.filter((m) => MODEL_FILTER.includes(m.id));
+    if (selectedBaseModels.length === 0) {
+      throw new Error(`BAKEOFF_MODELS=${MODEL_FILTER.join(",")} matched no known model.`);
+    }
+    console.log(`Active model(s): ${selectedBaseModels.map((m) => m.id).join(", ")}`);
+  }
+  let models: ModelSpec[] = selectedBaseModels.map((m) => {
     const ovr = MODEL_OVERRIDES[m.id];
     const model = ovr?.model ?? m.model;
     if (ovr?.model && ovr.model !== m.model) {
@@ -376,13 +386,6 @@ async function main(): Promise<void> {
       complete: m.make(model),
     };
   });
-  if (MODEL_FILTER.length) {
-    models = models.filter((m) => MODEL_FILTER.includes(m.id));
-    if (models.length === 0) {
-      throw new Error(`BAKEOFF_MODELS=${MODEL_FILTER.join(",")} matched no known model.`);
-    }
-    console.log(`Active model(s): ${models.map((m) => m.id).join(", ")}`);
-  }
 
   // Seed the working scenario set from EVERY prior (resumable) result — not just
   // the active/filtered models. A BAKEOFF_MODELS filter must only decide which
