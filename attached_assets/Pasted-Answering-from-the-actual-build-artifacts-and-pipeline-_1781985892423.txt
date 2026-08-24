@@ -15,7 +15,7 @@ There is no single canonical master list. The valid URLs per city come from thre
 /data-center-decommissioning
 /server-destruction-services
 /on-site-hard-drive-shredding
-/naid-certified-data-destruction
+/secure data destruction-certified-data-destruction
 /certificate-of-destruction-services
 /hipaa-compliant-hard-drive-destruction
 /CONTACT-STS-PAGE
@@ -186,11 +186,11 @@ Write 1 — Article body HTML
 
 Write 2 — Schema JSON-LD
   Location: Publishing tab → "Page Display Options" → "Page heading" is NOT it.
-            Actual location: Metadata tab → field labeled something like 
+            Actual location: Metadata tab → field labeled something like
             "Additional <head> HTML" or via a metadata plugin.
   Field in DB: jos_content.metadata (JSON field) or a custom plugin field.
-  IMPORTANT: The exact field name depends on the Joomla version and 
-             which head-injection plugin is installed. In older Joomla 
+  IMPORTANT: The exact field name depends on the Joomla version and
+             which head-injection plugin is installed. In older Joomla
              (2.5/3.x), there is no native head-injection field in core.
              Most sites use "Sourcerer" plugin or custom module positions.
              This needs to be verified against the actual site.
@@ -257,7 +257,7 @@ The checker rule: each of the 10 sacred URLs must appear `>= 1` time. If any app
 
 **Facility language — exact rule:**
 
-The rule exists because STS does not have a physical presence in most cities it serves. The 600,000 sq ft facility is in Jacksonville TX. Pages for other cities must not imply a local facility.
+The rule exists because STS does not have a physical presence in most cities it serves. The 200,000 sq ft facility is in Jacksonville TX. Pages for other cities must not imply a local facility.
 
 **Forbidden patterns (hard fail, any city except Jacksonville TX):**
 ```
@@ -274,10 +274,10 @@ our [CITY] team
 
 **Approved patterns (these are fine):**
 ```
-serving [CITY] from our 600,000 sq ft [R2v3 certified] facility
-our 600,000 sq ft facility serves [CITY]
-equipment is transported to our 600,000 sq ft facility
-STS serves [CITY] from our 600,000 sq ft facility
+serving [CITY] from our 200,000 sq ft [certified processing] facility
+our 200,000 sq ft facility serves [CITY]
+equipment is transported to our 200,000 sq ft facility
+STS serves [CITY] from our 200,000 sq ft facility
 we serve [CITY] businesses from our certified facility
 ```
 
@@ -292,7 +292,7 @@ def check_facility_language(html, city):
     city_lower = city.lower()
     patterns = [
         rf'our {city_lower}\b',           # "our jacksonville" (catches "our jacksonville team")
-        rf'{city_lower} facility\b',       # "jacksonville facility"  
+        rf'{city_lower} facility\b',       # "jacksonville facility"
         rf'facility in {city_lower}\b',    # "facility in jacksonville"
         rf'{city_lower} location\b',       # "jacksonville location"
         rf'our {city_lower} office\b',     # "our jacksonville office"

@@ -74,7 +74,7 @@ Outstanding facts to confirm **with the user** (never invent these):
 - Address: **6600 Long Point Rd, Ste 103, Houston, TX 77055**; 60,000 sq ft facility
 - Tagline: *"Stewards of Yesterday's Technology for a Better Tomorrow"*
 - Services: ITAD, e-waste recycling, hard drive shredding, data erasure, asset remarketing
-- Certifications: **R2v3, NAID AAA (inherited via STS parent)**
+- Certifications: **certified processing, secure data destruction (inherited via STS parent)**
 - Email: `recycle@technocycle.com`; Facebook: `facebook.com/TechnocycleITAD`
 
 ---

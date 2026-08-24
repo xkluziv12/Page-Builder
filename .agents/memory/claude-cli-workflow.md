@@ -26,3 +26,11 @@ The root `replit.md` "Claude CLI dispatch" section and the standalone root `CLAU
 **Why:** Without a written boundary, a dispatch could plausibly "improve" the Anthropic integration into a Replit connector, expand Drive usage, or push to an unintended remote — all plausible-looking but unauthorized changes.
 
 **How to apply:** Point any Claude CLI dispatch at root `CLAUDE.md` for these boundaries instead of restating them ad hoc in task prompts; treat it as the durable source of truth and update it (not just this memory) when the boundaries actually change.
+
+## Large prompt-string cleanup
+
+For large, single-line static prompt strings, a freeform CLI rewrite can time out before producing a terminal result. Prefer a narrowly scoped, reviewable deterministic transformation when literal removal is authorized, then independently scan the complete intended scope and run the affected tests and typechecks.
+
+**Why:** A process that stops without a terminal result cannot be trusted, and mechanical replacements can invalidate stale test expectations.
+
+**How to apply:** Keep the transformation reversible and scoped, inspect the diff, repair only tests made obsolete by the authorized policy change, and do not call the cleanup complete until the literal scan, diff check, and relevant verification all pass.

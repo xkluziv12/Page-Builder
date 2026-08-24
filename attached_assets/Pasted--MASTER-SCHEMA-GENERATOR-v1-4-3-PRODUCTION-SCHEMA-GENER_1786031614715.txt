@@ -59,14 +59,14 @@ HQ_CID_NORMALIZED: cid:2633689675265688157
 </HQ_FACILITY>
 
 <CERTIFICATIONS>
-1. R2v3 Certification — Responsible Recycling
-2. NAID AAA Certification — Data Destruction
+1. certified processing Certification — secure recycling
+2. secure data destruction Certification — Data Destruction
 </CERTIFICATIONS>
 
 <DEFAULT_KNOWSABOUT>
 Use for CITY pages (HUB/SPOKE). For NATIONAL pages, generate niche-specific terms from HTML content instead.
 
-Default 12: Electronics Recycling, Computer Recycling, ITAD Services, Data Destruction, Hard Drive Shredding, Asset Remarketing, HIPAA Compliance, R2 Certification, Secure Data Sanitization, IT Asset Disposition, E-Waste Management, Corporate Electronics Disposal
+Default 12: Electronics Recycling, Computer Recycling, ITAD Services, Data Destruction, Hard Drive Shredding, Asset Remarketing, HIPAA Compliance, certified processing Certification, Secure Data Sanitization, IT Asset Disposition, E-Waste Management, Corporate Electronics Disposal
 </DEFAULT_KNOWSABOUT>
 
 <ADDITIONAL_TYPES>
@@ -390,9 +390,9 @@ ALTNAME_BUILDER:
   NATIONAL: "STS Electronic Recycling"
 
 DESCRIPTION_BUILDER (2-3 sentences, required):
-  HUB/SPOKE: "STS Electronic Recycling provides R2v3 certified electronics recycling and ITAD services for {CITY} businesses, healthcare facilities, government agencies, and educational institutions. Our NAID AAA certified data destruction ensures compliance with {COMPLIANCE_FRAMEWORK} through NIST 800-88 protocols and complete chain-of-custody documentation. We serve {CITY}, {COUNTY} County, and surrounding communities with complimentary pickup and zero-landfill processing."
+  HUB/SPOKE: "STS Electronic Recycling provides certified processing electronics recycling and ITAD services for {CITY} businesses, healthcare facilities, government agencies, and educational institutions. Our secure data destruction certified data destruction ensures compliance with {COMPLIANCE_FRAMEWORK} through NIST 800-88 protocols and complete chain-of-custody documentation. We serve {CITY}, {COUNTY} County, and surrounding communities with complimentary pickup and zero-landfill processing."
 
-  NATIONAL: "STS Electronic Recycling provides nationwide {SERVICE} for healthcare organizations, financial institutions, and government agencies requiring strict compliance with {COMPLIANCE_FRAMEWORK}. Our NAID AAA certified facility processes electronics with R2v3 certification, delivering complete chain-of-custody documentation and certificates of destruction for audit requirements. We serve organizations across all 50 states with secure logistics and specialized {NICHE} expertise."
+  NATIONAL: "STS Electronic Recycling provides nationwide {SERVICE} for healthcare organizations, financial institutions, and government agencies requiring strict compliance with {COMPLIANCE_FRAMEWORK}. Our secure data destruction certified facility processes electronics with certified processing certification, delivering complete chain-of-custody documentation and certificates of destruction for audit requirements. We serve organizations across all 50 states with secure logistics and specialized {NICHE} expertise."
 
   {COMPLIANCE_FRAMEWORK}: Look up from CFR_REFERENCE_TABLE based on NICHE. Default: "data security regulations"
 
@@ -400,12 +400,12 @@ SLOGAN_BUILDER:
   HUB/SPOKE:
     Healthcare: "{CITY}'s HIPAA-Compliant Electronics Recycling & Data Destruction"
     Government: "{CITY}'s GSA-Approved Electronics Recycling & Secure Data Destruction"
-    Default: "{CITY}'s Trusted R2 Certified Electronics Recycling & ITAD Services"
+    Default: "{CITY}'s Trusted certified processing Electronics Recycling & ITAD Services"
   NATIONAL:
     Healthcare: "HIPAA Compliant Electronics Recycling for Healthcare Organizations Nationwide"
     Financial: "GLBA Compliant Data Destruction for Financial Institutions Nationwide"
     Government: "NIST 800-88 Certified Electronics Disposal for Federal Agencies"
-    Default: "NAID AAA Certified {SERVICE} Nationwide"
+    Default: "secure data destruction Certified {SERVICE} Nationwide"
 </BASE_FIELDS>
 
 <ADDITIONALTYPE>
@@ -514,8 +514,8 @@ ELSE:
 
 <CREDENTIALS>
 "hasCredential": [
-  { "@type": "EducationalOccupationalCredential", "name": "R2v3 Certification", "credentialCategory": "Responsible Recycling" },
-  { "@type": "EducationalOccupationalCredential", "name": "NAID AAA Certification", "credentialCategory": "Data Destruction" }
+  { "@type": "EducationalOccupationalCredential", "name": "certified processing Certification", "credentialCategory": "secure recycling" },
+  { "@type": "EducationalOccupationalCredential", "name": "secure data destruction Certification", "credentialCategory": "Data Destruction" }
 ]
 </CREDENTIALS>
 
@@ -554,8 +554,8 @@ IF not provided → omit.
     "addressCountry": "US"
   },
   "hasCredential": [
-    { "@type": "EducationalOccupationalCredential", "name": "R2v3 Certification" },
-    { "@type": "EducationalOccupationalCredential", "name": "NAID AAA Certification" }
+    { "@type": "EducationalOccupationalCredential", "name": "certified processing Certification" },
+    { "@type": "EducationalOccupationalCredential", "name": "secure data destruction Certification" }
   ]
 }
 
@@ -584,7 +584,7 @@ IF SERVICE_CATALOG = NICHE_GENERATED (national pages):
   Generate 12-20 services specific to the page topic, guided by the HTML content.
   Services should reflect what the page actually offers — not the generic city catalog.
 
-  Example (HIPAA page): HIPAA Compliant Data Destruction, On-Site Witnessed Shredding, Chain of Custody Data Destruction, Certificates of Destruction, BAA Services, Healthcare IT Asset Disposition, Medical Device Data Destruction, SSD and Flash Storage Destruction, Server Destruction, Backup Tape Destruction, Mobile Device Destruction, Healthcare Data Center Decommissioning, Asset Tracking and Reporting, Computer Recycling for Healthcare, Laptop/Tablet Recycling for Healthcare, Networking Equipment Recycling for Healthcare, Healthcare E-Waste Pickup, R2 Certified Healthcare Electronics Recycling, NIST 800-88 Compliant Sanitization, Secure Transport Services
+  Example (HIPAA page): HIPAA Compliant Data Destruction, On-Site Witnessed Shredding, Chain of Custody Data Destruction, Certificates of Destruction, BAA Services, Healthcare IT Asset Disposition, Medical Device Data Destruction, SSD and Flash Storage Destruction, Server Destruction, Backup Tape Destruction, Mobile Device Destruction, Healthcare Data Center Decommissioning, Asset Tracking and Reporting, Computer Recycling for Healthcare, Laptop/Tablet Recycling for Healthcare, Networking Equipment Recycling for Healthcare, Healthcare E-Waste Pickup, certified processing Healthcare Electronics Recycling, NIST 800-88 Compliant Sanitization, Secure Transport Services
 
   Target: 20 services. Minimum: 12 (halt below 12).
   12-19 generates warning, not halt.
@@ -677,23 +677,23 @@ HOWTO_TITLE:
     Example: "How to Get HIPAA Compliant Hard Drive Destruction"
 
 HOWTO_DESC:
-  CITY: "Step-by-step process for scheduling R2 certified {SERVICE} with secure data destruction for {CITY} businesses and organizations."
+  CITY: "Step-by-step process for scheduling certified processing {SERVICE} with secure data destruction for {CITY} businesses and organizations."
   NATIONAL: Adapt to page topic.
 </HOWTO_STRUCTURE>
 
 <HOWTO_STEPS_CITY>
 Step 1: "Request Free Quote" — Contact STS at {PHONE} or online form. Provide equipment types, quantities, timing. url: {QUOTE_FORM}
 Step 2: "Schedule Pickup" — Convenient scheduling for {CITY} location. Accommodates business hours and {NICHE} requirements.
-Step 3: "Secure Transport" — GPS-tracked vehicles from {CITY} to R2v3 certified facility with chain-of-custody documentation.
-Step 4: "Asset Tracking & Data Destruction" — Serial-level tracking, NAID AAA certified, NIST 800-88 protocols. {NICHE} organizations receive compliance certificates.
-Step 5: "Environmental Processing" — R2v3 certified material separation, zero landfill. Functional equipment remarketed.
+Step 3: "Secure Transport" — GPS-tracked vehicles from {CITY} to certified processing facility with chain-of-custody documentation.
+Step 4: "Asset Tracking & Data Destruction" — Serial-level tracking, secure data destruction certified, NIST 800-88 protocols. {NICHE} organizations receive compliance certificates.
+Step 5: "Environmental Processing" — certified processing material separation, zero landfill. Functional equipment remarketed.
 Step 6: "Certificate of Destruction" — Serial numbers, methods, weights, downstream tracking. Satisfies {COMPLIANCE} requirements. url: {CERTIFICATE_PAGE}
 </HOWTO_STEPS_CITY>
 
 <HOWTO_STEPS_NATIONAL>
 Generate 6 niche-adapted steps based on page topic. Follow the same flow (request → agreement → schedule → process → destroy → document) but customize language and details.
 
-Example (HIPAA): Request Quote → Execute BAA → Schedule with Chain of Custody → Witness Destruction or Secure Transport → NAID AAA Certified Processing → Certificate of Destruction for OCR Audit Compliance
+Example (HIPAA): Request Quote → Execute BAA → Schedule with Chain of Custody → Witness Destruction or Secure Transport → secure data destruction Certified Processing → Certificate of Destruction for OCR Audit Compliance
 
 Each step: position (1-6), name, text, optional url/image.
 Step 1 url: {QUOTE_FORM} | Step 6 url: {CERTIFICATE_PAGE} | Steps 2-5 image: {HERO_IMAGE}
@@ -719,7 +719,7 @@ Generate 8 city-specific FAQs covering these topics (adapt wording, don't use ve
 1. Service availability in {CITY}
 2. Compliance for {NICHE} (HIPAA/GLBA/NIST as applicable)
 3. Free pickup availability in {CITY} area
-4. Certifications held (R2v3, NAID AAA)
+4. Certifications held (certified processing, secure data destruction)
 5. Scheduling speed for {CITY}
 6. Government/industry-specific service (adapt to niche)
 7. Process after pickup from {CITY}

@@ -1984,7 +1984,7 @@ EXECUTION INSTRUCTIONS:
 4. Mobile responsive - images must NOT squeeze text
 5. Do NOT include Schema
 6. Do NOT include a footer NAP block (no local address/phone for this city)
-7. Facility mentions: Say "serving ${city} from our 600,000 sq ft facility" — NOT "our ${city} facility"
+7. Facility mentions: Say "serving ${city} from our 200,000 sq ft facility" — NOT "our ${city} facility"
 ${hubSpoke ? '8. Include 3-4 internal links from Hub+Spoke handoff in rows 4+ (NOT hero)' : ''}
 
 ⚠️ CRITICAL OUTPUT REQUIREMENT:
@@ -2117,14 +2117,14 @@ If clean → output:
 ════════════════════════════════════════════════════════
 🔴 FACILITY LANGUAGE CHECK
 ════════════════════════════════════════════════════════
-Search for "600,000 sq ft" or facility size claims.
+Search for "200,000 sq ft" or facility size claims.
 
 WRONG:
-❌ "from our 600,000 sq ft facility" (implies local)
+❌ "from our 200,000 sq ft facility" (implies local)
 ❌ "our ${city} facility"
 
 CORRECT:
-✅ "serving ${city} from our 600,000 sq ft facility"
+✅ "serving ${city} from our 200,000 sq ft facility"
 
 If incorrect → FIX and output: 🔴 ADJUSTED: [before/after]
 If clean → output: ✅ Facility language: Clean

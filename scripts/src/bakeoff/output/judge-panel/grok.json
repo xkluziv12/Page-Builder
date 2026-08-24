@@ -21,7 +21,7 @@
         "design": 90,
         "schema": 96,
         "seo": 93,
-        "notes": "Single h1 ('R2 Certified Electronics Recycling for Billings, MT'), deep local content (~2,500+ words) with neighborhoods (Heights, West End, Lockwood), hospitals, and FAQs. CSS uses :root tokens, grid-2/3/4, hover states, and multi-breakpoint media queries; many decorative styles still live inline on cards. Schema is the richest @graph (WebSite, LocalBusiness, HowTo, FAQPage, BreadcrumbList, WebPage) with parent org NAP in Jacksonville, TX, credentials, and a 20-service OfferCatalog. Minor code debt: Joomla-style {loadposition city-hero-form}, heavy inline style attributes, and no landmark roles beyond divs."
+        "notes": "Single h1 ('certified processing Electronics Recycling for Billings, MT'), deep local content (~2,500+ words) with neighborhoods (Heights, West End, Lockwood), hospitals, and FAQs. CSS uses :root tokens, grid-2/3/4, hover states, and multi-breakpoint media queries; many decorative styles still live inline on cards. Schema is the richest @graph (WebSite, LocalBusiness, HowTo, FAQPage, BreadcrumbList, WebPage) with parent org NAP in Jacksonville, TX, credentials, and a 20-service OfferCatalog. Minor code debt: Joomla-style {loadposition city-hero-form}, heavy inline style attributes, and no landmark roles beyond divs."
       },
       {
         "id": "B",

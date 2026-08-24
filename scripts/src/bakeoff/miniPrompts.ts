@@ -258,7 +258,7 @@ EXECUTION INSTRUCTIONS:
 4. Mobile responsive - images must NOT squeeze text
 5. Do NOT include Schema yet (built separately in Phase 4${v.gmb ? " — with the verified CID + address" : " — no CID, no GMB address"})
 6. ${v.gmb ? `Footer/contact: use the verified GMB phone ${v.gmb.phone} (tel: link) and the GMB address ${v.gmb.street}, ${v.city}, ${v.state} ${v.gmb.zip} for this city` : `Footer/contact: use the STS HQ main line ${HQ_PHONE} (tel: link) for call buttons — do NOT add a local street address or invent a local-branch phone for this city`}
-7. Facility mentions: Say "serving ${v.city} from our 600,000 sq ft facility" — NOT "our ${v.city} facility"
+7. Facility mentions: Say "serving ${v.city} from our 200,000 sq ft facility" — NOT "our ${v.city} facility"
 ${v.hubSpoke ? "8. Include 3-4 internal links from Hub+Spoke handoff in rows 4+ (NOT hero)" : ""}
 
 ⚠️ CRITICAL OUTPUT REQUIREMENT:
@@ -464,14 +464,14 @@ If clean and the HQ number is present → output:
 ════════════════════════════════════════════════════════
 🔴 FACILITY LANGUAGE CHECK
 ════════════════════════════════════════════════════════
-Search for "600,000 sq ft" or facility size claims.
+Search for "200,000 sq ft" or facility size claims.
 
 WRONG:
-❌ "from our 600,000 sq ft facility" (implies local)
+❌ "from our 200,000 sq ft facility" (implies local)
 ❌ "our ${v.city} facility"
 
 CORRECT:
-✅ "serving ${v.city} from our 600,000 sq ft facility"
+✅ "serving ${v.city} from our 200,000 sq ft facility"
 
 If incorrect → FIX and output: 🔴 ADJUSTED: [before/after]
 If clean → output: ✅ Facility language: Clean

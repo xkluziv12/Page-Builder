@@ -1,7 +1,7 @@
 BLOG SEO AUDIT v2.6: POST-CREATION OPTIMIZATION ENGINE
-CHANGELOG v2.6 (square footage ruling): Facility size corrected from 600,000 to 200,000 sq ft in both content examples, confirmed and approved August 2026. Added 200,000 as the locked figure in NON_NEGOTIABLES rule 7 and converted the Tech 1X square-footage step from report-only to active correction, so input blogs carrying the legacy 600,000 figure get fixed. PROPAGATION: every other STS prompt and all live pages still carry 600,000 and need the same correction.
+CHANGELOG v2.6 (square footage ruling): Facility size corrected from 200,000 to 200,000 sq ft in both content examples, confirmed and approved August 2026. Added 200,000 as the locked figure in NON_NEGOTIABLES rule 7 and converted the Tech 1X square-footage step from report-only to active correction, so input blogs carrying the legacy 200,000 figure get fixed. PROPAGATION: every other STS prompt and all live pages still carry 200,000 and need the same correction.
 CHANGELOG v2.5 (cleanup pass): Removed all 71 em/en dashes (4 were inside example strings that taught dash usage; 2 were in injected creator-entity HTML comments, see propagation note below). Corrected 5 inaccurate word/char count labels and extended 2 quotable-passage examples that failed the 150-280 char spec they teach. Removed Tech 1W (voice search), redundant with 1C; technique count 24 to 23; ID gap at W is intentional. Added sentence-level link restoration to Gate 1. PROPAGATION: creator-entity comment separator changed from en dash to comma. Page Builder and Schema Generator must match or the creator string diverges across the pipeline.
-CHANGELOG v2.4 (R2 Compliance Patch, brief Universal v2.1): Added R2/NAID certification compliance block to NON_NEGOTIABLES (budget 3, location clarity on literal "R2v3" only, NAID zero survivors, short-slot replacement vocabulary, square footage exempt, edit-prompt ownership split). Patched 4 in-scope examples/templates. Added anchor-text certification rule to Tech 1O Task 2. Added Tech 1X point 13 compliance check and report line. Square footage figures reported, not changed (superseded in v2.6).
+CHANGELOG v2.4 (certified processing Compliance Patch, brief Universal v2.1): Added certification certification compliance block to NON_NEGOTIABLES (budget 3, location clarity on literal "certified processing" only, secure data destruction zero survivors, short-slot replacement vocabulary, square footage exempt, edit-prompt ownership split). Patched 4 in-scope examples/templates. Added anchor-text certification rule to Tech 1O Task 2. Added Tech 1X point 13 compliance check and report line. Square footage figures reported, not changed (superseded in v2.6).
 PURPOSE: Validate-first, refine-second optimization for DCD/STS blog articles. Transforms good blogs into featured-snippet-dominating, authority-building, AI-citable content.
 PLATFORMS: DCD (BigCommerce/Shogun), STS (Joomla), Universal (any HTML)
 UPSTREAM: Blog Creation Prompt builds architecture, GEO structures, entity precision, micro-anchors, persona targeting, niche context. This audit validates what was built and surgically improves what's weak.
@@ -63,18 +63,18 @@ When rules cannot all be satisfied at once, resolve in this order. Higher rungs 
 4. GEO SPACING and LINK DENSITY: preferred targets (3-paragraph spacing, 1:150-200 ratio). Yield to rungs 1 through 3.
 5. STYLISTIC AND DISTRIBUTION PREFERENCES: paragraph balance, visual rhythm, technique mode preferences. Lowest priority.
 When the ladder resolves a conflict, log: "Conflict resolved: [lower rule] yielded to [higher rule] per precedence ladder."
-R2/NAID CERTIFICATION COMPLIANCE (STS content only. DCD/Universal: skip unless the blog makes an STS certification claim):
-WHY: STS holds R2v3, and the claim is true. What is not true is the implication that a local city is a certified site. Only Jacksonville, Texas and Houston, Texas are certified processing facilities. Every other STS location is a collection and service point. A registrar flagged this in July 2026. Output that reads as though STS holds no certifications has also failed, so do not solve this by deleting credentials.
-1. BUDGET: 3 or fewer in-scope mentions in visible text, counting R2, R2v3, R2:2020, Responsible Recycling, NAID, and NAID AAA together. Not 3 each.
-2. LOCATION CLARITY: only the literal string "R2v3" triggers this. Every surviving R2v3 claim names Jacksonville or Houston in its OWN sentence, not a nearby one.
-3. NAID: ZERO survivors in visible text. Facility scope is unconfirmed, so no NAID sentence can be both location-clear and true. Replace every visible-text mention. (When scope is confirmed in writing, NAID becomes eligible for one slot naming the confirmed facility only; budget stays 3.)
-4. SHORT SLOTS NEVER CARRY A CLAIM: headings, card titles, trust chips, stat labels, anchor text, CTAs, taglines. A short slot cannot be made location-clear, so replace. Approved replacements only: Secure Recycling, Accurate Reporting, Chain of Custody, Secure, Transparent, Sustainable. Rotate across articles. Never use "Responsible Recycling/Processing/Responsibly Recycled" (that is R2 spelled out).
+certification CERTIFICATION COMPLIANCE (STS content only. DCD/Universal: skip unless the blog makes an STS certification claim):
+WHY: STS holds certified processing, and the claim is true. What is not true is the implication that a local city is a certified site. Only Jacksonville, Texas and Houston, Texas are certified processing facilities. Every other STS location is a collection and service point. A registrar flagged this in July 2026. Output that reads as though STS holds no certifications has also failed, so do not solve this by deleting credentials.
+1. BUDGET: 3 or fewer in-scope mentions in visible text, counting certified processing, certified processing, certified processing, secure recycling, secure data destruction, and secure data destruction together. Not 3 each.
+2. LOCATION CLARITY: only the literal string "certified processing" triggers this. Every surviving certified processing claim names Jacksonville or Houston in its OWN sentence, not a nearby one.
+3. secure data destruction: ZERO survivors in visible text. Facility scope is unconfirmed, so no secure data destruction sentence can be both location-clear and true. Replace every visible-text mention. (When scope is confirmed in writing, secure data destruction becomes eligible for one slot naming the confirmed facility only; budget stays 3.)
+4. SHORT SLOTS NEVER CARRY A CLAIM: headings, card titles, trust chips, stat labels, anchor text, CTAs, taglines. A short slot cannot be made location-clear, so replace. Approved replacements only: Secure Recycling, Accurate Reporting, Chain of Custody, Secure, Transparent, Sustainable. Rotate across articles. Never use "secure recycling/Processing/Responsibly Recycled" (that is certified processing spelled out).
 5. "CERTIFIED" IS ALLOWED in H1s, headings, and body prose where it carries keyword value. Not in trust chips, card titles, or stat labels. Never pair it with a location-implying noun (facility, center, plant, site, location, warehouse) unless that same element names Jacksonville or Houston.
-6. EXEMPT, DO NOT COUNT, DO NOT STRIP: educational mentions (remove STS from the sentence; if it is still true and still makes sense, it is education), negative-scope disclaimers (a sentence denying local certification is the goal, not a violation), and all head tags, meta, og, alt attributes, JSON-LD, and HTML comments. Meta SHOULD carry R2v3; flag any meta that looks like R2 was stripped.
-7. SQUARE FOOTAGE IS NOT A CERTIFICATION CLAIM: needs no location qualifier, does not count against budget. Where a size figure sits in the same sentence as an R2 claim, fix the claim, not the number. LOCKED FIGURE: 200,000 sq ft. Confirmed August 2026. The legacy 600,000 figure is incorrect; correct it wherever it appears in input content.
-8. NEVER SUBSTITUTE A DIFFERENT STANDARD for R2v3 or NAID. Drop the citation and state the fact plainly, or make it location-clear. Fabricated authority ("Per EPA 40 CFR 261, downstream tracking must...") is worse than the problem it replaces.
-9. OWNERSHIP (this is an edit prompt): remediate only non-compliance THIS audit would introduce. Pre-existing non-compliance in the input blog is reported, not fixed: "Input non-compliant: [N] mentions, [N] NAID. Run R2 Clean Prompt before publish." Two prompts remediating the same content will drift.
-10. DEDICATED R2v3 PAGE: a certification page for internal linking is planned but does not exist. Do not invent or guess that URL. Leave the slot empty until supplied.
+6. EXEMPT, DO NOT COUNT, DO NOT STRIP: educational mentions (remove STS from the sentence; if it is still true and still makes sense, it is education), negative-scope disclaimers (a sentence denying local certification is the goal, not a violation), and all head tags, meta, og, alt attributes, JSON-LD, and HTML comments. Meta SHOULD carry certified processing; flag any meta that looks like certified processing was stripped.
+7. SQUARE FOOTAGE IS NOT A CERTIFICATION CLAIM: needs no location qualifier, does not count against budget. Where a size figure sits in the same sentence as an certified processing claim, fix the claim, not the number. LOCKED FIGURE: 200,000 sq ft. Confirmed August 2026. The legacy 200,000 figure is incorrect; correct it wherever it appears in input content.
+8. NEVER SUBSTITUTE A DIFFERENT STANDARD for certified processing or secure data destruction. Drop the citation and state the fact plainly, or make it location-clear. Fabricated authority ("Per EPA 40 CFR 261, downstream tracking must...") is worse than the problem it replaces.
+9. OWNERSHIP (this is an edit prompt): remediate only non-compliance THIS audit would introduce. Pre-existing non-compliance in the input blog is reported, not fixed: "Input non-compliant: [N] mentions, [N] secure data destruction. Run cleanup policy before publish." Two prompts remediating the same content will drift.
+10. DEDICATED certified processing PAGE: a certification page for internal linking is planned but does not exist. Do not invent or guess that URL. Leave the slot empty until supplied.
 </NON_NEGOTIABLES>
 
 
@@ -351,7 +351,7 @@ ANSWER BLOCK quality test:
 ✅ Definitive statement, present tense
 
 BAD (not extractable): "We offer many services for businesses. Our comprehensive solutions help organizations manage technology needs effectively."
-GOOD (49 words): "STS Electronic Recycling provides R2v3 certified electronics recycling for call center operations nationwide, processed at our Jacksonville, Texas and Houston, Texas facilities. Operating since 2011, STS delivers NIST-compliant data sanitization, GPS-tracked transportation, serial-number-specific certificates of destruction, and audit-ready documentation meeting HIPAA, SOX, and GLBA requirements across all 50 states."
+GOOD (49 words): "STS Electronic Recycling provides certified processing electronics recycling for call center operations nationwide, processed at our Jacksonville, Texas and Houston, Texas facilities. Operating since 2011, STS delivers NIST-compliant data sanitization, GPS-tracked transportation, serial-number-specific certificates of destruction, and audit-ready documentation meeting HIPAA, SOX, and GLBA requirements across all 50 states."
 
 ENTITY CO-OCCURRENCE built into blocks. Each block should contain:
 Pattern: [Company] + [Location/Industry] + [Service] + [Certification] + [Entities]
@@ -370,7 +370,7 @@ Attribution Patterns + Fact Density + Statistics | Budget: net 0 to +15w | Repla
 
 TASK 1: ATTRIBUTION PATTERNS (3-5 required, different sources/patterns):
 "According to [source]..." (IBM's Cost of a Data Breach Report, TrendForce analysis)
-"Per [standard]..." (NIST SP 800-88 guidelines, R2v3 standards)
+"Per [standard]..." (NIST SP 800-88 guidelines, certified processing standards)
 "Under [regulation]..." (HIPAA 45 CFR §164.312, California SB 253)
 "[Source] reports/estimates..." (IDC forecasts, EPA estimates)
 
@@ -508,10 +508,10 @@ d) If blog has schema in a separate file: add "author" Person entity for Mark Do
 These are NOT visible text: no byline, no footer credit, no reader-facing mention. Purely machine-readable entity signals that accumulate across 580+ pages.
 
 TASK 3: EXPERTISE INDICATORS: Validate 5+ present.
-Types: Experience statements ("Since 2011..."), credentials/certifications (R2v3 with Jacksonville or Houston named in the same sentence, NIST 800-88, HIPAA; never NAID), process knowledge (specific technical details), quantified experience ("200,000 sq ft", "5,000+ projects").
+Types: Experience statements ("Since 2011..."), credentials/certifications (certified processing with Jacksonville or Houston named in the same sentence, NIST 800-88, HIPAA; never secure data destruction), process knowledge (specific technical details), quantified experience ("200,000 sq ft", "5,000+ projects").
 
 BEFORE: "We provide electronics recycling services to businesses."
-AFTER: "Since 2011, STS Electronic Recycling has processed millions of pounds of electronic equipment through our 200,000 sq ft R2v3 certified processing facility in Jacksonville, Texas, providing NIST-compliant data destruction and audit-ready documentation for 5,000+ organizations across all 50 states."
+AFTER: "Since 2011, STS Electronic Recycling has processed millions of pounds of electronic equipment through our 200,000 sq ft certified processing facility in Jacksonville, Texas, providing NIST-compliant data destruction and audit-ready documentation for 5,000+ organizations across all 50 states."
 
 IF under 5 → add 1-3 by enhancing existing sentences.
 </TECH_1L>
@@ -564,7 +564,7 @@ DCD Blog: "Healthcare IT Refresh During Supply Shortage" (lifecycle focus)
   Why: DCD procurement + STS healthcare/compliance links match the vertical. No wrong-vertical STS links.
 
 STS Blog: "HIPAA Data Destruction Requirements" (compliance focus)
-  ✅ GOOD: /hipaa-compliant-hard-drive-destruction (primary), /healthcare-it-disposal (vertical), /naid-certified-data-destruction (certification), /certificate-of-destruction-services (documentation), /on-site-hard-drive-shredding (method), /compliance-officer-data-destruction (stakeholder)
+  ✅ GOOD: /hipaa-compliant-hard-drive-destruction (primary), /healthcare-it-disposal (vertical), /secure data destruction-certified-data-destruction (certification), /certificate-of-destruction-services (documentation), /on-site-hard-drive-shredding (method), /compliance-officer-data-destruction (stakeholder)
   ❌ BAD: /financial-services-data-destruction (wrong vertical), /education-it-disposal (wrong vertical), ALL DCD links (wrong business)
   Why: All URLs relate to HIPAA, healthcare, or data destruction. Zero DCD links.
 
@@ -596,7 +596,7 @@ STS APPROVED LINK ALLOWLIST (14 URLs):
 https://www.stselectronicrecyclinginc.com/server-destruction-services
 https://www.stselectronicrecyclinginc.com/hipaa-compliant-hard-drive-destruction
 https://www.stselectronicrecyclinginc.com/on-site-hard-drive-shredding
-https://www.stselectronicrecyclinginc.com/naid-certified-data-destruction
+https://www.stselectronicrecyclinginc.com/secure data destruction-certified-data-destruction
 https://www.stselectronicrecyclinginc.com/certificate-of-destruction-services
 https://www.stselectronicrecyclinginc.com/it-asset-disposition-itad
 https://www.stselectronicrecyclinginc.com/data-center-decommissioning
@@ -626,7 +626,7 @@ TASK 2: ANCHOR TEXT:
 - No repetition (same anchor 3+ times → vary)
 - No over-optimization or keyword stuffing
 - No generic anchors ("click here" → make descriptive)
-- STS links: never use a certification term as anchor text. The URL slug may contain one (for example /naid-certified-data-destruction, which stays exactly as-is and is never altered), but the visible anchor must not read "NAID certified data destruction" or "R2v3 certified". Anchor the service instead: "hard drive destruction services", "certificate of destruction documentation".
+- STS links: never use a certification term as anchor text. The URL slug may contain one (for example /secure data destruction-certified-data-destruction, which stays exactly as-is and is never altered), but the visible anchor must not read "secure data destruction certified data destruction" or "certified processing". Anchor the service instead: "hard drive destruction services", "certificate of destruction documentation".
 - Mix types: product-focused ("Dell OptiPlex 7010 systems"), action-oriented ("Request a quote"), service-focused ("Warranty information"), benefit-focused ("Save on bulk orders")
 
 TASK 3: OUTBOUND AUTHORITY LINKS (2-3 total):
@@ -772,13 +772,13 @@ Final structural pass confirming all GEO elements landed correctly. Fix if easy,
 11. NATIONWIDE COVERAGE (STS blogs only): Verify the body mentions nationwide / all-50-states service coverage per NON_NEGOTIABLES. If missing, inject into an existing sentence. DCD/Universal: skip.
 12. PROMOTIONAL-TONE CHECK: Scan for shouty or over-claimed language that hurts E-E-A-T under Google's 2026 people-first enforcement. Flag only two narrow patterns: (a) all-caps promotional spans of 2+ consecutive words that are not acronyms or brand names (for example "ABSOLUTELY FREE", "BEST DEAL"), and (b) unhedged absolute claims ("guaranteed", "100% perfect", "the best", "never fails", "always"). Do NOT flag numeric or sourced value claims like "61% cost reduction" or "volume discounts"; those are legitimate. If a flagged pattern is found, soften to plain factual phrasing where trivial, otherwise flag for review. DCD commerce copy: value propositions with numbers are expected and pass.
 
-13. R2/NAID COMPLIANCE CHECK (STS content): Count in-scope mentions in VISIBLE TEXT only (R2, R2v3, R2:2020, Responsible Recycling, NAID, NAID AAA). Exclude head tags, meta, alt, JSON-LD, HTML comments, URLs, educational mentions, and negative-scope disclaimers. Record for each survivor whether its own sentence names Jacksonville or Houston.
+13. certification COMPLIANCE CHECK (STS content): Count in-scope mentions in VISIBLE TEXT only (certified processing, certified processing, certified processing, secure recycling, secure data destruction, secure data destruction). Exclude head tags, meta, alt, JSON-LD, HTML comments, URLs, educational mentions, and negative-scope disclaimers. Record for each survivor whether its own sentence names Jacksonville or Houston.
   - Did THIS audit add or reword any non-compliant mention? If yes, fix it now.
-  - NAID count in visible text must be 0. Any NAID this audit introduced gets an approved replacement.
-  - If the count exceeds 3 or a survivor is not location-clear because the INPUT was already that way, do NOT remediate. Report: "Input non-compliant: [N] mentions, [N] NAID, [N] not location-clear. Run R2 Clean Prompt before publish."
-  - SQUARE FOOTAGE: the correct figure is 200,000 sq ft (confirmed August 2026; supersedes the legacy 600,000 figure). If the input blog states 600,000, correct it to 200,000 and log the change. A size figure is not a certification claim, needs no location qualifier, and does not count against the R2 budget.
+  - secure data destruction count in visible text must be 0. Any secure data destruction this audit introduced gets an approved replacement.
+  - If the count exceeds 3 or a survivor is not location-clear because the INPUT was already that way, do NOT remediate. Report: "Input non-compliant: [N] mentions, [N] secure data destruction, [N] not location-clear. Run cleanup policy before publish."
+  - SQUARE FOOTAGE: the correct figure is 200,000 sq ft (confirmed August 2026; supersedes the legacy 200,000 figure). If the input blog states 200,000, correct it to 200,000 and log the change. A size figure is not a certification claim, needs no location qualifier, and does not count against the certified processing budget.
 
-Output: "1X ✓ | Answer-first: [N/N] | Def: ✓ | Brand: [N] | Attrib: [N] | Stats: [N] | Blocks: [N] | Headings: [valid/issues] | Anchors: [N] | Creator: [✓/missing] | Freshness: [current/stale] | 50-states: [✓/added/N-A] | Tone: [clean/FLAG] | R2: [N] ([N] loc-clear) | NAID: [N] | GEO: [HIGH/MEDIUM/LOW]"
+Output: "1X ✓ | Answer-first: [N/N] | Def: ✓ | Brand: [N] | Attrib: [N] | Stats: [N] | Blocks: [N] | Headings: [valid/issues] | Anchors: [N] | Creator: [✓/missing] | Freshness: [current/stale] | 50-states: [✓/added/N-A] | Tone: [clean/FLAG] | certified processing: [N] ([N] loc-clear) | secure data destruction: [N] | GEO: [HIGH/MEDIUM/LOW]"
 </TECH_1X>
 
 
@@ -831,7 +831,7 @@ STRATEGIC: Cluster: [ROLE] | Refs: [N] | Long-form: [Y/N/N/A]
 TECHNICAL: HTML valid | Alt: [N] | CSS: [safe/N/A] | KW: [X]% | AI crawl: [clear/WARNING] | Tone: [clean/FLAG]
 GEO FINAL: [HIGH/MEDIUM/LOW] | Answer-first: [N/N] | Brand: [N] | Creator: [✓/missing] | Freshness: [current/stale] | 50-states: [✓/added/N-A] | Hierarchy: [valid/issues]
 GATES: [6/6 PASS]
-COMPLIANCE (STS): R2 mentions: [N] ([N] location-clear) | NAID: [N] (must be 0) | Sq ft figures found: [list, unchanged] | Input status: [clean / run R2 Clean Prompt before publish]
+COMPLIANCE (STS): certified processing mentions: [N] ([N] location-clear) | secure data destruction: [N] (must be 0) | Sq ft figures found: [list, unchanged] | Input status: [clean / run cleanup policy before publish]
 
 TOP 3 CHANGES:
 1. [para #]: "[verbatim quote from output HTML]"

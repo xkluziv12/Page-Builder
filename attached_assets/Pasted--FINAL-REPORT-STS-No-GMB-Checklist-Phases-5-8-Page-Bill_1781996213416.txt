@@ -20,7 +20,7 @@
 ## PHASE-BY-PHASE DETAIL
 
 **Phase 5 — Meta Setup**
-All fields set and saved. Template Style = CLEAN TOP 2026, Show Title = Hide, Browser Page Title = `Electronics Recycling Billings MT | R2 Certified | STS`, Meta Description and Keywords matched PAGE DATA exactly (pre-populated from prior session — no rewrite needed). One field required overwrite: Browser Page Title had an old value and was cleared and retyped.
+All fields set and saved. Template Style = CLEAN TOP 2026, Show Title = Hide, Browser Page Title = `Electronics Recycling Billings MT | certified processing | STS`, Meta Description and Keywords matched PAGE DATA exactly (pre-populated from prior session — no rewrite needed). One field required overwrite: Browser Page Title had an old value and was cleared and retyped.
 
 **Phase 6 — Link Audit**
 Wait-only. No actions taken.
@@ -29,7 +29,7 @@ Wait-only. No actions taken.
 Article modal opened via Details → Edit button. Editor was already in Code View (plain textarea). Old HTML selected with Cmd+A and deleted. New HTML pasted by user — 536 lines / 54,138 characters, verified ending `</body></html>`. Options tab → Show Title set to Hide. Google Structured Data tab → Add Structured Data → Custom Code — schema pasted by user, 219 lines / 14,725 characters, verified first line `<script type="application/ld+json">`, last line `</script>`, no CID. Save & Close executed — "Menu item saved." confirmed.
 
 **Phase 8 — Cache & Verify**
-Joomla cache cleared via `com_cache` — "All cache group(s) have been cleared" confirmed (3 groups wiped: advportfoliopro 1.55 MB, joomsef 30 b, page 64.34 MB). Live page loaded and hard refreshed. New HTML rendering correctly — hero section "R2 Certified Electronics Recycling in Billings, Montana" visible, no article title showing. One open item: browser page title still showing old JoomSEF-cached value on first load — expected to resolve on next JoomSEF cycle.
+Joomla cache cleared via `com_cache` — "All cache group(s) have been cleared" confirmed (3 groups wiped: advportfoliopro 1.55 MB, joomsef 30 b, page 64.34 MB). Live page loaded and hard refreshed. New HTML rendering correctly — hero section "certified processing Electronics Recycling in Billings, Montana" visible, no article title showing. One open item: browser page title still showing old JoomSEF-cached value on first load — expected to resolve on next JoomSEF cycle.
 
 ---
 
@@ -61,7 +61,7 @@ FOLLOW-UP: PLAYWRIGHT NOTE — use `#jform_attribs_show_title_chzn .chzn-single`
 
 **Phase 8**
 WHERE: Browser page title on live site after cache clear
-EXPECTED: `Electronics Recycling Billings MT | R2 Certified | STS`
+EXPECTED: `Electronics Recycling Billings MT | certified processing | STS`
 ACTUAL: `Billings Electronics Recycling | STS Electronic Recycling` (JoomSEF cached value)
 ACTION TAKEN: None — Joomla DB value confirmed correct; JoomSEF cache layer not purged by Joomla internal cache clear
 FOLLOW-UP: Clear JoomSEF cache manually, or confirm it self-resolves on next request cycle

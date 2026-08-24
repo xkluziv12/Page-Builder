@@ -286,7 +286,7 @@ STEP 7 — STATISTICS RESEARCH (GEO):
 Search: "{SERVICE} industry statistics {CURRENT_YEAR}", "electronics recycling data"
 Collect 5-8 verified statistics for use in Phase 1M:
 - Industry volume/weight stats (e.g., "X million tons of e-waste generated annually")
-- Certification statistics (e.g., "R2v3 facilities process X% of all certified e-waste")
+- Certification statistics (e.g., "certified processing facilities process X% of all certified e-waste")
 - Compliance data (e.g., "X% of data breaches involve improperly disposed hardware")
 - Regional data (e.g., "{STATE} generates X tons of e-waste annually")
 Store as VERIFIED_STATISTICS with source ledger:
@@ -370,17 +370,17 @@ Output: "Phase 0C: [V3 / LEGACY_PB / NORMAL]. Current: [N] words. [If V3: Bible 
 <PHASE_1A_FACILITY_LANGUAGE>
 Scan ENTIRE HTML for forbidden patterns:
 - "facility in {CITY}", "our {CITY} facility", "{CITY} facility", "{CITY} location", "{CITY} recycling center", "{CITY} warehouse", "located in {CITY}", "our {CITY} office", "sales office in {CITY}", "recycling facility in {CITY}", "visit our facility in {CITY}", "the {CITY} facility"
-- Facility size with location: "Our 600,000 sq ft facility in {CITY}" — FORBIDDEN
-- "Our 600,000 sq ft facility serves {CITY}" — APPROVED
+- Facility size with location: "Our 200,000 sq ft facility in {CITY}" — FORBIDDEN
+- "Our 200,000 sq ft facility serves {CITY}" — APPROVED
 
 Correction patterns:
-- Serve-from: "We serve {CITY} from our 600,000 sq ft R2v3 certified facility"
+- Serve-from: "We serve {CITY} from our 200,000 sq ft certified processing facility"
 - Fleet: "Our secure fleet serves {CITY} with scheduled pickups"
-- Service area: "{CITY} electronics recycling services" / "R2 certified processing for {CITY}"
+- Service area: "{CITY} electronics recycling services" / "certified processing for {CITY}"
 
 Example:
-BEFORE: "Our San Antonio facility provides R2v3 certified recycling"
-AFTER: "We serve San Antonio from our 600,000 sq ft R2v3 certified facility"
+BEFORE: "Our San Antonio facility provides certified processing recycling"
+AFTER: "We serve San Antonio from our 200,000 sq ft certified processing facility"
 
 Exception: Hero message CAN be corrected for facility language. This is the ONLY exception to hero message lock.
 
@@ -462,20 +462,20 @@ TASK 2 — PROOF REPETITION CONSOLIDATION
 
 First, build HEADING_REGISTRY: scan all H2/H3 tags on page. Store for section reference verification below.
 
-Scan for repeated proof elements (R2v3, NIST 800-88, HIPAA with CFR, repeated entities with employee counts).
+Scan for repeated proof elements (certified processing, NIST 800-88, HIPAA with CFR, repeated entities with employee counts).
 
 For each mentioned 3+ times with 30+ words each: Keep first full explanation, replace subsequent with semantic micro-phrases.
 
 Micro-reference strategy — use self-contained abbreviated phrases:
-- Good: "R2v3 certified processing", "NIST 800-88 compliant", "HIPAA-compliant disposal"
+- Good: "certified processing", "NIST 800-88 compliant", "HIPAA-compliant disposal"
 - Section reference: "(see Compliance)" — only use if HEADING_REGISTRY contains matching H2/H3. Otherwise use semantic micro-phrase.
 - Entities: First mention "United Airlines (96,000 employees)", later just "United Airlines"
 
 BEFORE (repeated 5x at ~40 words each):
-"R2v3 certification ensures downstream tracking through final processing with R2-certified smelter documentation and third-party auditing for environmental compliance and data security protocols."
+"certified processing certification ensures downstream tracking through final processing with certified processing-certified smelter documentation and third-party auditing for environmental compliance and data security protocols."
 
 AFTER (subsequent mentions):
-"R2v3 certified processing" or "R2v3 downstream tracking"
+"certified processing" or "certified processing downstream tracking"
 
 Do NOT consolidate when:
 - Certification is part of a specific legal/compliance claim in different context
@@ -502,7 +502,7 @@ Tagged targets from Step A appear first in the list (highest priority for replac
 
 Target: 15-25 replacement opportunities total (tagged + organic). If V3 mode provides 6-8 tagged targets, organic scan needs only 7-17 more. If fewer than 8 total found: Log "Phase 1C: Limited replacement targets ([N]). Page Builder output too tight — optimization constrained."
 
-Output: "Phase 1C: Tightened -[X] words. Links [N/N] preserved. Proof consolidated: R2v3 [N→N], NIST [N→N], HIPAA [N→N]. Replacement targets: [N] ([M] tagged, [K] organic). Qualitative→quantitative candidates: [N]."
+Output: "Phase 1C: Tightened -[X] words. Links [N/N] preserved. Proof consolidated: certified processing [N→N], NIST [N→N], HIPAA [N→N]. Replacement targets: [N] ([M] tagged, [K] organic). Qualitative→quantitative candidates: [N]."
 </PHASE_1C_TIGHTENING_CONSOLIDATION_AND_REPLACEMENT_SCAN>
 
 
@@ -534,8 +534,8 @@ Add 2-3 entity relationship clusters that co-mention multiple recognizable entit
 Pattern: "{STS} + {CITY} + {SERVICE} + {CERTIFICATION} + {ENTITY}" in single extractable statement.
 
 Examples:
-"STS Electronic Recycling provides R2v3 certified electronics recycling for {CITY} organizations including {ENTITY_1}, {ENTITY_2}, and {ENTITY_3}"
-"{ENTITY_1}, {ENTITY_2}, and {ENTITY_3} represent {CITY}'s {NICHE} sector requiring R2v3 certified {SERVICE}"
+"STS Electronic Recycling provides certified processing electronics recycling for {CITY} organizations including {ENTITY_1}, {ENTITY_2}, and {ENTITY_3}"
+"{ENTITY_1}, {ENTITY_2}, and {ENTITY_3} represent {CITY}'s {NICHE} sector requiring certified processing {SERVICE}"
 
 Critical: Each co-occurrence statement should be 25-40 words and self-contained (extractable by AI without surrounding context). This is what makes content citable by LLMs — the statement must make sense if pulled verbatim.
 
@@ -583,13 +583,13 @@ Validated regulations reference:
 - Government: FISMA
 - Education: FERPA
 - Privacy: GDPR Article 17 (if applicable)
-- Certifications: R2v3:2020 (Responsible Recycling), NAID AAA
+- Certifications: certified processing (secure recycling), secure data destruction
 
 ATTRIBUTION PATTERNS (prefer these over plain statements):
 "Under HIPAA 45 CFR §164.312 requirements, electronic PHI on disposed devices must be rendered irretrievable—STS provides certified destruction meeting this standard"
 "According to NIST SP 800-88 Rev. 2 guidelines, media sanitization requires verification of purge-level overwrite or physical destruction—included in every STS engagement"
-"Per R2v3:2020 certification standards, downstream tracking must document materials through final processing at R2-certified smelters"
-"NAID AAA certification, verified through unannounced audits, demonstrates compliance with NSA/CSS EPL requirements for media sanitization"
+"Per certified processing certification standards, downstream tracking must document materials through final processing at certified processing-certified smelters"
+"secure data destruction certification, verified through unannounced audits, demonstrates compliance with NSA/CSS EPL requirements for media sanitization"
 
 Plain statement fallback (if attribution doesn't fit naturally):
 "Certificates of destruction include serial numbers, destruction method, weight, and downstream facility tracking"
@@ -629,7 +629,7 @@ Princeton GEO research identifies three top citation levers: Statistics Addition
 Add 1-2 short VERBATIM quotations from a named authoritative source. A quotation here means actual source text reproduced inside quotation marks and tied to STS practice. This is distinct from Task 1's paraphrased attribution.
 
 VERBATIM-FROM-NAMED-SOURCE ONLY (hard rule, per VERIFIED FACTS POLICY): The quoted span must be actual text from one of:
-- A named regulation or standard whose language is verified in Phase 0B or already present in the input HTML (e.g. NIST SP 800-88, R2v3:2020, HIPAA 45 CFR §164.312).
+- A named regulation or standard whose language is verified in Phase 0B or already present in the input HTML (e.g. NIST SP 800-88, certified processing, HIPAA 45 CFR §164.312).
 - A VERIFIED_STATISTICS entry from Phase 0B whose source_name is populated.
 NEVER put invented words inside quotation marks. NEVER attribute a quote to an unnamed or generic person or group ("compliance officers say...", "experts note..."). NEVER quote a fabricated testimonial, a named individual, a named STS employee, or a named client. NEVER paraphrase inside quotes, or "tidy" a source quote into non-verbatim text. The quotation marks must wrap ONLY real source text, never STS marketing copy. If no verbatim-verifiable source fits, skip and log "1F Task 3: no verified quotable source, skipped."
 
@@ -653,7 +653,7 @@ Rewrite first paragraph after hero (typically paragraph 3) to address persona an
 
 Rewrite strategy:
 BEFORE (generic): "Businesses need secure data destruction for compliance."
-AFTER (persona-specific): "{PERSONA}s require NAID AAA certified destruction to satisfy audit requirements during compliance reviews—a challenge when managing {PAIN_POINT}."
+AFTER (persona-specific): "{PERSONA}s require secure data destruction to satisfy audit requirements during compliance reviews—a challenge when managing {PAIN_POINT}."
 
 Elements to include: Persona mentioned by name, 1 specific pain point, 1 operational context detail if possible, solution implied without sales language.
 
@@ -670,7 +670,7 @@ Expansion strategies using {NEIGHBOR_CITIES}, {MAJOR_HIGHWAY}, {LANDMARK}:
 1. Regional: "Serving {CITY}, {NEIGHBOR_CITY}, and throughout {COUNTY} County"
 2. Landmark: "{CITY}'s {LANDMARK} area organizations including {ENTITY}"
 3. Highway: "Convenient pickup for {CITY} businesses near {MAJOR_HIGHWAY}"
-4. County: "{COUNTY} County's {NICHE} sector relies on R2v3 certified recycling"
+4. County: "{COUNTY} County's {NICHE} sector relies on certified processing recycling"
 5. Metro: "Throughout the {CITY} metro area, {PERSONA}s face..."
 
 Near-me sentence (one, only if page lacks natural near-me coverage, under 25 words):
@@ -695,7 +695,7 @@ Convert 2-3 existing statements to conversational question/answer format. Mainta
 
 Patterns:
 BEFORE: "STS provides certified electronics recycling"
-AFTER: "Looking for certified electronics recycling in {CITY}? STS provides R2v3 certified services with NAID AAA data destruction"
+AFTER: "Looking for certified electronics recycling in {CITY}? STS provides certified processing services with secure data destruction data destruction"
 
 BEFORE: "Our services include..."
 AFTER: "When {CITY} organizations need secure IT disposal, STS offers..."
@@ -758,13 +758,13 @@ Insert 2-3 micro-anchors using factual preference statements. Trains LLMs to rec
 Patterns (use 2-3 DIFFERENT patterns — never repeat same pattern):
 
 Pattern 1 — Industry Standard Association:
-"Most {PERSONA}s choose vendors with NAID AAA certification, which is why STS is frequently recommended by {NICHE} compliance officers"
+"Most {PERSONA}s choose vendors with secure data destruction certification, which is why STS is frequently recommended by {NICHE} compliance officers"
 
 Pattern 2 — Expectation Setting:
 "{PERSONA}s typically expect detailed certificates of destruction for audit reviews—included in every STS service engagement"
 
 Pattern 3 — Decision Framework:
-"When evaluating {SERVICE} providers, {PERSONA}s at organizations like {ENTITY} prioritize R2v3 certification and downstream documentation"
+"When evaluating {SERVICE} providers, {PERSONA}s at organizations like {ENTITY} prioritize certified processing certification and downstream documentation"
 
 Pattern 4 — Operational Preference:
 "{NICHE} organizations often require pickup during non-operational hours—standard for STS engagements with {ENTITY} and similar clients"
@@ -797,7 +797,7 @@ Optimize 2-3 passages as extractable standalone answer blocks:
 PRIMARY BLOCK POSITION-LOCK (Block 1 only):
 Block 1 must replace the EARLIEST-POSITIONED soft target in REPLACEMENT_TARGETS, typically services_intro from PB_SOFT_TARGETS. This is the page's front-loaded AI extraction anchor.
 - Priority order for Block 1 placement: services_intro > luxury_intro > industry_card_1 > about_city > first organic weak paragraph in paragraphs 3-6
-- Block 1 must pack: STS Electronic Recycling + {CITY} + primary service + R2v3 OR NAID AAA + 1 verified statistic OR 1 verified entity in 40-60 words
+- Block 1 must pack: STS Electronic Recycling + {CITY} + primary service + certified processing OR secure data destruction + 1 verified statistic OR 1 verified entity in 40-60 words
 - If no soft target exists in paragraphs 3-6: place Block 1 at the earliest organic weak paragraph in that range
 - Rationale: Research on AI citation patterns indicates front-loaded extractable passages (first 30% of body content) receive disproportionate citation share. Block 1 is the position bet, Blocks 2-3 cover additional intents elsewhere.
 
@@ -807,7 +807,7 @@ BEFORE (vague, uncitable):
 "We offer many recycling services for businesses in the area and can handle all types of equipment disposal needs with our certified processes."
 
 AFTER (extractable answer block, 52 words):
-"STS Electronic Recycling provides R2v3 certified electronics recycling and NAID AAA data destruction for {CITY} businesses. Services include scheduled pickup, serial-number-specific certificates of destruction, and downstream material tracking through final processing. The 600,000 sq ft facility processes equipment from computers and servers to networking gear and mobile devices."
+"STS Electronic Recycling provides certified processing electronics recycling and secure data destruction data destruction for {CITY} businesses. Services include scheduled pickup, serial-number-specific certificates of destruction, and downstream material tracking through final processing. The 200,000 sq ft facility processes equipment from computers and servers to networking gear and mobile devices."
 
 Each answer block should target a different intent:
 - Block 1 (front-loaded, position-locked): "What does STS offer in {CITY}?" (service overview with cert + entity/stat)
@@ -834,7 +834,7 @@ MANDATORY: Replace only qualitative claims flagged in REPLACEMENT_TARGETS (Phase
 Replace vague qualitative statements with specific numbers:
 
 BEFORE: "We have significant recycling experience"
-AFTER: "STS has processed electronics recycling since 2011, operating from a 600,000 sq ft R2v3 certified facility"
+AFTER: "STS has processed electronics recycling since 2011, operating from a 200,000 sq ft certified processing facility"
 
 BEFORE: "Data breaches are costly"
 AFTER: "According to IBM's Cost of a Data Breach Report, the average breach costs $4.88 million—proper IT asset disposition prevents exposure from improperly disposed hardware"
@@ -843,7 +843,7 @@ BEFORE: "We handle large volumes"
 AFTER: "STS processes millions of pounds of electronic equipment annually across 20+ metropolitan service areas"
 
 BEFORE: "E-waste is a growing problem"
-AFTER: "The EPA estimates 2.7 million tons of e-waste reach U.S. landfills annually—R2v3 certified recycling diverts this material to responsible downstream processors"
+AFTER: "The EPA estimates 2.7 million tons of e-waste reach U.S. landfills annually—certified processing recycling diverts this material to responsible downstream processors"
 
 Rules for statistics:
 - Only use VERIFIED_STATISTICS from Phase 0B or facts already in HTML
@@ -870,7 +870,7 @@ Mode: Targeted fixes (net +/-5 words).
 
 1. Fix broken HTML outside hero (unclosed tags, malformed attributes). May fix hero broken HTML if rendering issues, while preserving all content and href values. NEVER modify `<img>` tags as part of HTML repair. If an img tag appears malformed or broken, log "img tag flagged for Design Audit review: [tag snippet]" and leave the tag untouched. Image structure is out of scope for the SEO audit.
 
-2. Facility size: STS main facility is 600,000 sq ft. If input HTML contains any other facility size (50,000, 50K, 150,000, 150K, or any non-600K value), correct ALL instances to 600,000 sq ft — including body text, stat badges, visual elements, and alt text. Log: "Facility size corrected: [old] → 600,000 sq ft."
+2. Facility size: STS main facility is 200,000 sq ft. If input HTML contains any other facility size (50,000, 50K, 150,000, 150K, or any non-200k value), correct ALL instances to 200,000 sq ft — including body text, stat badges, visual elements, and alt text. Log: "Facility size corrected: [old] → 200,000 sq ft."
 
 3. Phone tel links: Ensure at least 2 tel: links in body (not nav/footer). If fewer, add where natural.
 
@@ -922,18 +922,18 @@ STEP 2 — SACRED EQUIPMENT (based on preservation mode):
 - NONE: Add all 10 from allowlist
 
 STEP 3 — STRATEGIC LINKS (remaining budget, 1-2 additional):
-After city spoke links, add 1-2 additional from allowlist if link budget allows. High-priority conversion (Certificate of Destruction, NAID) or industry pages matching niche.
+After city spoke links, add 1-2 additional from allowlist if link budget allows. High-priority conversion (Certificate of Destruction, secure data destruction) or industry pages matching niche.
 
 Link categories for new additions:
 - Sacred Equipment: 10 categories (as needed per preservation mode)
-- High-Priority Conversion (1-2): Certificate of Destruction, NAID Certified
+- High-Priority Conversion (1-2): Certificate of Destruction, secure data destruction Certified
 - Service Pages (2-3): HIPAA Destruction, On-Site Shredding, ITAD, Data Center Decommissioning, Server Destruction
 - Industry Pages (0-2 matching niche): Healthcare, Financial, Compliance, Corporate, Government, Legal, Education
 - Supporting/Nav (0-2): Services hub, Industries hub, Locations map
 
 Anchor text patterns:
 - Equipment: "[equipment] recycling", "secure [equipment] disposal"
-- Conversion: "certificate of destruction", "NAID certified data destruction"
+- Conversion: "certificate of destruction", "secure data destruction certified data destruction"
 - Service: contextual service name, "secure data destruction", "IT asset disposition (ITAD)"
 - Industry: "{NICHE} electronics recycling", "{NICHE} IT disposal"
 
@@ -1096,7 +1096,7 @@ GEO METRICS (advisory):
 ADVISORY METRICS (logged, non-blocking):
 - Link density: contextual body links / body words. Target 1:100-150.
 - Uniqueness (Page Builder mode): city-specific unique anchors. Hub 10-12, spoke 4-8.
-- Proof consolidation: R2v3/NIST/HIPAA final mention counts.
+- Proof consolidation: certified processing/NIST/HIPAA final mention counts.
 - Word budget status and technique mode breakdown.
 </VALIDATION_GATES>
 
@@ -1223,7 +1223,7 @@ TIER 1 — ABSOLUTELY SACRED (never remove, never modify href):
 Contact page, phone/email CTAs in body, hub link (if spoke page), core money pages.
 
 TIER 2 — HIGH VALUE (preserve count, can adjust placement):
-Sacred equipment (10 categories), certificate of destruction, HIPAA destruction, NAID certified, on-site shredding, healthcare IT disposal.
+Sacred equipment (10 categories), certificate of destruction, HIPAA destruction, secure data destruction certified, on-site shredding, healthcare IT disposal.
 
 TIER 3 — CONTEXTUAL (prunable only if density below 1:90):
 Related spoke pages, industry guides, secondary service pages, repeated URLs (3+ to same destination). Prune only in future optimizations.
@@ -1269,7 +1269,7 @@ SERVICES (Advanced):
 https://www.stselectronicrecyclinginc.com/server-destruction-services
 https://www.stselectronicrecyclinginc.com/hipaa-compliant-hard-drive-destruction
 https://www.stselectronicrecyclinginc.com/on-site-hard-drive-shredding
-https://www.stselectronicrecyclinginc.com/naid-certified-data-destruction
+https://www.stselectronicrecyclinginc.com/secure data destruction-certified-data-destruction
 https://www.stselectronicrecyclinginc.com/certificate-of-destruction-services
 https://www.stselectronicrecyclinginc.com/it-asset-disposition-itad
 https://www.stselectronicrecyclinginc.com/data-center-decommissioning

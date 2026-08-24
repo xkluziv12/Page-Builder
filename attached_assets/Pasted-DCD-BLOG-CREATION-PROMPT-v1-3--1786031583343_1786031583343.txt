@@ -21,7 +21,7 @@ KEY CAPABILITIES:
 ═══════════════════════════════════════════════════════════════════════════════
 
 v1.3 CHANGES (August 2026, brand separation + Experience pattern + em dash strip):
-  BRAND SEPARATION (DCD-side counterpart to the STS R2 work). DCD is a
+  BRAND SEPARATION (DCD-side counterpart to the STS certified processing work). DCD is a
   refurbished hardware retailer. It does not perform ITAD, data destruction, or
   compliance handling. STS does. Three instances removed:
   • Answer block few-shot example: "DCD's ITAD-sourced enterprise inventory"
@@ -53,21 +53,21 @@ v1.3 CHANGES (August 2026, brand separation + Experience pattern + em dash strip
   the brand-separation ruling on whether DCD may name STS certifications in
   visible link text.
 
-v1.2.2 CHANGES (August 2026, one removal, per R2 Compliance Patch Brief v2.1):
-  • Removed "R2v3 / NAID AAA certification language" from the Gate 1F Task 3
-    approved quotation source list. DCD does not hold R2v3 or NAID AAA; STS
+v1.2.2 CHANGES (August 2026, one removal, per compliance patch brief v2.1):
+  • Removed "certified processing / secure data destruction certification language" from the Gate 1F Task 3
+    approved quotation source list. DCD does not hold certified processing or secure data destruction; STS
     does. A DCD-branded blog quoting that language is a certification claim for
     a company without the certification. The "(STS partnership context only)"
     parenthetical was not a workable guard in a VA-executed prompt. Brand
     separation between STS and DCD is a standing hard requirement.
-    NAID is at zero survivors per the brief, with no partner-context exception.
+    secure data destruction is at zero survivors per the brief, with no partner-context exception.
   • OPEN, NOT CHANGED: anchor text for the 14 STS partnership URLs (Gate 1D
     Step 5) is still unconstrained regarding certification wording. Whether a
     DCD page may name STS certifications in anchor text is an unresolved brand-
     separation ruling. Left exactly as-is pending that decision.
   • NOT APPLICABLE to DCD: the brief's location-clarity rule (DCD blogs are
     Category C, national, no city targeting, no local address) and Delta 3 meta
-    guidance (R2v3 in meta would be a certification claim DCD cannot make).
+    guidance (certified processing in meta would be a certification claim DCD cannot make).
   • Square footage: zero figures exist in this prompt. Nothing to report.
 
 v1.2.1 CHANGES (July 2026, two clarifying notes, additive, nothing removed):
@@ -873,7 +873,7 @@ STS PARTNERSHIP URL ALLOWLIST (14 URLs):
   1.  https://www.stselectronicrecyclinginc.com/server-destruction-services
   2.  https://www.stselectronicrecyclinginc.com/hipaa-compliant-hard-drive-destruction
   3.  https://www.stselectronicrecyclinginc.com/on-site-hard-drive-shredding
-  4.  https://www.stselectronicrecyclinginc.com/naid-certified-data-destruction
+  4.  https://www.stselectronicrecyclinginc.com/secure data destruction-certified-data-destruction
   5.  https://www.stselectronicrecyclinginc.com/certificate-of-destruction-services
   6.  https://www.stselectronicrecyclinginc.com/it-asset-disposition-itad
   7.  https://www.stselectronicrecyclinginc.com/data-center-decommissioning

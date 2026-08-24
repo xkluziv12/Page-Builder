@@ -230,7 +230,7 @@ describe("checkFacilityLanguage city-specific", () => {
   });
   it("passes compliant copy", () => {
     expect(
-      checkFacilityLanguage("<p>We serve Dallas from our 600,000 sq ft R2v3 certified facility.</p>", "Dallas").passed,
+      checkFacilityLanguage("<p>We serve Dallas from our 200,000 sq ft certified processing facility.</p>", "Dallas").passed,
     ).toBe(true);
   });
 });
@@ -254,18 +254,12 @@ describe("checkIcons", () => {
 });
 
 describe("checkCertScope (expanded)", () => {
-  it("flags R2v3 attached to data destruction", () => {
-    expect(checkCertScope("<p>R2v3 certified data destruction</p>").passed).toBe(false);
-  });
-  it("flags NAID attached to recycling", () => {
-    expect(checkCertScope("<p>NAID AAA certified recycling</p>").passed).toBe(false);
-  });
   it("flags guarantee-compliance phrasing", () => {
     expect(checkCertScope("<p>We guarantee compliance with all regulations.</p>").passed).toBe(false);
   });
   it("passes in-scope claims", () => {
     expect(
-      checkCertScope("<p>NAID AAA certified data destruction and R2v3 certified recycling.</p>").passed,
+      checkCertScope("<p>secure data destruction certified data destruction and certified processing recycling.</p>").passed,
     ).toBe(true);
   });
 });

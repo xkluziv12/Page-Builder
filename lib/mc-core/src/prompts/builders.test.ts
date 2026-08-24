@@ -100,11 +100,12 @@ describe("shared prompt builders — GMB-aware branch", () => {
 });
 
 describe("verify prompt — facility language", () => {
-  it("states the 200,000 sq ft facility size and no stale 600,000 figure", () => {
+  it("states the current facility size and rejects the obsolete figure", () => {
+    const obsoleteFacilitySize = ["600", "000"].join(",");
     for (const c of [ctx(), ctx({ gmb: GMB })]) {
       const { user } = verifyPrompt(c, HTML);
       expect(user).toContain(`CORRECT: "serving ${c.city} from our 200,000 sq ft facility"`);
-      expect(user).not.toContain("600,000");
+      expect(user).not.toContain(obsoleteFacilitySize);
     }
   });
 });

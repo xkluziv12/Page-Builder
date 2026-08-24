@@ -185,7 +185,7 @@ Options: General IT Asset Disposal Guide (ALWAYS), Healthcare ITAD Compliance Gu
 9. **301 Redirect #3**: Full path + /amp
 10. **301 Redirect #4**: Short slug + /amp
 11. **Page Description**: 1-2 sentences, under 150 chars. Include target audience, key value prop. Tier 5: emphasize gated content. Flagged: explain the issue.
-    R2 COMPLIANCE: Never write R2, R2v3, R2:2020, Responsible Recycling, NAID, or NAID AAA in this column. It is a short slot beside a city name, which implies local certification. STS holds R2v3 at Jacksonville, Texas and Houston, Texas only; every other location is a collection and service point. Use approved terms instead: Secure Recycling, Accurate Reporting, Chain of Custody, Secure, Transparent, Sustainable. Rotate across pages so 580+ descriptions do not read identically. "Certified" is allowed in long-form prose but NOT here, and never beside a location-implying noun (facility, center, plant, site). Other standards (NIST, HIPAA, SOX, FERPA, ISO) are unaffected and stay as-is.
+    certified processing COMPLIANCE: Never write certified processing, certified processing, certified processing, secure recycling, secure data destruction, or secure data destruction in this column. It is a short slot beside a city name, which implies local certification. STS holds certified processing at Jacksonville, Texas and Houston, Texas only; every other location is a collection and service point. Use approved terms instead: Secure Recycling, Accurate Reporting, Chain of Custody, Secure, Transparent, Sustainable. Rotate across pages so 580+ descriptions do not read identically. "Certified" is allowed in long-form prose but NOT here, and never beside a location-implying noun (facility, center, plant, site). Other standards (NIST, HIPAA, SOX, FERPA, ISO) are unaffected and stay as-is.
     Examples:
     - Tier 1: "Hub page for all {City} electronics recycling. Targets businesses with free pickup and chain of custody documentation."
     - Tier 4: "Healthcare ITAD targeting {Hospital}. HIPAA compliance, PHI destruction, medical IT disposal."
@@ -214,7 +214,7 @@ Write markdown file: /mnt/user-data/outputs/{city}_linking_reference.md
 - MANDATORY: City spoke links required per Page Builder Master v3.0 Gate 12 Step H
 - Sacred equipment links are SEPARATE from 3-4 body link budget
 - DIFFERENTIATION: Any two pages targeting the same service must diverge in intent, audience, or content structure, not swapped keywords over identical layout. This is the uniqueness floor against doorway classification.
-- R2v3 AUTHORITY PAGE SLOT: RESERVED, EMPTY. A dedicated R2v3 page is planned as the internal-link destination for certification context. URL not yet supplied. Do not invent one. Leave this slot empty until the real URL is provided.
+- certified processing AUTHORITY PAGE SLOT: RESERVED, EMPTY. A dedicated certified processing page is planned as the internal-link destination for certification context. URL not yet supplied. Do not invent one. Leave this slot empty until the real URL is provided.
 
 ## Tier 1: Hub + Core Services
 **{url}**: {description}
@@ -295,7 +295,7 @@ NICHE-MATCHED (max 1 vertical cross-link per page, counts toward 3-4 body budget
 - Tier 5 contains General IT Asset Disposal Guide
 - Every Page Title is under 60 characters; every Page Description is under 150 characters
 - KEEP + RENAME + BUILD NEW counts sum to the total page count
-- R2 COMPLIANCE: zero instances of R2, R2v3, R2:2020, Responsible Recycling, NAID, or NAID AAA in the Page Description column. Report the count. If any appear, replace with approved terms before presenting.
+- certified processing COMPLIANCE: zero instances of certified processing, certified processing, certified processing, secure recycling, secure data destruction, or secure data destruction in the Page Description column. Report the count. If any appear, replace with approved terms before presenting.
 
 Then:
 

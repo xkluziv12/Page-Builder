@@ -39,53 +39,53 @@ _web search: yes · 19s_
 
 **Summary:** Page A dominates through superior specificity, scannability, and local relevance that align with 2025-2026 AIO/GEO and local SEO priorities; C offers conversion advantages while B trails on substance.
 
-**Research notes**  
+**Research notes**
 Current 2025-2026 best practices (drawn from Google Search Central, Search Engine Journal, Search Engine Land, Reddit r/SEO, and practitioner reports): Normal SEO fundamentals still dominate AI Overviews (Gary Illyes confirmation that AIO uses the same ranking systems). Prioritize E-E-A-T, unique/non-commodity content, semantic HTML, scannable structures (question-based H2/H3, bullets, short paragraphs, TL;DR/FAQ blocks), statistics/named sources/authoritative claims for citation-worthiness, and local signals (specific entities, service areas, NAP, compliance). Structured data helps but is identical here. Avoid gimmicks like llms.txt. Local pages win with hyper-specific city references, certifications, process transparency, and conversion paths. AIO/GEO favor extractable factual chunks and comprehensive topical coverage over generic filler.[[1]](https://www.reddit.com/r/SEO/comments/1m9k0kg/google_confirms_normal_seo_works_for_ai_overviews/)[[2]](https://www.searchenginejournal.com/googles-new-ai-search-guide-calls-aeo-and-geo-still-seo/575026/)[[3]](https://www.progress.com/blogs/seo-and-geo-guide)
 
-**Page A Audit**  
-**Technical SEO (92/100)**: Strong title/meta with primary keywords + local + certs; logical single H1, clear H2/H3 hierarchy; semantic HTML evident; good alt text with local keywords; canonical present; preload/resource hints; responsive via media queries and grid classes. Minor bloat from repeated inline styles but clean overall.  
-**On-page SEO (90/100)**: Excellent keyword targeting ("electronics recycling Billings MT", R2/NAID specifics) with intent match; deep topical coverage without stuffing; strong internal linking to service pages.  
-**Content quality & E-E-A-T (94/100)**: Highly specific, original-feeling copy with real local entities, certifications, processes, and compliance details; zero generic filler; strong trust signals (R2v3, NAID AAA, NIST, HIPAA references).  
-**Entity & topical coverage (95/100)**: Exceptional — names Billings Clinic, St. Vincent, Yellowstone County, MSU Billings, BLM, specific neighborhoods (Heights, West End, etc.), service areas, and related concepts (HIPAA 45 CFR, downstream tracking).  
-**AIO readiness (93/100)**: Outstanding scannability — hero features list, process steps (numbered), FAQ cards, clear definitional blocks, concise factual statements.  
-**GEO readiness (92/100)**: Strong statistics (600k sq ft, 2.7M tons e-waste, IBM breach cost), named sources/processes, authoritative claims, verbatim-liftable chunks (e.g., certification explanations, service areas).  
-**Local SEO (96/100)**: Hyper-local — city-specific hero, service areas grid (primary/nearby/regional), "About Billings" section with population/economy details, free pickup in Yellowstone County.  
-**UX & conversion (91/100)**: Clear hierarchy, prominent CTAs (Schedule Free Pickup, email), trust elements (certs, process), mobile-responsive. Minor form placeholder.  
+**Page A Audit**
+**Technical SEO (92/100)**: Strong title/meta with primary keywords + local + certs; logical single H1, clear H2/H3 hierarchy; semantic HTML evident; good alt text with local keywords; canonical present; preload/resource hints; responsive via media queries and grid classes. Minor bloat from repeated inline styles but clean overall.
+**On-page SEO (90/100)**: Excellent keyword targeting ("electronics recycling Billings MT", certification specifics) with intent match; deep topical coverage without stuffing; strong internal linking to service pages.
+**Content quality & E-E-A-T (94/100)**: Highly specific, original-feeling copy with real local entities, certifications, processes, and compliance details; zero generic filler; strong trust signals (certified processing, secure data destruction, NIST, HIPAA references).
+**Entity & topical coverage (95/100)**: Exceptional — names Billings Clinic, St. Vincent, Yellowstone County, MSU Billings, BLM, specific neighborhoods (Heights, West End, etc.), service areas, and related concepts (HIPAA 45 CFR, downstream tracking).
+**AIO readiness (93/100)**: Outstanding scannability — hero features list, process steps (numbered), FAQ cards, clear definitional blocks, concise factual statements.
+**GEO readiness (92/100)**: Strong statistics (200k sq ft, 2.7M tons e-waste, IBM breach cost), named sources/processes, authoritative claims, verbatim-liftable chunks (e.g., certification explanations, service areas).
+**Local SEO (96/100)**: Hyper-local — city-specific hero, service areas grid (primary/nearby/regional), "About Billings" section with population/economy details, free pickup in Yellowstone County.
+**UX & conversion (91/100)**: Clear hierarchy, prominent CTAs (Schedule Free Pickup, email), trust elements (certs, process), mobile-responsive. Minor form placeholder.
 
-**Overall score: 93/100**  
-**Top strengths**: Depth, specificity, local entity density, extractability.  
+**Overall score: 93/100**
+**Top strengths**: Depth, specificity, local entity density, extractability.
 **Top weaknesses**: Slightly heavy inline styles.
 
-**Page B Audit**  
-**Technical SEO (85/100)**: Solid title/meta (good but less specific than A); logical headings; semantic elements; alts present; responsive. Fewer preload hints.  
-**On-page SEO (78/100)**: Good keyword use but shallower; broader "business e-waste" focus; solid internal links but less targeted.  
-**Content quality & E-E-A-T (75/100)**: More generic phrasing ("qualifying volumes," "audit documentation support"); fewer concrete local examples or unique details.  
-**Entity & topical coverage (72/100)**: Mentions Billings Clinic/MSU Billings/Yellowstone County but far less granular than A (no specific neighborhoods or extended entities).  
-**AIO readiness (80/100)**: Scannable with cards/FAQs but fewer numbered processes or crisp factual blocks.  
-**GEO readiness (70/100)**: Some stats (Global E-waste Monitor) and cert mentions, but fewer authoritative claims or liftable specifics.  
-**Local SEO (78/100)**: Covers Billings/Yellowstone County and some areas; "About Billings" section present but shorter and less detailed.  
-**UX & conversion (82/100)**: Clear CTAs and cards; responsive; slightly less polished hierarchy.  
+**Page B Audit**
+**Technical SEO (85/100)**: Solid title/meta (good but less specific than A); logical headings; semantic elements; alts present; responsive. Fewer preload hints.
+**On-page SEO (78/100)**: Good keyword use but shallower; broader "business e-waste" focus; solid internal links but less targeted.
+**Content quality & E-E-A-T (75/100)**: More generic phrasing ("qualifying volumes," "audit documentation support"); fewer concrete local examples or unique details.
+**Entity & topical coverage (72/100)**: Mentions Billings Clinic/MSU Billings/Yellowstone County but far less granular than A (no specific neighborhoods or extended entities).
+**AIO readiness (80/100)**: Scannable with cards/FAQs but fewer numbered processes or crisp factual blocks.
+**GEO readiness (70/100)**: Some stats (Global E-waste Monitor) and cert mentions, but fewer authoritative claims or liftable specifics.
+**Local SEO (78/100)**: Covers Billings/Yellowstone County and some areas; "About Billings" section present but shorter and less detailed.
+**UX & conversion (82/100)**: Clear CTAs and cards; responsive; slightly less polished hierarchy.
 
-**Overall score: 77/100**  
-**Top strengths**: Clean structure, core cert mentions.  
+**Overall score: 77/100**
+**Top strengths**: Clean structure, core cert mentions.
 **Top weaknesses**: Generic language, thinner local/entity depth, lower citation-worthiness.
 
-**Page C Audit**  
-**Technical SEO (88/100)**: Strong title/meta with phone number; good hierarchy; semantic; alts; responsive. Includes phone CTA in hero.  
-**On-page SEO (82/100)**: Solid keywords with ITAD/HIPAA emphasis; good coverage but some repetition of generic phrases.  
-**Content quality & E-E-A-T (80/100)**: Specific on certifications/processes and some locals (Billings Clinic, ExxonMobil, MSU Billings) but more templated feel than A.  
-**Entity & topical coverage (78/100)**: Good mentions of key organizations and counties but less neighborhood/service-area granularity than A.  
-**AIO readiness (85/100)**: Strong FAQs, stats grid, question-based sections; extractable elements present.  
-**GEO readiness (78/100)**: Includes stats (IBM breach cost, EPA e-waste) and compliance details; authoritative but less varied sources than A.  
-**Local SEO (82/100)**: Solid local focus with service area lists and "About Billings"; phone number adds trust/conversion signal.  
-**UX & conversion (89/100)**: Excellent — prominent phone CTA, dual contact options, clean grids.  
+**Page C Audit**
+**Technical SEO (88/100)**: Strong title/meta with phone number; good hierarchy; semantic; alts; responsive. Includes phone CTA in hero.
+**On-page SEO (82/100)**: Solid keywords with ITAD/HIPAA emphasis; good coverage but some repetition of generic phrases.
+**Content quality & E-E-A-T (80/100)**: Specific on certifications/processes and some locals (Billings Clinic, ExxonMobil, MSU Billings) but more templated feel than A.
+**Entity & topical coverage (78/100)**: Good mentions of key organizations and counties but less neighborhood/service-area granularity than A.
+**AIO readiness (85/100)**: Strong FAQs, stats grid, question-based sections; extractable elements present.
+**GEO readiness (78/100)**: Includes stats (IBM breach cost, EPA e-waste) and compliance details; authoritative but less varied sources than A.
+**Local SEO (82/100)**: Solid local focus with service area lists and "About Billings"; phone number adds trust/conversion signal.
+**UX & conversion (89/100)**: Excellent — prominent phone CTA, dual contact options, clean grids.
 
-**Overall score: 82/100**  
-**Top strengths**: Phone visibility, stats emphasis, conversion focus.  
+**Overall score: 82/100**
+**Top strengths**: Phone visibility, stats emphasis, conversion focus.
 **Top weaknesses**: Less exhaustive entity/service-area detail; slightly more generic in places.
 
-**Head-to-head**  
-Page A wins decisively on depth, local entity density, extractability for AIO/GEO, and E-E-A-T signals — exactly what current best practices reward for local service pages. Page C is a strong second with better conversion elements (phone CTA) and solid structure but thinner coverage. Page B lags due to generic language and reduced specificity, making it least likely to earn citations or strong local relevance. The decisive factors are A’s superior topical/entity completeness, scannable factual chunks, and hyper-local service-area detail versus the others’ more abbreviated treatment.  
+**Head-to-head**
+Page A wins decisively on depth, local entity density, extractability for AIO/GEO, and E-E-A-T signals — exactly what current best practices reward for local service pages. Page C is a strong second with better conversion elements (phone CTA) and solid structure but thinner coverage. Page B lags due to generic language and reduced specificity, making it least likely to earn citations or strong local relevance. The decisive factors are A’s superior topical/entity completeness, scannable factual chunks, and hyper-local service-area detail versus the others’ more abbreviated treatment.
 
 ```json
 {
@@ -124,9 +124,9 @@ With this mandate, here is the ruthless audit of Pages A, B, and C.
 #### **PAGE A**
 **The Verdict:** An absolute powerhouse of local entity coverage and AIO-extractable formatting, though slightly hindered by old-school keyword stuffing and a missing phone number.
 
-*   **Technical SEO (82/100)**: Clean CSS grid structure with responsive breakpoints (`@media(max-width:968px)`). However, the image alt text is horribly keyword-stuffed: `alt="Billings Montana electronics recycling IT asset disposition laptop computer Yellowstone County"`. This is a 2010 tactic. 
-*   **On-page SEO (92/100)**: Massive depth (2600 words) with perfect intent match. Headings are structurally flawless, guiding the user from general services to specific equipment, compliance, and local coverage. 
-*   **Content Quality & E-E-A-T (92/100)**: Expertly weaves complex compliance standards (HIPAA 45 CFR 164.312, DoD 5220.22-M) into the copy. It proves expertise rather than just claiming it. 
+*   **Technical SEO (82/100)**: Clean CSS grid structure with responsive breakpoints (`@media(max-width:968px)`). However, the image alt text is horribly keyword-stuffed: `alt="Billings Montana electronics recycling IT asset disposition laptop computer Yellowstone County"`. This is a 2010 tactic.
+*   **On-page SEO (92/100)**: Massive depth (2600 words) with perfect intent match. Headings are structurally flawless, guiding the user from general services to specific equipment, compliance, and local coverage.
+*   **Content Quality & E-E-A-T (92/100)**: Expertly weaves complex compliance standards (HIPAA 45 CFR 164.312, DoD 5220.22-M) into the copy. It proves expertise rather than just claiming it.
 *   **Entity & Topical Coverage (96/100)**: Flawless. It maps out the local ecosystem beautifully by naming real-world entities: *Billings Clinic, St. Vincent Healthcare, Montana State University Billings, Rocky Mountain College, BLM, USFS*.
 *   **AIO Readiness (95/100)**: Built for Google AI Overviews. The 4-step process using `<div class="process-step">` and the clear, distinct `<div class="faq-card">` blocks are perfectly structured for an AI to parse, summarize, and cite.
 *   **GEO Readiness (90/100)**: High citation-worthiness. It embeds concrete stats: *"According to the EPA, approximately 2.7 million tons..."* and *"IBM's Cost of a Data Breach Report, the average breach costs $4.88 million."* LLMs will eat this up.
@@ -139,11 +139,11 @@ With this mandate, here is the ruthless audit of Pages A, B, and C.
 #### **PAGE B**
 **The Verdict:** A distinctly sloppy, mid-tier page that relies on generic filler and accidentally exposes its AI-generated roots in the source code.
 
-*   **Technical SEO (72/100)**: The code is littered with leftover prompt/generation artifacts. Seven different times in the HTML, we see `<!-- AUDIT_TARGET -->` sitting in the middle of paragraphs. This is an embarrassing footprint that screams "unreviewed AI content." 
+*   **Technical SEO (72/100)**: The code is littered with leftover prompt/generation artifacts. Seven different times in the HTML, we see `<!-- AUDIT_TARGET -->` sitting in the middle of paragraphs. This is an embarrassing footprint that screams "unreviewed AI content."
 *   **On-page SEO (84/100)**: Competent, but uninspired. The headings are standard, but the content depth drops off compared to A.
-*   **Content Quality & E-E-A-T (85/100)**: It covers the basics (R2v3, NAID AAA) but relies on generic B2B speak. 
+*   **Content Quality & E-E-A-T (85/100)**: It covers the basics (certified processing, secure data destruction) but relies on generic B2B speak.
 *   **Entity & Topical Coverage (82/100)**: Much thinner. It mentions "Billings Clinic" and "Montana State University," but fails to build the dense web of surrounding municipalities that Page A achieved.
-*   **AIO Readiness (88/100)**: One major redeeming quality: it breaks down NIST 800-88 into the exact media sanitization categories *"Clear, Purge, and Destroy."* This is an excellent definitional chunk for Google AI Overviews. 
+*   **AIO Readiness (88/100)**: One major redeeming quality: it breaks down NIST 800-88 into the exact media sanitization categories *"Clear, Purge, and Destroy."* This is an excellent definitional chunk for Google AI Overviews.
 *   **GEO Readiness (86/100)**: Features the *"Global E-waste Monitor, 62 million tonnes"* stat, which is good for LLM retrieval, but the surrounding text lacks the punchy authority of A and C.
 *   **Local SEO (78/100)**: Weak. The "Billings Market Drivers" section uses generic filler like `MT LARGEST CITY` and `I-90 REGIONAL CORRIDOR`. It feels like a template where the city name was just swapped in. Again, no phone number.
 *   **UX & Conversion (80/100)**: Visually bland compared to A. Standard buttons, standard layout. Nothing pushes the user over the edge to convert.
@@ -160,7 +160,7 @@ With this mandate, here is the ruthless audit of Pages A, B, and C.
 *   **Entity & Topical Coverage (86/100)**: Brings in strong corporate entities like *ExxonMobil*, alongside the medical/educational institutions. However, it lacks the deep, 15+ city/county local neighborhood spread seen in Page A.
 *   **AIO Readiness (85/100)**: The structure is solid, but the FAQ section is a bit brief. It lacks the highly scannable step-by-step UI elements of Page A.
 *   **GEO Readiness (94/100)**: The best of the bunch for LLM citations. It directly quotes the federal standard verbatim: *"...render data recovery 'infeasible using state of the art laboratory techniques.'"* ChatGPT and Perplexity prioritize exact-match definitions from authoritative frameworks. This is LLM bait.
-*   **Local SEO (86/100)**: It lacks the exhaustive regional breakdown of Page A, but it makes up ground by actually including a phone number—a critical NAP ranking factor and local trust signal. 
+*   **Local SEO (86/100)**: It lacks the exhaustive regional breakdown of Page A, but it makes up ground by actually including a phone number—a critical NAP ranking factor and local trust signal.
 *   **UX & Conversion (92/100)**: The absolute best for user friction. The click-to-call phone number is right in the hero (`hero-cta-btns`) and the footer. The B2B messaging drives immediate action.
 *   **OVERALL SCORE: 88/100**
     *   *Strengths:* Verbatim GEO quote hooks; excellent click-to-call UX; strong enterprise entities.
@@ -212,53 +212,53 @@ I now have everything I need. Here is my full audit.
 A synthesis of the most respected current signals informing this audit:
 
 **On GEO / answer-engine citation:**
-- The Princeton/IIT-Delhi GEO study (KDD 2024) remains the empirical bedrock: 
+- The Princeton/IIT-Delhi GEO study (KDD 2024) remains the empirical bedrock:
 the strongest lifts came from quotations (+41%), statistics (+32%), and citations (+30%), plus fluency optimization (+28%)
 . Keyword stuffing performed poorly in generative contexts.
-- Promotional tone is actively penalized by LLMs. 
+- Promotional tone is actively penalized by LLMs.
 According to Semrush, Q&A formatting boosts AI citation rates by 25.45%, while promotional tone reduces them by 26.19%
-, and 
+, and
 phrases like "absolutely essential," "the best choice," and "act now" are GEO killers.
 
-- Lead with extractable answers. 
+- Lead with extractable answers.
 Answer Capsules (40-60 word direct answers below H2 headings) are the fastest entry point
-, and 
+, and
 44.2% of all LLM citations come from the first 30% of text (the intro), 31.1% from the middle, and 24.7% from the conclusion.
 
-- Declarative, encyclopedic phrasing wins. 
+- Declarative, encyclopedic phrasing wins.
 Remove subjective phrases like "I think," "We believe," and "In our opinion." Objective, declarative sentences lower perplexity and increase the likelihood of your text being selected for the final output.
 
-- Crawlability of raw HTML text matters: 
+- Crawlability of raw HTML text matters:
 many AI crawlers like GPTBot prioritize speed over rendering complex JavaScript. If your FAQ is injected via client-side JavaScript, an AI crawler might see an empty page. Ensure the text payload is available in the raw HTML.
 
 
 **On Google AI Overviews:**
-- Google is explicit: 
+- Google is explicit:
 the best practices for SEO continue to be relevant because generative AI features on Google Search are rooted in core Search ranking and quality systems.
- There are 
+ There are
 no additional technical requirements
- and 
+ and
 you don't need to create new machine readable files, AI text files, or markup to appear in these features.
 
-- Structure + freshness drive AIO inclusion. 
+- Structure + freshness drive AIO inclusion.
 A clear, detailed summary at the start of each article should directly answer the main search query. Content with clear formatting and structured data, including FAQs, has better chances of appearing in AI Overviews.
- And 
+ And
 content under 3 months old is 3x more likely to be cited in AI answers.
 
-- For local service queries specifically, AIOs trigger far less: 
+- For local service queries specifically, AIOs trigger far less:
 AIOs only show on about 7% of all local queries. This aligns with trends finding local SEO relatively safe from AI updates.
  But where AI local packs do appear, consistency and review depth matter.
 
 **On E-E-A-T, trust & the fabrication risk (decisive for this audit):**
-- Google has sharpened enforcement of fake trust signals. 
+- Google has sharpened enforcement of fake trust signals.
 Google now flags fake E-E-A-T practices like false bios and business claims. Deceptive intent (not just false info) can lead to a quality downgrade. Misleading buttons and bait-and-switch titles may trigger penalties.
- 
+
 Fabricated bios, fake reviews, or forced links tend to unravel as Google cross-checks signals across the web. Once trust is broken, recovery is hard.
 
-- For local YMYL-adjacent service pages, claiming named clients you may not actually serve (e.g., naming a specific large enterprise as a customer) is exactly the kind of unverifiable business claim that creates risk. 
+- For local YMYL-adjacent service pages, claiming named clients you may not actually serve (e.g., naming a specific large enterprise as a customer) is exactly the kind of unverifiable business claim that creates risk.
 Google's evaluation of E-E-A-T extends well beyond page content. It considers whether your claims, references, and identity align with what is already known and verifiable across the web.
 
-- Local 2026 enforcement rewards authenticity over keyword density: 
+- Local 2026 enforcement rewards authenticity over keyword density:
 this enforcement, tied to the March 2026 Core Update, demands a shift from keyword stuffing to authentic reviews and structured data.
 
 
@@ -271,7 +271,7 @@ this enforcement, tied to the March 2026 Core Update, demands a shift from keywo
 ### PAGE A
 
 **Technical SEO — 82/100**
-- Title is keyword-rich but borderline stuffed/long: `Electronics Recycling Billings MT | R2 Certified | Free Pickup | STS` — four pipe-separated segments, likely truncating in SERPs.
+- Title is keyword-rich but borderline stuffed/long: `Electronics Recycling Billings MT | certified processing | Free Pickup | STS` — four pipe-separated segments, likely truncating in SERPs.
 - **Legacy red flag:** carries a `<meta name="keywords">` tag with 8 stuffed phrases. This tag is ignored by Google and is a dated-tactic signal; it adds bloat and, per current guidance, signals keyword-first thinking.
 - Single clean `<h1>`, logical `<h2>`/`<h3>`/`<h4>` hierarchy throughout. Good semantic flow.
 - Solid head hygiene: `preconnect`, async font/CSS loading, `canonical`, descriptive `alt` text on all images (e.g., "Billings Montana electronics recycling IT asset disposition laptop computer Yellowstone County"), `loading="lazy"`.
@@ -280,11 +280,11 @@ this enforcement, tied to the March 2026 Core Update, demands a shift from keywo
 
 **On-Page SEO — 90/100**
 - Best keyword/intent coverage of the three: targets "electronics recycling Billings," "ITAD," "hard drive destruction," "data destruction Yellowstone County," "near me." Longest at ~2,600 words with strongest topical depth.
-- Excellent internal linking to service pages (computer/laptop/server recycling, hard drive shredding, certificate of destruction, NAID, ITAD).
-- Minor repetition of "R2v3 certified / Yellowstone County / 48 hours" but not stuffed to harmful levels.
+- Excellent internal linking to service pages (computer/laptop/server recycling, hard drive shredding, certificate of destruction, secure data destruction, ITAD).
+- Minor repetition of "certified processing / Yellowstone County / 48 hours" but not stuffed to harmful levels.
 
 **Content Quality & E-E-A-T — 80/100**
-- Strong specificity: NIST 800-88, HIPAA 45 CFR 164.312, R2v3:2020, DoD 5220.22-M, BAAs, serial-number CoDs. This is genuine domain expertise that reads as experienced.
+- Strong specificity: NIST 800-88, HIPAA 45 CFR 164.312, certified processing, DoD 5220.22-M, BAAs, serial-number CoDs. This is genuine domain expertise that reads as experienced.
 - **Accuracy concern:** names "Billings Clinic and St. Vincent Healthcare," "Montana State University Billings," "Rocky Mountain College," "BLM and USFS field offices" as the institutional landscape — but phrases them mostly as *categories of clients/generators* ("organizations like," "systems require") rather than asserting they ARE current customers. This is the safer framing. The "frequently recommended by compliance officers" line is a soft puffery risk.
 - Uses real statistics with attribution (EPA 2.7M tons; IBM $4.88M breach; UN Global E-waste Monitor 17.4%).
 
@@ -293,7 +293,7 @@ this enforcement, tied to the March 2026 Core Update, demands a shift from keywo
 
 **AIO Readiness — 88/100**
 - Multiple question-formatted H2s ("What Electronics Can Be Recycled in Billings?", "How Does Electronics Recycling Protect Data in Billings?", "Is My Data Safe During Billings Electronics Recycling?", "How Does Electronics Recycling Work in Billings?") — strong query-fan-out coverage.
-- A bolded summary intro block ("STS Electronic Recycling provides R2v3 certified...") functions as an answer capsule near the top — aligns with the intro-citation weighting.
+- A bolded summary intro block ("STS Electronic Recycling provides certified processing...") functions as an answer capsule near the top — aligns with the intro-citation weighting.
 - Dedicated FAQ with 4 Q&As; numbered process steps; scannable cards.
 
 **GEO Readiness — 85/100**
@@ -315,7 +315,7 @@ this enforcement, tied to the March 2026 Core Update, demands a shift from keywo
 ### PAGE B
 
 **Technical SEO — 86/100**
-- Cleanest, most modern title: `Billings Electronics Recycling | R2v3 Certified | STS` — concise, correct length, brand last.
+- Cleanest, most modern title: `Billings Electronics Recycling | certified processing | STS` — concise, correct length, brand last.
 - **Also carries a `<meta name="keywords">` tag** (dated-tactic signal) — same minor demerit as A.
 - Single `<h1>`, logical heading order, semantic structure good. `alt` text present and descriptive. Async assets, canonical present.
 - CSS references `.floating-card iframe` but hero uses `{loadposition}` (Joomla module, server-side) — consistent and crawlable.
@@ -328,7 +328,7 @@ this enforcement, tied to the March 2026 Core Update, demands a shift from keywo
 **Content Quality & E-E-A-T — 88/100 (highest)**
 - **Most careful, defensible claims.** Consistently uses hedged, honest phrasing: "Pickup is free for qualifying volumes," "STS engagements with healthcare systems typically involve...", names institutions as *the local landscape* and *example environments* rather than asserting hard customer relationships. This aligns precisely with current anti-fabrication enforcement.
 - Cites NIST SP 800-88's actual sanitization categories ("Clear, Purge, and Destroy") — a verifiable, encyclopedic, quotable fact.
-- Uses a properly attributed, current statistic: 
+- Uses a properly attributed, current statistic:
 +32% from statistics
 -style move — "According to the Global E-waste Monitor, 62 million tonnes of e-waste were generated worldwide in 2022" (accurate and recent).
 
@@ -344,7 +344,7 @@ this enforcement, tied to the March 2026 Core Update, demands a shift from keywo
 - Best balance: declarative, low-perplexity prose; verifiable NIST quotation; sourced statistic; minimal promotional language. This is the page most aligned with the quotation+statistic+citation triad that the GEO research rewards. Avoids the "ABSOLUTELY FREE" type tone entirely.
 
 **Local SEO — 82/100**
-- Good coverage matrix (Billings/Regional/Corridors) and an "About Billings" paragraph, but the stat block is more abstract ("MT largest city," "I-90," "B2B," "R2v3") and less concretely local than A's population/hospitals/universities figures. No phone NAP (email-only). The final "service request" panel is a static placeholder, not a live form.
+- Good coverage matrix (Billings/Regional/Corridors) and an "About Billings" paragraph, but the stat block is more abstract ("MT largest city," "I-90," "B2B," "certified processing") and less concretely local than A's population/hospitals/universities figures. No phone NAP (email-only). The final "service request" panel is a static placeholder, not a live form.
 
 **UX & Conversion — 83/100**
 - Clean, professional, honest. Slightly weaker conversion punch than A/C (no phone, email-led, placeholder form box), but trust-forward.
@@ -358,7 +358,7 @@ this enforcement, tied to the March 2026 Core Update, demands a shift from keywo
 ### PAGE C
 
 **Technical SEO — 80/100**
-- Title good: `Electronics Recycling Billings MT | R2 Certified ITAD | STS`. **Carries `meta keywords`** too.
+- Title good: `Electronics Recycling Billings MT | certified processing ITAD | STS`. **Carries `meta keywords`** too.
 - **Best NAP signal of the three:** includes a real phone number `(844) 699-2913` in the meta description, hero `tel:` CTA, and footer — the only page with a clickable phone. This is a genuine local/conversion advantage.
 - Single `<h1>`, logical hierarchy, descriptive alt text, async assets, canonical present. Defines a `.stats-section` class but excludes the stats bar (unused CSS — minor bloat).
 
@@ -367,9 +367,9 @@ this enforcement, tied to the March 2026 Core Update, demands a shift from keywo
 - Some keyword/intent coverage good ("electronics recycling near me," ITAD, hard drive destruction).
 
 **Content Quality & E-E-A-T — 58/100 (lowest — decisive)**
-- **Critical fabrication/accuracy risk.** Page C repeatedly and explicitly names **ExxonMobil** as a client/served entity: "we securely process equipment from computers to servers for major employers like ExxonMobil," "Our team works with major regional energy producers like ExxonMobil," and "for Billings organizations including ExxonMobil, Billings Clinic, and Montana State University Billings." Asserting a named multinational as a customer is precisely the kind of **unverifiable business claim** that current enforcement targets — 
+- **Critical fabrication/accuracy risk.** Page C repeatedly and explicitly names **ExxonMobil** as a client/served entity: "we securely process equipment from computers to servers for major employers like ExxonMobil," "Our team works with major regional energy producers like ExxonMobil," and "for Billings organizations including ExxonMobil, Billings Clinic, and Montana State University Billings." Asserting a named multinational as a customer is precisely the kind of **unverifiable business claim** that current enforcement targets —
 Google now flags fake E-E-A-T practices like false bios and business claims, and deceptive intent can lead to a quality downgrade.
- If untrue, this is a serious trust liability, and 
+ If untrue, this is a serious trust liability, and
 fabricated claims tend to unravel as Google cross-checks signals across the web; once trust is broken, recovery is hard.
 
 - More promotional/superlative tone ("with absolute security," "the accountability enterprise clients demand," "comprehensive industry credentials," "robust operational frameworks") — exactly the language shown to **reduce** AI citation rates by ~26%.
@@ -426,20 +426,20 @@ _web search: yes · 142s_
 
 ## 1. Research notes — current SEO / AIO / GEO signals used for judging
 
-**Framework used:** I judged these pages as local B2B service landing pages competing for queries like **“electronics recycling Billings MT,” “computer recycling Billings,” “ITAD Billings,” “hard drive destruction Billings,” “R2 certified electronics recycling Billings,”** and adjacent AI-search prompts such as **“Who provides certified electronics recycling in Billings?”** or **“How do Billings businesses dispose of old computers securely?”**
+**Framework used:** I judged these pages as local B2B service landing pages competing for queries like **“electronics recycling Billings MT,” “computer recycling Billings,” “ITAD Billings,” “hard drive destruction Billings,” “certified processing electronics recycling Billings,”** and adjacent AI-search prompts such as **“Who provides certified electronics recycling in Billings?”** or **“How do Billings businesses dispose of old computers securely?”**
 
 Current best-practice themes I weighted heavily:
 
-1. **Foundational SEO still matters for AI Overviews.** Google’s own guidance says generative AI features in Search are rooted in core Search ranking and quality systems, so crawlability, relevance, helpful content, technical structure, and classic ranking fundamentals still matter. ([developers.google.com](https://developers.google.com/search/docs/fundamentals/ai-optimization-guide))  
-2. **Helpful, people-first, experience-rich content is still the baseline.** Google specifically asks whether content demonstrates first-hand expertise, depth of knowledge, a clear audience, and whether a visitor would leave feeling they accomplished their goal. ([developers.google.com](https://developers.google.com/search/docs/fundamentals/creating-helpful-content))  
-3. **Avoid search-engine-first / mass-location-page patterns.** Local service pages need unique local value, not just templated city swaps, keyword repetition, or thin “service area” text. Google warns against content created mainly to attract search traffic or produced through extensive automation without added value. ([developers.google.com](https://developers.google.com/search/docs/fundamentals/creating-helpful-content))  
-4. **AI-search visibility rewards extractable, evidence-rich chunks.** A 2026 GEO citation study found high-influence AI-cited pages tend to be longer, more structured, semantically aligned, and rich in extractable evidence such as definitions, numerical facts, comparisons, and procedural steps. ([arxiv.org](https://arxiv.org/abs/2604.25707))  
-5. **AIO/GEO does not require special “AI schema.”** Google explicitly says there is no special schema.org markup required for generative AI Search and warns against overfocusing on structured data, though structured data should still match visible content and support rich-result eligibility. ([developers.google.com](https://developers.google.com/search/docs/fundamentals/ai-optimization-guide))  
-6. **Structured data consistency still matters, but it is not a differentiator here.** Google’s LocalBusiness guidance says structured data can communicate hours, departments, reviews, and local business details, but in this audit the downstream JSON-LD is intentionally identical across pages, so I did **not** score schema presence/absence as a differentiator. ([developers.google.com](https://developers.google.com/search/docs/appearance/structured-data/local-business))  
-7. **Local SEO pages need genuine local relevance.** Current practitioner discussion still emphasizes service + location specificity, GBP/local-citation alignment, real service-area clarity, and avoiding thin city pages; Reddit local SEO practitioners continue to flag weak city pages and backlink/location relevance issues as common problems. ([reddit.com](https://www.reddit.com/r/localseo/comments/1tqamke/local_service_business_lost_nearly_all_organic/))  
-8. **AI Overview citations are related to—but not identical with—organic rankings.** Ahrefs’ 2025–2026 AIO research indicates ranking visibility helps but does not fully determine AI Overview citations; pages also need coverage across fan-out queries, topic completeness, and citation-worthy content. ([ahrefs.com](https://ahrefs.com/blog/search-rankings-ai-citations/?utm_source=openai))  
-9. **Answer-first formatting helps AIO/GEO.** Practitioner GEO checklists emphasize question-led sections, direct 2–3 sentence answers, FAQs, definitions, comparisons, internal links, and “liftable” factual sentences. ([reddit.com](https://www.reddit.com/r/GEO_optimization/comments/1n9ycqu/stepbystep_guide_to_generative_engine/))  
-10. **Multimodal / UX readiness matters.** Google recommends supporting textual content with high-quality images and keeping Business Profile information current for AI-search success, while also preserving snippet/indexing controls. ([developers.google.com](https://developers.google.com/search/blog/2025/05/succeeding-in-ai-search))  
+1. **Foundational SEO still matters for AI Overviews.** Google’s own guidance says generative AI features in Search are rooted in core Search ranking and quality systems, so crawlability, relevance, helpful content, technical structure, and classic ranking fundamentals still matter. ([developers.google.com](https://developers.google.com/search/docs/fundamentals/ai-optimization-guide))
+2. **Helpful, people-first, experience-rich content is still the baseline.** Google specifically asks whether content demonstrates first-hand expertise, depth of knowledge, a clear audience, and whether a visitor would leave feeling they accomplished their goal. ([developers.google.com](https://developers.google.com/search/docs/fundamentals/creating-helpful-content))
+3. **Avoid search-engine-first / mass-location-page patterns.** Local service pages need unique local value, not just templated city swaps, keyword repetition, or thin “service area” text. Google warns against content created mainly to attract search traffic or produced through extensive automation without added value. ([developers.google.com](https://developers.google.com/search/docs/fundamentals/creating-helpful-content))
+4. **AI-search visibility rewards extractable, evidence-rich chunks.** A 2026 GEO citation study found high-influence AI-cited pages tend to be longer, more structured, semantically aligned, and rich in extractable evidence such as definitions, numerical facts, comparisons, and procedural steps. ([arxiv.org](https://arxiv.org/abs/2604.25707))
+5. **AIO/GEO does not require special “AI schema.”** Google explicitly says there is no special schema.org markup required for generative AI Search and warns against overfocusing on structured data, though structured data should still match visible content and support rich-result eligibility. ([developers.google.com](https://developers.google.com/search/docs/fundamentals/ai-optimization-guide))
+6. **Structured data consistency still matters, but it is not a differentiator here.** Google’s LocalBusiness guidance says structured data can communicate hours, departments, reviews, and local business details, but in this audit the downstream JSON-LD is intentionally identical across pages, so I did **not** score schema presence/absence as a differentiator. ([developers.google.com](https://developers.google.com/search/docs/appearance/structured-data/local-business))
+7. **Local SEO pages need genuine local relevance.** Current practitioner discussion still emphasizes service + location specificity, GBP/local-citation alignment, real service-area clarity, and avoiding thin city pages; Reddit local SEO practitioners continue to flag weak city pages and backlink/location relevance issues as common problems. ([reddit.com](https://www.reddit.com/r/localseo/comments/1tqamke/local_service_business_lost_nearly_all_organic/))
+8. **AI Overview citations are related to—but not identical with—organic rankings.** Ahrefs’ 2025–2026 AIO research indicates ranking visibility helps but does not fully determine AI Overview citations; pages also need coverage across fan-out queries, topic completeness, and citation-worthy content. ([ahrefs.com](https://ahrefs.com/blog/search-rankings-ai-citations/?utm_source=openai))
+9. **Answer-first formatting helps AIO/GEO.** Practitioner GEO checklists emphasize question-led sections, direct 2–3 sentence answers, FAQs, definitions, comparisons, internal links, and “liftable” factual sentences. ([reddit.com](https://www.reddit.com/r/GEO_optimization/comments/1n9ycqu/stepbystep_guide_to_generative_engine/))
+10. **Multimodal / UX readiness matters.** Google recommends supporting textual content with high-quality images and keeping Business Profile information current for AI-search success, while also preserving snippet/indexing controls. ([developers.google.com](https://developers.google.com/search/blog/2025/05/succeeding-in-ai-search))
 
 **Scoring weights used for the overall score:**
 
@@ -476,29 +476,29 @@ Current best-practice themes I weighted heavily:
 
 **Strengths**
 
-- Strong, relevant title:  
-  `Electronics Recycling Billings MT | R2 Certified | Free Pickup | STS`  
+- Strong, relevant title:
+  `Electronics Recycling Billings MT | certified processing | Free Pickup | STS`
   This directly targets the primary local intent: **electronics recycling + Billings MT + certification + pickup**.
-- Meta description is keyword-relevant and persuasive:  
-  `R2 certified electronics recycling in Billings, MT. Free pickup throughout Yellowstone County. NAID AAA data destruction...`
-- Correct viewport:  
+- Meta description is keyword-relevant and persuasive:
+  `certified processing electronics recycling in Billings, MT. Free pickup throughout Yellowstone County. secure data destruction data destruction...`
+- Correct viewport:
   `<meta name="viewport" content="width=device-width, initial-scale=1.0">`
-- Canonical present and clean:  
+- Canonical present and clean:
   `<link rel="canonical" href="https://www.stselectronicrecyclinginc.com/billings-mt">`
-- Single visible H1 appears to be present:  
-  `<h1>Billings <span class="accent">Electronics Recycling</span> — R2 Certified and Free Pickup</h1>`
+- Single visible H1 appears to be present:
+  `<h1>Billings <span class="accent">Electronics Recycling</span> — certified processing and Free Pickup</h1>`
 - Responsive CSS exists with breakpoints for `max-width:1100px`, `968px`, and `640px`.
 - Images use `loading="lazy"` after the hero, and alt text is present.
 
 **Weaknesses**
 
 - Meta description is long and may truncate; it is useful but crowded.
-- Uses the obsolete / ignored `meta keywords`:  
-  `<meta name="keywords" content="electronics recycling Billings MT, ...">`  
+- Uses the obsolete / ignored `meta keywords`:
+  `<meta name="keywords" content="electronics recycling Billings MT, ...">`
   Not harmful by itself, but it is a dated signal and adds no Google ranking value.
 - Heavy inline CSS and many inline styles create bloat. The page includes large CSS blocks, Font Awesome, Google Fonts, multiple large remote images, and repeated inline card styling.
 - Semantic HTML is weak. The page is almost entirely `<div>`-based; no `<main>`, `<section>`, `<article>`, `<address>`, or semantic service-area block.
-- Alt text is present but sometimes keyword-stuffed, e.g.  
+- Alt text is present but sometimes keyword-stuffed, e.g.
   `alt="Billings Montana electronics recycling IT asset disposition laptop computer Yellowstone County"`
 
 **Technical verdict:** Strong crawl/index basics, strong title/canonical/viewport, but bloated and semantically over-div’d.
@@ -511,12 +511,12 @@ Current best-practice themes I weighted heavily:
 
 - Excellent primary keyword alignment in H1, title, hero, headings, and body:
   - `Billings Electronics Recycling`
-  - `R2 Certified`
+  - `certified processing`
   - `Free Pickup`
   - `Yellowstone County`
   - `IT asset disposition`
   - `hard drive destruction`
-  - `NAID AAA`
+  - `secure data destruction`
 - Strong local modifiers throughout:
   - `Billings`
   - `Yellowstone County`
@@ -525,7 +525,7 @@ Current best-practice themes I weighted heavily:
   - `Laurel`, `Hardin`, `Columbus`, `Red Lodge`, `Roundup`, `Huntley`
 - Captures multiple search intents:
   - commercial: “schedule free pickup”
-  - compliance: “NAID AAA data destruction”
+  - compliance: “secure data destruction data destruction”
   - informational: “What electronics can be recycled?”
   - local: “service areas”
   - enterprise: “ITAD”
@@ -533,12 +533,12 @@ Current best-practice themes I weighted heavily:
   - `/it-asset-disposition-itad`
   - `/on-site-hard-drive-shredding`
   - `/certificate-of-destruction-services`
-  - `/naid-certified-data-destruction`
+  - `/secure data destruction-certified-data-destruction`
   - equipment-specific recycling pages
 
 **Weaknesses**
 
-- Repetition gets aggressive. Phrases like **Billings**, **R2v3**, **NAID AAA**, **Yellowstone County**, and **Certificate of Destruction** appear repeatedly. It is not pure stuffing, but it is close to feeling machine-composed.
+- Repetition gets aggressive. Phrases like **Billings**, **certified processing**, **secure data destruction**, **Yellowstone County**, and **Certificate of Destruction** appear repeatedly. It is not pure stuffing, but it is close to feeling machine-composed.
 - Some headings are very SEO-shaped rather than user-natural:
   - `What Electronics Can Be Recycled in Billings?`
   - `How Does Electronics Recycling Protect Data in Billings?`
@@ -554,17 +554,17 @@ Current best-practice themes I weighted heavily:
 **Strengths**
 
 - Strong service specificity:
-  - `R2v3 certified electronics recycling`
-  - `NAID AAA data destruction`
+  - `certified processing electronics recycling`
+  - `secure data destruction data destruction`
   - `NIST 800-88 compliant processes`
   - `serial-number-specific certificates`
   - `downstream material tracking`
   - `Business Associate Agreements`
 - Good industry-specific content for healthcare, energy, government, education.
 - Strong process description:
-  1. Schedule free pickup  
-  2. Secure transport  
-  3. R2v3 certified processing  
+  1. Schedule free pickup
+  2. Secure transport
+  3. certified processing
   4. Certificate of Destruction
 - Good E-E-A-T signals:
   - certifications
@@ -577,7 +577,7 @@ Current best-practice themes I weighted heavily:
 **Weaknesses / risk flags**
 
 - Several claims need visible citations or proof on-page:
-  - `600,000 sq ft certified facility`
+  - `200,000 sq ft certified facility`
   - `Certificate of Destruction Within 48 Hours`
   - `zero-landfill commitment`
   - `EPA, approximately 2.7 million tons...`
@@ -615,8 +615,8 @@ Current best-practice themes I weighted heavily:
 - Billings Public Schools
 - BLM
 - USFS
-- R2v3
-- NAID AAA
+- certified processing
+- secure data destruction
 - NIST 800-88
 - HIPAA
 - DoD 5220.22-M
@@ -661,7 +661,7 @@ Current best-practice themes I weighted heavily:
 - The four-step process is very extractable.
 - FAQ section is relevant and commercial-intent aligned.
 - The summary-style block near the top is strong:
-  > `STS Electronic Recycling provides R2v3 certified electronics recycling and NAID AAA data destruction for Billings businesses...`
+  > `STS Electronic Recycling provides certified processing electronics recycling and secure data destruction data destruction for Billings businesses...`
 
 **Weaknesses**
 
@@ -678,7 +678,7 @@ Current best-practice themes I weighted heavily:
 **Strengths**
 
 - Many citation-worthy statements:
-  - `STS provides R2v3 certified electronics recycling and NAID AAA data destruction...`
+  - `STS provides certified processing electronics recycling and secure data destruction data destruction...`
   - `Services include free scheduled pickup... serial-number-specific certificates... downstream material tracking...`
   - `Certificate of Destruction delivered within 48 hours...`
 - Includes statistics and named sources:
@@ -804,9 +804,9 @@ Current best-practice themes I weighted heavily:
 **Strengths**
 
 - Clean title:
-  `Billings Electronics Recycling | R2v3 Certified | STS`
+  `Billings Electronics Recycling | certified processing | STS`
 - Meta description is concise and commercially relevant:
-  `Electronics recycling in Billings, MT with free pickup for qualifying volumes, R2v3 certified processing, secure data destruction. Request pickup today.`
+  `Electronics recycling in Billings, MT with free pickup for qualifying volumes, certified processing, secure data destruction. Request pickup today.`
 - Good canonical:
   `<link rel="canonical" href="https://www.stselectronicrecyclinginc.com/billings-mt">`
 - Single H1:
@@ -833,7 +833,7 @@ Current best-practice themes I weighted heavily:
 
 - Good primary query match:
   - `Billings Electronics Recycling`
-  - `R2v3 Certified`
+  - `certified processing`
   - `secure data destruction`
   - `ITAD`
   - `hard drive destruction`
@@ -850,12 +850,12 @@ Current best-practice themes I weighted heavily:
   - `Certificate of Destruction`
   - `Data Center Decommissioning`
   - `Corporate Data Security Disposal`
-  - `NAID Certified Data Destruction`
+  - `secure data destruction Certified Data Destruction`
 
 **Weaknesses**
 
 - Title omits `MT`, `free pickup`, and `ITAD`, making it less long-tail-rich than A/C.
-- The H1 targets businesses and institutions but does not mention `MT`, `R2`, or pickup.
+- The H1 targets businesses and institutions but does not mention `MT`, `certified processing`, or pickup.
 - Some service pages linked in “Related Services” appear potentially fabricated or inconsistent with actual site architecture:
   - `/healthcare-it-disposal`
   - `/government-data-destruction`
@@ -874,7 +874,7 @@ Current best-practice themes I weighted heavily:
 - Most cautious and credible tone of the three.
 - Uses safer language:
   - `free pickup for qualifying volumes`
-  - `NAID AAA Certified Data Destruction Available`
+  - `secure data destruction Certified Data Destruction Available`
   - `support internal security reviews`
   - `help support HIPAA...`
 - Strong compliance detail:
@@ -910,8 +910,8 @@ Current best-practice themes I weighted heavily:
 - Rocky Mountain College
 - Billings Public Schools
 - St. Vincent Healthcare
-- R2v3
-- NAID AAA
+- certified processing
+- secure data destruction
 - NIST 800-88
 - HIPAA
 - GLBA
@@ -923,7 +923,7 @@ Current best-practice themes I weighted heavily:
 **Strengths**
 
 - Good entity coverage without as many risky endorsement implications as Page C.
-- Strong compliance topical coverage with HIPAA, GLBA, FERPA, NIST, R2v3.
+- Strong compliance topical coverage with HIPAA, GLBA, FERPA, NIST, certified processing.
 - Good related-service internal links.
 
 **Weaknesses**
@@ -1011,7 +1011,7 @@ Current best-practice themes I weighted heavily:
 - No NAP block.
 - No phone number.
 - No review/testimonial/local proof.
-- “Market Drivers” block uses abstract labels like `MT`, `I-90`, `B2B`, `R2v3` instead of user-friendly local facts.
+- “Market Drivers” block uses abstract labels like `MT`, `I-90`, `B2B`, `certified processing` instead of user-friendly local facts.
 
 **Local verdict:** Good local SEO page, but not as locally authoritative as A.
 
@@ -1081,9 +1081,9 @@ Current best-practice themes I weighted heavily:
 **Strengths**
 
 - Good title:
-  `Electronics Recycling Billings MT | R2 Certified ITAD | STS`
+  `Electronics Recycling Billings MT | certified processing ITAD | STS`
 - Good meta description with phone CTA:
-  `Professional electronics recycling in Billings, MT. R2v3 certified processing, HIPAA compliant data destruction, and enterprise ITAD services. Call (844) 699-2913.`
+  `Professional electronics recycling in Billings, MT. certified processing, HIPAA compliant data destruction, and enterprise ITAD services. Call (844) 699-2913.`
 - Canonical present:
   `<link rel="canonical" href="https://www.stselectronicrecyclinginc.com/billings-mt">`
 - Single H1:
@@ -1115,21 +1115,21 @@ Current best-practice themes I weighted heavily:
 
 - Good primary targeting in title and H1:
   - `Electronics Recycling Billings MT`
-  - `R2 Certified ITAD`
+  - `certified processing ITAD`
 - Includes important secondary terms:
   - `hard drive destruction`
   - `IT asset disposition`
   - `Yellowstone County`
   - `secure e-waste disposal`
-  - `R2v3`
-  - `NAID AAA`
+  - `certified processing`
+  - `secure data destruction`
 - Good internal links:
   - ITAD
   - hard drive shredding
   - healthcare IT disposal
   - certificate of destruction
   - data center decommissioning
-  - NAID AAA data destruction
+  - secure data destruction data destruction
 
 **Weaknesses**
 
@@ -1151,8 +1151,8 @@ Current best-practice themes I weighted heavily:
 **Strengths**
 
 - Includes strong trust concepts:
-  - R2v3
-  - NAID AAA
+  - certified processing
+  - secure data destruction
   - NIST 800-88
   - HIPAA
   - FERPA
@@ -1168,13 +1168,13 @@ Current best-practice themes I weighted heavily:
 **Major weaknesses / risk flags**
 
 - Page C has the most problematic implied-client language:
-  > `Our team works with major regional energy producers like ExxonMobil...`  
+  > `Our team works with major regional energy producers like ExxonMobil...`
   Unless this is a verifiable customer relationship with permission, this is a legal/trust risk.
 - More overclaiming than B:
   - `HIPAA-compliant Data Destruction`
   - `destruction that exceeds NIST 800-88 standards`
   - `We execute destruction that exceeds these protocols for every data-bearing device`
-  - `NAID AAA certified data erasure processes`
+  - `secure data destruction certified data erasure processes`
 - Some phrasing sounds generic and sales-heavy:
   - `absolute security`
   - `robust operational frameworks`
@@ -1203,8 +1203,8 @@ Current best-practice themes I weighted heavily:
 - St. Vincent Healthcare
 - ExxonMobil
 - Montana State University Billings
-- R2v3
-- NAID AAA
+- certified processing
+- secure data destruction
 - NIST SP 800-88
 - HIPAA
 - FERPA
@@ -1242,7 +1242,7 @@ Current best-practice themes I weighted heavily:
   - `What areas do you serve?`
 - FAQ section is concise.
 - Includes a useful direct answer:
-  > `STS Electronic Recycling provides R2v3 certified electronics recycling and NAID AAA data destruction for Billings organizations.`
+  > `STS Electronic Recycling provides certified processing electronics recycling and secure data destruction data destruction for Billings organizations.`
 
 **Weaknesses**
 
@@ -1263,7 +1263,7 @@ Current best-practice themes I weighted heavily:
 
 **Strengths**
 
-- Has some quotable statements around R2v3, NIST, and certificates.
+- Has some quotable statements around certified processing, NIST, and certificates.
 - Includes recognizable source-like entities: IBM and EPA.
 - Phone/contact data is useful for AI assistants answering “who can I call?”
 
@@ -1381,7 +1381,7 @@ Page A is the strongest SEO/AIO/GEO asset because it gives Google and AI systems
 
 Its best passages are highly extractable, especially:
 
-> `STS Electronic Recycling provides R2v3 certified electronics recycling and NAID AAA data destruction for Billings businesses, healthcare systems, and government agencies.`
+> `STS Electronic Recycling provides certified processing electronics recycling and secure data destruction data destruction for Billings businesses, healthcare systems, and government agencies.`
 
 And:
 
@@ -1450,7 +1450,7 @@ If you publish Page A, I would make these changes first:
    - use `<section>` for major sections
    - use `<address>` for contact/NAP
    - use real lists/tables where appropriate
-7. **Trim repetition** of `Billings`, `R2v3`, `NAID AAA`, and `Yellowstone County`.
+7. **Trim repetition** of `Billings`, `certified processing`, `secure data destruction`, and `Yellowstone County`.
 8. **Add a comparison / eligibility table**:
    - accepted equipment
    - data destruction options
@@ -1578,14 +1578,14 @@ H1 should combine service and location naturally. Location signals must not be b
 
 **Evidence:**
 
-- **Title tag:** `"Electronics Recycling Billings MT | R2 Certified | Free Pickup | STS"` — 62 characters (slightly over ideal 50–60), but all meaningful. Primary keyword ("electronics recycling Billings MT") leads. Certification and USP modifiers included. Brand "STS" present. **Strong.**
-- **Meta description:** `"R2 certified electronics recycling in Billings, MT. Free pickup throughout Yellowstone County. NAID AAA data destruction for healthcare, energy, and government. 600,000 sq ft certified facility."` — 199 characters. This is over the 155–160 character display limit, meaning it will be truncated in SERPs, though Google will often pull it. The content is dense with locally relevant keywords and USPs. **Good content, slightly long.**
+- **Title tag:** `"Electronics Recycling Billings MT | certified processing | Free Pickup | STS"` — 62 characters (slightly over ideal 50–60), but all meaningful. Primary keyword ("electronics recycling Billings MT") leads. Certification and USP modifiers included. Brand "STS" present. **Strong.**
+- **Meta description:** `"certified processing electronics recycling in Billings, MT. Free pickup throughout Yellowstone County. secure data destruction data destruction for healthcare, energy, and government. 200,000 sq ft certified facility."` — 199 characters. This is over the 155–160 character display limit, meaning it will be truncated in SERPs, though Google will often pull it. The content is dense with locally relevant keywords and USPs. **Good content, slightly long.**
 - **Meta keywords tag:** Present with 8 geo-modified keywords. This is a vestigial signal (Google ignores it), but it does no harm and signals intent.
 - **Viewport:** `width=device-width, initial-scale=1.0` — correct.
 - **Canonical:** `https://www.stselectronicrecyclinginc.com/billings-mt` — clean, present.
 - **`lang="en"`:** Present.
-- **H1:** `"Billings Electronics Recycling — R2 Certified and Free Pickup"` — single H1, service + location + USPs. Strong on-page signal. The em dash is slightly unusual but fine semantically.
-- **H2s:** Multiple H2s throughout — "Billings' Certified Electronics Recycling Partner," "What Electronics Can Be Recycled in Billings?," "R2v3 and NAID AAA Certified for Billings," "Is My Data Safe During Billings Electronics Recycling?," "Trusted by Billings' Leading Institutions," "How Does Electronics Recycling Work in Billings?," "Why Choose STS for Billings E-Waste Management?," "Common Questions," "Service Areas and About Billings," "Ready to Recycle Electronics in Billings?" — **logical, geo-modified H2 hierarchy, largely question-based — excellent for AIO.**
+- **H1:** `"Billings Electronics Recycling — certified processing and Free Pickup"` — single H1, service + location + USPs. Strong on-page signal. The em dash is slightly unusual but fine semantically.
+- **H2s:** Multiple H2s throughout — "Billings' Certified Electronics Recycling Partner," "What Electronics Can Be Recycled in Billings?," "certified processing and secure data destruction Certified for Billings," "Is My Data Safe During Billings Electronics Recycling?," "Trusted by Billings' Leading Institutions," "How Does Electronics Recycling Work in Billings?," "Why Choose STS for Billings E-Waste Management?," "Common Questions," "Service Areas and About Billings," "Ready to Recycle Electronics in Billings?" — **logical, geo-modified H2 hierarchy, largely question-based — excellent for AIO.**
 - **H3s/H4s:** Used appropriately for sub-items (service links, process steps, FAQ cards, certifications). No heading skipping observed.
 - **Image alt text:** Descriptive and geo-specific: e.g., `"Billings Montana electronics recycling IT asset disposition laptop computer Yellowstone County"` — strong local alt text. Three images total. Uses `loading="lazy"` on all sub-images. **Good.**
 - **Inline CSS:** Heavy inline CSS (~600+ lines) — no external style sheet. This increases page HTML weight and is a mild negative for performance, but it's a CMS-generated page with preload optimization and font smoothing. The CSS is well-structured.
@@ -1604,10 +1604,10 @@ H1 should combine service and location naturally. Location signals must not be b
 **Evidence:**
 
 - **Primary keyword:** "electronics recycling Billings MT" / "Billings electronics recycling" — appears in title, H1, multiple H2s, hero body copy, section headers, and inline text. Well-distributed, not stuffed.
-- **Secondary keywords covered:** `e-waste recycling Billings`, `computer recycling Billings`, `hard drive destruction Billings MT`, `ITAD Billings Montana`, `R2 certified recycling Billings`, `free electronics pickup Billings`, `data destruction Yellowstone County`, `NAID AAA` — all organically integrated into headers and body.
+- **Secondary keywords covered:** `e-waste recycling Billings`, `computer recycling Billings`, `hard drive destruction Billings MT`, `ITAD Billings Montana`, `certified processing recycling Billings`, `free electronics pickup Billings`, `data destruction Yellowstone County`, `secure data destruction` — all organically integrated into headers and body.
 - **Keyword intent:** Dual intent — commercial ("free pickup," "schedule") and informational ("how does electronics recycling work"). Both are addressed.
 - **"Near me" pattern:** Explicitly addressed in FAQ: `"Organizations searching for electronics recycling near me throughout Billings and Yellowstone County find STS provides same-week scheduled pickup in the Heights, West End, South Side, and Lockwood areas"` — this is very strong for local AIO and voice search. **Excellent.**
-- **Content depth:** ~2,600 words (per template comment). Comprehensive coverage of: services, certifications, compliance frameworks (HIPAA 45 CFR 164.312, NIST 800-88, R2v3:2020, DoD 5220.22-M), industries, process, service areas, local context, FAQ, CTA.
+- **Content depth:** ~2,600 words (per template comment). Comprehensive coverage of: services, certifications, compliance frameworks (HIPAA 45 CFR 164.312, NIST 800-88, certified processing, DoD 5220.22-M), industries, process, service areas, local context, FAQ, CTA.
 - **Internal linking:** 15+ anchor-linked internal links to specific service pages. **Strong.**
 - **External statistics cited:** EPA ("approximately 2.7 million tons of electronic waste reach U.S. landfills annually"), UN Global E-waste Monitor ("only 17.4% of electronic waste is properly recycled worldwide"), IBM Cost of a Data Breach Report ("average breach costs $4.88 million"). **Three statistics with source attribution — strong GEO signal.**
 - **Topical cannibalization:** Not observed. Each section addresses a distinct subtopic.
@@ -1623,10 +1623,10 @@ H1 should combine service and location naturally. Location signals must not be b
 
 - **Named local entities:** Billings Clinic, St. Vincent Healthcare, Montana State University Billings, Rocky Mountain College, Yellowstone County government, Billings Public Schools, BLM field offices, USFS field offices — **8 named local institutional entities.** This is the densest local entity set of all three pages.
 - **Experience signals:** "Billings healthcare systems and government agencies trust STS for certified electronics recycling" — claims trust but no specific testimonials or named contacts. The author meta tag (Mark Domnenko) is present but not displayed on-page.
-- **Expertise signals:** Detailed references to HIPAA 45 CFR 164.312, NIST 800-88 Rev. 2, R2v3:2020 standards, DoD 5220.22-M, OMB reporting cycles, Business Associate Agreements — specific compliance regulatory citations demonstrate domain expertise. **Strong.**
+- **Expertise signals:** Detailed references to HIPAA 45 CFR 164.312, NIST 800-88 Rev. 2, certified processing standards, DoD 5220.22-M, OMB reporting cycles, Business Associate Agreements — specific compliance regulatory citations demonstrate domain expertise. **Strong.**
 - **Authoritativeness:** Three sourced statistics (EPA, UN Global E-waste Monitor, IBM). While these are not linked inline in the body text (only paraphrased), they are attributed. Could be stronger with hyperlinked citations.
-- **Trust signals:** R2v3 certified, NAID AAA certified, 600,000 sq ft facility, Certificate of Destruction within 48 hours, zero-landfill policy — **concrete, verifiable claims.**
-- **Specificity vs. generic filler:** Very specific — "HIPAA 45 CFR 164.312 requirements," "NIST 800-88 Rev. 2 standards," "serial-number-specific certificates," "downstream tracking to R2v3 certified smelters," "same-week scheduling," "within 48 hours." Minimal generic filler.
+- **Trust signals:** certified processing, secure data destruction certified, 200,000 sq ft facility, Certificate of Destruction within 48 hours, zero-landfill policy — **concrete, verifiable claims.**
+- **Specificity vs. generic filler:** Very specific — "HIPAA 45 CFR 164.312 requirements," "NIST 800-88 Rev. 2 standards," "serial-number-specific certificates," "downstream tracking to certified processing smelters," "same-week scheduling," "within 48 hours." Minimal generic filler.
 - **Originality:** Montana state law context ("Montana has no state-mandated extended producer responsibility law for electronics, meaning there is no subsidized drop-off infrastructure") — **unique, locally specific insight not commonly found on competitor pages.** Strong E-E-A-T differentiator.
 
 **Score: 88/100** — Very strong expertise and specificity signals; excellent named local entities; the lack of inline cited hyperlinks for the statistics and absence of on-page author bio prevents a higher score.
@@ -1637,8 +1637,8 @@ H1 should combine service and location naturally. Location signals must not be b
 
 **Evidence:**
 
-- **Service entities:** Electronics recycling, ITAD, hard drive destruction/shredding, Certificate of Destruction, data center equipment recycling, networking equipment recycling, NAID AAA data destruction — comprehensive.
-- **Compliance entities:** HIPAA, NIST 800-88, R2v3, NAID AAA, DoD 5220.22-M, EPA, OMB, BAA (Business Associate Agreement) — 7 compliance frameworks named. **Best compliance entity coverage of all three pages.**
+- **Service entities:** Electronics recycling, ITAD, hard drive destruction/shredding, Certificate of Destruction, data center equipment recycling, networking equipment recycling, secure data destruction data destruction — comprehensive.
+- **Compliance entities:** HIPAA, NIST 800-88, certified processing, secure data destruction, DoD 5220.22-M, EPA, OMB, BAA (Business Associate Agreement) — 7 compliance frameworks named. **Best compliance entity coverage of all three pages.**
 - **Local place entities:** Billings, Yellowstone County, Laurel, Hardin, Columbus, Red Lodge, Roundup, Huntley, Carbon County, Big Horn County, Stillwater County, Eastern Montana, Northern Wyoming, South Side, West End, Heights, Lockwood, Rimrock, Downtown Billings, I-90 (implied via "eastern Montana"), BLM, USFS.
 - **Named institutions:** 8 (see above). **Best of all three.**
 - **Industry entities:** Healthcare, energy/refining, government, education, agriculture — 5 sector categories.
@@ -1655,10 +1655,10 @@ H1 should combine service and location naturally. Location signals must not be b
 
 - **Question-based H2s:** 5 of 10 H2s are direct questions ("What Electronics Can Be Recycled in Billings?", "How Does Electronics Recycling Work in Billings?", "Is My Data Safe During Billings Electronics Recycling?") — directly maps to Google's People Also Ask patterns. **Strong.**
 - **FAQ section:** 4 FAQ cards with explicit Q&A format. Questions are geo-specific and compliance-specific. Answers are 100–150 words each — within the optimal passage-extraction range identified in research.
-- **TL;DR/summary block:** The blue callout box early in the Why Choose section provides a compact summary paragraph: `"STS Electronic Recycling provides R2v3 certified electronics recycling and NAID AAA data destruction for Billings businesses, healthcare systems, and government agencies. Services include free scheduled pickup throughout Yellowstone County, serial-number-specific certificates of destruction, and downstream material tracking through final processing."` — **This is a near-perfect AIO extraction target — it's ~50 words, factual, and entity-dense.**
-- **Concise factual statements:** Numerous. E.g., "Certificate of Destruction delivered within 48 hours of processing," "NIST 800-88 compliant processes," "R2v3:2020 certification standards require downstream tracking through final processing at certified smelters."
+- **TL;DR/summary block:** The blue callout box early in the Why Choose section provides a compact summary paragraph: `"STS Electronic Recycling provides certified processing electronics recycling and secure data destruction data destruction for Billings businesses, healthcare systems, and government agencies. Services include free scheduled pickup throughout Yellowstone County, serial-number-specific certificates of destruction, and downstream material tracking through final processing."` — **This is a near-perfect AIO extraction target — it's ~50 words, factual, and entity-dense.**
+- **Concise factual statements:** Numerous. E.g., "Certificate of Destruction delivered within 48 hours of processing," "NIST 800-88 compliant processes," "certified processing certification standards require downstream tracking through final processing at certified smelters."
 - **Numbered process steps:** 4-step process section — ideal for How-To extraction.
-- **Definitional clarity:** The compliance box explains HIPAA requirements, NIST mandates, and R2v3 standards clearly enough for Google to extract definitional content.
+- **Definitional clarity:** The compliance box explains HIPAA requirements, NIST mandates, and certified processing standards clearly enough for Google to extract definitional content.
 - **Stats placement:** One EPA stat appears in the "Why Choose" body copy section — within the first 30% of the page, which research confirms is where ~44% of LLM citations originate. **Excellent placement.**
 
 **Score: 88/100** — One of the strongest AIO-optimized structures across all three pages. The lack of a single 50–70 word TL;DR at the very top of the page (before the hero features list) is the main gap.
@@ -1675,8 +1675,8 @@ H1 should combine service and location naturally. Location signals must not be b
   3. IBM Cost of a Data Breach Report: "average breach costs $4.88 million"
 - **Named authoritative sources:** EPA, UN Global E-waste Monitor, IBM — credible third-party citations. These are exactly the type of "verifiable claims" that boost LLM citation rates by 30–40% per the Princeton/Georgia Tech GEO research.
 - **Montana-specific unique insight:** "Montana has no state-mandated extended producer responsibility law for electronics" — this is a unique, locally verifiable data point unlikely to be found elsewhere.
-- **Quoted regulatory language:** "HIPAA 45 CFR 164.312 requirements," "R2v3:2020 certification standards," "NIST 800-88 Rev. 2" — precision technical terms that LLMs recognize as authoritative.
-- **Extractable factual chunks:** "Certificate of Destruction within 48 hours," "600,000 sq ft R2v3 certified facility," "NAID AAA certified data destruction" — self-contained, verifiable.
+- **Quoted regulatory language:** "HIPAA 45 CFR 164.312 requirements," "certified processing certification standards," "NIST 800-88 Rev. 2" — precision technical terms that LLMs recognize as authoritative.
+- **Extractable factual chunks:** "Certificate of Destruction within 48 hours," "200,000 sq ft certified processing facility," "secure data destruction certified data destruction" — self-contained, verifiable.
 - **Promotional language check:** Copy is professional but not overly promotional. Some phrases like "Absolutely FREE" in the CTA banner are promotional but are confined to a separate section rather than the main content.
 - **Missing inline source hyperlinks:** The statistics are attributed in text but not hyperlinked to the source documents — this is a minor GEO weakness (linked citations rank higher per the GEO research).
 
@@ -1709,7 +1709,7 @@ H1 should combine service and location naturally. Location signals must not be b
 - **CTAs:** Multiple CTAs (hero, why-choose, equipment section, certifications, process, desk image section, CTA banner, final CTA). Anchored to schedule page and email. **Strong frequency.**
 - **CTA clarity:** "Schedule Free Pickup," "Get Free Quote," "Email Our Team" — clear action language.
 - **Readability:** Inter typeface, 16–19px base body, 1.7–1.8 line height. Good readability.
-- **Trust elements:** Certifications (R2v3, NAID AAA, NIST 800-88, DoD 5220.22-M, HIPAA), 600K sq ft facility, zero-landfill, 48-hour certificate delivery, zero-landfill policy — well distributed.
+- **Trust elements:** Certifications (certified processing, secure data destruction, NIST 800-88, DoD 5220.22-M, HIPAA), 200k sq ft facility, zero-landfill, 48-hour certificate delivery, zero-landfill policy — well distributed.
 - **Friction:** Only 2 contact methods (schedule page + email). No phone = reduced conversion pathway compared to Page C.
 - **Visual design signals:** Card-based layout, icon use, process steps, stats bar at CTA — professional design patterns.
 - **ABSOLUTELY FREE banner:** The "ABSOLUTELY FREE" large CTA section is visually impactful for B2C/SMB conversion but the all-caps styling could read as aggressive. Minor concern.
@@ -1757,8 +1757,8 @@ H1 should combine service and location naturally. Location signals must not be b
 
 **Evidence:**
 
-- **Title tag:** `"Billings Electronics Recycling | R2v3 Certified | STS"` — 52 characters. **Optimal length.** Primary keyword leads. "R2v3" is more specific than "R2 Certified" (Page A). Brand present. Clean.
-- **Meta description:** `"Electronics recycling in Billings, MT with free pickup for qualifying volumes, R2v3 certified processing, secure data destruction. Request pickup today."` — 153 characters. **Optimal.** Includes a CTA ("Request pickup today"). Well-written. **Best meta description of all three.**
+- **Title tag:** `"Billings Electronics Recycling | certified processing | STS"` — 52 characters. **Optimal length.** Primary keyword leads. "certified processing" is more specific than "certified processing" (Page A). Brand present. Clean.
+- **Meta description:** `"Electronics recycling in Billings, MT with free pickup for qualifying volumes, certified processing, secure data destruction. Request pickup today."` — 153 characters. **Optimal.** Includes a CTA ("Request pickup today"). Well-written. **Best meta description of all three.**
 - **Canonical:** Present, correct.
 - **H1:** `"Billings Electronics Recycling for Businesses & Institutions"` — service + location + audience qualifier. Good but less USP-loaded than Page A's H1. The `&` character (rather than "and") is acceptable but slightly informal.
 - **H2s:** "Who Provides Certified Electronics Recycling in Billings?" / "What Electronics Can Billings Organizations Recycle?" / "How Does Certified Recycling Protect Billings Data?" / "Electronics Recycling for Billings Industries" / "Protect Data Before Devices Leave Your Control" / "Common Questions" / "Service Areas & About Billings" / "Related Recycling & Data Security Services" / "Ready to Recycle Electronics Responsibly?" — Question-based and geo-modified. **Good, though "Protect Data Before Devices Leave Your Control" is not a question and is less AIO-optimized.**
@@ -1785,7 +1785,7 @@ H1 should combine service and location naturally. Location signals must not be b
 - **Primary keyword coverage:** "Billings electronics recycling" / "electronics recycling Billings MT" — appears in title, H1, H2s, body. Well-distributed.
 - **Question-based H2s:** 3 of 9 H2s are explicit questions. This is solid but fewer than Page A.
 - **Near-me pattern:** Addressed within the certifications section: `"Organizations searching for electronics recycling near me throughout Billings find STS provides scheduled pickup in the West End, Billings Heights, Downtown Billings, and Yellowstone County locations."` — present, but phrasing is less specific ("Billings Heights" vs. "Heights, Lockwood, Rimrock" naming pattern in Page A).
-- **Keyword targeting specificity:** Page B's copy is slightly more hedged/qualified — "free pickup for qualifying volumes," "NAID AAA certified data destruction available," "workflows help Billings organizations support" — these softer, hedged constructions are good for accuracy but slightly less assertive for search intent signals.
+- **Keyword targeting specificity:** Page B's copy is slightly more hedged/qualified — "free pickup for qualifying volumes," "secure data destruction certified data destruction available," "workflows help Billings organizations support" — these softer, hedged constructions are good for accuracy but slightly less assertive for search intent signals.
 - **Internal linking:** 13+ internal links to service pages. Good. Includes data center decommissioning link (not in Page A's main equipment list).
 - **"Related Services" section:** Unique section that adds 10 additional service links — "Healthcare IT Disposal," "HIPAA Compliant Hard Drive Destruction," "Government Data Destruction," "Corporate Data Security Disposal" — **best secondary internal linking of all three pages.**
 - **Statistics cited:** Only 1 statistic with attribution: "According to the Global E-waste Monitor, 62 million tonnes of e-waste were generated worldwide in 2022." — **just one, placed in the subtitle of a section, which is weak.**
@@ -1801,8 +1801,8 @@ H1 should combine service and location naturally. Location signals must not be b
 **Evidence:**
 
 - **Named local entities:** Billings Clinic, St. Vincent Healthcare, Montana State University Billings, Rocky Mountain College, Billings Public Schools — 5 named institutions (vs. 8 in Page A).
-- **Expertise signals:** Cites HIPAA, NIST 800-88, R2v3:2020, GLBA, FERPA — notably adds GLBA and FERPA which Page A lacks. This wider compliance frame is good. However, the explanations are less detailed than Page A.
-- **Language hedging as an E-E-A-T concern:** Phrases like "STS workflows help Billings organizations support HIPAA 45 CFR §164.312" (Page B) vs. "STS provides NAID AAA certified destruction meeting this standard" (Page A) — Page B's hedging reads as less confident expertise, which can reduce LLM citation selection.
+- **Expertise signals:** Cites HIPAA, NIST 800-88, certified processing, GLBA, FERPA — notably adds GLBA and FERPA which Page A lacks. This wider compliance frame is good. However, the explanations are less detailed than Page A.
+- **Language hedging as an E-E-A-T concern:** Phrases like "STS workflows help Billings organizations support HIPAA 45 CFR §164.312" (Page B) vs. "STS provides secure data destruction meeting this standard" (Page A) — Page B's hedging reads as less confident expertise, which can reduce LLM citation selection.
 - **Specificity:** Lower than Page A. For example, the "About Billings" section is just 3 sentences, compared to Page A's richer paragraph with specific regulatory context, university names, and the UN Global E-waste Monitor stat.
 - **Unique insight:** Less present. "Its distance from larger markets makes year-round certified electronic asset disposal valuable" — decent local context but less specific than Page A's Montana EPR law observation.
 - **Trust signals:** Same certifications mentioned. No phone number. Email present.
@@ -1816,7 +1816,7 @@ H1 should combine service and location naturally. Location signals must not be b
 **Evidence:**
 
 - **Service entities:** Good coverage including data center decommissioning and corporate data security disposal — slightly wider service entity list than Page A due to Related Services section.
-- **Compliance entities:** HIPAA, NIST 800-88, R2v3, NAID AAA, GLBA, FERPA, EPA — 7 frameworks. Same count as Page A but GLBA/FERPA added while some details removed.
+- **Compliance entities:** HIPAA, NIST 800-88, certified processing, secure data destruction, GLBA, FERPA, EPA — 7 frameworks. Same count as Page A but GLBA/FERPA added while some details removed.
 - **Local place entities:** Billings, Yellowstone County, Carbon County, Big Horn County, Stillwater County, Eastern Montana, Northern Wyoming, I-90, I-94, US-87, King Avenue West, Shiloh Road, Rimrocks Area — **unique addition of highway corridors (I-90, I-94, US-87) and named roads.** Interesting but these are less semantically meaningful than named institutions.
 - **Named institutions:** 5 (vs. 8 in Page A). **Weaker.**
 - **Statistics:** 1 (UN Global E-waste Monitor). **Weaker than Page A (3).**
@@ -1850,7 +1850,7 @@ H1 should combine service and location naturally. Location signals must not be b
 - **Technical precision:** NIST 800-88 "Clear, Purge, Destroy" quote is a strong GEO signal — attributable to NIST SP 800-88 specification.
 - **Named sources:** Only the Global E-waste Monitor mentioned as a named source in body copy.
 - **Promotional language:** Generally restrained throughout — "scheduled pickups," "documentation helps," "STS will review the project." Less promotional than Page A's "ABSOLUTELY FREE" CTA. **This actually helps GEO per Semrush data (promotional language reduces AI citation rates).**
-- **Extractable factual chunks:** "600,000 sq ft facility," "NAID AAA certified data destruction," "R2v3 certified processing" — standard. Fewer unique extractable claims than Page A.
+- **Extractable factual chunks:** "200,000 sq ft facility," "secure data destruction certified data destruction," "certified processing" — standard. Fewer unique extractable claims than Page A.
 - **Hedged claims:** The hedged language ("help support HIPAA") while reducing promotional tone also reduces GEO "precision" — AI systems cite confident, specific factual statements.
 - **Missing Montana regulatory insight:** Page B has no equivalent to Page A's Montana EPR law observation.
 
@@ -1866,7 +1866,7 @@ H1 should combine service and location naturally. Location signals must not be b
 - **Service area granularity:** Downtown Billings, West End, Billings Heights, South Side, Lockwood, Laurel (primary); Yellowstone County, Carbon County, Big Horn County, Stillwater County, Eastern Montana, Northern Wyoming (regional); plus highway corridors (I-90, I-94, US-87) and specific roads (King Avenue West, Shiloh Road). The highway/road additions are interesting local signals.
 - **Named institutions:** 5 — lower than Page A.
 - **NAP:** Email only. No phone number.
-- **"Billings Market Drivers" stats panel:** MT (largest city), I-90 (regional corridor), B2B (institutional demand), R2v3 (certified processing) — abstract/brand-focused rather than community statistics. Weaker than Page A's "Billings by the Numbers" panel with population figures.
+- **"Billings Market Drivers" stats panel:** MT (largest city), I-90 (regional corridor), B2B (institutional demand), certified processing (certified processing) — abstract/brand-focused rather than community statistics. Weaker than Page A's "Billings by the Numbers" panel with population figures.
 - **Local context paragraph:** Short — just one paragraph covering economy, metro population. Significantly thinner than Page A.
 
 **Score: 77/100** — Adequate local targeting with some unique features (highway corridors), but thinner institutional entity density, absent phone number, and sparse local context paragraph.
@@ -1880,7 +1880,7 @@ H1 should combine service and location naturally. Location signals must not be b
 - **CTA frequency:** Multiple CTAs throughout. Two primary conversion paths (schedule page, email).
 - **CTA language:** "Request Pickup" (slightly less compelling than "Schedule Free Pickup" in Page A); "Request electronics recycling service for your Billings business" — adequate.
 - **Final CTA issue:** The embedded service description block at the bottom (`"Tell us what equipment you need recycled, how much volume is ready..."`) sits where a form embed would be but appears to describe what to tell STS rather than being an actual form or CTA. This could confuse users on the live page.
-- **Trust elements:** Certifications listed, but the stats panel ("MT," "I-90," "B2B," "R2v3") is abstract and less impactful than numeric trust indicators.
+- **Trust elements:** Certifications listed, but the stats panel ("MT," "I-90," "B2B," "certified processing") is abstract and less impactful than numeric trust indicators.
 - **Conversion friction:** No phone number adds friction. The "qualifying volumes" qualifier on free pickup (while accurate) may introduce hesitation for smaller prospects.
 - **Readability:** Same Inter font, similar sizing. Good readability.
 - **Content pacing:** The page flows well through the sections. The transition from Data Security to FAQ is logical.
@@ -1930,8 +1930,8 @@ H1 should combine service and location naturally. Location signals must not be b
 
 **Evidence:**
 
-- **Title tag:** `"Electronics Recycling Billings MT | R2 Certified ITAD | STS"` — 59 characters. **Optimal range.** "Electronics Recycling Billings MT" leads. "R2 Certified ITAD" adds a secondary qualifier. Brand present.
-- **Meta description:** `"Professional electronics recycling in Billings, MT. R2v3 certified processing, HIPAA compliant data destruction, and enterprise ITAD services. Call (844) 699-2913."` — 166 characters. Slightly over 160-char ideal, but **critically includes a phone number (844) 699-2913 as a conversion CTA.** This is a strong differentiator — the only page of the three with an inline phone number in the meta description.
+- **Title tag:** `"Electronics Recycling Billings MT | certified processing ITAD | STS"` — 59 characters. **Optimal range.** "Electronics Recycling Billings MT" leads. "certified processing ITAD" adds a secondary qualifier. Brand present.
+- **Meta description:** `"Professional electronics recycling in Billings, MT. certified processing, HIPAA compliant data destruction, and enterprise ITAD services. Call (844) 699-2913."` — 166 characters. Slightly over 160-char ideal, but **critically includes a phone number (844) 699-2913 as a conversion CTA.** This is a strong differentiator — the only page of the three with an inline phone number in the meta description.
 - **Canonical:** Present, correct (`/billings-mt`).
 - **H1:** `"Certified Electronics Recycling in Billings, MT"` — service + location, clean. However, less USP-loaded than Page A's H1. No certifications or "free pickup" signal in H1.
 - **H2s:** "Why Choose Certified Electronics Recycling?" / "What Electronics Can Be Recycled in Billings?" / "Certified Electronics Recycling" (certifications section) / "Trusted by Billings' Essential Sectors" / "Is My Data Safe During Electronics Recycling?" / "Common Questions" / "Service Areas & About Billings" / "Comprehensive Asset Solutions" / "Ready to Get Started?" — 9 H2s. Note: "Why Choose Certified Electronics Recycling?" does NOT contain the word "Billings" — a local SEO gap. "Certified Electronics Recycling" (section header) repeats the exact H2 pattern of the H1, creating a minor hierarchy issue.
@@ -1944,7 +1944,7 @@ H1 should combine service and location naturally. Location signals must not be b
 - **Note: `<!-- PAGE_BUILDER_V3 -->` comment is inside `<body>` instead of `<head>` (it appears after `</style>` in `<head>` section but the entire comment block appears at the beginning of `<body>`).** This is not semantically incorrect but is slightly unusual placement.
 - **Author meta:** Present.
 - **Meta keywords:** Present (6 keywords, includes "secure e-waste disposal" as a non-geo term — slightly weaker than Page A's geo-modified keyword list).
-- **Missing `<meta name="keywords">` geo-modification:** `"ITAD services Montana"` and `"R2 certified recycling MT"` are not city-specific. "electronics recycling Billings" is present. Less geo-focused than Page A's keyword tag.
+- **Missing `<meta name="keywords">` geo-modification:** `"ITAD services Montana"` and `"certified processing recycling MT"` are not city-specific. "electronics recycling Billings" is present. Less geo-focused than Page A's keyword tag.
 - **Page weight:** Lightest of the three (~2,405 words).
 
 **Score: 80/100** — Strong title tag and phone-number-in-meta-description; slightly generic alt text; H1 lacks USP modifiers; minor heading repetition issue.
@@ -1990,7 +1990,7 @@ H1 should combine service and location naturally. Location signals must not be b
 **Evidence:**
 
 - **Service entities:** Includes all standard services plus "Telecom Equipment Disposal" (listed as "corporate-data-security-disposal" anchor, slight label/URL mismatch), "Medical IT Equipment Recycling," "Enterprise Risk Mitigation" — interesting enterprise framing.
-- **Compliance entities:** HIPAA, NIST SP 800-88 Rev. 2, R2v3, NAID AAA, DoD, FERPA — 6 frameworks. Fewer than Pages A or B (which both have 7).
+- **Compliance entities:** HIPAA, NIST SP 800-88 Rev. 2, certified processing, secure data destruction, DoD, FERPA — 6 frameworks. Fewer than Pages A or B (which both have 7).
 - **Local place entities:** Billings, Yellowstone County, Downtown Billings, Eastern Montana, Northern Wyoming, "regional medical campuses," "Interstate 90" — limited neighborhood granularity. No county breakdown.
 - **Named institutions:** 4 (lowest count).
 - **ExxonMobil entity:** Unique high-authority entity — adds "energy" sector credibility specifically.
@@ -2060,7 +2060,7 @@ H1 should combine service and location naturally. Location signals must not be b
 - **CTA language:** "Schedule Secure Pickup" / "Call (844) 699-2913" / "Contact Our Team" / "Get A Free Quote" — varied but not as compelling as Page A's "Schedule Free Pickup" (which includes "free").
 - **Conversion friction:** The phone number drastically reduces conversion friction. Users can call without navigating. **Clear advantage.**
 - **Final CTA:** Clean two-column grid with phone link and email link — simple and effective.
-- **Trust elements:** R2v3, NAID AAA, NIST, DoD, HIPAA, chain of custody — adequately distributed. Stats section with 600K, R2v3, Zero Landfill, Free Pickup would be present as a visual stats block, but this page doesn't include the large "stats bar" section (it's in sections_excluded for Page C per the comment).
+- **Trust elements:** certified processing, secure data destruction, NIST, DoD, HIPAA, chain of custody — adequately distributed. Stats section with 200k, certified processing, Zero Landfill, Free Pickup would be present as a visual stats block, but this page doesn't include the large "stats bar" section (it's in sections_excluded for Page C per the comment).
 - **Readability:** Same font/sizing. Good readability.
 - **One UX concern:** "Ready to Get Started?" — the final CTA headline is generic and non-specific. Compare to Page A's "Ready to Recycle Electronics in Billings?" which is geo-specific.
 
@@ -2114,15 +2114,15 @@ The gap between A and B comes down to three factors that cascade across every di
 
 **1. Statistical depth and GEO readiness:** Page A deploys three sourced statistics (EPA, UN Global E-waste Monitor, IBM) with named attribution. Page B deploys one. Per the Princeton/Georgia Tech GEO research, statistics boost AI citation visibility by ~32%. Page A has 3× the citation fuel on this dimension alone.
 
-**2. Named local entity density:** Page A names 8 local Billings institutions (Billings Clinic, St. Vincent Healthcare, MSU Billings, Rocky Mountain College, Yellowstone County government, Billings Public Schools, BLM, USFS). Page B names 5. In the local SEO and AIO context, 
+**2. Named local entity density:** Page A names 8 local Billings institutions (Billings Clinic, St. Vincent Healthcare, MSU Billings, Rocky Mountain College, Yellowstone County government, Billings Public Schools, BLM, USFS). Page B names 5. In the local SEO and AIO context,
 multi-location AIO depends on location-specific pages with per-location depth.
  Named institutions are the most concrete form of local depth.
 
-**3. Language precision vs. hedging:** Page B's copy consistently hedges: "help support," "workflows help Billings organizations support," "NAID AAA certified data destruction available," "can provide." Page A states directly: "STS provides NAID AAA certified destruction meeting this standard," "STS holds R2v3 and NAID AAA certification." Per the GEO research framework, clear declarative statements are significantly more extractable than hedged ones.
+**3. Language precision vs. hedging:** Page B's copy consistently hedges: "help support," "workflows help Billings organizations support," "secure data destruction certified data destruction available," "can provide." Page A states directly: "STS provides secure data destruction meeting this standard," "STS holds certified processing and secure data destruction certification." Per the GEO research framework, clear declarative statements are significantly more extractable than hedged ones.
 
 **4. AIO structural completeness:** Page A has a 4-step numbered How-It-Works section (HowTo pattern), 5 question H2s, 4 detailed FAQ cards with geo-specific answers, and an early summary callout block. Page B lacks the process section, has 3 question H2s, and the FAQ answers are sometimes vague.
 
-**5. Unique content:** Page A's observation that "Montana has no state-mandated extended producer responsibility law for electronics" is unique, locally specific, and not findable on generic ITAD pages. This is exactly the kind of content that 
+**5. Unique content:** Page A's observation that "Montana has no state-mandated extended producer responsibility law for electronics" is unique, locally specific, and not findable on generic ITAD pages. This is exactly the kind of content that
 earns AI citation when other competing pages simply regurgitate information already found elsewhere.
 
 

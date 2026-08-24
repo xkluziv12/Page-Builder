@@ -98,7 +98,6 @@ export const DEFAULT_URL_ALLOWLIST: RegistryLink[] = [
   },
   { label: "IT Asset Disposition (ITAD)", url: `${BASE_DOMAIN}/it-asset-disposition-itad` },
   { label: "Legal Firm Data Destruction", url: `${BASE_DOMAIN}/legal-firm-data-destruction` },
-  { label: "NAID Certified Data Destruction", url: `${BASE_DOMAIN}/naid-certified-data-destruction` },
   { label: "On-Site Hard Drive Shredding", url: `${BASE_DOMAIN}/on-site-hard-drive-shredding` },
   { label: "Recycling Pollution Effects", url: `${BASE_DOMAIN}/recycling-pollution-effects` },
   { label: "Server Destruction Services", url: `${BASE_DOMAIN}/server-destruction-services` },
@@ -199,7 +198,7 @@ export const FORBIDDEN_FACILITY_PHRASES: string[] = [
  * Build the full forbidden-facility-phrase list for a run. When a city is known
  * the city-templated patterns from the master prompt are added: "our {CITY}
  * facility", "{CITY} facility", "located in {CITY}", "{CITY} location/
- * warehouse/office", and "600,000 sq ft facility in {CITY}".
+ * warehouse/office", and "200,000 sq ft facility in {CITY}".
  */
 export function buildForbiddenFacilityPhrases(city?: string | null): string[] {
   const generic = [...FORBIDDEN_FACILITY_PHRASES];
@@ -213,23 +212,22 @@ export function buildForbiddenFacilityPhrases(city?: string | null): string[] {
     `${c} location`,
     `${c} warehouse`,
     `${c} office`,
-    `600,000 sq ft facility in ${c}`,
+    `200,000 sq ft facility in ${c}`,
   ];
 }
 
 /** Approved rewrite for facility language. Includes the city when known. */
 export function facilityRewrite(city?: string | null): string {
   const c = city && city.trim() !== "" ? city.trim() : "{CITY}";
-  return `We serve ${c} from our 600,000 sq ft R2v3 certified facility.`;
+  return `We serve ${c} from our 200,000 sq ft facility.`;
 }
 
 /** Back-compat generic rewrite (no city). */
 export const APPROVED_FACILITY_REWRITE = facilityRewrite();
 
 /**
- * Certification scope rules. NAID AAA covers data destruction ONLY; R2v3 covers
- * recycling/processing ONLY; NIST 800-88 is a standard that must never be
- * described as a certification; and no claim may "guarantee/ensure compliance".
+ * Certification scope rules. NIST 800-88 is a standard that must never be
+ * described as a certification, and no claim may "guarantee/ensure compliance".
  */
 export interface CertRule {
   cert: string;
@@ -245,20 +243,6 @@ export const CERT_RULES: CertRule[] = [
     forbiddenPattern: /NIST\s*800-?88[\s-]*(certified|certification)/i,
     message:
       'NIST 800-88 is a standard, not a certification. Use "compliant with NIST 800-88" or "follows NIST 800-88", never "NIST 800-88 certified".',
-  },
-  {
-    cert: "R2v3",
-    scope: "recycling/processing only",
-    forbiddenPattern: /R2v3[\w\s,-]{0,40}?\bdata\s+destruction\b/i,
-    message:
-      "R2v3 is a recycling/processing certification, not a data-destruction certification. Do not attach R2v3 to data-destruction claims — use NAID AAA for data destruction.",
-  },
-  {
-    cert: "NAID AAA",
-    scope: "data destruction only",
-    forbiddenPattern: /NAID(?:\s+AAA)?[\w\s,-]{0,40}?\b(recycl|processing)/i,
-    message:
-      "NAID AAA covers data destruction only, not recycling/processing. Do not attach NAID to recycling claims — use R2v3 for recycling.",
   },
   {
     cert: "compliance phrasing",

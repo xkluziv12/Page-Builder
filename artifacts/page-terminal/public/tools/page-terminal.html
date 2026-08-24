@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>M.A.R.K. v10.12 | Page Terminal</title>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -28,7 +28,7 @@
             --shadow-soft: rgba(30, 58, 95, 0.08);
             --shadow-medium: rgba(30, 58, 95, 0.12);
             --dcd-teal: #0d9488;
-            
+
             /* Legacy compatibility */
             --primary: var(--navy);
             --primary-light: var(--navy-light);
@@ -109,7 +109,7 @@
             border-bottom: 2px solid var(--gold);
             animation: breathingBg 20s ease-in-out infinite;
         }
-        
+
         /* EFFECT 2: Breathing Gradient */
         @keyframes breathingBg {
             0%, 100% { background: linear-gradient(135deg, var(--white) 0%, var(--cream) 100%); }
@@ -133,7 +133,7 @@
             );
             animation: dataStream 30s linear infinite;
         }
-        
+
         @keyframes dataStream {
             0% { transform: translateX(-100px); }
             100% { transform: translateX(0px); }
@@ -147,20 +147,20 @@
             left: 0;
             width: 200%;
             height: 3px;
-            background: linear-gradient(90deg, 
-                transparent, 
-                var(--gold-light), 
-                var(--gold), 
-                var(--gold-light), 
+            background: linear-gradient(90deg,
                 transparent,
-                var(--gold-light), 
-                var(--gold), 
-                var(--gold-light), 
+                var(--gold-light),
+                var(--gold),
+                var(--gold-light),
+                transparent,
+                var(--gold-light),
+                var(--gold),
+                var(--gold-light),
                 transparent
             );
             animation: waveFlow 8s linear infinite;
         }
-        
+
         @keyframes waveFlow {
             0% { transform: translateX(-50%); }
             100% { transform: translateX(0%); }
@@ -176,7 +176,7 @@
             pointer-events: none;
             overflow: hidden;
         }
-        
+
         .neural-node {
             position: absolute;
             width: 4px;
@@ -186,7 +186,7 @@
             opacity: 0.3;
             animation: neuralPulse 4s ease-in-out infinite;
         }
-        
+
         .neural-node:nth-child(1) { top: 20%; left: 10%; animation-delay: 0s; }
         .neural-node:nth-child(2) { top: 60%; left: 25%; animation-delay: 0.5s; }
         .neural-node:nth-child(3) { top: 30%; left: 40%; animation-delay: 1s; }
@@ -195,12 +195,12 @@
         .neural-node:nth-child(6) { top: 65%; left: 85%; animation-delay: 2.5s; }
         .neural-node:nth-child(7) { top: 45%; left: 15%; animation-delay: 3s; }
         .neural-node:nth-child(8) { top: 50%; left: 90%; animation-delay: 3.5s; }
-        
+
         @keyframes neuralPulse {
             0%, 100% { opacity: 0.2; transform: scale(1); }
             50% { opacity: 0.6; transform: scale(1.5); }
         }
-        
+
         /* Neural connections (SVG lines) */
         .neural-connections {
             position: absolute;
@@ -210,7 +210,7 @@
             height: 100%;
             pointer-events: none;
         }
-        
+
         .neural-line {
             stroke: var(--gold);
             stroke-width: 1;
@@ -218,12 +218,12 @@
             opacity: 0;
             animation: lineFlash 8s ease-in-out infinite;
         }
-        
+
         .neural-line:nth-child(1) { animation-delay: 0s; }
         .neural-line:nth-child(2) { animation-delay: 2s; }
         .neural-line:nth-child(3) { animation-delay: 4s; }
         .neural-line:nth-child(4) { animation-delay: 6s; }
-        
+
         @keyframes lineFlash {
             0%, 15%, 100% { opacity: 0; }
             5%, 10% { opacity: 0.3; }
@@ -238,7 +238,7 @@
             bottom: 0;
             pointer-events: none;
         }
-        
+
         .star {
             position: absolute;
             width: 2px;
@@ -248,14 +248,14 @@
             opacity: 0.15;
             animation: starDrift 25s ease-in-out infinite;
         }
-        
+
         .star:nth-child(1) { top: 15%; left: 20%; animation-delay: 0s; animation-duration: 20s; }
         .star:nth-child(2) { top: 45%; left: 35%; animation-delay: 5s; animation-duration: 25s; }
         .star:nth-child(3) { top: 25%; left: 60%; animation-delay: 10s; animation-duration: 22s; }
         .star:nth-child(4) { top: 70%; left: 75%; animation-delay: 15s; animation-duration: 28s; }
         .star:nth-child(5) { top: 55%; left: 45%; animation-delay: 8s; animation-duration: 24s; }
         .star:nth-child(6) { top: 35%; left: 80%; animation-delay: 12s; animation-duration: 26s; }
-        
+
         @keyframes starDrift {
             0%, 100% { transform: translate(0, 0); }
             25% { transform: translate(10px, -5px); }
@@ -273,7 +273,7 @@
             pointer-events: none;
             overflow: hidden;
         }
-        
+
         .circuit-path {
             position: absolute;
             height: 1px;
@@ -281,13 +281,13 @@
             opacity: 0;
             animation: circuitPulse 5s ease-in-out infinite;
         }
-        
+
         .circuit-path:nth-child(1) { top: 5px; left: 5%; width: 15%; animation-delay: 0s; }
         .circuit-path:nth-child(2) { top: 15px; left: 25%; width: 20%; animation-delay: 1s; }
         .circuit-path:nth-child(3) { top: 10px; left: 50%; width: 12%; animation-delay: 2s; }
         .circuit-path:nth-child(4) { top: 20px; left: 70%; width: 18%; animation-delay: 3s; }
         .circuit-path:nth-child(5) { top: 8px; left: 85%; width: 10%; animation-delay: 4s; }
-        
+
         .circuit-node {
             position: absolute;
             width: 3px;
@@ -297,17 +297,17 @@
             opacity: 0;
             animation: circuitNode 5s ease-in-out infinite;
         }
-        
+
         .circuit-node:nth-child(6) { top: 4px; left: 20%; animation-delay: 0.2s; }
         .circuit-node:nth-child(7) { top: 14px; left: 45%; animation-delay: 1.2s; }
         .circuit-node:nth-child(8) { top: 9px; left: 62%; animation-delay: 2.2s; }
         .circuit-node:nth-child(9) { top: 19px; left: 88%; animation-delay: 3.2s; }
-        
+
         @keyframes circuitPulse {
             0%, 30%, 100% { opacity: 0; }
             10%, 20% { opacity: 0.4; }
         }
-        
+
         @keyframes circuitNode {
             0%, 30%, 100% { opacity: 0; transform: scale(0.5); }
             10%, 20% { opacity: 0.6; transform: scale(1); }
@@ -326,7 +326,7 @@
             letter-spacing: 2px;
             text-transform: uppercase;
         }
-        
+
         .status-text {
             display: inline-block;
             transition: opacity 0.3s ease;
@@ -340,7 +340,7 @@
             opacity: 0.12;
             animation: glowPulse 10s ease-in-out infinite;
         }
-        
+
         .header-glow.glow-1 {
             width: 250px;
             height: 250px;
@@ -349,7 +349,7 @@
             left: 5%;
             animation-delay: 0s;
         }
-        
+
         .header-glow.glow-2 {
             width: 200px;
             height: 200px;
@@ -358,7 +358,7 @@
             right: 10%;
             animation-delay: 3s;
         }
-        
+
         .header-glow.glow-3 {
             width: 150px;
             height: 150px;
@@ -367,7 +367,7 @@
             right: 25%;
             animation-delay: 6s;
         }
-        
+
         @keyframes glowPulse {
             0%, 100% { opacity: 0.08; transform: scale(1); }
             50% { opacity: 0.15; transform: scale(1.05); }
@@ -406,9 +406,9 @@
         }
 
         .progress-fill {
-            height: 100%; 
+            height: 100%;
             background: linear-gradient(90deg, var(--navy) 0%, var(--gold) 100%);
-            width: 0%; 
+            width: 0%;
             transition: width 0.5s ease;
             border-radius: 3px;
         }
@@ -422,7 +422,7 @@
             border-radius: 14px;
             border: 1px solid var(--border-light);
             box-shadow: 0 2px 8px var(--shadow-soft);
-            margin-bottom: 20px; 
+            margin-bottom: 20px;
             overflow: hidden;
             transition: box-shadow 0.3s ease, transform 0.3s ease;
         }
@@ -566,7 +566,7 @@
             pointer-events: none;
             overflow: hidden;
         }
-        
+
         .report-spark {
             position: absolute;
             width: 8px;
@@ -574,18 +574,18 @@
             border-radius: 50%;
             animation: sparkBurst 1s ease-out forwards;
         }
-        
+
         @keyframes sparkBurst {
-            0% { 
+            0% {
                 transform: translate(0, 0) scale(1);
                 opacity: 1;
             }
-            100% { 
+            100% {
                 transform: translate(var(--tx), var(--ty)) scale(0);
                 opacity: 0;
             }
         }
-        
+
         .report-ring {
             position: absolute;
             top: 50%;
@@ -597,16 +597,16 @@
             border-radius: 50%;
             animation: ringExpand 0.8s ease-out forwards;
         }
-        
+
         @keyframes ringExpand {
             0% { transform: scale(0); opacity: 1; }
             100% { transform: scale(15); opacity: 0; }
         }
-        
+
         .success-flash {
             animation: cardFlash 0.6s ease-out;
         }
-        
+
         @keyframes cardFlash {
             0% { box-shadow: 0 0 0 0 rgba(201, 169, 98, 0.8); }
             50% { box-shadow: 0 0 40px 20px rgba(201, 169, 98, 0.4); }
@@ -614,8 +614,8 @@
         }
 
         /* ===== SETUP SECTION ===== */
-        .setup-section { 
-            padding: 40px; 
+        .setup-section {
+            padding: 40px;
             border-left: 3px solid var(--gold);
             background: var(--white);
         }
@@ -625,65 +625,65 @@
 
         .form-group label {
             display: block; font-size: 11px; font-weight: 600;
-            text-transform: uppercase; 
+            text-transform: uppercase;
             letter-spacing: 0.5px;
-            color: var(--text-secondary); 
+            color: var(--text-secondary);
             margin-bottom: 8px;
         }
 
         .form-group input, .form-group textarea {
             width: 100%; padding: 12px 14px;
-            border: 1px solid var(--border-light); 
+            border: 1px solid var(--border-light);
             border-radius: 6px;
-            font-family: 'Inter', sans-serif; 
+            font-family: 'Inter', sans-serif;
             font-size: 15px;
             background: var(--white);
             transition: border-color 0.2s ease, box-shadow 0.2s ease;
         }
 
         .form-group input:focus, .form-group textarea:focus {
-            outline: none; 
+            outline: none;
             border-color: var(--navy);
             box-shadow: 0 0 0 3px rgba(30, 58, 95, 0.1);
         }
 
-        .form-group input[readonly] { 
-            background: var(--cream); 
+        .form-group input[readonly] {
+            background: var(--cream);
             color: var(--text-secondary);
             border-style: dashed;
         }
 
         /* ===== PHASE HEADERS ===== */
         .phase-header {
-            padding: 24px 30px; 
+            padding: 24px 30px;
             background: var(--white);
-            border-bottom: 1px solid var(--border-light); 
+            border-bottom: 1px solid var(--border-light);
             cursor: pointer;
-            display: flex; 
-            justify-content: space-between; 
+            display: flex;
+            justify-content: space-between;
             align-items: center;
             transition: background 0.2s ease;
         }
         .phase-header:hover { background: var(--cream); }
-        .phase-title { 
-            font-size: 16px; 
-            font-weight: 600; 
+        .phase-title {
+            font-size: 16px;
+            font-weight: 600;
             color: var(--navy);
-            display: flex; 
-            align-items: center; 
-            gap: 14px; 
+            display: flex;
+            align-items: center;
+            gap: 14px;
         }
-        
+
         .phase-num {
-            background: var(--navy); 
+            background: var(--navy);
             color: var(--white);
-            width: 28px; 
-            height: 28px; 
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
-            display: flex; 
-            align-items: center; 
+            display: flex;
+            align-items: center;
             justify-content: center;
-            font-size: 13px; 
+            font-size: 13px;
             font-weight: 700;
             transition: all 0.3s ease;
         }
@@ -696,36 +696,36 @@
 
         .phase-content { padding: 30px; display: none; background: var(--white); }
         .phase.active .phase-content { display: block; }
-        .phase.active .phase-header { 
-            background: var(--cream); 
-            border-left: 3px solid var(--gold); 
+        .phase.active .phase-header {
+            background: var(--cream);
+            border-left: 3px solid var(--gold);
         }
 
         /* ===== STEPS ===== */
         .step {
             display: flex; gap: 18px; padding: 18px 20px;
             border-radius: 8px; margin-bottom: 18px;
-            border: 1px solid transparent; 
+            border: 1px solid transparent;
             transition: all 0.2s ease;
             align-items: flex-start;
             background: var(--white);
         }
         .step > div { flex: 1; }
-        .step input[type="checkbox"] { 
-            order: 2; 
-            width: 20px; 
-            height: 20px; 
-            accent-color: var(--gold); 
-            cursor: pointer; 
-            margin-top: 2px; 
-            flex-shrink: 0; 
+        .step input[type="checkbox"] {
+            order: 2;
+            width: 20px;
+            height: 20px;
+            accent-color: var(--gold);
+            cursor: pointer;
+            margin-top: 2px;
+            flex-shrink: 0;
         }
-        .step:hover { 
-            background: var(--cream); 
-            border-color: var(--border-light); 
+        .step:hover {
+            background: var(--cream);
+            border-color: var(--border-light);
         }
-        .step.checked { 
-            background: #fdfbf7; 
+        .step.checked {
+            background: #fdfbf7;
             border-color: var(--gold);
             border-left: 3px solid var(--gold);
         }
@@ -752,7 +752,7 @@
         .btn-ghost:hover { background: var(--white); border-color: var(--navy); }
         .btn-danger { background: #dc2626; color: white; }
         .btn-danger:hover { background: #b91c1c; }
-        
+
         /* AI Processing Animation */
         .btn.processing {
             opacity: 0.9;
@@ -764,9 +764,9 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, 
-                transparent 0%, 
-                rgba(255,255,255,0.3) 50%, 
+            background: linear-gradient(90deg,
+                transparent 0%,
+                rgba(255,255,255,0.3) 50%,
                 transparent 100%);
             animation: btnSweep 0.6s ease-out forwards;
         }
@@ -774,64 +774,64 @@
             0% { left: -100%; }
             100% { left: 100%; }
         }
-        
+
         .btn.success {
             background: var(--gold) !important;
         }
-        
+
         .btn-compile {
             min-width: 180px;
             justify-content: center;
         }
 
         /* ===== BOXES ===== */
-        .data-box { 
-            background: var(--cream); 
-            border: 1px solid var(--border-light); 
-            border-radius: 8px; 
-            padding: 20px; 
-            margin: 15px 0; 
+        .data-box {
+            background: var(--cream);
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
         }
-        
+
         .success-box {
-            background: #f8fdf9; 
+            background: #f8fdf9;
             border: 1px solid #d1e7d5;
-            border-left: 3px solid var(--gold); 
+            border-left: 3px solid var(--gold);
             padding: 15px;
-            border-radius: 6px; 
-            color: var(--text-primary); 
-            font-size: 13px; 
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 13px;
             margin-top: 10px;
         }
 
         .warning-box {
-            background: #fef7f7; 
+            background: #fef7f7;
             border: 1px solid #f5d5d5;
-            border-left: 3px solid #dc2626; 
+            border-left: 3px solid #dc2626;
             padding: 15px;
-            border-radius: 6px; 
-            color: var(--text-primary); 
-            font-size: 13px; 
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 13px;
             margin-top: 10px;
         }
 
         .info-box {
-            background: #fdfbf7; 
+            background: #fdfbf7;
             border: 1px solid var(--border-light);
-            border-left: 3px solid var(--gold); 
+            border-left: 3px solid var(--gold);
             padding: 15px;
-            border-radius: 6px; 
-            color: var(--text-primary); 
+            border-radius: 6px;
+            color: var(--text-primary);
             font-size: 13px;
         }
 
         /* ===== GMB PARSED DISPLAY ===== */
         .gmb-parsed {
-            background: var(--white); 
+            background: var(--white);
             border: 1px solid var(--border-light);
             border-left: 3px solid var(--gold);
-            border-radius: 8px; 
-            padding: 20px; 
+            border-radius: 8px;
+            padding: 20px;
             margin-top: 15px;
         }
 
@@ -842,68 +842,68 @@
             font-size: 13px;
         }
         .gmb-field:last-child { border-bottom: none; }
-        .gmb-field-label { 
-            font-weight: 600; 
-            text-transform: uppercase; 
-            color: var(--gold-dark); 
-            font-size: 10px; 
+        .gmb-field-label {
+            font-weight: 600;
+            text-transform: uppercase;
+            color: var(--gold-dark);
+            font-size: 10px;
             letter-spacing: 0.5px;
         }
-        .gmb-field-value { 
-            color: var(--text-primary); 
-            font-family: 'JetBrains Mono', monospace; 
-            font-size: 12px; 
+        .gmb-field-value {
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
         }
 
         /* ===== CID BOX ===== */
         .cid-box {
-            background: var(--cream); 
+            background: var(--cream);
             border: 1px solid var(--border-light);
             border-left: 3px solid var(--gold);
-            border-radius: 8px; 
-            padding: 15px; 
+            border-radius: 8px;
+            padding: 15px;
             margin-top: 15px;
         }
 
         .cid-display {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 11px; 
-            background: var(--navy); 
+            font-size: 11px;
+            background: var(--navy);
             color: var(--gold-light);
-            padding: 10px 14px; 
-            border-radius: 6px; 
+            padding: 10px 14px;
+            border-radius: 6px;
             word-break: break-all;
             margin: 10px 0;
         }
 
         /* ===== SCHEMA VALIDATOR ===== */
         .code-check-area {
-            background: var(--navy-dark); 
+            background: var(--navy-dark);
             color: #e2e8f0;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 12px; 
-            width: 100%; 
+            font-size: 12px;
+            width: 100%;
             height: 100px;
-            padding: 12px; 
-            border-radius: 6px; 
+            padding: 12px;
+            border-radius: 6px;
             border: 1px solid var(--navy);
-            margin-top: 8px; 
+            margin-top: 8px;
             resize: vertical;
         }
 
-        .schema-results { 
-            margin-top: 15px; 
-            padding: 15px; 
-            border-radius: 6px; 
-            font-size: 13px; 
+        .schema-results {
+            margin-top: 15px;
+            padding: 15px;
+            border-radius: 6px;
+            font-size: 13px;
         }
-        .schema-results.pass { 
-            background: #f8fdf9; 
-            border: 1px solid #d1e7d5; 
+        .schema-results.pass {
+            background: #f8fdf9;
+            border: 1px solid #d1e7d5;
         }
-        .schema-results.fail { 
-            background: #fef7f7; 
-            border: 1px solid #f5d5d5; 
+        .schema-results.fail {
+            background: #fef7f7;
+            border: 1px solid #f5d5d5;
         }
 
         .schema-check-item { display: flex; align-items: center; gap: 8px; padding: 4px 0; }
@@ -915,29 +915,29 @@
 
         .quick-link {
             display: inline-flex; align-items: center; gap: 6px;
-            padding: 10px 16px; 
+            padding: 10px 16px;
             background: var(--white);
-            border: 1px solid var(--border-light); 
+            border: 1px solid var(--border-light);
             border-radius: 6px;
-            font-size: 12px; 
-            font-weight: 600; 
+            font-size: 12px;
+            font-weight: 600;
             color: var(--navy);
-            text-decoration: none; 
+            text-decoration: none;
             transition: all 0.2s;
         }
-        .quick-link:hover { 
-            background: var(--navy); 
-            color: var(--white); 
-            border-color: var(--navy); 
+        .quick-link:hover {
+            background: var(--navy);
+            color: var(--white);
+            border-color: var(--navy);
         }
 
         .quick-link.secondary {
-            background: var(--cream); 
-            border-color: var(--border-light); 
+            background: var(--cream);
+            border-color: var(--border-light);
             color: var(--text-secondary);
         }
-        .quick-link.secondary:hover { 
-            background: var(--gold); 
+        .quick-link.secondary:hover {
+            background: var(--gold);
             color: var(--white);
             border-color: var(--gold);
         }
@@ -945,14 +945,14 @@
         /* ===== TOAST ===== */
         .toast {
             position: fixed; bottom: 30px; right: 30px;
-            background: var(--navy); 
+            background: var(--navy);
             color: var(--white);
-            padding: 14px 24px; 
+            padding: 14px 24px;
             border-radius: 6px;
             box-shadow: 0 10px 40px rgba(30, 58, 95, 0.3);
             display: flex; align-items: center; gap: 10px;
-            transform: translateY(100px); 
-            transition: transform 0.3s ease; 
+            transform: translateY(100px);
+            transition: transform 0.3s ease;
             z-index: 2000;
             font-size: 13px;
             font-weight: 500;
@@ -1001,7 +1001,7 @@
     </div>
 
     <div class="container">
-        
+
         <!-- MISSION CONTROL -->
         <div class="card setup-section">
             <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
@@ -1043,7 +1043,7 @@
                             <input type="text" id="stsKeyword" value="Electronics Recycling">
                         </div>
                     </div>
-                    
+
                     <div class="divider"></div>
 
                     <!-- FIND GMB BUTTON FIRST -->
@@ -1082,7 +1082,7 @@
                             <h4 style="color: var(--gold-dark); margin-bottom:15px; display:flex; align-items:center; gap:8px;">
                                 <i class="fas fa-check-circle"></i> GMB Data Verified
                             </h4>
-                            
+
                             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
                                 <div>
                                     <div class="gmb-field">
@@ -1105,7 +1105,7 @@
                                     </div>
                                 </div>
                             </div>
-                            
+
                             <!-- SERVICES - Full Width -->
                             <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border-light);">
                                 <div class="gmb-field" style="grid-template-columns: 80px 1fr;">
@@ -1113,7 +1113,7 @@
                                     <div class="gmb-field-value" id="parsed-services" style="font-size:11px; line-height:1.5;">—</div>
                                 </div>
                             </div>
-                            
+
                             <!-- ADDRESS SECTION -->
                             <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border-light);">
                                 <div class="gmb-field">
@@ -1129,7 +1129,7 @@
                                     <div class="gmb-field-value" id="parsed-fulladdress">—</div>
                                 </div>
                             </div>
-                            
+
                             <!-- HOURS SECTION -->
                             <div style="margin-top:12px; padding-top:12px; border-top:1px solid var(--border-light);">
                                 <div class="gmb-field">
@@ -1137,7 +1137,7 @@
                                     <div class="gmb-field-value" id="parsed-hours" style="white-space:pre-wrap;">—</div>
                                 </div>
                             </div>
-                            
+
                             <!-- Copy All GMB Data Button -->
                             <div style="margin-top:15px; text-align:center;">
                                 <button class="btn btn-ghost" onclick="copyParsedGMB()">
@@ -1166,7 +1166,7 @@
                                     <i class="fas fa-times"></i> #3 Reject CID
                                 </button>
                             </div>
-                            
+
                             <!-- Manual CID Input -->
                             <div style="margin-top:10px; padding-top:10px; border-top:1px dashed #fbbf24;">
                                 <label style="font-size:11px; font-weight:700; color:#92400e;">MANUAL CID (decimal format):</label>
@@ -1177,7 +1177,7 @@
                                     </button>
                                 </div>
                             </div>
-                            
+
                             <div id="cidStatus" style="margin-top:10px; font-weight:700;"></div>
                         </div>
 
@@ -1193,21 +1193,21 @@
                             <button class="btn btn-accent" style="width:100%; margin-top:10px;" onclick="parseHubSpoke()">
                                 <i class="fas fa-project-diagram"></i> Load Hub+Spoke Strategy
                             </button>
-                            
+
                             <!-- PARSED HUB+SPOKE DATA -->
                             <div id="parsedHubSpokeArea" style="display:none; margin-top:12px;">
                                 <div style="background: var(--white); border: 1px solid var(--border-light); border-left: 3px solid var(--gold); border-radius: 6px; padding: 12px;">
                                     <div style="display:flex; align-items:center; gap:6px; margin-bottom:10px; color:var(--gold-dark); font-weight:600; font-size:13px;">
                                         <i class="fas fa-check-circle"></i> Strategy Loaded
                                     </div>
-                                    
+
                                     <div style="display:grid; grid-template-columns: 1fr 1fr; gap:6px; font-size:11px;">
                                         <div><span style="color:var(--gold-dark); font-weight:600;">City:</span> <span id="hubspoke-city">—</span></div>
                                         <div><span style="color:var(--gold-dark); font-weight:600;">Total:</span> <span id="hubspoke-total">—</span></div>
                                         <div><span style="color:var(--gold-dark); font-weight:600;">Tier 1:</span> <span id="hubspoke-tier1">—</span></div>
                                         <div><span style="color:var(--gold-dark); font-weight:600;">T2-5:</span> <span id="hubspoke-tiers">—</span></div>
                                     </div>
-                                    
+
                                     <div style="margin-top:8px; padding-top:8px; border-top:1px solid var(--border-light); font-size:11px;">
                                         <span style="color:var(--gold-dark); font-weight:600;">Hub:</span>
                                         <span id="hubspoke-hubpage" style="font-family:'JetBrains Mono',monospace;">—</span>
@@ -1238,7 +1238,7 @@
                     <div class="phase-time">15 min</div>
                 </div>
                 <div class="phase-content">
-                    
+
                     <!-- SIDE BY SIDE LAUNCHER -->
                     <div class="side-by-side-box">
                         <div class="side-by-side-header">
@@ -1246,7 +1246,7 @@
                             OPEN SIDE BY SIDE TABS
                         </div>
                         <div class="side-by-side-sub">(to follow along together)</div>
-                        
+
                         <!-- SONNET 4.6 WARNING -->
                         <div style="background:#dc2626; color:white; padding:12px 20px; border-radius:8px; margin:15px 0 10px; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; gap:10px; animation: pulse 2s infinite;">
                             <i class="fas fa-exclamation-triangle" style="font-size:18px;"></i>
@@ -1356,7 +1356,7 @@
                         <button class="btn btn-accent btn-compile" style="width:100%;" onclick="copyPrompt('build'); animateButton(this, 'Generating...', 'Sequence Ready');">
                             <i class="fas fa-terminal"></i> Generate Build Sequence
                         </button>
-                        
+
                         <div style="margin-top:15px; padding-top:15px; border-top:1px dashed #cbd5e1;">
                             <div style="color: #ef4444; font-size: 12px; font-weight: 600; margin-bottom: 10px;">
                                 <i class="fas fa-arrow-down"></i> UPLOAD THESE FILES + PASTE PROMPT TO CLAUDE
@@ -1445,7 +1445,7 @@
                             <button class="btn btn-accent btn-compile" style="margin-top:5px;" onclick="copyPrompt('seo'); animateButton(this, 'Generating...', 'Protocol Ready');">
                                 <i class="fas fa-search"></i> Generate SEO Protocol
                             </button>
-                            
+
                             <div style="margin-top:12px;">
                                 <div style="color: #ef4444; font-size: 11px; font-weight: 600; margin-bottom: 6px;">
                                     <i class="fas fa-arrow-down"></i> UPLOAD FILE + PASTE PROMPT
@@ -1456,7 +1456,7 @@
                             </div>
                         </div>
                     </div>
-                    
+
                     <div class="step">
                         <input type="checkbox" id="p3-2" onchange="updateProgress()">
                         <div>
@@ -1467,7 +1467,7 @@
                             </button>
                         </div>
                     </div>
-                    
+
                     <div class="step">
                         <input type="checkbox" id="p3-3" onchange="updateProgress()">
                         <div class="step-label">✅ SEO Verification PASSED — Ready for Schema</div>
@@ -1512,7 +1512,7 @@
                             <div style="margin-top:8px; font-size:11px; color:#f97316;">
                                 <i class="fas fa-exclamation-circle"></i> Do NOT include aggregateRating/reviews in schema
                             </div>
-                            
+
                             <div style="margin-top:12px;">
                                 <div style="color: #ef4444; font-size: 11px; font-weight: 600; margin-bottom: 6px;">
                                     <i class="fas fa-arrow-down"></i> UPLOAD FILE + PASTE PROMPT
@@ -1738,7 +1738,7 @@
             </div>
 
         </div>
-        
+
         <!-- COMPLETION -->
         <div class="card" style="text-align: center; padding: 40px; position: relative; overflow: hidden;" id="completionCard">
             <h2 style="color:var(--accent); margin-bottom: 20px;">🎉 Part 4: Completion Report</h2>
@@ -1746,11 +1746,11 @@
             <button class="btn btn-accent btn-compile" onclick="generateReportWithCelebration();" style="font-size:16px; padding:12px 30px;">
                 <i class="fas fa-clipboard-check"></i> Export Mission Log
             </button>
-            
+
             <!-- Celebration particles container -->
             <div id="reportCelebration" class="report-celebration"></div>
         </div>
-        
+
         <!-- BOTTOM RESET -->
         <div style="text-align: center; padding: 30px 0;">
             <button class="btn btn-ghost" onclick="resetAll()" style="border-color: #ef4444;">
@@ -1829,17 +1829,17 @@
         function checkPhaseCompletion() {
             const phases = document.querySelectorAll('.phase');
             let currentActivePhase = 1;
-            
+
             phases.forEach((phase, index) => {
                 const phaseNum = index + 1;
                 const checkboxes = phase.querySelectorAll('input[type="checkbox"]');
                 const checkedBoxes = phase.querySelectorAll('input[type="checkbox"]:checked');
-                
+
                 if (checkboxes.length > 0 && checkboxes.length === checkedBoxes.length) {
                     // Phase complete!
                     if (!phase.classList.contains('phase-complete')) {
                         phase.classList.add('phase-complete');
-                        
+
                         // Trigger next phase unlock
                         const nextPhase = phases[index + 1];
                         if (nextPhase && !nextPhase.classList.contains('active')) {
@@ -1847,7 +1847,7 @@
                                 nextPhase.classList.add('phase-unlocking');
                                 nextPhase.classList.add('active');
                                 showToast(`✓ Phase ${phaseNum} Complete → Phase ${phaseNum + 1} Ready`);
-                                
+
                                 // Scroll to next phase
                                 setTimeout(() => {
                                     nextPhase.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1861,13 +1861,13 @@
                     phase.classList.remove('phase-complete');
                 }
             });
-            
+
             // Update status bar phase indicator
             const phaseNumEl = document.getElementById('currentPhaseNum');
             if (phaseNumEl) {
                 phaseNumEl.textContent = Math.min(currentActivePhase, 8);
             }
-            
+
             // Check for 100% completion
             checkForCompletion();
         }
@@ -1875,22 +1875,22 @@
         window.onload = function() {
             // Run boot sequence
             runBootSequence();
-            
+
             // Start status clock
             updateStatusClock();
             setInterval(updateStatusClock, 1000);
-            
+
             // Start AI status cycling
             startStatusCycling();
-            
+
             // Load saved state
             loadState();
             setInterval(updateTimer, 1000);
-            
+
             // Initial phase check
             setTimeout(checkPhaseCompletion, 100);
         };
-        
+
         // === AI STATUS LINE CYCLING ===
         const statusMessages = [
             '● Neural Engine Active',
@@ -1902,9 +1902,9 @@
             '● Processing Pipeline Active',
             '● Memory State Preserved'
         ];
-        
+
         let currentStatusIndex = 0;
-        
+
         function startStatusCycling() {
             setInterval(() => {
                 currentStatusIndex = (currentStatusIndex + 1) % statusMessages.length;
@@ -1918,29 +1918,29 @@
                 }
             }, 3000);
         }
-        
+
         // === BUTTON PROCESSING ANIMATION ===
         function animateButton(btn, processingText, successText, callback) {
             // Store original text only on first click — never overwrite with animation text
             if (!btn.dataset.originalHtml) {
                 btn.dataset.originalHtml = btn.innerHTML;
             }
-            
+
             // Clear any existing animation timers
             if (btn._animTimer1) clearTimeout(btn._animTimer1);
             if (btn._animTimer2) clearTimeout(btn._animTimer2);
-            
+
             // Phase 1: Processing
             btn.classList.add('processing');
             btn.innerHTML = `<span style="opacity:0.8">◐</span> ${processingText}`;
-            
+
             // Phase 2: Show success
             btn._animTimer1 = setTimeout(() => {
                 if (callback) callback();
                 btn.classList.remove('processing');
                 btn.classList.add('success');
                 btn.innerHTML = `<span>✓</span> ${successText}`;
-                
+
                 // Phase 3: Return to original
                 btn._animTimer2 = setTimeout(() => {
                     btn.classList.remove('success');
@@ -1956,7 +1956,7 @@
         function checkForCompletion() {
             const total = document.querySelectorAll('#phases input[type="checkbox"]').length;
             const checked = document.querySelectorAll('#phases input[type="checkbox"]:checked').length;
-            
+
             if (total > 0 && checked === total && !completionTriggered) {
                 completionTriggered = true;
                 setTimeout(triggerCompletion, 500);
@@ -1969,7 +1969,7 @@
             const overlay = document.getElementById('completionOverlay');
             const pageEl = document.getElementById('completionPage');
             const timeEl = document.getElementById('completionTime');
-            
+
             if (overlay) {
                 // Set stats
                 if (pageEl) pageEl.textContent = appState.pageName || 'Landing Page';
@@ -1979,10 +1979,10 @@
                     const secs = diff % 60;
                     timeEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
                 }
-                
+
                 // Show overlay
                 overlay.classList.add('active');
-                
+
                 // Trigger confetti
                 createConfetti();
             }
@@ -1998,7 +1998,7 @@
         function createConfetti() {
             const colors = ['#c9a962', '#d4bc7d', '#1e3a5f', '#b8954d', '#2d4a6f', '#e8dcc8'];
             const overlay = document.getElementById('completionOverlay');
-            
+
             for (let i = 0; i < 40; i++) {
                 const confetti = document.createElement('div');
                 confetti.className = 'confetti';
@@ -2007,7 +2007,7 @@
                 confetti.style.animationDelay = Math.random() * 2 + 's';
                 confetti.style.animationDuration = (2.5 + Math.random() * 2) + 's';
                 overlay.appendChild(confetti);
-                
+
                 setTimeout(() => confetti.classList.add('active'), 10);
                 setTimeout(() => confetti.remove(), 5000);
             }
@@ -2021,7 +2021,7 @@
             appState.hubSpokeHandoff = document.getElementById('hubSpokeHandoff').value;
             appState.city = document.getElementById('cityName').value;
             appState.state = document.getElementById('stateName').value;
-            
+
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                 appState.checks[cb.id] = cb.checked;
             });
@@ -2041,7 +2041,7 @@
                 document.getElementById('hubSpokeHandoff').value = appState.hubSpokeHandoff || '';
                 document.getElementById('cityName').value = appState.city || '';
                 document.getElementById('stateName').value = appState.state || '';
-                
+
                 if(appState.pageName) {
                     document.getElementById('displayPageName').textContent = appState.pageName;
                 }
@@ -2069,7 +2069,7 @@
                     document.getElementById('hubspoke-city').textContent = p.city + (p.state ? ', ' + p.state : '');
                     document.getElementById('hubspoke-total').textContent = p.totalPages || 'Not specified';
                     document.getElementById('hubspoke-tier1').textContent = p.tier1Count + ' pages';
-                    document.getElementById('hubspoke-tiers').textContent = 
+                    document.getElementById('hubspoke-tiers').textContent =
                         `T2: ${p.tier2Count} | T3: ${p.tier3Count} | T4: ${p.tier4Count} | T5: ${p.tier5Count}`;
                     document.getElementById('hubspoke-hubpage').textContent = p.hubPage || 'Auto-detect from handoff';
                     document.getElementById('parsedHubSpokeArea').style.display = 'block';
@@ -2091,7 +2091,7 @@
             if(confirm("Are you sure? This will wipe all data.")) {
                 // Clear localStorage first
                 localStorage.removeItem('stsTrackerV7');
-                
+
                 // Manually clear all form fields
                 document.getElementById('vaName').value = '';
                 document.getElementById('pageURL').value = '';
@@ -2103,11 +2103,11 @@
                 document.getElementById('displayPageName').textContent = '—';
                 document.getElementById('cidDisplay').textContent = 'CID will appear here...';
                 document.getElementById('cidStatus').innerHTML = '';
-                
+
                 // Clear manual CID input
                 const manualCID = document.getElementById('manualCID');
                 if(manualCID) manualCID.value = '';
-                
+
                 // Clear parsed GMB fields
                 document.getElementById('parsed-name').textContent = '—';
                 document.getElementById('parsed-category').textContent = '—';
@@ -2118,48 +2118,48 @@
                 document.getElementById('parsed-website').textContent = '—';
                 document.getElementById('parsed-hours').textContent = '—';
                 document.getElementById('parsed-services').textContent = '—';
-                
+
                 // Hide dynamic areas
                 document.getElementById('dataArea').style.display = 'none';
                 document.getElementById('parsedGMBArea').style.display = 'none';
                 document.getElementById('parsedHubSpokeArea').style.display = 'none';
                 document.getElementById('verifyFail').style.display = 'none';
-                
+
                 // Clear Hub+Spoke parsed fields
                 document.getElementById('hubspoke-city').textContent = '—';
                 document.getElementById('hubspoke-total').textContent = '—';
                 document.getElementById('hubspoke-tier1').textContent = '—';
                 document.getElementById('hubspoke-tiers').textContent = '—';
                 document.getElementById('hubspoke-hubpage').textContent = '—';
-                
+
                 // Clear all checkboxes
                 document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                     cb.checked = false;
                     const step = cb.closest('.step');
                     if(step) step.classList.remove('checked');
                 });
-                
+
                 // Clear schema validator
                 const schemaPaste = document.getElementById('schemaPaste');
                 if(schemaPaste) schemaPaste.value = '';
                 const schemaResults = document.getElementById('schemaResults');
                 if(schemaResults) schemaResults.innerHTML = '';
-                
+
                 // Clear schema CID display
                 const schemaCID = document.getElementById('schemaCID');
                 if(schemaCID) schemaCID.textContent = '—';
                 const schemaCIDLink = document.getElementById('schemaCIDLink');
                 if(schemaCIDLink) schemaCIDLink.style.display = 'none';
-                
+
                 // Clear rebuild issue
                 const rebuildIssue = document.getElementById('rebuildIssue');
                 if(rebuildIssue) rebuildIssue.value = '';
-                
+
                 // Reset progress
                 document.getElementById('progressBar').style.width = '0%';
                 document.getElementById('percentDisplay').textContent = '0%';
                 document.getElementById('timerDisplay').textContent = '00:00';
-                
+
                 // Reset app state
                 appState = {
                     startTime: null,
@@ -2178,16 +2178,16 @@
                     parsedGMB: {},
                     checks: {}
                 };
-                
+
                 // Collapse all phases
                 document.querySelectorAll('.phase').forEach(phase => {
                     phase.classList.remove('active');
                 });
-                
+
                 // Reset phase status display
                 const phaseNumReset = document.getElementById('currentPhaseNum');
                 if (phaseNumReset) phaseNumReset.textContent = '1';
-                
+
                 showToast("System Reset Complete!");
             }
         }
@@ -2605,7 +2605,7 @@
             'racine': 'Racine, WI',
             'appleton': 'Appleton, WI',
             'waukesha': 'Waukesha, WI',
-            // Additional Minnesota cities  
+            // Additional Minnesota cities
             'saint-paul': 'Saint Paul, MN',
             'st-paul': 'Saint Paul, MN',
             'rochester': 'Rochester, MN',
@@ -2642,7 +2642,7 @@
 
             const parts = url.replace(/\/$/, "").split('/');
             const slug = parts[parts.length - 1].toLowerCase();
-            
+
             // Official Page Name from URL (preserve original case)
             const slugOriginal = parts[parts.length - 1];
             const pageName = slugOriginal.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -2675,9 +2675,9 @@
                     'for', 'in', 'the', 'and', 'of', 'with', 'to', 'at', 'by', 'on', 'or', 'a', 'an',
                     'areas', 'area', 'locations', 'location', 'near', 'nearby'
                 ];
-                
+
                 const slugWords = slug.split('-');
-                
+
                 // Look for pattern "in-[CITY]"
                 for(let i = 0; i < slugWords.length - 1; i++) {
                     if(slugWords[i].toLowerCase() === 'in') {
@@ -2688,7 +2688,7 @@
                         }
                     }
                 }
-                
+
                 // Fallback: first word not in blacklist
                 if(!city) {
                     for(let word of slugWords) {
@@ -2713,7 +2713,7 @@
             // Detect niche from URL keywords - COMPREHENSIVE (40+ service types)
             let niche = 'Electronics Recycling'; // default
             const s = slug; // shorthand
-            
+
             // GUIDES (check first - most specific)
             if(s.includes('healthcare-itad-guide') || s.includes('healthcare-itad-compliance')) {
                 niche = 'Healthcare ITAD Compliance Guide';
@@ -2820,16 +2820,16 @@
             } else if(s.includes('drop-off')) {
                 niche = 'Electronics Drop-Off';
             }
-            
+
             appState.niche = niche;
             document.getElementById('stsKeyword').value = niche;
 
             document.getElementById('cityName').value = city || '';
             document.getElementById('stateName').value = state || '';
             document.getElementById('dataArea').style.display = 'block';
-            
+
             if(!appState.startTime) appState.startTime = Date.now();
-            
+
             saveState();
             showToast("Data Extracted! City: " + (city || 'Not detected') + (state ? ', ' + state : '') + " | Niche: " + niche);
         }
@@ -2838,7 +2838,7 @@
         function searchGMB() {
             const city = document.getElementById('cityName').value.trim();
             const state = document.getElementById('stateName').value.trim();
-            
+
             if(!city) {
                 showToast("Enter City first!", true);
                 return;
@@ -2856,7 +2856,7 @@
         // === PARSE HUB+SPOKE HANDOFF ===
         function parseHubSpoke() {
             const rawHandoff = document.getElementById('hubSpokeHandoff').value.trim();
-            
+
             if(!rawHandoff) {
                 showToast("Paste Hub+Spoke handoff first!", true);
                 return;
@@ -2885,7 +2885,7 @@
             };
 
             // Extract city from title (e.g., "Chicago Illinois - Internal Linking Reference")
-            const titleMatch = handoff.match(/^([A-Za-z\s]+?)\s*[-–—]\s*Internal Linking/im) || 
+            const titleMatch = handoff.match(/^([A-Za-z\s]+?)\s*[-–—]\s*Internal Linking/im) ||
                                handoff.match(/([A-Za-z]+\s+[A-Za-z]+)\s*[-–—]\s*Internal Linking/i);
             if(titleMatch) {
                 const cityState = titleMatch[1].trim();
@@ -2912,17 +2912,17 @@
 
             // URL slug pattern: city-slug-name — Description (after markdown stripped)
             const urlPattern = /^([a-z]+-[a-z0-9-]+)\s*[-–—]/gim;
-            
+
             // Find tier sections (handles "Tier 1:" or "Tier 1: Hub + Core")
             const sections = handoff.split(/\n(?=Tier\s*\d)/i);
-            
+
             sections.forEach(section => {
                 const tierMatch = section.match(/^Tier\s*(\d)/i);
                 if(tierMatch) {
                     const tierNum = parseInt(tierMatch[1]);
                     const urls = section.match(urlPattern);
                     const count = urls ? urls.length : 0;
-                    
+
                     switch(tierNum) {
                         case 1: parsed.tier1Count = count; break;
                         case 2: parsed.tier2Count = count; break;
@@ -2968,16 +2968,16 @@
             document.getElementById('hubspoke-city').textContent = parsed.city + (parsed.state ? ', ' + parsed.state : '') || 'Could not detect';
             document.getElementById('hubspoke-total').textContent = displayTotal || 'Not specified';
             document.getElementById('hubspoke-tier1').textContent = parsed.tier1Count + ' pages';
-            document.getElementById('hubspoke-tiers').textContent = 
+            document.getElementById('hubspoke-tiers').textContent =
                 `T2: ${parsed.tier2Count} | T3: ${parsed.tier3Count} | T4: ${parsed.tier4Count} | T5: ${parsed.tier5Count}`;
             document.getElementById('hubspoke-hubpage').textContent = parsed.hubPage || 'Auto-detect';
 
             // Show parsed area
             document.getElementById('parsedHubSpokeArea').style.display = 'block';
-            
+
             showToast("Hub+Spoke Strategy Loaded! " + calculatedTotal + " URLs detected");
         }
-        
+
         // Helper: Get state abbreviation
         function getStateAbbr(stateName) {
             const states = {
@@ -3061,7 +3061,7 @@
         function parseGMBData(raw) {
             const lines = raw.split('\n').map(l => l.trim()).filter(l => l);
             const rawLower = raw.toLowerCase();
-            
+
             let parsed = {
                 name: '',
                 address: '',
@@ -3100,7 +3100,7 @@
                     break;
                 }
             }
-            
+
             // Fallback: Look for "X stars" pattern if no rating found yet
             if(!parsed.rating) {
                 for(let line of lines) {
@@ -3111,7 +3111,7 @@
                     }
                 }
             }
-            
+
             // Last resort: standalone rating at start of line (risky - might grab wrong number)
             if(!parsed.rating) {
                 for(let line of lines) {
@@ -3132,7 +3132,7 @@
                         parsed.reviewCount = reviewMatch[1].replace(',', '');
                         break;
                     }
-                    // Check for (123) pattern 
+                    // Check for (123) pattern
                     const parenMatch = line.match(/\((\d[\d,]*)\)/);
                     if(parenMatch && !parsed.reviews && parseInt(parenMatch[1].replace(',','')) > 5) {
                         parsed.reviews = parenMatch[1].replace(',', '') + ' reviews';
@@ -3170,11 +3170,11 @@
                     break;
                 }
             }
-            
+
             if(addressLines.length > 0) {
                 parsed.fullAddress = addressLines.join(', ');
                 parsed.address = addressLines[0]; // Street only
-                
+
                 // Extract city, state, zip
                 const fullAddr = parsed.fullAddress;
                 const csMatch = fullAddr.match(/([A-Za-z\s]+),\s*([A-Z]{2})\s*(\d{5})?/);
@@ -3250,7 +3250,7 @@
             document.getElementById('parsed-phone').textContent = p.phone || '—';
             document.getElementById('parsed-website').textContent = p.website || '—';
             document.getElementById('parsed-services').textContent = p.serviceOptions || '—';
-            
+
             // Show detailed hours if available
             if(p.hoursDetail && p.hoursDetail.length > 0) {
                 document.getElementById('parsed-hours').textContent = p.hoursDetail.join('\n');
@@ -3280,7 +3280,7 @@ ${p.hoursDetail ? p.hoursDetail.join('\n') : (p.hours || '—')}
 
 SERVICES: ${p.serviceOptions || '—'}
 ═══════════════════════════════════`;
-            
+
             navigator.clipboard.writeText(text).then(() => {
                 showToast("Parsed GMB Data Copied!");
             });
@@ -3322,7 +3322,7 @@ SERVICES: ${p.serviceOptions || '—'}
                 showToast("Enter a CID first!", true);
                 return;
             }
-            
+
             appState.cid = manualCID;
             document.getElementById('cidDisplay').textContent = manualCID;
             document.getElementById('cidStatus').innerHTML = '<span style="color:#f59e0b;">⚡ Manual CID Set - Test it before accepting</span>';
@@ -3375,7 +3375,7 @@ SERVICES: ${p.serviceOptions || '—'}
         function validateSchema() {
             const code = document.getElementById('schemaPaste').value;
             const resultsDiv = document.getElementById('schemaResults');
-            
+
             if(!code.trim()) {
                 showToast("Paste schema code first!", true);
                 return;
@@ -3441,7 +3441,7 @@ SERVICES: ${p.serviceOptions || '—'}
             // Build results
             let html = `<div class="schema-results ${hasErrors ? 'fail' : 'pass'}">`;
             html += `<strong>${hasErrors ? '❌ Issues Found' : '✅ Schema Valid'}</strong><br><br>`;
-            
+
             checks.forEach(c => {
                 html += `<div class="schema-check-item ${c.pass ? 'pass' : 'fail'}">`;
                 html += `<i class="fas ${c.pass ? 'fa-check-circle' : 'fa-times-circle'}"></i> ${c.text}`;
@@ -3497,7 +3497,7 @@ SERVICES: ${p.serviceOptions || '—'}
             switch(type) {
                 case 'intro': {
                     const chatName = `${city} ${niche}`;
-                    
+
                     text = `FIRST: Name this chat "${chatName}"
 
 Click the chat title at the top and rename it to: "${chatName}"
@@ -3507,7 +3507,7 @@ Click the chat title at the top and rename it to: "${chatName}"
 ═══════════════════════════════════
 Before proceeding, upload these files from the Claude Project:
 1. 📄 STS SEO Data 2026
-2. 📄 Master Page Builder  
+2. 📄 Master Page Builder
 3. 📄 Master Design (Tier 2)
 
 OPTIONAL (for service-specific pages):
@@ -3550,7 +3550,7 @@ No lengthy explanations.`;
 
                 case 'build': {
                     const hoursText = p.hoursDetail ? p.hoursDetail.join('\n') : (p.hours || '[FROM GMB]');
-                    
+
                     // Build Hub+Spoke section if handoff exists
                     const hubSpokeSection = hubSpoke ? `
 ═══════════════════════════════════
@@ -3606,7 +3606,7 @@ EXECUTION INSTRUCTIONS:
 6. Footer MUST have phone: ${p.phone || '[PHONE]'}
 7. Mobile responsive - images must NOT squeeze text
 8. Do NOT include Schema (Phase 4 task)
-9. Facility mentions: Say "serving ${city} from our 600,000 sq ft facility" — NOT "our ${city} facility"
+9. Facility mentions: Say "serving ${city} from our 200,000 sq ft facility" — NOT "our ${city} facility"
 ${hubSpoke ? '10. Include 3-4 internal links from Hub+Spoke handoff in rows 4+ (NOT hero)' : ''}
 
 ⚠️ CRITICAL OUTPUT REQUIREMENT:
@@ -3723,18 +3723,18 @@ LOCAL SEO:
 ════════════════════════════════════════════════════════
 🔴 AUTO-FIX: FACILITY LANGUAGE CHECK
 ════════════════════════════════════════════════════════
-Search the HTML for any mention of "600,000 sq ft" or facility size claims.
+Search the HTML for any mention of "200,000 sq ft" or facility size claims.
 
 If found, CHECK: Does it imply a LOCAL facility in this city?
 
 WRONG (fix these):
-❌ "from our 600,000 sq ft facility" (implies local)
+❌ "from our 200,000 sq ft facility" (implies local)
 ❌ "our certified facility" without context
 ❌ Any text suggesting the warehouse is IN this city
 
 CORRECT:
-✅ "serving [City] from our 600,000 sq ft facility"
-✅ "backed by our central 600,000 sq ft processing center"
+✅ "serving [City] from our 200,000 sq ft facility"
+✅ "backed by our central 200,000 sq ft processing center"
 
 ACTION: If incorrect language found → FIX IT NOW and output:
 🔴 ADJUSTED: [show before/after of the fix]
@@ -3887,10 +3887,10 @@ Keep response TIGHT. Code blocks only. No lengthy explanations.`;
             const total = document.querySelectorAll('#phases input[type="checkbox"]').length;
             const checked = document.querySelectorAll('#phases input[type="checkbox"]:checked').length;
             const percent = total > 0 ? Math.round((checked / total) * 100) : 0;
-            
+
             document.getElementById('progressBar').style.width = percent + '%';
             document.getElementById('percentDisplay').textContent = percent + '%';
-            
+
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => {
                 const step = cb.closest('.step');
                 if(step) {
@@ -3899,7 +3899,7 @@ Keep response TIGHT. Code blocks only. No lengthy explanations.`;
                 }
             });
             saveState();
-            
+
             // Check for phase completion
             checkPhaseCompletion();
         }
@@ -3952,7 +3952,7 @@ Keep response TIGHT. Code blocks only. No lengthy explanations.`;
             const checked = document.querySelectorAll('#phases input[type="checkbox"]:checked').length;
             const percent = Math.round((checked/total)*100);
             const status = checked === total ? '✅ COMPLETE' : '⚠️ INCOMPLETE';
-            
+
             if (appState.pageURL) {
                 trackToWorkLog({
                     newUrl: appState.pageURL,
@@ -3982,33 +3982,33 @@ Keep response TIGHT. Code blocks only. No lengthy explanations.`;
             navigator.clipboard.writeText(report).then(() => {
                 showToast("Report copied!");
             });
-            
+
             return report;
         }
-        
+
         function generateReportWithCelebration() {
             const btn = event.target.closest('.btn');
-            
+
             // Animate button
             if(btn) {
                 btn.classList.add('processing');
                 btn.innerHTML = '<span style="opacity:0.8">◐</span> Exporting...';
             }
-            
+
             setTimeout(() => {
                 // Generate and copy report
                 generateReport();
-                
+
                 // Update button
                 if(btn) {
                     btn.classList.remove('processing');
                     btn.classList.add('success');
                     btn.innerHTML = '<span>✓</span> Mission Complete';
                 }
-                
+
                 // Trigger celebration
                 triggerReportCelebration();
-                
+
                 // Reset button after delay
                 setTimeout(() => {
                     if(btn) {
@@ -4018,43 +4018,43 @@ Keep response TIGHT. Code blocks only. No lengthy explanations.`;
                 }, 3000);
             }, 600);
         }
-        
+
         function triggerReportCelebration() {
             const card = document.getElementById('completionCard');
             const container = document.getElementById('reportCelebration');
-            
+
             // Flash the card
             card.classList.add('success-flash');
             setTimeout(() => card.classList.remove('success-flash'), 600);
-            
+
             // Clear previous particles
             container.innerHTML = '';
-            
+
             // Add expanding ring
             const ring = document.createElement('div');
             ring.className = 'report-ring';
             container.appendChild(ring);
-            
+
             // Add spark particles
             const colors = ['#c9a962', '#d4bc7d', '#1e3a5f', '#b8954d', '#2d4a6f', '#34d399'];
-            
+
             for(let i = 0; i < 20; i++) {
                 const spark = document.createElement('div');
                 spark.className = 'report-spark';
                 spark.style.background = colors[Math.floor(Math.random() * colors.length)];
                 spark.style.left = '50%';
                 spark.style.top = '50%';
-                
+
                 // Random direction
                 const angle = (Math.PI * 2 * i) / 20;
                 const distance = 80 + Math.random() * 60;
                 spark.style.setProperty('--tx', Math.cos(angle) * distance + 'px');
                 spark.style.setProperty('--ty', Math.sin(angle) * distance + 'px');
                 spark.style.animationDelay = (Math.random() * 0.2) + 's';
-                
+
                 container.appendChild(spark);
             }
-            
+
             // Cleanup after animation
             setTimeout(() => {
                 container.innerHTML = '';
@@ -4079,7 +4079,7 @@ Keep response TIGHT. Code blocks only. No lengthy explanations.`;
                     <strong style="color:var(--navy);">CID Verification Protocol:</strong> Google Place Identifiers are extracted via dual-mode regex parsing targeting hexadecimal pair structures embedded in Google Maps canonical URLs. Verification requires user-initiated confirmation via external redirect to prevent false-positive schema injection.
                 </p>
             </div>
-            
+
             <!-- FORENSIC TIMELINE -->
             <div style="margin-top:25px; padding-top:20px; border-top:1px solid var(--border-light);">
                 <div style="font-family:'Inter', sans-serif; font-size:10px; color:var(--text-muted); line-height:1.8;">
@@ -4089,7 +4089,7 @@ Keep response TIGHT. Code blocks only. No lengthy explanations.`;
                     <strong style="color:var(--text-secondary);">Build Time:</strong> 47 hrs (AI-assisted) · <span style="color:var(--gold-dark);">Est. ~360 hrs traditional</span> — UX architecture, algorithm development, visual design, testing & documentation would typically require a small team over 8-10 weeks.
                 </div>
             </div>
-            
+
             <div style="margin-top:25px; padding-top:20px; border-top:1px solid var(--border-light); display:flex; justify-content:space-between; align-items:center;">
                 <div style="font-size:11px; color:var(--text-muted);">
                     M.A.R.K<span style="color:var(--gold);">.</span> v10.12

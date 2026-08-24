@@ -25,7 +25,7 @@
       "@type": "HowTo",
       "@id": "https://www.stselectronicrecyclinginc.com/billings-mt#howto",
       "name": "How to Schedule Electronics Recycling in Billings, Montana",
-      "description": "Step-by-step process for scheduling R2v3 certified electronics recycling and NAID AAA data destruction for Billings businesses, healthcare organizations, and Yellowstone County government agencies.",
+      "description": "Step-by-step process for scheduling certified processing electronics recycling and secure data destruction data destruction for Billings businesses, healthcare organizations, and Yellowstone County government agencies.",
       "image": "https://www.stselectronicrecyclinginc.com/images/2017/compressed/mac-2585220_1920.jpg",
       "totalTime": "PT15M",
       "supply": [
@@ -63,21 +63,21 @@
           "@type": "HowToStep",
           "position": 3,
           "name": "Secure Transport to Processing Facility",
-          "text": "Equipment is collected from your Billings location with chain-of-custody documentation initiated at pickup. GPS-tracked vehicles transport all electronics to STS's 600,000 sq ft R2v3 certified facility serving Billings and Eastern Montana organizations, maintaining unbroken custody records throughout transit.",
+          "text": "Equipment is collected from your Billings location with chain-of-custody documentation initiated at pickup. GPS-tracked vehicles transport all electronics to STS's 200,000 sq ft certified processing facility serving Billings and Eastern Montana organizations, maintaining unbroken custody records throughout transit.",
           "image": "https://www.stselectronicrecyclinginc.com/images/2017/compressed/mac-2585220_1920.jpg"
         },
         {
           "@type": "HowToStep",
           "position": 4,
-          "name": "Asset Tracking and NAID AAA Data Destruction",
-          "text": "Each device is tracked by serial number through NAID AAA certified data destruction. NIST SP 800-88 Rev. 1 compliant sanitization or physical destruction is applied to all data-bearing media. Montana healthcare organizations receive Business Associate Agreement documentation for HIPAA 45 CFR 164.312 compliance requirements.",
+          "name": "Asset Tracking and secure data destruction Data Destruction",
+          "text": "Each device is tracked by serial number through secure data destruction certified data destruction. NIST SP 800-88 Rev. 1 compliant sanitization or physical destruction is applied to all data-bearing media. Montana healthcare organizations receive Business Associate Agreement documentation for HIPAA 45 CFR 164.312 compliance requirements.",
           "image": "https://www.stselectronicrecyclinginc.com/images/2017/compressed/mac-2585220_1920.jpg"
         },
         {
           "@type": "HowToStep",
           "position": 5,
-          "name": "R2v3 Certified Environmental Processing",
-          "text": "All materials undergo R2v3 certified processing with zero-landfill commitment for Billings organizations. Functional equipment is remarketed to offset disposal costs for qualifying Montana businesses. Downstream tracking documents all materials through certified smelters and processors, meeting R2v3:2020 chain-of-custody requirements.",
+          "name": "certified processing Environmental Processing",
+          "text": "All materials undergo certified processing with zero-landfill commitment for Billings organizations. Functional equipment is remarketed to offset disposal costs for qualifying Montana businesses. Downstream tracking documents all materials through certified smelters and processors, meeting certified processing chain-of-custody requirements.",
           "image": "https://www.stselectronicrecyclinginc.com/images/2017/compressed/mac-2585220_1920.jpg"
         },
         {
@@ -98,7 +98,7 @@
           "name": "What certifications does STS Electronic Recycling hold?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "STS Electronic Recycling holds R2v3 (Responsible Recycling) certification for electronics processing and NAID AAA certification for data destruction. R2v3 certification ensures downstream tracking to certified smelters for all Billings organizations. NAID AAA certification requires unannounced facility audits and documented chain-of-custody for every device processed. For Billings healthcare organizations, our processes support NIST SP 800-88 Rev. 1 data sanitization standards under HIPAA technical safeguard requirements. Yellowstone County government agencies receive documentation meeting federal procurement requirements for certified electronics disposal and IT asset disposition."
+            "text": "STS Electronic Recycling holds certified processing (secure recycling) certification for electronics processing and secure data destruction certification for data destruction. certified processing certification ensures downstream tracking to certified smelters for all Billings organizations. secure data destruction certification requires unannounced facility audits and documented chain-of-custody for every device processed. For Billings healthcare organizations, our processes support NIST SP 800-88 Rev. 1 data sanitization standards under HIPAA technical safeguard requirements. Yellowstone County government agencies receive documentation meeting federal procurement requirements for certified electronics disposal and IT asset disposition."
           }
         },
         {
@@ -114,7 +114,7 @@
           "name": "Is STS data destruction HIPAA compliant for Billings healthcare organizations?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. STS Electronic Recycling provides NAID AAA certified data destruction that supports HIPAA 45 CFR 164.312 technical safeguard requirements for Billings healthcare organizations. Under HIPAA regulations, electronic protected health information on retired devices must be rendered irretrievable before disposal. Billings Clinic (4,700 employees) and Intermountain Health's St. Vincent Regional Hospital (1,700 plus caregivers) receive Business Associate Agreements and serial-number-specific certificates of destruction. Yellowstone County healthcare compliance officers receive complete chain-of-custody records designed to support OCR audit reviews and regulatory documentation requirements."
+            "text": "Yes. STS Electronic Recycling provides secure data destruction certified data destruction that supports HIPAA 45 CFR 164.312 technical safeguard requirements for Billings healthcare organizations. Under HIPAA regulations, electronic protected health information on retired devices must be rendered irretrievable before disposal. Billings Clinic (4,700 employees) and Intermountain Health's St. Vincent Regional Hospital (1,700 plus caregivers) receive Business Associate Agreements and serial-number-specific certificates of destruction. Yellowstone County healthcare compliance officers receive complete chain-of-custody records designed to support OCR audit reviews and regulatory documentation requirements."
           }
         },
         {
@@ -122,7 +122,7 @@
           "name": "Can STS handle large-scale ITAD projects for Billings and Montana organizations?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes. STS Electronic Recycling's 600,000 sq ft R2v3 certified facility handles enterprise-scale IT asset disposition for Billings organizations of any volume. Services include data center decommissioning, multi-building government coordination for Yellowstone County agencies, and healthcare system-wide equipment disposal. Montana State University Billings and regional enterprises benefit from structured IT asset disposition programs handling complete institutional refresh cycles. STS manages logistics, asset inventorying, secure transport, and complete audit documentation for multi-location organizations throughout Billings and the five-state Eastern Montana regional area."
+            "text": "Yes. STS Electronic Recycling's 200,000 sq ft certified processing facility handles enterprise-scale IT asset disposition for Billings organizations of any volume. Services include data center decommissioning, multi-building government coordination for Yellowstone County agencies, and healthcare system-wide equipment disposal. Montana State University Billings and regional enterprises benefit from structured IT asset disposition programs handling complete institutional refresh cycles. STS manages logistics, asset inventorying, secure transport, and complete audit documentation for multi-location organizations throughout Billings and the five-state Eastern Montana regional area."
           }
         },
         {
@@ -130,7 +130,7 @@
           "name": "What documentation does STS provide after electronics recycling pickup in Billings?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Every STS engagement includes a Certificate of Destruction documenting each device by serial number, destruction method, weight, and downstream processor. Billings healthcare organizations receive HIPAA-compliant documentation supporting audit requirements under 45 CFR 164.312. Yellowstone County government clients receive chain-of-custody records meeting state and federal compliance standards. Downstream tracking reports confirm R2v3 certified processing through certified smelters and downstream processors. Documentation is typically available within 48 hours of processing completion, with multi-device summary reports for annual compliance filings available for Billings businesses upon request."
+            "text": "Every STS engagement includes a Certificate of Destruction documenting each device by serial number, destruction method, weight, and downstream processor. Billings healthcare organizations receive HIPAA-compliant documentation supporting audit requirements under 45 CFR 164.312. Yellowstone County government clients receive chain-of-custody records meeting state and federal compliance standards. Downstream tracking reports confirm certified processing through certified smelters and downstream processors. Documentation is typically available within 48 hours of processing completion, with multi-device summary reports for annual compliance filings available for Billings businesses upon request."
           }
         },
         {
@@ -138,7 +138,7 @@
           "name": "What types of electronics can be recycled in Billings, Montana?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "STS Electronic Recycling accepts all categories of IT and electronic equipment from Billings businesses, healthcare organizations, and government agencies. Accepted categories include desktop computers and laptops, tablets and mobile devices, servers and networking equipment, printers and copiers, monitors and displays, cables, batteries, and legacy electronics of any age. Data-bearing devices from Yellowstone County organizations receive NAID AAA certified data destruction before processing. Equipment with residual market value is remarketed to offset disposal costs for qualifying Billings businesses and institutions."
+            "text": "STS Electronic Recycling accepts all categories of IT and electronic equipment from Billings businesses, healthcare organizations, and government agencies. Accepted categories include desktop computers and laptops, tablets and mobile devices, servers and networking equipment, printers and copiers, monitors and displays, cables, batteries, and legacy electronics of any age. Data-bearing devices from Yellowstone County organizations receive secure data destruction certified data destruction before processing. Equipment with residual market value is remarketed to offset disposal costs for qualifying Billings businesses and institutions."
           }
         },
         {
@@ -151,10 +151,10 @@
         },
         {
           "@type": "Question",
-          "name": "How does R2v3 certification protect Billings organizations during electronics recycling?",
+          "name": "How does certified processing certification protect Billings organizations during electronics recycling?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "R2v3 certification requires independent third-party auditing, downstream tracking to certified smelters, and documented chain-of-custody from collection through final material processing. Under R2v3:2020 standards, STS maintains traceable documentation for every material stream recovered from Billings electronics. Yellowstone County government departments and Billings healthcare institutions can request full downstream audit trails confirming responsible processing at certified facilities. R2v3 certified recycling also eliminates data liability by ensuring all electronic media containing sensitive information undergoes certified destruction before any material recovery occurs."
+            "text": "certified processing certification requires independent third-party auditing, downstream tracking to certified smelters, and documented chain-of-custody from collection through final material processing. Under certified processing standards, STS maintains traceable documentation for every material stream recovered from Billings electronics. Yellowstone County government departments and Billings healthcare institutions can request full downstream audit trails confirming responsible processing at certified facilities. certified processing recycling also eliminates data liability by ensuring all electronic media containing sensitive information undergoes certified destruction before any material recovery occurs."
           }
         }
       ]
@@ -187,8 +187,8 @@
       "@type": "WebPage",
       "@id": "https://www.stselectronicrecyclinginc.com/billings-mt#webpage",
       "url": "https://www.stselectronicrecyclinginc.com/billings-mt",
-      "name": "Electronics Recycling Billings MT | R2 Certified | STS",
-      "description": "R2 certified electronics recycling Billings MT. Free pickup in Yellowstone County. NAID AAA data destruction and ITAD services for Montana businesses.",
+      "name": "Electronics Recycling Billings MT | certified processing | STS",
+      "description": "certified processing electronics recycling Billings MT. Free pickup in Yellowstone County. secure data destruction data destruction and ITAD services for Montana businesses.",
       "isPartOf": {
         "@id": "https://www.stselectronicrecyclinginc.com/#website"
       },

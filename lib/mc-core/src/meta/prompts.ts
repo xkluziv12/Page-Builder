@@ -35,8 +35,8 @@ HARD RULES — this is a NO-GMB page (no Google Business Profile):
 - Browser Page Title: 60 characters MAX. Meta Description: 155 characters MAX. These are hard caps — Google truncates beyond them. Count characters.
 
 STS brand & trust signals — use the ones that FIT the niche (do not force all of them):
-- Electronics recycling / e-waste pages: "R2 Certified", "e-waste", "electronics recycling".
-- Data destruction pages: "NAID AAA", "secure data destruction", "hard drive shredding", "Certificate of Destruction".
+- Electronics recycling / e-waste pages: "e-waste", "electronics recycling".
+- Data destruction pages: "secure data destruction", "hard drive shredding", "Certificate of Destruction".
 - IT asset / disposition pages: "ITAD", "IT asset disposition".
 - Always anchor "STS" as the brand and put the city (and ideally the state) in the title.
 

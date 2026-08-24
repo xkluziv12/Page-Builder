@@ -46,14 +46,14 @@ If clean → output:
 ════════════════════════════════════════════════════════
 🔴 FACILITY LANGUAGE CHECK
 ════════════════════════════════════════════════════════
-Search for "600,000 sq ft" or facility size claims.
+Search for "200,000 sq ft" or facility size claims.
 
 WRONG:
-❌ "from our 600,000 sq ft facility" (implies local)
+❌ "from our 200,000 sq ft facility" (implies local)
 ❌ "our Billings facility"
 
 CORRECT:
-✅ "serving Billings from our 600,000 sq ft facility"
+✅ "serving Billings from our 200,000 sq ft facility"
 
 If incorrect → FIX and output: 🔴 ADJUSTED: [before/after]
 If clean → output: ✅ Facility language: Clean

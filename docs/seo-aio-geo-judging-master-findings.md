@@ -50,9 +50,9 @@ Each phase is gated (often by VA review) before the next can run.
   or the final deliverable.
 - Representative hard rules:
   - **Gate 6 — Facility language:** forbids ownership phrasing like "facility in {CITY}";
-    approved phrasing is "Our secure fleet serves {CITY} from our 600,000 sq ft R2v3 certified facility."
+    approved phrasing is "Our secure fleet serves {CITY} from our 200,000 sq ft certified processing facility."
   - **Gate 6 — Compliance/certs:** "supports compliance," never "guarantees compliance."
-    NAID AAA = data destruction only; R2v3 = recycling only.
+    secure data destruction = data destruction only; certified processing = recycling only.
   - **Gate 12 — Images:** never construct an image URL; use the verified image library
     verbatim (root-relative paths are a confirmed Joomla silent-fail bug).
   - **Gate 13 — "Standard 12":** a 16-item mandatory checklist (no em dashes, entity density

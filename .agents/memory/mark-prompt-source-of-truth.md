@@ -29,7 +29,7 @@ The user's current/authoritative STS SEO audit is the uploaded **MASTER SEO AUDI
 - The page's single **H1 lives in the hero** (city in H1, lead form on the RIGHT).
 - On Joomla they HIDE the CMS title band via CSS (`.page-header{display:none!important}`, plus item-page/contentheading resets) so only the hero H1 shows — see the Design Bible CODE's "JOOMLA RESETS" block.
 - Images must be **absolute HTTPS URLs** on the STS server (`https://www.stselectronicrecyclinginc.com/images/2017/compressed/<file>_1920.jpg`); root-relative paths silently fail in Joomla. Verified image set is enumerated in the prompt — do NOT construct new image URLs (prompt HALTs with `IMAGE_NOT_VERIFIED`).
-- Output rules: no em dashes in generated copy; 12+ entities/page; FAQ answers 35-45 words; certification scope language is constrained (NAID AAA = data destruction only, R2v3 = recycling only, NIST 800-88 = standard, not a held cert).
+- Output rules: no em dashes in generated copy; 12+ entities/page; FAQ answers 35-45 words; certification scope language is constrained (secure data destruction = data destruction only, certified processing = recycling only, NIST 800-88 = standard, not a held cert).
 
 # SEO audit current version
 

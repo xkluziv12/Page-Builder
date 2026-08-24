@@ -7,7 +7,7 @@
       "design": 88,
       "schema": 90,
       "seo": 89,
-      "notes": "Single clean <h1> ('R2 Certified Electronics Recycling for Billings, MT') with question-based h2s used as query targets ('How Does Secure Data Destruction Work in Billings?'). Real alt text on images and loading=lazy present, but heavy inline-style sprawl and reliance on div[style*=...] media-query hacks hurt maintainability; also leaks author name in an HTML comment. Schema is the richest of the set: proper @graph wiring with stable @id refs (#business, #webpage, #howto, #faqpage, #breadcrumb), 21-item OfferCatalog, HowTo, 8-Q FAQPage, and honest NAP (Billings service-area LocalBusiness + Jacksonville TX parentOrganization). ~2578 words with strong E-E-A-T (NIST 800-88, HIPAA 45 CFR §164.312 citations); named-entity claims (Billings Clinic, BNSF, ExxonMobil) risk mild fabrication but are hedged as 'typical'."
+      "notes": "Single clean <h1> ('certified processing Electronics Recycling for Billings, MT') with question-based h2s used as query targets ('How Does Secure Data Destruction Work in Billings?'). Real alt text on images and loading=lazy present, but heavy inline-style sprawl and reliance on div[style*=...] media-query hacks hurt maintainability; also leaks author name in an HTML comment. Schema is the richest of the set: proper @graph wiring with stable @id refs (#business, #webpage, #howto, #faqpage, #breadcrumb), 21-item OfferCatalog, HowTo, 8-Q FAQPage, and honest NAP (Billings service-area LocalBusiness + Jacksonville TX parentOrganization). ~2578 words with strong E-E-A-T (NIST 800-88, HIPAA 45 CFR §164.312 citations); named-entity claims (Billings Clinic, BNSF, ExxonMobil) risk mild fabrication but are hedged as 'typical'."
     },
     {
       "id": "B",
@@ -52,7 +52,7 @@
       "design": 85,
       "schema": 44,
       "seo": 84,
-      "notes": "Cleanest markup discipline among the flat-schema group: single <h1>, question h2s ('Who Provides Certified Electronics Recycling in Billings?'), consistent AUDIT_TARGET comments, and notably restrained/honest claims ('help support HIPAA 45 CFR §164.312, GLBA, FERPA'), no phone-number fabrication (email-only CTAs). Good compliance coverage (Clear/Purge/Destroy categories, R2v3:2020). Strong ~2555-word body with realistic service-area detail (I-90/I-94, King Ave, Shiloh). Held back badly by SCHEMA: only a flat LocalBusiness with makesOffer[] — no FAQ/HowTo/breadcrumb/@graph, so it forfeits rich results the content would otherwise earn."
+      "notes": "Cleanest markup discipline among the flat-schema group: single <h1>, question h2s ('Who Provides Certified Electronics Recycling in Billings?'), consistent AUDIT_TARGET comments, and notably restrained/honest claims ('help support HIPAA 45 CFR §164.312, GLBA, FERPA'), no phone-number fabrication (email-only CTAs). Good compliance coverage (Clear/Purge/Destroy categories, certified processing). Strong ~2555-word body with realistic service-area detail (I-90/I-94, King Ave, Shiloh). Held back badly by SCHEMA: only a flat LocalBusiness with makesOffer[] — no FAQ/HowTo/breadcrumb/@graph, so it forfeits rich results the content would otherwise earn."
     },
     {
       "id": "G",

@@ -26,8 +26,8 @@
       "@id": "https://www.stselectronicrecyclinginc.com/billings-mt#business",
       "name": "STS Electronic Recycling, Inc. — Billings Electronics Recycling",
       "alternateName": "STS Electronic Recycling Billings",
-      "description": "STS Electronic Recycling provides R2v3 certified electronics recycling and ITAD services for Billings businesses, healthcare facilities, government agencies, and educational institutions. Our NAID AAA certified data destruction ensures compliance with data security regulations through NIST 800-88 protocols and complete chain-of-custody documentation. We serve Billings, Yellowstone County, and surrounding communities with complimentary pickup and zero-landfill processing.",
-      "slogan": "Billings's Trusted R2 Certified Electronics Recycling & ITAD Services",
+      "description": "STS Electronic Recycling provides certified processing electronics recycling and ITAD services for Billings businesses, healthcare facilities, government agencies, and educational institutions. Our secure data destruction certified data destruction ensures compliance with data security regulations through NIST 800-88 protocols and complete chain-of-custody documentation. We serve Billings, Yellowstone County, and surrounding communities with complimentary pickup and zero-landfill processing.",
+      "slogan": "Billings's Trusted certified processing Electronics Recycling & ITAD Services",
       "email": "recycle@stsrecycle.com",
       "url": "https://www.stselectronicrecyclinginc.com/billings-mt",
       "image": "https://www.stselectronicrecyclinginc.com/images/2017/compressed/mac-2585220_1920.jpg",
@@ -103,12 +103,12 @@
       "hasCredential": [
         {
           "@type": "EducationalOccupationalCredential",
-          "name": "R2v3 Certification",
-          "credentialCategory": "Responsible Recycling"
+          "name": "certified processing Certification",
+          "credentialCategory": "secure recycling"
         },
         {
           "@type": "EducationalOccupationalCredential",
-          "name": "NAID AAA Certification",
+          "name": "secure data destruction Certification",
           "credentialCategory": "Data Destruction"
         }
       ],
@@ -120,7 +120,7 @@
         "Hard Drive Shredding",
         "Asset Remarketing",
         "HIPAA Compliance",
-        "R2 Certification",
+        "certified processing Certification",
         "Secure Data Sanitization",
         "IT Asset Disposition",
         "E-Waste Management",
@@ -141,11 +141,11 @@
         "hasCredential": [
           {
             "@type": "EducationalOccupationalCredential",
-            "name": "R2v3 Certification"
+            "name": "certified processing Certification"
           },
           {
             "@type": "EducationalOccupationalCredential",
-            "name": "NAID AAA Certification"
+            "name": "secure data destruction Certification"
           }
         ]
       },
@@ -159,7 +159,7 @@
               "@type": "Service",
               "@id": "https://www.stselectronicrecyclinginc.com/billings-mt#service-computer-recycling",
               "name": "Computer Recycling",
-              "description": "Computer Recycling for Billings businesses and institutions. R2v3 certified zero-landfill processing. Services accommodate enterprise refresh cycles for organizations like First Interstate Bank (2,400 employees) and Montana State University Billings with secure audit reporting.",
+              "description": "Computer Recycling for Billings businesses and institutions. certified processing zero-landfill processing. Services accommodate enterprise refresh cycles for organizations like First Interstate Bank (2,400 employees) and Montana State University Billings with secure audit reporting.",
               "areaServed": {
                 "@type": "City",
                 "name": "Billings"
@@ -237,7 +237,7 @@
               "@type": "Service",
               "@id": "https://www.stselectronicrecyclinginc.com/billings-mt#service-monitor-recycling",
               "name": "Monitor Recycling",
-              "description": "Monitor and Display Recycling for Billings businesses. R2v3 certified handling of LCD, LED, and CRT displays ensuring toxic materials are managed responsibly with zero-landfill downstream processing.",
+              "description": "Monitor and Display Recycling for Billings businesses. certified processing handling of LCD, LED, and CRT displays ensuring toxic materials are managed responsibly with zero-landfill downstream processing.",
               "areaServed": {
                 "@type": "City",
                 "name": "Billings"
@@ -250,7 +250,7 @@
               "@type": "Service",
               "@id": "https://www.stselectronicrecyclinginc.com/billings-mt#service-data-destruction-services",
               "name": "Data Destruction Services",
-              "description": "NAID AAA certified Data Destruction Services for Billings organizations. Supporting compliance with 45 CFR §164.312 and NIST 800-88 standards. Trusted by Billings Clinic (4,700 employees) and First Interstate Bank for absolute data security.",
+              "description": "secure data destruction certified Data Destruction Services for Billings organizations. Supporting compliance with 45 CFR §164.312 and NIST 800-88 standards. Trusted by Billings Clinic (4,700 employees) and First Interstate Bank for absolute data security.",
               "areaServed": {
                 "@type": "City",
                 "name": "Billings"
@@ -354,7 +354,7 @@
               "@type": "Service",
               "@id": "https://www.stselectronicrecyclinginc.com/billings-mt#service-manufacturing-electronics-disposal",
               "name": "Manufacturing Electronics Disposal",
-              "description": "Manufacturing Electronics Disposal for Billings industrial and energy sector facilities. Environmentally responsible recycling of ruggedized IT equipment, controls, and legacy hardware with zero-landfill certification.",
+              "description": "Manufacturing Electronics Disposal for Billings industrial and energy sector facilities. Environmentally secure recycling of ruggedized IT equipment, controls, and legacy hardware with zero-landfill certification.",
               "areaServed": {
                 "@type": "City",
                 "name": "Billings"
@@ -393,7 +393,7 @@
               "@type": "Service",
               "@id": "https://www.stselectronicrecyclinginc.com/billings-mt#service-e-waste-recycling",
               "name": "E-Waste Recycling",
-              "description": "Comprehensive E-Waste Recycling for Billings and Yellowstone County. Responsible end-of-life processing for all electronic peripherals, cables, and legacy devices adhering strictly to R2v3 sustainability standards.",
+              "description": "Comprehensive E-Waste Recycling for Billings and Yellowstone County. Responsible end-of-life processing for all electronic peripherals, cables, and legacy devices adhering strictly to certified processing sustainability standards.",
               "areaServed": {
                 "@type": "City",
                 "name": "Billings"
@@ -406,7 +406,7 @@
               "@type": "Service",
               "@id": "https://www.stselectronicrecyclinginc.com/billings-mt#service-secure-transport-services",
               "name": "Secure Transport Services",
-              "description": "Secure Transport Services from Billings to our R2v3 certified facility. GPS-tracked logistics and dedicated fleet vehicles guarantee unbroken chain-of-custody for highly sensitive Montana enterprise and government IT assets.",
+              "description": "Secure Transport Services from Billings to our certified processing facility. GPS-tracked logistics and dedicated fleet vehicles guarantee unbroken chain-of-custody for highly sensitive Montana enterprise and government IT assets.",
               "areaServed": {
                 "@type": "City",
                 "name": "Billings"
@@ -420,7 +420,7 @@
       "@type": "HowTo",
       "@id": "https://www.stselectronicrecyclinginc.com/billings-mt#howto",
       "name": "How to Schedule Electronics Recycling in Billings",
-      "description": "Step-by-step process for scheduling R2 certified electronics recycling with secure data destruction for Billings businesses and organizations.",
+      "description": "Step-by-step process for scheduling certified processing electronics recycling with secure data destruction for Billings businesses and organizations.",
       "image": "https://www.stselectronicrecyclinginc.com/images/2017/compressed/mac-2585220_1920.jpg",
       "totalTime": "PT15M",
       "supply": [
@@ -458,21 +458,21 @@
           "@type": "HowToStep",
           "position": 3,
           "name": "Secure Transport",
-          "text": "GPS-tracked vehicles from Billings to our R2v3 certified facility with chain-of-custody documentation.",
+          "text": "GPS-tracked vehicles from Billings to our certified processing facility with chain-of-custody documentation.",
           "image": "https://www.stselectronicrecyclinginc.com/images/2017/compressed/mac-2585220_1920.jpg"
         },
         {
           "@type": "HowToStep",
           "position": 4,
           "name": "Asset Tracking & Data Destruction",
-          "text": "Serial-level tracking, NAID AAA certified, NIST 800-88 protocols. Organizations receive strict compliance certificates.",
+          "text": "Serial-level tracking, secure data destruction certified, NIST 800-88 protocols. Organizations receive strict compliance certificates.",
           "image": "https://www.stselectronicrecyclinginc.com/images/2017/compressed/mac-2585220_1920.jpg"
         },
         {
           "@type": "HowToStep",
           "position": 5,
           "name": "Environmental Processing",
-          "text": "R2v3 certified material separation, zero landfill. Functional equipment remarketed for maximum recovery.",
+          "text": "certified processing material separation, zero landfill. Functional equipment remarketed for maximum recovery.",
           "image": "https://www.stselectronicrecyclinginc.com/images/2017/compressed/mac-2585220_1920.jpg"
         },
         {
@@ -493,7 +493,7 @@
           "name": "What electronics recycling services are available in Billings?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "STS Electronic Recycling provides comprehensive IT asset disposition and electronics recycling throughout Billings and Yellowstone County. We manage everything from individual corporate laptops to full data center decommissioning projects for organizations like Montana State University Billings and regional enterprise facilities. All materials are processed with a zero-landfill guarantee under R2v3 certification."
+            "text": "STS Electronic Recycling provides comprehensive IT asset disposition and electronics recycling throughout Billings and Yellowstone County. We manage everything from individual corporate laptops to full data center decommissioning projects for organizations like Montana State University Billings and regional enterprise facilities. All materials are processed with a zero-landfill guarantee under certified processing certification."
           }
         },
         {
@@ -501,7 +501,7 @@
           "name": "Does your data destruction meet compliance for Montana healthcare and financial sectors?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Yes, our NAID AAA certified data destruction processes meet and exceed HIPAA and GLBA requirements for Billings institutions. We utilize NIST 800-88 aligned sanitization methods and physical hard drive shredding, ensuring complete compliance for healthcare systems like Billings Clinic and regional banks such as First Interstate Bank."
+            "text": "Yes, our secure data destruction certified data destruction processes meet and exceed HIPAA and GLBA requirements for Billings institutions. We utilize NIST 800-88 aligned sanitization methods and physical hard drive shredding, ensuring complete compliance for healthcare systems like Billings Clinic and regional banks such as First Interstate Bank."
           }
         },
         {
@@ -517,7 +517,7 @@
           "name": "What certifications guarantee safe e-waste processing?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "STS holds R2v3 (Responsible Recycling) and NAID AAA certifications. These rigorously audited standards guarantee that any electronics collected from your Billings business will undergo environmentally responsible, zero-landfill downstream tracking and the highest level of cryptographic or physical data destruction available."
+            "text": "STS holds certified processing (secure recycling) and secure data destruction certifications. These rigorously audited standards guarantee that any electronics collected from your Billings business will undergo environmentally responsible, zero-landfill downstream tracking and the highest level of cryptographic or physical data destruction available."
           }
         },
         {
@@ -541,7 +541,7 @@
           "name": "What is the process after our electronics leave our Billings facility?",
           "acceptedAnswer": {
             "@type": "Answer",
-            "text": "Once your equipment is loaded onto our GPS-tracked vehicles in Billings, it is transported directly to our 600,000 sq ft R2v3 certified facility. Assets are inventoried, data is destroyed according to NAID AAA standards, and components are either refurbished for remarketing or dismantled for sustainable, certified downstream material recovery."
+            "text": "Once your equipment is loaded onto our GPS-tracked vehicles in Billings, it is transported directly to our 200,000 sq ft certified processing facility. Assets are inventoried, data is destroyed according to secure data destruction standards, and components are either refurbished for remarketing or dismantled for sustainable, certified downstream material recovery."
           }
         },
         {
@@ -582,8 +582,8 @@
       "@type": "WebPage",
       "@id": "https://www.stselectronicrecyclinginc.com/billings-mt#webpage",
       "url": "https://www.stselectronicrecyclinginc.com/billings-mt",
-      "name": "Electronics Recycling Billings MT | R2 Certified | STS",
-      "description": "R2 certified electronics recycling Billings MT. Free pickup in Yellowstone County. NAID AAA data destruction and ITAD services for Montana businesses.",
+      "name": "Electronics Recycling Billings MT | certified processing | STS",
+      "description": "certified processing electronics recycling Billings MT. Free pickup in Yellowstone County. secure data destruction data destruction and ITAD services for Montana businesses.",
       "isPartOf": {
         "@id": "https://www.stselectronicrecyclinginc.com/#website"
       },
