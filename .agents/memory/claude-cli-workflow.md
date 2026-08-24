@@ -21,6 +21,7 @@ The root `replit.md` "Claude CLI dispatch" section and the standalone root `CLAU
 - Protected paths (`.replit`, `artifact.toml`, `replit.nix`, `.env*`, lockfiles, `attached_assets/`) and the actual GitHub/deployment boundaries (one-way outbound mirror only, no other pushes/force-pushes/deploy-config changes) are enumerated in root `CLAUDE.md`, not reinvented per dispatch.
 - Grok and Codex remain dormant unless their installation and workflow are verified locally. Do not fabricate wrappers, health checks, gates, hooks, or task systems from the universal packet.
 - Long jobs require a managed workflow or human-owned Shell tab, and imported operational claims must retain their evidence classification until reproduced here.
+- DeepSeek can use the Claude CLI harness through a local wrapper and direct Anthropic-compatible endpoint, but its model IDs may trigger a non-fatal Claude CLI registry warning. Verify both the provider response and CLI output, and keep the warning explicit until the CLI mapping is fixed.
 
 **Why:** Without a written boundary, a dispatch could plausibly "improve" the Anthropic integration into a Replit connector, expand Drive usage, or push to an unintended remote — all plausible-looking but unauthorized changes.
 

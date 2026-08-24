@@ -41,6 +41,10 @@ If a task asks you to add or change model/provider access anywhere in this repo 
 
 Google Drive is out of scope for new work anywhere in this repo. The only live Drive usage is the legacy prompt-library publish target in `artifacts/api-server/src/lib/googleDrive.ts` and `promptSync.ts` — leave it unchanged. Do not add new Drive calls, Drive UI, or Drive auth in any artifact, even if a task seems to imply it.
 
+## DeepSeek secondary worker
+
+The verified local wrapper is `.config/npm/node_global/bin/deepseek`. It reads the `Deepseek` secret at runtime, routes to `https://api.deepseek.com/anthropic`, and maps the selected `sonnet` alias to `deepseek-v4-pro`, with `deepseek-v4-flash` as the fast model. A direct DeepSeek request and a wrapper probe have succeeded. Claude Code prints a non-fatal `unrecognized_model` warning because its local model registry does not know the DeepSeek ID. Do not treat that warning as a clean CLI setup, and do not remove the compatibility caveat without a new verified test. The wrapper uses `pnpm dlx` because no standalone `claude` binary is on PATH.
+
 ## Verification commands
 
 Run the commands for the artifact(s) you actually touched, then let Replit independently rerun them. Do not report a task complete on a clean exit code alone.
