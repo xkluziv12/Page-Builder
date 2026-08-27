@@ -1,7 +1,7 @@
 [
   {
     "letter": "A",
-    "source": "CUR:gemini-3.7-flash",
+    "source": "CUR:claude-sonnet-4-6",
     "run": "current"
   },
   {
@@ -16,7 +16,7 @@
   },
   {
     "letter": "D",
-    "source": "CUR:claude-sonnet-4-6",
+    "source": "CUR:gemini-3.7-flash",
     "run": "current"
   },
   {
