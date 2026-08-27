@@ -23,3 +23,4 @@
 - [Claude CLI dispatch discipline](claude-cli-workflow.md) — scope Claude to one artifact/bounded files via CLAUDE.md; root rules packet keeps Anthropic exception, bars new Replit LLM connectors, freezes Drive scope.
 - [Page research SSRF guard](page-research-ssrf.md) — validate DNS at the HTTP connection, not only before fetch, to defeat rebinding into internal networks.
 - [API router authorization tests](api-route-auth-tests.md) — use a temporary CommonJS esbuild bundle for isolated real-router tests in this workspace.
+- [CLI provider setup](cli-provider-setup.md) — Claude/Codex/Gemini CLIs use project-local global-bin wiring; Codex needs CODEX_API_KEY and xhigh reasoning.

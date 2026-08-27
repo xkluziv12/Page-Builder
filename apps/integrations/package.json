@@ -1,0 +1,9 @@
+{
+  "name": "@workspace/model-integrations",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "mcp": "node provider-mcp.mjs",
+    "check": "node --check provider-mcp.mjs"
+  }
+}
