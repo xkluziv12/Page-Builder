@@ -686,6 +686,64 @@ export function makeGrokComplete(model: string, effort?: string): CompleteFn {
   });
 }
 
+/** DeepSeek direct via its OpenAI-compatible endpoint, using STS's own
+ * `Deepseek` secret (env var name kept exactly as provisioned). Like Grok, the
+ * v4 family exposes no effort/reasoning-budget knob on this endpoint — an
+ * explicit `effort` override is a config mistake, not something to fake, so it
+ * fails loud at construction rather than silently ignoring the request. */
+const DEEPSEEK_BASE_URL = "https://api.deepseek.com";
+
+export function makeDeepSeekComplete(model: string, effort?: string): CompleteFn {
+  if (effort) {
+    throw new Error(
+      `DeepSeek effort override "${effort}" requested for ${model}, but DeepSeek's v4 API has no ` +
+        `effort/reasoning-budget knob to apply it to.`,
+    );
+  }
+  const apiKey = process.env.Deepseek;
+  if (!apiKey) {
+    throw new Error(`Deepseek secret is not set (required for model ${model}).`);
+  }
+  const client = new OpenAI({
+    apiKey,
+    baseURL: DEEPSEEK_BASE_URL,
+    timeout: REQUEST_TIMEOUT_MS,
+    maxRetries: 0,
+  });
+  return guarded(model, async (messages, system, opts, signal) => {
+    // DeepSeek's OpenAI-compatible surface has no native web-search tool at
+    // all. A flagged turn therefore has NO evidence of live fetching to offer —
+    // call enforceLiveFetch directly with searched=false so it fails loud
+    // exactly like every other adapter would on a genuine no-search response,
+    // rather than silently letting the turn (and the SEO-verify score) pass on
+    // pure training-recall content.
+    enforceLiveFetch(model, opts?.webSearch, false, 0);
+    const resp = await client.chat.completions.create(
+      {
+        model,
+        max_tokens: opts?.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
+        messages: openAiMessages(messages, system),
+      },
+      { signal },
+    );
+    const raw = (resp.choices[0]?.message?.content ?? "").trim();
+    if (!raw) throw new Error(`${model} returned an empty response.`);
+    const cu = resp.usage;
+    const usage: TokenUsage | null = cu
+      ? {
+          inputTokens: cu.prompt_tokens ?? 0,
+          cachedInputTokens: (cu as { prompt_tokens_details?: { cached_tokens?: number } })
+            .prompt_tokens_details?.cached_tokens ?? 0,
+          outputTokens: cu.completion_tokens ?? 0,
+          reasoningTokens:
+            (cu as { completion_tokens_details?: { reasoning_tokens?: number } })
+              .completion_tokens_details?.reasoning_tokens ?? 0,
+        }
+      : null;
+    return { content: unfence(raw), raw, usage };
+  });
+}
+
 /**
  * Discover the newest general xAI Grok tag from xAI's own /models endpoint at
  * runtime. Picks the most-recently-created `grok-<version>` id, excluding

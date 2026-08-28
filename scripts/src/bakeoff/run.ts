@@ -14,6 +14,7 @@ import {
   makeGeminiComplete,
   makeOpenAIComplete,
   makeGrokComplete,
+  makeDeepSeekComplete,
   isOpenAiReasoningTag,
   OPENAI_REASONING_EFFORT,
   type CompleteFn,
@@ -37,6 +38,8 @@ const GEMINI_PRO_MODEL = "gemini-3.1-pro-preview";
 const GEMINI_FLASH_MODEL = "gemini-3.5-flash";
 const OPENAI_MODEL = "gpt-5.6-terra";
 const GROK_MODEL = "grok-4.5";
+const DEEPSEEK_MODEL = "deepseek-v4-pro";
+const DEEPSEEK_FLASH_MODEL = "deepseek-v4-flash";
 
 const BUSINESS_NAME = "STS Electronic Recycling";
 
@@ -372,6 +375,8 @@ async function main(): Promise<void> {
     { id: "gemini-flash", label: "Gemini 3.5 Flash", provider: "Google", model: GEMINI_FLASH_MODEL, make: makeGeminiComplete, supportsEffort: true },
     { id: "openai", label: `OpenAI ${OPENAI_MODEL.toUpperCase()}`, provider: "OpenAI", model: OPENAI_MODEL, make: makeOpenAIComplete, supportsEffort: true },
     { id: "grok", label: "Grok 4.5", provider: "xAI", model: GROK_MODEL, make: makeGrokComplete, supportsEffort: false },
+    { id: "deepseek", label: "DeepSeek v4 Pro", provider: "DeepSeek", model: DEEPSEEK_MODEL, make: makeDeepSeekComplete, supportsEffort: false },
+    { id: "deepseek-flash", label: "DeepSeek v4 Flash", provider: "DeepSeek", model: DEEPSEEK_FLASH_MODEL, make: makeDeepSeekComplete, supportsEffort: false },
   ];
   // Apply per-model overrides (tag/label/effort) generically by id — the
   // override swaps the provider tag and/or effort and rebuilds that model's

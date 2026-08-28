@@ -73,8 +73,20 @@ const PRICE_TIERS: PriceTier[] = [
   { test: /gpt-?5\.5/i, label: "OpenAI GPT-5.5 tier", inputPerM: 5, outputPerM: 30 },
   { test: /gpt-?5\.4/i, label: "OpenAI GPT-5.4 tier", inputPerM: 2.5, outputPerM: 15 },
   { test: /gpt-?5/i, label: "OpenAI GPT-5 tier", inputPerM: 2.5, outputPerM: 15 },
+  {
+    test: /gemini-3\.[5-9]-?flash|gemini-3\.[5-9]\.\d+-?flash/i,
+    label: "Gemini 3.7 Flash tier (introductory, through Dec 2026)",
+    inputPerM: 0.75,
+    outputPerM: 3.75,
+  },
   { test: /gemini/i, label: "Gemini 3.1 Pro tier", inputPerM: 2, outputPerM: 12 },
   { test: /grok/i, label: "Grok 4.3 tier", inputPerM: 1.25, outputPerM: 2.5 },
+  // DeepSeek's own published rates (api-docs.deepseek.com/quick_start/pricing),
+  // off-peak / cache-miss input rate — the harness re-sends full history every
+  // turn with no cache-hit tracking, so cache-miss is the honest default. The
+  // v4-pro row MUST precede the v4-flash row's broader match.
+  { test: /deepseek-v4-pro/i, label: "DeepSeek v4 Pro tier (off-peak)", inputPerM: 0.66, outputPerM: 1.98 },
+  { test: /deepseek/i, label: "DeepSeek v4 Flash tier (off-peak)", inputPerM: 0.22, outputPerM: 0.66 },
 ];
 const FALLBACK_TIER: PriceTier = {
   test: /.*/,

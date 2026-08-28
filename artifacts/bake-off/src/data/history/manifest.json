@@ -1,5 +1,47 @@
 [
   {
+    "id": "2026-08-28T16-21-14-508Z",
+    "file": "2026-08-28T16-21-14-508Z.json",
+    "label": "Billings, MT — 8/28/2026",
+    "blurb": "Auto-archived run: Gemini 3.7 Flash.",
+    "ranAt": "2026-08-28T16:21:14.508Z"
+  },
+  {
+    "id": "2026-08-28T16-15-45-834Z",
+    "file": "2026-08-28T16-15-45-834Z.json",
+    "label": "Billings, MT — 8/28/2026",
+    "blurb": "Auto-archived run: Gemini 3.5 Flash.",
+    "ranAt": "2026-08-28T16:15:45.834Z"
+  },
+  {
+    "id": "2026-08-28T16-08-04-341Z",
+    "file": "2026-08-28T16-08-04-341Z.json",
+    "label": "Billings, MT — 8/28/2026",
+    "blurb": "Auto-archived run: DeepSeek v4 Pro, DeepSeek v4 Flash.",
+    "ranAt": "2026-08-28T16:08:04.341Z"
+  },
+  {
+    "id": "2026-08-28T15-54-06-945Z",
+    "file": "2026-08-28T15-54-06-945Z.json",
+    "label": "Billings, MT — 8/28/2026",
+    "blurb": "Auto-archived run: GPT-5.6 Terra (turbo sub).",
+    "ranAt": "2026-08-28T15:54:06.945Z"
+  },
+  {
+    "id": "2026-08-28T15-45-11-487Z",
+    "file": "2026-08-28T15-45-11-487Z.json",
+    "label": "Billings, MT — 8/28/2026",
+    "blurb": "Auto-archived run: GPT-5.6 Luna (max/xhigh), Grok 4.6, DeepSeek v4 Flash.",
+    "ranAt": "2026-08-28T15:45:11.487Z"
+  },
+  {
+    "id": "2026-08-28T15-29-05-823Z",
+    "file": "2026-08-28T15-29-05-823Z.json",
+    "label": "Billings, MT — 8/28/2026",
+    "blurb": "Auto-archived run: GPT-5.6 Luna (medium), Grok 4.6, DeepSeek v4 Pro, DeepSeek v4 Flash.",
+    "ranAt": "2026-08-28T15:29:05.823Z"
+  },
+  {
     "id": "2026-06-23-opus-tier-5model",
     "file": "2026-06-23-opus-tier-5model.json",
     "label": "2026-06-23 — Opus-tier (5 model, No-GMB)",
