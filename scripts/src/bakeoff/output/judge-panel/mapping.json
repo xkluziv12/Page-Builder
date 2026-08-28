@@ -11,32 +11,27 @@
   },
   {
     "letter": "C",
+    "source": "OLD:claude-sonnet-4-6",
+    "run": "archived"
+  },
+  {
+    "letter": "D",
     "source": "CUR:grok-4.20-0309-reasoning",
     "run": "current"
   },
   {
-    "letter": "D",
-    "source": "CUR:gemini-3.7-flash",
-    "run": "current"
-  },
-  {
     "letter": "E",
-    "source": "OLD:gpt-5.5",
+    "source": "OLD:gemini-3.1-pro-preview",
     "run": "archived"
   },
   {
     "letter": "F",
-    "source": "OLD:claude-sonnet-4-6",
+    "source": "OLD:gpt-5.5",
     "run": "archived"
   },
   {
     "letter": "G",
     "source": "OLD:grok-4.3",
-    "run": "archived"
-  },
-  {
-    "letter": "H",
-    "source": "OLD:gemini-3.1-pro-preview",
     "run": "archived"
   }
 ]
