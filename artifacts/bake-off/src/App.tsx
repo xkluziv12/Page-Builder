@@ -6,6 +6,7 @@ import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import ModelDetail from "@/pages/model-detail";
 import PortlandReview from "@/pages/portland-review";
+import Models from "@/pages/models";
 import Layout from "@/components/layout";
 import { DatasetProvider } from "@/contexts/dataset-context";
 
@@ -16,6 +17,7 @@ function Router() {
     <Switch>
       <Route path="/" component={Dashboard} />
       <Route path="/portland-review" component={PortlandReview} />
+      <Route path="/models" component={Models} />
       <Route path="/model/:datasetId/:scenarioId/:id" component={ModelDetail} />
       <Route component={NotFound} />
     </Switch>

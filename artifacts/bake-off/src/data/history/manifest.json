@@ -1,0 +1,23 @@
+[
+  {
+    "id": "2026-06-23-opus-tier-5model",
+    "file": "2026-06-23-opus-tier-5model.json",
+    "label": "2026-06-23 — Opus-tier (5 model, No-GMB)",
+    "blurb": "Top-tier No-GMB-only deliverable: Claude Opus 4.8 + Gemini 3.1 Pro + Grok 4.3 + both OpenAI tiers (gpt-5.5 standard and gpt-5.5-pro via background mode). Effort: unknown (recorded before effort tracking existed).",
+    "ranAt": "2026-06-24T00:41:20.688Z"
+  },
+  {
+    "id": "2026-06-23-opus-tier-4model",
+    "file": "2026-06-23-opus-tier-4model.json",
+    "label": "2026-06-23 — Opus-tier (4 model, GMB)",
+    "blurb": "Intermediate snapshot preserving the GMB scenario data captured during the Opus-tier run just before GMB was dropped. 4 models, OpenAI = ERROR (pre background-mode fix). Effort: unknown (recorded before effort tracking existed).",
+    "ranAt": "2026-06-23T20:18:40.817Z"
+  },
+  {
+    "id": "2026-06-23-full-adherence",
+    "file": "2026-06-23-full-adherence.json",
+    "label": "2026-06-23 — Full Adherence",
+    "blurb": "Full adherence to the human checklist: verbatim mini-prompts + real fixtures, intro handshake validated, seo-verify/verify-links verdicts acted on. Sonnet-tier baseline, GMB + No-GMB, 4 models. Effort: unknown (recorded before effort tracking existed).",
+    "ranAt": "2026-06-23T17:46:26.983Z"
+  }
+]

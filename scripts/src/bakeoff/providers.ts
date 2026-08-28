@@ -94,10 +94,23 @@ const OPENAI_MAX_OUTPUT_TOKENS = 64000;
  * fitting the time/cost budget; override via env if a run wants full effort.
  * This tunes only HOW HARD the model thinks, never the prompts or turn order.
  */
-const OPENAI_REASONING_EFFORT = (process.env.BAKEOFF_OPENAI_REASONING ?? "medium") as
+/** Exported so `run.ts` can record the ACTUAL effective effort (not just "some
+ * provider default") when no per-model override supplies one. */
+export const OPENAI_REASONING_EFFORT = (process.env.BAKEOFF_OPENAI_REASONING ?? "medium") as
   | "low"
   | "medium"
   | "high";
+
+/** Whether an OpenAI model tag is on the "pro"/reasoning-effort-gated tier
+ * (mandates an explicit `reasoning.effort`). Exported so `run.ts` can decide
+ * what to record ("not-applicable" for plain chat tags that ignore effort). */
+export function isOpenAiReasoningTag(model: string): boolean {
+  return (
+    /\bpro\b/i.test(model) ||
+    model.toLowerCase().includes("-pro") ||
+    model.toLowerCase().includes("-luna")
+  );
+}
 
 /** xAI's OpenAI-compatible endpoint. */
 const XAI_BASE_URL = "https://api.x.ai/v1";
@@ -254,19 +267,41 @@ function enforceLiveFetch(
   console.log(`    🔎 ${model} live web search: ${count > 0 ? `${count} request(s)` : "performed"}`);
 }
 
-/** Claude direct, with STS's own ANTHROPIC_API_KEY. */
-export function makeClaudeComplete(model: string): CompleteFn {
+/**
+ * Maps an "effort" level to an Anthropic extended-thinking token budget. This is
+ * the real effort knob for Claude: a bigger budget lets the model reason longer
+ * before answering. Off (no `thinking` block) when no effort is requested, which
+ * matches the historical behaviour exactly.
+ */
+const CLAUDE_THINKING_BUDGETS: Record<string, number> = {
+  low: 2000,
+  medium: 8000,
+  high: 24000,
+};
+
+/** Claude direct, with STS's own ANTHROPIC_API_KEY. `effort` (low/medium/high)
+ * is optional — when set it enables extended thinking with a matching token
+ * budget; when unset the call is byte-identical to the pre-effort behaviour. */
+export function makeClaudeComplete(model: string, effort?: string): CompleteFn {
   const client = new Anthropic({
     apiKey: requireEnv("ANTHROPIC_API_KEY"),
     timeout: REQUEST_TIMEOUT_MS,
     maxRetries: 0,
   });
+  const thinkingBudget = effort ? CLAUDE_THINKING_BUDGETS[effort] : undefined;
+  if (effort && thinkingBudget === undefined) {
+    throw new Error(`Claude effort override "${effort}" is not one of low/medium/high.`);
+  }
   return guarded(model, async (messages, system, opts) => {
+    const maxTokens = opts?.maxOutputTokens ?? MAX_OUTPUT_TOKENS;
     // Stream: the Anthropic SDK refuses non-streaming requests whose token
     // budget could push the call past 10 minutes (full SEO pages are large).
     const stream = client.messages.stream({
       model,
-      max_tokens: opts?.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
+      // Extended thinking's budget counts against max_tokens, so the ceiling
+      // must exceed it; thinking also requires temperature to stay unset/1.
+      max_tokens: thinkingBudget ? Math.max(maxTokens, thinkingBudget + 4000) : maxTokens,
+      ...(thinkingBudget ? { thinking: { type: "enabled" as const, budget_tokens: thinkingBudget } } : {}),
       ...(system ? { system } : {}),
       // Native web_search server tool, attached ONLY on the flagged turn. Claude
       // runs the search itself and folds the results into its answer; we still
@@ -337,12 +372,27 @@ export function makeClaudeComplete(model: string): CompleteFn {
   });
 }
 
-/** Gemini direct, with STS's own GEMINI_API_KEY. */
-export function makeGeminiComplete(model: string): CompleteFn {
+/** Maps an "effort" level to a Gemini thinking-budget token count — the real
+ * effort knob for Gemini's 2.5+/3.x "thinking" models. Off (no thinkingConfig)
+ * when no effort is requested, matching the historical behaviour exactly. */
+const GEMINI_THINKING_BUDGETS: Record<string, number> = {
+  low: 1024,
+  medium: 8000,
+  high: 24000,
+};
+
+/** Gemini direct, with STS's own GEMINI_API_KEY. `effort` (low/medium/high) is
+ * optional — when set it sets an explicit thinking budget; when unset the call
+ * is byte-identical to the pre-effort behaviour (implicit provider default). */
+export function makeGeminiComplete(model: string, effort?: string): CompleteFn {
   const ai = new GoogleGenAI({
     apiKey: requireEnv("GEMINI_API_KEY"),
     httpOptions: { timeout: REQUEST_TIMEOUT_MS },
   });
+  const thinkingBudget = effort ? GEMINI_THINKING_BUDGETS[effort] : undefined;
+  if (effort && thinkingBudget === undefined) {
+    throw new Error(`Gemini effort override "${effort}" is not one of low/medium/high.`);
+  }
   return guarded(model, async (messages, system, opts) => {
     // Prompt caching: Gemini 2.5+/3.x enable IMPLICIT context caching by default —
     // when a request shares a long prefix with a recent one (here the ~180K-char
@@ -359,6 +409,7 @@ export function makeGeminiComplete(model: string): CompleteFn {
       config: {
         ...(system ? { systemInstruction: system } : {}),
         maxOutputTokens: opts?.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
+        ...(thinkingBudget ? { thinkingConfig: { thinkingBudget } } : {}),
         // Google Search grounding, attached ONLY on the flagged turn. Gemini
         // grounds its answer in live results; `resp.text` still aggregates the
         // model's text, so extraction is unchanged.
@@ -426,21 +477,28 @@ function openAiMessages(
  * a transport change only — prompts, history, and turn order are untouched, so
  * the comparison stays apples-to-apples.
  */
-export function makeOpenAIComplete(model: string): CompleteFn {
+export function makeOpenAIComplete(model: string, effort?: string): CompleteFn {
   const client = new OpenAI({
     apiKey: requireEnv("OPENAI_API_KEY"),
     timeout: REQUEST_TIMEOUT_MS,
     maxRetries: 0,
   });
-  // The "pro" tier mandates an explicit reasoning effort and rejects "low"
-  // (valid: medium | high | xhigh), defaulting to the slow "high" when unset — so
-  // we pin it to a configurable floor (medium). The plain chat tags (e.g. gpt-5.5)
-  // run at the API default with no reasoning override. This only tunes HOW HARD a
-  // pro model thinks; prompts, history, and turn order are identical everywhere.
-  const isReasoning =
-    /\bpro\b/i.test(model) ||
-    model.toLowerCase().includes("-pro") ||
-    model.toLowerCase().includes("-luna");
+  // The "pro"/"luna" reasoning tier mandates an explicit reasoning effort and
+  // REJECTS "low" outright (valid: medium | high | xhigh), defaulting to the
+  // slow "high" when unset — so we pin it to a configurable floor (medium),
+  // overridable per-model via `effort`. The plain chat tags (e.g. gpt-5.5) run
+  // at the API default with no reasoning override. This only tunes HOW HARD a
+  // reasoning model thinks; prompts, history, and turn order are identical
+  // everywhere. Validated here (not just documented) so a bad
+  // BAKEOFF_MODEL_OVERRIDES effort fails loud at call time instead of shipping
+  // an API-rejected request that reads as a mysterious run error.
+  const resolvedEffort = effort ?? OPENAI_REASONING_EFFORT;
+  if (isOpenAiReasoningTag(model) && !["medium", "high", "xhigh"].includes(resolvedEffort)) {
+    throw new Error(
+      `OpenAI reasoning-tier model "${model}" does not support effort "${resolvedEffort}" ` +
+        `(only medium/high/xhigh are valid; "low" is rejected by the API).`,
+    );
+  }
   return guarded(model, async (messages, system, opts, signal) => {
     // Submit as a BACKGROUND job and poll to completion. The synchronous Responses
     // endpoint enforces a server-side processing window (~minutes) that the
@@ -463,7 +521,9 @@ export function makeOpenAIComplete(model: string): CompleteFn {
         prompt_cache_key: `bakeoff-${model}`,
         max_output_tokens: opts?.maxOutputTokens ?? OPENAI_MAX_OUTPUT_TOKENS,
         background: true,
-        ...(isReasoning ? { reasoning: { effort: OPENAI_REASONING_EFFORT } } : {}),
+        ...(isOpenAiReasoningTag(model)
+          ? { reasoning: { effort: resolvedEffort as "medium" | "high" | "xhigh" } }
+          : {}),
         ...(system ? { instructions: system } : {}),
         // Responses web_search tool, attached ONLY on the flagged turn. It coexists
         // with background poll mode; `resp.output_text` still aggregates the final
@@ -541,8 +601,17 @@ function responsesSearchCount(output: unknown): number {
   return count;
 }
 
-/** Grok direct via xAI's OpenAI-compatible endpoint, with STS's own XAI_API_KEY. */
-export function makeGrokComplete(model: string): CompleteFn {
+/** Grok direct via xAI's OpenAI-compatible endpoint, with STS's own XAI_API_KEY.
+ * The current Grok family exposes NO effort/reasoning knob — an explicit
+ * `effort` override is a config mistake, not something to fake, so it fails
+ * loud at construction rather than silently ignoring the request. */
+export function makeGrokComplete(model: string, effort?: string): CompleteFn {
+  if (effort) {
+    throw new Error(
+      `Grok effort override "${effort}" requested for ${model}, but xAI's Grok API has no ` +
+        `effort/reasoning-budget knob to apply it to.`,
+    );
+  }
   const client = new OpenAI({
     apiKey: requireEnv("XAI_API_KEY"),
     baseURL: XAI_BASE_URL,

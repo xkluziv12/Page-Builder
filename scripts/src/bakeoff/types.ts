@@ -82,6 +82,17 @@ export interface ModelResult {
   timings: PhaseTiming[];
   totalMs: number;
   scores: ModelScores | null;
+  /**
+   * Resolved reasoning-effort setting for this run, recorded going forward only
+   * (never backfilled/guessed for historical runs — those render as "unknown" in
+   * the UI). One of a concrete level ("low"/"medium"/"high"), "provider-default"
+   * (the provider was called with no explicit effort knob), "not-applicable"
+   * (the model tag doesn't gate on an effort knob, e.g. non-reasoning OpenAI
+   * tags), or "not-supported" (the provider has no effort control at all, e.g.
+   * the current Grok family). Null for any result recorded before this field
+   * existed.
+   */
+  effort: string | null;
   /** Relative path (under the viewer's public dir) to this model's rendered screenshot. */
   screenshot: string | null;
   /**

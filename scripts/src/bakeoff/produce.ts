@@ -289,6 +289,10 @@ async function main(): Promise<void> {
     timings,
     totalMs: outcome.totalMs,
     scores: null,
+    // The production builder doesn't run the bake-off's effort-override plumbing
+    // (it's a single fixed pipeline call, not a model comparison), so this field
+    // is not meaningful here — recorded as not-applicable rather than guessed.
+    effort: "not-applicable",
     screenshot: null,
     costEstimate,
     // The production builder does not capture per-turn usage/transcripts (that is

@@ -14,6 +14,8 @@ import {
   makeGeminiComplete,
   makeOpenAIComplete,
   makeGrokComplete,
+  isOpenAiReasoningTag,
+  OPENAI_REASONING_EFFORT,
   type CompleteFn,
 } from "./providers.js";
 import { loadDesignFixtures, type DesignFixtures } from "./fixtures.js";
@@ -24,6 +26,7 @@ import { gmbContextSuffix, resolveGmbProfile, promptGmbFrom, type GmbProfile } f
 import { loadReferenceHtml, resolveTarget, type BakeoffTarget } from "./target.js";
 import { scoreModels } from "./score.js";
 import { judgeVisual, type VisualVerdict } from "./visual.js";
+import { archiveSnapshot } from "./history.js";
 import type { BakeoffResults, ModelResult, ScenarioResult, TokenUsage } from "./types.js";
 
 /** The build target (city/state/niche/url) — env-driven, defaults to Billings, MT. */
@@ -55,6 +58,9 @@ interface ModelSpec {
   model: string;
   /** The stateful multi-turn completion fn used to drive this model's chat. */
   complete: CompleteFn;
+  /** Resolved effort label recorded on the ModelResult — see the field's doc
+   * comment in types.ts for the full set of values. */
+  effort: string;
 }
 
 /**
@@ -211,7 +217,7 @@ const MODEL_FILTER = (process.env.BAKEOFF_MODELS ?? "")
  * and/or the display label for any spec (e.g. run the Claude slot on a
  * different Sonnet revision). Fails loud on malformed JSON.
  */
-const MODEL_OVERRIDES: Record<string, { model?: string; label?: string }> = (() => {
+const MODEL_OVERRIDES: Record<string, { model?: string; label?: string; effort?: string }> = (() => {
   const raw = process.env.BAKEOFF_MODEL_OVERRIDES?.trim();
   if (!raw) return {};
   try {
@@ -221,17 +227,20 @@ const MODEL_OVERRIDES: Record<string, { model?: string; label?: string }> = (() 
     }
     for (const [id, entry] of Object.entries(parsed as Record<string, unknown>)) {
       if (!entry || typeof entry !== "object" || Array.isArray(entry)) {
-        throw new Error(`entry "${id}" must be an object with optional string model/label`);
+        throw new Error(`entry "${id}" must be an object with optional string model/label/effort`);
       }
-      const { model, label } = entry as Record<string, unknown>;
+      const { model, label, effort } = entry as Record<string, unknown>;
       if (model !== undefined && typeof model !== "string") {
         throw new Error(`entry "${id}".model must be a string`);
       }
       if (label !== undefined && typeof label !== "string") {
         throw new Error(`entry "${id}".label must be a string`);
       }
+      if (effort !== undefined && typeof effort !== "string") {
+        throw new Error(`entry "${id}".effort must be a string (low/medium/high)`);
+      }
     }
-    return parsed as Record<string, { model?: string; label?: string }>;
+    return parsed as Record<string, { model?: string; label?: string; effort?: string }>;
   } catch (err) {
     throw new Error(
       `BAKEOFF_MODEL_OVERRIDES is not valid JSON: ${err instanceof Error ? err.message : String(err)}`,
@@ -353,17 +362,21 @@ async function main(): Promise<void> {
     label: string;
     provider: ModelSpec["provider"];
     model: string;
-    make: (tag: string) => CompleteFn;
+    make: (tag: string, effort?: string) => CompleteFn;
+    /** True when this provider has a real effort/reasoning-budget knob at all
+     * (used to resolve the recorded "not-supported" vs "provider-default"). */
+    supportsEffort: boolean;
   }> = [
-    { id: "claude", label: "Claude Sonnet 5", provider: "Anthropic", model: CLAUDE_MODEL, make: makeClaudeComplete },
-    { id: "gemini", label: "Gemini 3.1 Pro", provider: "Google", model: GEMINI_PRO_MODEL, make: makeGeminiComplete },
-    { id: "gemini-flash", label: "Gemini 3.5 Flash", provider: "Google", model: GEMINI_FLASH_MODEL, make: makeGeminiComplete },
-    { id: "openai", label: `OpenAI ${OPENAI_MODEL.toUpperCase()}`, provider: "OpenAI", model: OPENAI_MODEL, make: makeOpenAIComplete },
-    { id: "grok", label: "Grok 4.5", provider: "xAI", model: GROK_MODEL, make: makeGrokComplete },
+    { id: "claude", label: "Claude Sonnet 5", provider: "Anthropic", model: CLAUDE_MODEL, make: makeClaudeComplete, supportsEffort: true },
+    { id: "gemini", label: "Gemini 3.1 Pro", provider: "Google", model: GEMINI_PRO_MODEL, make: makeGeminiComplete, supportsEffort: true },
+    { id: "gemini-flash", label: "Gemini 3.5 Flash", provider: "Google", model: GEMINI_FLASH_MODEL, make: makeGeminiComplete, supportsEffort: true },
+    { id: "openai", label: `OpenAI ${OPENAI_MODEL.toUpperCase()}`, provider: "OpenAI", model: OPENAI_MODEL, make: makeOpenAIComplete, supportsEffort: true },
+    { id: "grok", label: "Grok 4.5", provider: "xAI", model: GROK_MODEL, make: makeGrokComplete, supportsEffort: false },
   ];
-  // Apply per-model overrides (tag/label) generically by id — the override
-  // swaps the provider tag and rebuilds that model's complete fn to match, so
-  // the recorded `model` field always reflects what actually ran.
+  // Apply per-model overrides (tag/label/effort) generically by id — the
+  // override swaps the provider tag and/or effort and rebuilds that model's
+  // complete fn to match, so the recorded `model`/`effort` fields always
+  // reflect what actually ran.
   let selectedBaseModels = baseModels;
   if (MODEL_FILTER.length) {
     selectedBaseModels = baseModels.filter((m) => MODEL_FILTER.includes(m.id));
@@ -378,12 +391,37 @@ async function main(): Promise<void> {
     if (ovr?.model && ovr.model !== m.model) {
       console.log(`Override: ${m.id} model ${m.model} -> ${model}`);
     }
+    // Resolve what to RECORD for this run's effort — never guessed, always
+    // reflects what was actually asked of the provider this pass:
+    //  - no effort knob at all (grok today)          -> "not-supported"
+    //  - openai on a non-reasoning-gated tag          -> "not-applicable"
+    //  - explicit override                            -> the override value
+    //  - otherwise                                    -> "provider-default"
+    let effort: string;
+    if (!m.supportsEffort) {
+      effort = "not-supported";
+    } else if (m.id === "openai" && !isOpenAiReasoningTag(model)) {
+      effort = "not-applicable";
+    } else if (m.id === "openai") {
+      // OpenAI's reasoning tier ALWAYS sends an explicit reasoning.effort (see
+      // makeOpenAIComplete) — the override when set, else the env-derived
+      // OPENAI_REASONING_EFFORT default. Never "provider-default" here: the
+      // call is never made without an explicit value once this tag is reached.
+      effort = ovr?.effort ?? OPENAI_REASONING_EFFORT;
+    } else {
+      // Claude/Gemini only send an explicit thinking budget when an override
+      // requests one; with no override the call carries no effort knob at all,
+      // so "provider-default" (implicit, un-configured) is accurate here.
+      effort = ovr?.effort ?? "provider-default";
+    }
+    if (ovr?.effort) console.log(`Override: ${m.id} effort -> ${ovr.effort}`);
     return {
       id: m.id,
       label: ovr?.label ?? m.label,
       provider: m.provider,
       model,
-      complete: m.make(model),
+      complete: m.make(model, ovr?.effort),
+      effort,
     };
   });
 
@@ -449,6 +487,14 @@ async function main(): Promise<void> {
     return persistChain;
   };
 
+  // Tracks whether this invocation actually executed at least one model (vs. a
+  // pure resume where every requested model/scenario was already recorded).
+  // History should capture every run that did REAL work — including a filtered
+  // BAKEOFF_MODELS/BAKEOFF_SCENARIOS pass, since that's exactly how single- or
+  // few-model effort/cost comparisons get run in practice — while skipping a
+  // no-op resume that would just re-archive an identical snapshot.
+  let didRunAnyModel = false;
+
   for (const spec of activeScenarios) {
     const scenario = scenarios.find((s) => s.id === spec.id)!;
     const pending: ModelSpec[] = [];
@@ -465,6 +511,7 @@ async function main(): Promise<void> {
       console.log(`\n=== ${spec.label} → ${m.label} ===`);
       const result = await runOneModel(m, spec, grounding, fixtures);
       scenario.models.push(result);
+      didRunAnyModel = true;
       await queuePersist();
       console.log(`  …persisted ${spec.id}/${m.id} (${result.status}).`);
     };
@@ -500,6 +547,32 @@ async function main(): Promise<void> {
   }
 
   console.log(`\nResults written to ${OUTPUT_PATH}`);
+
+  // Archive this run as a permanent, dated history entry (best-effort — a
+  // failure here must never fail the run). Gated on ACTUAL new work this pass
+  // (didRunAnyModel) rather than "was BAKEOFF_MODELS/BAKEOFF_SCENARIOS unset" —
+  // a filtered run (single model, one scenario, a specific effort override) is
+  // exactly how real cost/effort comparisons get run, so it must be archived
+  // too. A pure resume that executed nothing new is skipped so it doesn't
+  // re-archive an identical duplicate snapshot.
+  if (didRunAnyModel) {
+    try {
+      const runId = new Date().toISOString().replace(/[:.]/g, "-");
+      await archiveSnapshot(
+        { ranAt: new Date().toISOString(), target: TARGET, grounding, scenarios, referenceScreenshot },
+        {
+          runId,
+          label: `${TARGET.city}, ${TARGET.state} — ${new Date().toLocaleDateString("en-US")}`,
+          blurb: `Auto-archived run: ${models.map((m) => m.label).join(", ")}.`,
+          sourceScreenshotRoot: SCREENSHOT_DIR,
+        },
+      );
+      console.log(`Archived history entry: ${runId}`);
+    } catch (err) {
+      console.log(`History archive skipped: ${err instanceof Error ? err.message : String(err)}`);
+    }
+  }
+
   for (const s of scenarios) {
     console.log(`\n[${s.label}]`);
     for (const m of s.models) {
@@ -560,6 +633,7 @@ async function runOneModel(
     timings: [],
     totalMs: 0,
     scores: null,
+    effort: spec.effort,
     screenshot: null,
     costEstimate: null,
     usage: null,

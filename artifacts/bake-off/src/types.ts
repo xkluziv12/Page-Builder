@@ -99,6 +99,12 @@ export interface ModelResult {
   timings: PhaseTiming[];
   totalMs: number;
   scores: ModelScores | null;
+  /**
+   * Resolved reasoning-effort setting for this run ("low"/"medium"/"high",
+   * "provider-default", "not-applicable", or "not-supported"). Null/absent for
+   * historical results recorded before this field existed — render as "unknown".
+   */
+  effort?: string | null;
   /** Relative path (under public/) to this model's rendered screenshot. */
   screenshot: string | null;
   /** USD cost for the run — MEASURED from real token usage when available, else a

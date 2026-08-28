@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Info, Home, FileText, MapPin } from "lucide-react";
+import { Info, Home, FileText, MapPin, Layers } from "lucide-react";
 import { useDataset } from "@/contexts/dataset-context";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
@@ -28,6 +28,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             <Link href="/portland-review" aria-current={location === '/portland-review' ? 'page' : undefined} className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${location === '/portland-review' ? 'bg-secondary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-secondary/5 hover:text-foreground'}`}>
               <MapPin className="w-4 h-4" />
               Portland GMB + Schema
+            </Link>
+            <Link href="/models" aria-current={location === '/models' ? 'page' : undefined} className={`flex items-center gap-2 px-3 py-2 text-sm rounded-md transition-colors ${location === '/models' ? 'bg-secondary/10 text-primary font-medium' : 'text-muted-foreground hover:bg-secondary/5 hover:text-foreground'}`}>
+              <Layers className="w-4 h-4" />
+              Models
             </Link>
           </nav>
 

@@ -83,7 +83,7 @@ export default function ModelDetail() {
         <header className="mb-8">
           <Badge variant="outline" className="mb-2">{scenario.label}</Badge>
           <h1 className="text-3xl font-bold mb-2">{model.label}</h1>
-          <p className="text-muted-foreground font-mono text-sm">{model.model} • {model.provider}</p>
+          <p className="text-muted-foreground font-mono text-sm">{model.model} • {model.provider} • effort: {model.effort ?? "unknown"}</p>
         </header>
         <Card className="border-destructive bg-destructive/5">
           <CardHeader>
@@ -108,6 +108,9 @@ export default function ModelDetail() {
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-3xl font-bold">{model.label}</h1>
             <Badge variant="outline" className="font-mono">{model.model}</Badge>
+            <Badge variant="secondary" className="font-mono text-[10px]" title="Reasoning-effort setting recorded for this run">
+              effort: {model.effort ?? "unknown"}
+            </Badge>
           </div>
           <div className="flex gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1.5">

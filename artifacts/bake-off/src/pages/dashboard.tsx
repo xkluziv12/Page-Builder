@@ -133,6 +133,9 @@ function ModelRankCard({ model, rank, scenarioId, datasetId }: { model: ModelRes
             <div className="flex items-center gap-3 mb-2">
               <h2 className="text-xl font-semibold">{model.label}</h2>
               <Badge variant="outline" className="font-mono text-[10px]">{model.model}</Badge>
+              <Badge variant="secondary" className="font-mono text-[10px]" title="Reasoning-effort setting recorded for this run">
+                effort: {model.effort ?? "unknown"}
+              </Badge>
             </div>
             
             {isError ? (
