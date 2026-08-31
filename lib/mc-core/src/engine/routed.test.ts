@@ -120,6 +120,53 @@ function stubEngine(name: string, overrides: Partial<PromptCompletionEngine>): P
   } as unknown as PromptCompletionEngine;
 }
 
+describe("RoutedEngine accepted provenance", () => {
+  it("reports candidate=main, no fallback, on a first-attempt success", async () => {
+    const main = stubEngine("claude-main", {});
+    const routing: RoutedRouting = {
+      build: { main },
+      audit: { main },
+      schema: { main },
+      verify: { main },
+      chat: { main },
+    };
+    const engine = new RoutedEngine({ routing, maxAttempts: 1, name: "claude" });
+    const out = await engine.buildPage({} as RunContext);
+    expect(out.provenance).toBeDefined();
+    expect(out.provenance?.candidate).toBe("main");
+    expect(out.provenance?.fallback).toBe(false);
+    expect(out.provenance?.requestedEngine).toBe("claude");
+    expect(out.provenance?.phase).toBe("build");
+    expect(out.provenance?.attempt).toBe(1);
+  });
+
+  it("reports candidate=backup and fallback=true, with a reason, when main is exhausted", async () => {
+    const okHtml = html("<h1>page</h1>");
+    const main = stubEngine("claude-main", {
+      buildPage: async () => {
+        throw new Error("main failed");
+      },
+    });
+    const backup = stubEngine("openai-backup", {
+      buildPage: async () => okHtml,
+    });
+    const routing: RoutedRouting = {
+      build: { main, backup },
+      audit: { main },
+      schema: { main },
+      verify: { main },
+      chat: { main },
+    };
+    const engine = new RoutedEngine({ routing, maxAttempts: 1, name: "claude" });
+    const out = await engine.buildPage({} as RunContext);
+    expect(out.provenance?.candidate).toBe("backup");
+    expect(out.provenance?.fallback).toBe(true);
+    expect(out.provenance?.fallbackReason).toMatch(/main \(claude-main\) exhausted/);
+    // The accepted result still says "backup", never the requested main engine.
+    expect(out.provenance?.requestedEngine).toBe("claude");
+  });
+});
+
 describe("RoutedEngine verify routing", () => {
   it("treats a null verify verdict as invalid and falls back main→backup", async () => {
     const counts = { main: 0, backup: 0 };

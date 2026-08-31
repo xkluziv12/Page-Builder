@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   Collapsible,
   CollapsibleContent,
@@ -91,6 +92,35 @@ function extractPreviewHtml(raw: string | null | undefined): string {
   return raw.trim();
 }
 
+/**
+ * Local shape of PhaseState.provenance / .attempts. Declared locally rather
+ * than imported from the generated client, which reflects openapi.yaml as of
+ * the last `pnpm run codegen` run in lib/api-spec and may lag this schema
+ * addition until that's re-run.
+ */
+interface PhaseProvenance {
+  sourceKind?: string | null;
+  provider?: string | null;
+  model?: string | null;
+  candidate?: string;
+  attempt?: number | null;
+  fallback?: boolean;
+  fallbackReason?: string | null;
+}
+interface PhaseAttempt {
+  model: string;
+  candidate: string;
+  attempt: number;
+  status: string;
+}
+
+function phaseProvenance(st: unknown): PhaseProvenance | null {
+  return (st as { provenance?: PhaseProvenance })?.provenance ?? null;
+}
+function phaseAttempts(st: unknown): PhaseAttempt[] {
+  return (st as { attempts?: PhaseAttempt[] })?.attempts ?? [];
+}
+
 const STATUS_STYLE: Record<string, string> = {
   locked: "text-muted-foreground",
   ready: "text-secondary",
@@ -106,6 +136,31 @@ const PROMPT_STEP: Record<PromptPhase, { step: number; label: string }> = {
   audit: { step: 2, label: "Audit" },
   schema: { step: 3, label: "Schema" },
 };
+
+/**
+ * Operator-confirmed "how was this actually produced" choices for a Replit
+ * submission. Mirrors the server allowlist (PROVENANCE_SOURCE_KINDS in
+ * @workspace/mc-core) — kept as a local literal list rather than importing it,
+ * since this artifact does not depend on mc-core directly. "unset" means the
+ * operator didn't confirm anything; the server then records
+ * replit-agent/operator-input rather than inventing a value.
+ */
+const EXECUTION_SOURCE_OPTIONS: { value: string; label: string }[] = [
+  { value: "unset", label: "Replit Agent (default — not otherwise confirmed)" },
+  { value: "direct-api", label: "Direct provider API call" },
+  { value: "claude-cli", label: "Claude CLI" },
+  { value: "claude-web", label: "Claude web chat" },
+  { value: "n8n-webhook", label: "n8n webhook" },
+  { value: "imported", label: "Imported from elsewhere" },
+  { value: "unknown", label: "Unknown / not sure" },
+];
+
+/** Local shape of the optional operator-confirmed execution source payload. */
+interface ExecutionSourceInput {
+  sourceKind?: string;
+  provider?: string;
+  model?: string;
+}
 
 /**
  * The Replit-mode copy-paste workflow for the active phase. It renders the SAME
@@ -128,6 +183,9 @@ function ReplitPhasePanel({
   const isSchema = phase === "schema";
   const [result, setResult] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
+  const [sourceKind, setSourceKind] = useState("unset");
+  const [sourceProvider, setSourceProvider] = useState("");
+  const [sourceModel, setSourceModel] = useState("");
 
   const { data: prompt, isLoading } = useGetPhasePrompt(runId, phase, {
     query: { queryKey: getGetPhasePromptQueryKey(runId, phase) },
@@ -165,8 +223,27 @@ function ReplitPhasePanel({
       });
       return;
     }
+    // Only send an executionSource when the operator actually confirmed
+    // something — "unset" (the default) means don't send the field at all, so
+    // the server records replit-agent/operator-input rather than a guess.
+    const executionSource: ExecutionSourceInput | undefined =
+      sourceKind !== "unset" || sourceProvider.trim() || sourceModel.trim()
+        ? {
+            ...(sourceKind !== "unset" ? { sourceKind } : {}),
+            ...(sourceProvider.trim() ? { provider: sourceProvider.trim() } : {}),
+            ...(sourceModel.trim() ? { model: sourceModel.trim() } : {}),
+          }
+        : undefined;
+    const payload = {
+      ...(isSchema ? { schema: text } : { html: text }),
+      ...(executionSource ? { executionSource } : {}),
+    };
     runReplitPhase.mutate(
-      { id: runId, phase, data: isSchema ? { schema: text } : { html: text } },
+      // Cast: executionSource isn't in the generated ReplitPhaseInput type
+      // until `pnpm run codegen` (lib/api-spec) is re-run against the updated
+      // openapi.yaml; the server route validates it against its own allowlist
+      // regardless of what the client's stale type declares.
+      { id: runId, phase, data: payload as Parameters<typeof runReplitPhase.mutate>[0]["data"] },
       {
         onSuccess: () => {
           toast({
@@ -235,7 +312,40 @@ function ReplitPhasePanel({
         )}
       </div>
 
-      {/* 2 — paste the result back */}
+      {/* 2 — confirm how it was actually produced (never assumed) */}
+      <div className="space-y-1.5">
+        <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
+          How was this actually produced? (optional — confirm if known)
+        </span>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <Select value={sourceKind} onValueChange={setSourceKind}>
+            <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {EXECUTION_SOURCE_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Input
+            value={sourceProvider}
+            onChange={(e) => setSourceProvider(e.target.value)}
+            placeholder="Provider (e.g. Gemini, DeepSeek)"
+            className="h-8 text-xs"
+          />
+          <Input
+            value={sourceModel}
+            onChange={(e) => setSourceModel(e.target.value)}
+            placeholder="Model (e.g. gemini-3-flash)"
+            className="h-8 text-xs"
+          />
+        </div>
+        <p className="text-[10px] text-muted-foreground">
+          E.g. "Gemini Flash via direct API" or "DeepSeek via Claude CLI". Leave blank if unsure —
+          it will be recorded as Replit Agent / operator input rather than guessed.
+        </p>
+      </div>
+
+      {/* 3 — paste the result back */}
       <div className="space-y-1.5">
         <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">
           Paste the {isSchema ? "JSON-LD" : "page"} back here
@@ -627,6 +737,33 @@ export default function RunDetail() {
               <span className="uppercase">{run.engine}</span>
               <span>·</span>
               <span>{run.pageType}</span>
+              {(() => {
+                const summary = (run as { provenanceSummary?: PhaseProvenance | null })
+                  .provenanceSummary;
+                if (!summary) {
+                  return (
+                    <>
+                      <span>·</span>
+                      <span className="italic">Not recorded</span>
+                    </>
+                  );
+                }
+                const label =
+                  summary.provider && summary.model
+                    ? `${summary.provider}/${summary.model}`
+                    : (summary.sourceKind ?? "unknown");
+                return (
+                  <>
+                    <span>·</span>
+                    <span className="font-mono">actual: {label}</span>
+                    {summary.fallback && (
+                      <Badge variant="destructive" className="uppercase text-[9px] py-0">
+                        Fallback
+                      </Badge>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
         </div>
@@ -713,6 +850,40 @@ export default function RunDetail() {
                     {st?.error && (
                       <p className="text-xs text-destructive mt-1.5 pl-[26px]">{st.error}</p>
                     )}
+                    {(() => {
+                      const prov = phaseProvenance(st);
+                      const events = phaseAttempts(st);
+                      if (!prov && events.length === 0) return null;
+                      return (
+                        <div className="flex flex-wrap items-center gap-1.5 mt-1.5 pl-[26px]">
+                          <span className="text-[10px] uppercase tracking-wide text-muted-foreground">
+                            Source:
+                          </span>
+                          <span className="text-[10px] font-mono">
+                            {prov
+                              ? prov.provider && prov.model
+                                ? `${prov.provider}/${prov.model}`
+                                : (prov.sourceKind ?? "unknown")
+                              : "Not recorded"}
+                          </span>
+                          {prov?.attempt != null && (
+                            <span className="text-[10px] text-muted-foreground">
+                              attempt {prov.attempt}
+                            </span>
+                          )}
+                          {prov?.fallback && (
+                            <Badge variant="destructive" className="uppercase text-[9px] py-0">
+                              Fallback{prov.fallbackReason ? `: ${prov.fallbackReason}` : ""}
+                            </Badge>
+                          )}
+                          {events.length > 0 && (
+                            <span className="text-[10px] text-muted-foreground">
+                              ({events.length} attempt event{events.length === 1 ? "" : "s"})
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })()}
                     {(canRun || canRetry || canApprove || canReplitAuto) && (
                       <div className="flex items-center gap-2 mt-2.5 pl-[26px]">
                         {canRun && (
@@ -1124,6 +1295,20 @@ export default function RunDetail() {
                   >
                     <span className="text-xs uppercase text-muted-foreground">{m.role}</span>
                     <p className="mt-0.5 whitespace-pre-wrap">{m.content}</p>
+                    {m.role === "assistant" &&
+                      (() => {
+                        const prov = phaseProvenance(m);
+                        return (
+                          <p className="mt-1 text-[10px] font-mono text-muted-foreground">
+                            source:{" "}
+                            {prov
+                              ? prov.provider && prov.model
+                                ? `${prov.provider}/${prov.model}`
+                                : (prov.sourceKind ?? "unknown")
+                              : "Not recorded"}
+                          </p>
+                        );
+                      })()}
                   </div>
                 ))
               )}

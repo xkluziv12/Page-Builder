@@ -88,6 +88,21 @@ describe("runPhase publish state", () => {
     expect(out.published).toBe(true);
   });
 
+  it("marks the publish phase's provenance as deterministic, reflecting the actual write outcome", async () => {
+    const publisher: JoomlaPublisher = {
+      name: "http",
+      publish: async (): Promise<PublishResult> => ({
+        published: true,
+        url: "/austin",
+        articleId: "42",
+        message: "published atomically",
+      }),
+    };
+    const out = await runPhase("publish", ctx(), priorState(), { engine: fakeEngine(), publisher });
+    expect(out.provenance?.sourceKind).toBe("deterministic");
+    expect(out.provenance?.status).toBe("success");
+  });
+
   it("does not log a blog entry when publish was not confirmed", async () => {
     let logged = false;
     const publisher: JoomlaPublisher = {

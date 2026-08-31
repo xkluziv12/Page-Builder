@@ -11,6 +11,34 @@ import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { useSystemMode } from "@/hooks/use-system-mode";
 
+/**
+ * Shape of MissionRun.provenanceSummary. Declared locally rather than imported
+ * from the generated client: the generated types reflect openapi.yaml as of the
+ * last `pnpm run codegen` run in lib/api-spec, which may lag a schema addition
+ * until that command is re-run. Absent/null means "not recorded" — never assume
+ * a default provider/model.
+ */
+interface RunProvenanceSummary {
+  sourceKind?: string | null;
+  provider?: string | null;
+  model?: string | null;
+  requestedEngine?: string | null;
+  fallback?: boolean;
+}
+
+function provenanceOf(run: unknown): RunProvenanceSummary | null {
+  const summary = (run as { provenanceSummary?: RunProvenanceSummary | null })?.provenanceSummary;
+  return summary ?? null;
+}
+
+/** Compact "actual source" label: provider/model when known, else the sourceKind, else "Not recorded". */
+function provenanceLabel(p: RunProvenanceSummary | null): string {
+  if (!p) return "Not recorded";
+  if (p.provider && p.model) return `${p.provider}/${p.model}`;
+  if (p.provider) return p.provider;
+  return p.sourceKind ?? "Not recorded";
+}
+
 export default function Dashboard() {
   const { data: summary } = useGetSummary({
     query: { refetchInterval: 5000, queryKey: getGetSummaryQueryKey() },
@@ -176,13 +204,16 @@ export default function Dashboard() {
                         <th className="px-6 py-3 font-medium">Target</th>
                         <th className="px-6 py-3 font-medium">VA</th>
                         <th className="px-6 py-3 font-medium">Engine</th>
+                        <th className="px-6 py-3 font-medium">Actual Source</th>
                         <th className="px-6 py-3 font-medium">Status</th>
                         <th className="px-6 py-3 font-medium">Phase</th>
                         <th className="px-6 py-3 font-medium text-right">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-border">
-                      {runs?.map(run => (
+                      {runs?.map(run => {
+                        const provenance = provenanceOf(run);
+                        return (
                         <tr key={run.id} className="hover:bg-muted/20 transition-colors">
                           <td className="px-6 py-4 font-mono text-muted-foreground">#{run.id}</td>
                           <td className="px-6 py-4 font-medium">{run.city}, {run.state}</td>
@@ -191,6 +222,16 @@ export default function Dashboard() {
                             <Badge variant={run.engine === 'replit' ? 'default' : 'outline'} className="uppercase">
                               {run.engine}
                             </Badge>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-2">
+                              <span className={provenance ? "text-foreground" : "text-muted-foreground italic"}>
+                                {provenanceLabel(provenance)}
+                              </span>
+                              {provenance?.fallback && (
+                                <Badge variant="destructive" className="uppercase text-[10px]">Fallback</Badge>
+                              )}
+                            </div>
                           </td>
                           <td className="px-6 py-4">
                             <Badge variant={run.status === 'failed' ? 'destructive' : run.status === 'published' ? 'default' : 'secondary'} className="uppercase">
@@ -206,7 +247,7 @@ export default function Dashboard() {
                             </Button>
                           </td>
                         </tr>
-                      ))}
+                      );})}
                     </tbody>
                   </table>
                 </div>

@@ -2,6 +2,7 @@ import type { GoogleGenAI } from "@google/genai";
 import { PromptCompletionEngine, extractContent } from "./base";
 import { requestTimeoutMs, withTimeout } from "./transport";
 import type { EngineResult } from "./types";
+import { makeProvenance } from "./provenance";
 
 const DEFAULT_MODEL = "gemini-3.1-pro-preview";
 
@@ -26,6 +27,7 @@ export class GeminiEngine extends PromptCompletionEngine {
   }
 
   protected async complete(system: string, user: string): Promise<EngineResult> {
+    const startedAt = new Date().toISOString();
     const raw = await withTimeout(
       async (signal) => {
         const resp = await this.client.models.generateContent({
@@ -44,6 +46,18 @@ export class GeminiEngine extends PromptCompletionEngine {
       requestTimeoutMs(),
       `gemini (${this.model})`,
     );
-    return { content: extractContent(raw), raw };
+    return {
+      content: extractContent(raw),
+      raw,
+      provenance: makeProvenance({
+        sourceKind: "direct-api",
+        provider: "google",
+        model: this.model,
+        transport: "sdk",
+        status: "success",
+        startedAt,
+        completedAt: new Date().toISOString(),
+      }),
+    };
   }
 }

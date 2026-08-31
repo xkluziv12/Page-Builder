@@ -36,6 +36,8 @@ import {
   type SeoCredentials,
   type SeoIntel,
   type UrlRegistry,
+  type Provenance,
+  type ReplitExecutionSource,
 } from "@workspace/mc-core";
 import { logger } from "./logger";
 
@@ -109,6 +111,16 @@ export type PhaseStatus =
   | "approved"
   | "failed";
 
+/** A single execution attempt event captured during executePhase, for audit. */
+export interface PhaseAttemptEvent {
+  model: string;
+  candidate: "main" | "backup";
+  attempt: number;
+  status: "ok" | "invalid" | "error" | "fallback";
+  message: string | null;
+  at: string;
+}
+
 /** One rung of the per-run phase ladder rendered by the dashboard. */
 export interface PhaseLadderEntry {
   phase: PhaseName;
@@ -117,6 +129,15 @@ export interface PhaseLadderEntry {
   error: string | null;
   startedAt: string | null;
   completedAt: string | null;
+  /**
+   * Execution attempts captured for THIS run of this phase (retries, invalid
+   * output, main→backup fallback). Scoped to the run — never a process-global
+   * log, so concurrent runs can't interleave events. Optional for backward
+   * compatibility with rows written before provenance tracking.
+   */
+  attempts?: PhaseAttemptEvent[];
+  /** Accepted attribution for this phase's output. Absent = not recorded. */
+  provenance?: Provenance;
 }
 
 export const publisher = createJoomlaPublisher({
@@ -186,7 +207,10 @@ const ROUTED_PHASES: RoutedPhase[] = ["build", "audit", "schema", "verify", "cha
  * phase, so they never go through this resolver — calling it for "replit" fails
  * loud rather than silently mislabeling provenance.
  */
-export async function engineFor(engine: string): Promise<AIEngine> {
+export async function engineFor(
+  engine: string,
+  onEvent?: (event: RoutedEngineEvent) => void,
+): Promise<AIEngine> {
   if (engine === "replit") {
     throw new Error(
       `Replit-mode runs are operator-driven and cannot be auto-run by the server. The Replit Agent must submit each phase's artifact via the Replit run-book (POST /mc/runs/:id/phases/:phase/replit).`,
@@ -258,6 +282,10 @@ export async function engineFor(engine: string): Promise<AIEngine> {
     } else {
       logger.warn(event, `routed-engine ${event.status}`);
     }
+    // Run-scoped callback (not a process-global logger) so concurrent runs'
+    // attempt events never interleave; executePhase uses this to persist
+    // per-phase attempts into THIS run's ladder entry.
+    onEvent?.(event);
   };
 
   // Keep provenance stable: name the routed engine after the requested provider
@@ -269,12 +297,14 @@ export async function engineFor(engine: string): Promise<AIEngine> {
 export function replitEngineFor(content: {
   html?: string;
   schema?: string;
+  source?: ReplitExecutionSource;
 }): AIEngine {
   return new ReplitEngine({
     build: content.html,
     audit: content.html,
     chat: content.html,
     schema: content.schema,
+    source: content.source,
   });
 }
 
@@ -358,10 +388,13 @@ export function researchProviderFromEnv(): ResearchProvider {
     return new N8nResearchProvider();
   }
   if (mode === "direct") {
+    const provider = synthesisProvider();
     return new DirectResearchProvider({
       groundedResearch: createPerplexityResearch(process.env.PERPLEXITY_API_KEY ?? ""),
       fetchEntities: createSerpEntities(process.env.SERPAPI_API_KEY ?? ""),
       synthesize: synthesizeBrief,
+      synthesizeProvider: provider === "claude" ? "anthropic" : provider,
+      synthesizeModel: synthesisModel(),
     });
   }
   throw new Error(
@@ -601,6 +634,7 @@ export function serializeRun(run: McRun): Record<string, unknown> {
     checkerReport: run.checkerReport ?? null,
     linkAuditOverride: run.linkAuditOverride ?? null,
     phases: run.phases ?? [],
+    provenanceSummary: run.provenanceSummary ?? null,
     createdAt: run.createdAt?.toISOString?.() ?? null,
     updatedAt: run.updatedAt?.toISOString?.() ?? null,
   };

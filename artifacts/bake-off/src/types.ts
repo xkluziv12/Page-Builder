@@ -72,6 +72,32 @@ export interface ModelScores {
   composite: number;
 }
 
+/**
+ * Attribution for a single produced artifact — what actually produced it,
+ * never inferred. Mirrors the shared vocabulary in
+ * @workspace/mc-core (lib/mc-core/src/engine/provenance.ts); duplicated here
+ * (not imported) since this viewer intentionally has no runtime dependency on
+ * mc-core, matching this file's existing pattern of locally-defined shapes
+ * shared with the generation harness. Absent on a ModelResult/TranscriptEntry
+ * means "not recorded" — render that explicitly, never assume direct-api.
+ */
+export interface Provenance {
+  sourceKind: string;
+  provider: string | null;
+  model: string | null;
+  transport: string;
+  requestedEngine: string | null;
+  engineMode: string | null;
+  phase: string | null;
+  attempt: number | null;
+  candidate: string;
+  status: string;
+  startedAt: string | null;
+  completedAt: string | null;
+  fallback: boolean;
+  fallbackReason: string | null;
+}
+
 export interface CostEstimate {
   inputTokens: number;
   outputTokens: number;
@@ -114,6 +140,8 @@ export interface ModelResult {
   usage?: TokenUsage | null;
   /** Relative path (under public/) to this model's full per-turn transcript file. */
   transcriptPath?: string | null;
+  /** Accepted attribution for this result. Absent = not recorded (never assume direct-api for old data). */
+  provenance?: Provenance | null;
 }
 
 export interface ScenarioResult {

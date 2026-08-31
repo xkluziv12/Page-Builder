@@ -6,11 +6,14 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { ChatMessageRole } from './chatMessageRole';
+import type { Provenance } from './provenance';
 
 export interface ChatMessage {
   id: number;
   role: ChatMessageRole;
   content: string;
+  /** Attribution for assistant-produced messages. User messages remain operator input and never set this. */
+  provenance?: Provenance | null;
   /** @nullable */
   createdAt?: string | null;
 }

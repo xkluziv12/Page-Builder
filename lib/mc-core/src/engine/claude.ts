@@ -2,6 +2,7 @@ import type Anthropic from "@anthropic-ai/sdk";
 import { PromptCompletionEngine, extractContent } from "./base";
 import { requestTimeoutMs, withTimeout } from "./transport";
 import type { EngineResult } from "./types";
+import { makeProvenance } from "./provenance";
 
 const DEFAULT_MODEL = "claude-sonnet-4-6";
 const MAX_TOKENS = 16000;
@@ -36,6 +37,7 @@ export class ClaudeEngine extends PromptCompletionEngine {
   }
 
   protected async complete(system: string, user: string): Promise<EngineResult> {
+    const startedAt = new Date().toISOString();
     const raw = await withTimeout(
       async (signal) => {
         const message = await this.client.messages.create(
@@ -52,6 +54,18 @@ export class ClaudeEngine extends PromptCompletionEngine {
       requestTimeoutMs(),
       `claude (${this.model})`,
     );
-    return { content: extractContent(raw), raw };
+    return {
+      content: extractContent(raw),
+      raw,
+      provenance: makeProvenance({
+        sourceKind: "direct-api",
+        provider: "anthropic",
+        model: this.model,
+        transport: "sdk",
+        status: "success",
+        startedAt,
+        completedAt: new Date().toISOString(),
+      }),
+    };
   }
 }

@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DATASETS } from "@/data/datasets";
 import type { ModelResult } from "@/types";
+import { provenanceLabel } from "./dashboard";
 
 /**
  * Flattened row: one model result from one (dataset, scenario) pair. The same
@@ -111,6 +112,7 @@ export default function Models() {
                               <th className="text-left font-semibold px-4 py-2">Scenario</th>
                               <th className="text-left font-semibold px-4 py-2">Tag</th>
                               <th className="text-left font-semibold px-4 py-2">Effort</th>
+                              <th className="text-left font-semibold px-4 py-2">Source</th>
                               <th className="text-right font-semibold px-4 py-2">Score</th>
                               <th className="text-right font-semibold px-4 py-2">Cost</th>
                               <th className="px-4 py-2" />
@@ -125,6 +127,7 @@ export default function Models() {
                                   <td className="px-4 py-2">{row.scenarioLabel}</td>
                                   <td className="px-4 py-2 font-mono text-xs">{row.model.model}</td>
                                   <td className="px-4 py-2 font-mono text-xs">{row.model.effort ?? "unknown"}</td>
+                                  <td className="px-4 py-2 font-mono text-xs">{provenanceLabel(row.model.provenance)}</td>
                                   <td className="px-4 py-2 text-right font-medium">
                                     {row.model.status === "error" ? (
                                       <span className="text-destructive">ERROR</span>

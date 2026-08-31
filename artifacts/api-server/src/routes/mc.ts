@@ -17,10 +17,15 @@ import {
   runCheckers,
   runPhase,
   runPostPublishQc,
+  PROVENANCE_SOURCE_KINDS,
+  PROVENANCE_TRANSPORTS,
   type AIEngine,
   type CheckResult,
   type LinkAuditOverride,
   type PhaseName,
+  type Provenance,
+  type ReplitExecutionSource,
+  type RoutedEngineEvent,
 } from "@workspace/mc-core";
 import {
   deriveRunInputs,
@@ -38,9 +43,11 @@ import {
   PHASE_ORDER,
   SUPPORTED_ENGINES,
   type PhaseLadderEntry,
+  type PhaseAttemptEvent,
 } from "../lib/mc-runtime";
 import { logger } from "../lib/logger";
 import { recordSnapshot, upsertWorkLog } from "../lib/mc-worklog";
+import { shouldUpdatePageProvenance } from "../lib/page-provenance";
 import { triggerSheetsSyncBestEffort } from "../lib/mc-worklog-external";
 import { requireAdmin } from "../middlewares/adminAuth";
 import { normalizeWorkLogUrl, type KeywordPosition } from "@workspace/mc-core";
@@ -70,6 +77,32 @@ function patchPhase(
 
 type PhaseExecResult = { run: McRun; ok: boolean; error?: string };
 
+/** Allowlisted operator-confirmed execution-source values (server-side validated). */
+function validateExecutionSource(input: unknown): ReplitExecutionSource | undefined {
+  if (!input || typeof input !== "object") return undefined;
+  const obj = input as Record<string, unknown>;
+  const source: ReplitExecutionSource = {};
+  if (typeof obj.sourceKind === "string") {
+    if (!PROVENANCE_SOURCE_KINDS.includes(obj.sourceKind as never)) {
+      throw new Error(
+        `Invalid execution source.sourceKind "${obj.sourceKind}". Use one of: ${PROVENANCE_SOURCE_KINDS.join(", ")}.`,
+      );
+    }
+    source.sourceKind = obj.sourceKind as ReplitExecutionSource["sourceKind"];
+  }
+  if (typeof obj.transport === "string") {
+    if (!PROVENANCE_TRANSPORTS.includes(obj.transport as never)) {
+      throw new Error(
+        `Invalid execution source.transport "${obj.transport}". Use one of: ${PROVENANCE_TRANSPORTS.join(", ")}.`,
+      );
+    }
+    source.transport = obj.transport as ReplitExecutionSource["transport"];
+  }
+  if (typeof obj.provider === "string" && obj.provider.trim()) source.provider = obj.provider.trim();
+  if (typeof obj.model === "string" && obj.model.trim()) source.model = obj.model.trim();
+  return source;
+}
+
 /**
  * Execute one pipeline phase and persist its result. This is the single
  * orchestration seam shared by run creation (auto-runs Research), approval
@@ -84,6 +117,21 @@ async function executePhase(
   phase: PhaseName,
   engineOverride?: AIEngine,
 ): Promise<PhaseExecResult> {
+  // Run-scoped attempt log (never a process-global logger, so concurrent runs'
+  // events can't interleave): each RoutedEngine retry/fallback for THIS call
+  // lands here and is persisted onto THIS phase's ladder entry only.
+  const attempts: PhaseAttemptEvent[] = [];
+  const onEvent = (event: RoutedEngineEvent): void => {
+    attempts.push({
+      model: event.model,
+      candidate: event.candidate,
+      attempt: event.attempt,
+      status: event.status,
+      message: event.message ?? null,
+      at: new Date().toISOString(),
+    });
+  };
+
   let engine: AIEngine;
   try {
     // Replit-mode runs supply their own ReplitEngine (seeded with the operator's
@@ -91,7 +139,7 @@ async function executePhase(
     // auto-resolved here. Either way the rest of the phase — checkers,
     // persistence, parity gates — is identical, so a Replit page must clear the
     // same bar as a Claude page.
-    engine = engineOverride ?? (await engineFor(run.engine));
+    engine = engineOverride ?? (await engineFor(run.engine, onEvent));
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unsupported engine";
     const failed = patchPhase(run.phases as unknown as PhaseLadderEntry[], phase, {
@@ -145,6 +193,8 @@ async function executePhase(
       status: publishConfirmed ? "approved" : "review",
       summary: output.summary,
       completedAt: new Date().toISOString(),
+      attempts,
+      provenance: output.provenance,
     });
 
     if (output.state.html && output.state.html !== run.pageHtml) {
@@ -153,6 +203,7 @@ async function executePhase(
         phase,
         html: output.state.html,
         schema: output.state.schema ?? null,
+        provenance: (output.provenance as unknown as Record<string, unknown>) ?? null,
       });
     }
 
@@ -161,6 +212,10 @@ async function executePhase(
     // phase regenerates the page, the prior override is stale and must be
     // dropped so a fresh human decision is required against the new content.
     const htmlChanged = !!output.state.html && output.state.html !== run.pageHtml;
+    // provenanceSummary tracks the CURRENT PAGE ARTIFACT's provenance, not the
+    // last phase of any kind. Schema, research, and publish keep their own
+    // per-phase provenance but never replace the attribution for page HTML.
+    const artifactChanged = shouldUpdatePageProvenance(phase, htmlChanged);
     const [updated] = await db
       .update(mcRunsTable)
       .set({
@@ -172,6 +227,10 @@ async function executePhase(
         checkerReport: (output.state.checkerReport as never) ?? null,
         linkAuditOverride: htmlChanged ? null : (run.linkAuditOverride ?? null),
         status,
+        provenanceSummary:
+          artifactChanged && output.provenance
+            ? ({ ...output.provenance, phase } as unknown as Record<string, unknown>)
+            : (run.provenanceSummary ?? null),
         updatedAt: new Date(),
       })
       .where(eq(mcRunsTable.id, run.id))
@@ -490,7 +549,19 @@ router.post("/mc/runs/:id/phases/:phase/replit", async (req, res) => {
     return;
   }
 
-  const result = await executePhase(run, phase, replitEngineFor({ html, schema }));
+  // Optional operator-confirmed execution source (e.g. "Gemini Flash via
+  // direct API", "DeepSeek via Claude CLI"). Server-validates against the
+  // shared allowlist; defaults to replit-agent/operator-input when omitted —
+  // NEVER inferred as direct-api.
+  let source: ReplitExecutionSource | undefined;
+  try {
+    source = validateExecutionSource(body.executionSource);
+  } catch (err) {
+    res.status(400).json({ error: err instanceof Error ? err.message : "Invalid executionSource" });
+    return;
+  }
+
+  const result = await executePhase(run, phase, replitEngineFor({ html, schema, source }));
   if (!result.ok) {
     res.status(400).json({ error: result.error ?? "Phase failed", run: serializeRun(result.run) });
     return;
@@ -899,6 +970,7 @@ router.get("/mc/runs/:id/chat", async (req, res) => {
       id: r.id,
       role: r.role,
       content: r.content,
+      provenance: r.provenance ?? null,
       createdAt: r.createdAt?.toISOString?.() ?? null,
     })),
   );
@@ -953,6 +1025,7 @@ router.post("/mc/runs/:id/chat", async (req, res) => {
 
   try {
     const result = await engine.chatEdit(ctx, run.pageHtml, message, history);
+    const provenance = result.provenance as unknown as Record<string, unknown> | undefined;
     const report = runCheckers({
       html: result.content,
       registry,
@@ -968,12 +1041,18 @@ router.post("/mc/runs/:id/chat", async (req, res) => {
       entities: (run.researchBrief as { entities?: Record<string, unknown>[] } | null)?.entities,
     });
     const reply = `Applied your edit. Checks: ${report.errorCount} error(s), ${report.warningCount} warning(s), ${report.wordCount} words.`;
-    await db.insert(mcChatMessagesTable).values({ runId: id, role: "assistant", content: reply });
+    await db.insert(mcChatMessagesTable).values({
+      runId: id,
+      role: "assistant",
+      content: reply,
+      provenance: provenance ?? null,
+    });
     await db.insert(mcPageVersionsTable).values({
       runId: id,
       phase: "chat",
       html: result.content,
       schema: run.generatedSchema ?? null,
+      provenance: provenance ?? null,
     });
     await db
       .update(mcRunsTable)
@@ -983,6 +1062,13 @@ router.post("/mc/runs/:id/chat", async (req, res) => {
         // A chat edit changes the page, so any prior link-audit override is now
         // stale and is dropped — a fresh decision is required against new HTML.
         linkAuditOverride: null,
+        // A chat edit always changes the current page artifact, so the
+        // dashboard summary must move to this accepted provenance rather than
+        // staying pinned to a stale build/audit/schema phase — never left
+        // stale just because chat isn't a ladder phase.
+        provenanceSummary: provenance
+          ? ({ ...provenance, phase: "chat" } as unknown as Record<string, unknown>)
+          : (run.provenanceSummary ?? null),
         updatedAt: new Date(),
       })
       .where(eq(mcRunsTable.id, id));
@@ -1030,12 +1116,34 @@ router.put("/mc/runs/:id/html", async (req, res) => {
     entities: (run.researchBrief as { entities?: Record<string, unknown>[] } | null)?.entities,
   });
   const reply = `Manual edit saved. Checks: ${report.errorCount} error(s), ${report.warningCount} warning(s), ${report.wordCount} words.`;
-  await db.insert(mcChatMessagesTable).values({ runId: id, role: "assistant", content: reply });
+  const editProvenance = {
+    sourceKind: "operator-input",
+    provider: null,
+    model: null,
+    transport: "operator-paste",
+    requestedEngine: null,
+    engineMode: "manual-edit",
+    phase: "edit",
+    attempt: null,
+    candidate: "none",
+    status: "success",
+    startedAt: new Date().toISOString(),
+    completedAt: new Date().toISOString(),
+    fallback: false,
+    fallbackReason: null,
+  } satisfies Provenance as unknown as Record<string, unknown>;
+  await db.insert(mcChatMessagesTable).values({
+    runId: id,
+    role: "assistant",
+    content: reply,
+    provenance: editProvenance,
+  });
   await db.insert(mcPageVersionsTable).values({
     runId: id,
     phase: "edit",
     html,
     schema: run.generatedSchema ?? null,
+    provenance: editProvenance,
   });
   await db
     .update(mcRunsTable)
@@ -1045,6 +1153,10 @@ router.put("/mc/runs/:id/html", async (req, res) => {
       // A manual edit changes the page, so any prior link-audit override is now
       // stale and is dropped — a fresh decision is required against new HTML.
       linkAuditOverride: null,
+      // A manual edit always changes the current page artifact, so the
+      // dashboard summary must move to this accepted operator provenance —
+      // never left stale just because "edit" isn't a ladder phase.
+      provenanceSummary: editProvenance as unknown as Record<string, unknown>,
       updatedAt: new Date(),
     })
     .where(eq(mcRunsTable.id, id));

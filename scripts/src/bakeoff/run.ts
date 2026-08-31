@@ -643,6 +643,7 @@ async function runOneModel(
     costEstimate: null,
     usage: null,
     transcriptPath: null,
+    provenance: undefined,
   };
   const ctx = scenario.buildContext();
   // Mutable per-turn transcript sink: filled AS the conversation runs, so even a
@@ -686,6 +687,10 @@ async function runOneModel(
     // Cost: PREFER the measured cost from real provider-reported token usage;
     // fall back to the character-based estimate only when no turn returned usage.
     base.usage = sumUsage(transcript);
+    // Same model/provider drives every turn in a bake-off run (no fallback
+    // routing here) — the last turn with recorded provenance is a truthful
+    // stand-in for the whole run's attribution.
+    base.provenance = [...transcript].reverse().find((t) => t.provenance)?.provenance;
     base.costEstimate = base.usage
       ? costFromUsage(spec.model, base.usage)
       : estimateCost({
@@ -739,6 +744,7 @@ async function runOneModel(
     // Keep the partial usage from whatever turns DID run before the failure, and
     // surface the measured spend-to-failure so an errored run still shows cost.
     base.usage = sumUsage(transcript);
+    base.provenance = [...transcript].reverse().find((t) => t.provenance)?.provenance;
     if (base.usage) base.costEstimate = costFromUsage(spec.model, base.usage);
     console.log(`  ✗ ${spec.label} failed: ${base.error}`);
   }

@@ -2,6 +2,7 @@ import type OpenAI from "openai";
 import { PromptCompletionEngine, extractContent } from "./base";
 import { abortableSleep, requestTimeoutMs, withTimeout } from "./transport";
 import type { EngineResult } from "./types";
+import { makeProvenance } from "./provenance";
 
 const DEFAULT_MODEL = "gpt-5.4";
 
@@ -43,6 +44,7 @@ export class OpenAIEngine extends PromptCompletionEngine {
   }
 
   protected async complete(system: string, user: string): Promise<EngineResult> {
+    const startedAt = new Date().toISOString();
     const raw = await withTimeout(
       async (signal) => {
         let resp = await this.client.responses.create(
@@ -84,6 +86,18 @@ export class OpenAIEngine extends PromptCompletionEngine {
       requestTimeoutMs(),
       `openai (${this.model})`,
     );
-    return { content: extractContent(raw), raw };
+    return {
+      content: extractContent(raw),
+      raw,
+      provenance: makeProvenance({
+        sourceKind: "direct-api",
+        provider: "openai",
+        model: this.model,
+        transport: "sdk",
+        status: "success",
+        startedAt,
+        completedAt: new Date().toISOString(),
+      }),
+    };
   }
 }

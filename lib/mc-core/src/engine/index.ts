@@ -4,7 +4,21 @@ export { ClaudeEngine } from "./claude";
 export { OpenAIEngine } from "./openai";
 export { GeminiEngine } from "./gemini";
 export { ReplitEngine } from "./replit";
-export type { ReplitEngineContent } from "./replit";
+export type { ReplitEngineContent, ReplitExecutionSource } from "./replit";
+export {
+  makeProvenance,
+  unknownProvenance,
+  deterministicProvenance,
+  PROVENANCE_SOURCE_KINDS,
+  PROVENANCE_TRANSPORTS,
+} from "./provenance";
+export type {
+  Provenance,
+  ProvenanceSourceKind,
+  ProvenanceTransport,
+  ProvenanceCandidate,
+  ProvenanceOutcome,
+} from "./provenance";
 export { RoutedEngine, runCorrectiveVerify } from "./routed";
 export type {
   RoutedPhase,

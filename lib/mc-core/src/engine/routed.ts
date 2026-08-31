@@ -9,6 +9,7 @@ import {
   readVerdict,
   verifyCorrections as defaultVerifyCorrections,
 } from "./transport";
+import { unknownProvenance, type Provenance } from "./provenance";
 
 /** The phases the routed engine can target with its own main/backup pair. */
 export type RoutedPhase = "build" | "audit" | "schema" | "verify" | "chat";
@@ -63,14 +64,19 @@ export async function runCorrectiveVerify(
   let current = html;
   let lastVerdict: "passed" | "failed" | null = null;
   let lastRaw = "";
+  let lastProvenance: Provenance | undefined;
   const turns = Math.max(1, maxCorrections + 1);
   for (let turn = 0; turn < turns; turn++) {
     const res = await verifyTurn(current);
     lastRaw = res.raw;
     // The verify turn may re-emit fixed HTML; adopt it for the next pass / output.
     if (looksLikeHtmlDocument(res.content)) current = res.content;
+    lastProvenance = res.provenance;
     lastVerdict = readVerdict(res.raw);
-    if (lastVerdict === "passed") return { content: current, raw: lastRaw };
+    // Carry the winning verify call's attribution through: it is the true
+    // accepted attempt (candidate/attempt/fallback), not the earlier "audit"
+    // call whose content may have already been superseded above.
+    if (lastVerdict === "passed") return { content: current, raw: lastRaw, provenance: lastProvenance };
     // failed or null → corrective re-verify on the next turn (if any remain)
   }
   throw new Error(
@@ -214,7 +220,26 @@ export class RoutedEngine implements AIEngine {
             continue;
           }
           this.log({ phase, model: engine.name, candidate: kind, attempt, status: "ok" });
-          return result;
+          // Enrich (never invent): the engine's own provenance carries the
+          // concrete provider/model/sourceKind; RoutedEngine layers on the
+          // routing-level facts (which phase/candidate/attempt actually won,
+          // and whether this was a fallback), so the accepted result says
+          // "backup" truthfully instead of the requested main engine.
+          const base = result.provenance ?? unknownProvenance();
+          return {
+            ...result,
+            provenance: {
+              ...base,
+              requestedEngine: this.name,
+              engineMode: "routed",
+              phase,
+              attempt,
+              candidate: kind,
+              fallback: kind === "backup",
+              fallbackReason:
+                kind === "backup" ? `main (${route.main.name}) exhausted its attempts` : null,
+            },
+          };
         } catch (err) {
           lastError = err;
           this.log({

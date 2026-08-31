@@ -1,5 +1,6 @@
 import type { EntityFlag, ResearchBrief } from "../types";
 import type { ResearchInput, ResearchProvider } from "./provider";
+import { makeProvenance } from "../engine/provenance";
 
 export const MARK_AI_BRAIN_WEBHOOK =
   "https://stsrecycling.app.n8n.cloud/webhook/mark-ai-brain";
@@ -29,7 +30,7 @@ function toBrief(data: unknown): ResearchBrief {
       ? (obj.sources as unknown[]).map(String)
       : [];
     const flags = Array.isArray(obj.flags) ? (obj.flags as EntityFlag[]) : [];
-    return { summary, entities, sources, flags, raw: JSON.stringify(data) };
+    return { summary, entities, sources, flags, raw: JSON.stringify(data), provenance: n8nProvenance() };
   }
   return {
     summary: typeof data === "string" ? data : null,
@@ -37,7 +38,23 @@ function toBrief(data: unknown): ResearchBrief {
     sources: [],
     flags: [],
     raw: typeof data === "string" ? data : JSON.stringify(data),
+    provenance: n8nProvenance(),
   };
+}
+
+/** The n8n workflow is opaque to us: webhook transport, model unknown. */
+function n8nProvenance() {
+  return makeProvenance({
+    sourceKind: "n8n-webhook",
+    provider: null,
+    model: null,
+    transport: "webhook",
+    requestedEngine: "n8n",
+    engineMode: "webhook",
+    phase: "research",
+    candidate: "none",
+    status: "success",
+  });
 }
 
 /**

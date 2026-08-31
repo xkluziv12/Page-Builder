@@ -1,7 +1,8 @@
-import type { CheckerReport, LinkAuditResult, ResearchBrief } from "@workspace/mc-core";
+import type { CheckerReport, LinkAuditResult, Provenance, ResearchBrief } from "@workspace/mc-core";
 import type { CostEstimate } from "./cost.js";
 
 export type { CostEstimate };
+export type { Provenance };
 
 export interface PhaseTiming {
   phase: string;
@@ -112,6 +113,14 @@ export interface ModelResult {
    * AND errored runs so a failure is inspectable. Null if the write was skipped.
    */
   transcriptPath: string | null;
+  /**
+   * Accepted attribution for this result: direct-api provider/model/transport,
+   * requested model, started/completed timestamps, attempt count. Recorded
+   * going forward only — never backfilled for historical runs. Absent means
+   * "not recorded"; the viewer must render that explicitly, not assume
+   * direct-api for old data.
+   */
+  provenance?: Provenance;
 }
 
 /**

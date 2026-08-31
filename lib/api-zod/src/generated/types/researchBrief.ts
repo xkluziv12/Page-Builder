@@ -6,6 +6,7 @@
  * OpenAPI spec version: 0.1.0
  */
 import type { EntityFlag } from './entityFlag';
+import type { Provenance } from './provenance';
 import type { ResearchBriefEntitiesItem } from './researchBriefEntitiesItem';
 
 export interface ResearchBrief {
@@ -16,5 +17,6 @@ export interface ResearchBrief {
   flags?: EntityFlag[];
   /** @nullable */
   raw?: string | null;
+  provenance?: Provenance;
   [key: string]: unknown;
  }

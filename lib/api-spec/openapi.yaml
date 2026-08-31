@@ -1063,6 +1063,22 @@ components:
         html:
           type: string
           minLength: 1
+    ExecutionSource:
+      type: object
+      description: Operator-confirmed detail about how a Replit-mode phase artifact was actually produced (e.g. Gemini Flash via direct API, DeepSeek via Claude CLI). All fields optional; omitted fields default to replit-agent/operator-input rather than being inferred.
+      properties:
+        sourceKind:
+          $ref: "#/components/schemas/ProvenanceSourceKind"
+        transport:
+          $ref: "#/components/schemas/ProvenanceTransport"
+        provider:
+          type:
+            - string
+            - "null"
+        model:
+          type:
+            - string
+            - "null"
     ReplitPhaseInput:
       type: object
       description: Operator/Agent-produced artifact for a Replit-mode phase. Build and Audit require `html`; Schema requires `schema`. Research and Publish need no body (they reuse the shared research fetch and publisher).
@@ -1073,6 +1089,8 @@ components:
         schema:
           type: string
           description: JSON-LD produced by the Replit Agent (Schema phase).
+        executionSource:
+          $ref: "#/components/schemas/ExecutionSource"
     PhasePrompt:
       type: object
       description: The copy-paste prompt text for a Replit-mode phase — the same prompt Dashboard mode sends to a model, assembled for the run.
@@ -1102,6 +1120,123 @@ components:
         combined:
           type: string
           description: system + user joined, ready to paste into the Replit Agent in one block.
+    ProvenanceSourceKind:
+      type: string
+      enum:
+        - direct-api
+        - claude-cli
+        - claude-web
+        - replit-agent
+        - operator-input
+        - deterministic
+        - n8n-webhook
+        - imported
+        - unknown
+    ProvenanceTransport:
+      type: string
+      enum:
+        - sdk
+        - http
+        - webhook
+        - operator-paste
+        - none
+        - unknown
+    Provenance:
+      type: object
+      description: Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render "Not recorded", not assume a default.
+      required:
+        - sourceKind
+        - transport
+        - candidate
+        - status
+        - fallback
+      properties:
+        sourceKind:
+          $ref: "#/components/schemas/ProvenanceSourceKind"
+        provider:
+          type:
+            - string
+            - "null"
+        model:
+          type:
+            - string
+            - "null"
+        transport:
+          $ref: "#/components/schemas/ProvenanceTransport"
+        requestedEngine:
+          type:
+            - string
+            - "null"
+        engineMode:
+          type:
+            - string
+            - "null"
+        phase:
+          type:
+            - string
+            - "null"
+        attempt:
+          type:
+            - integer
+            - "null"
+        candidate:
+          type: string
+          enum:
+            - main
+            - backup
+            - none
+        status:
+          type: string
+          enum:
+            - success
+            - error
+            - unknown
+        startedAt:
+          type:
+            - string
+            - "null"
+        completedAt:
+          type:
+            - string
+            - "null"
+        fallback:
+          type: boolean
+        fallbackReason:
+          type:
+            - string
+            - "null"
+    PhaseAttemptEvent:
+      type: object
+      description: One retry/fallback event captured during a phase's execution, scoped to that single run (never a process-global log).
+      required:
+        - model
+        - candidate
+        - attempt
+        - status
+        - at
+      properties:
+        model:
+          type: string
+        candidate:
+          type: string
+          enum:
+            - main
+            - backup
+        attempt:
+          type: integer
+        status:
+          type: string
+          enum:
+            - ok
+            - invalid
+            - error
+            - fallback
+        message:
+          type:
+            - string
+            - "null"
+        at:
+          type: string
     PhaseState:
       type: object
       required:
@@ -1141,6 +1276,12 @@ components:
           type:
             - string
             - "null"
+        attempts:
+          type: array
+          items:
+            $ref: "#/components/schemas/PhaseAttemptEvent"
+        provenance:
+          $ref: "#/components/schemas/Provenance"
     CheckResult:
       type: object
       required:
@@ -1291,6 +1432,8 @@ components:
           type:
             - string
             - "null"
+        provenance:
+          $ref: "#/components/schemas/Provenance"
     JoomlaMeta:
       type: object
       properties:
@@ -1506,6 +1649,11 @@ components:
             - assistant
         content:
           type: string
+        provenance:
+          description: Attribution for assistant-produced messages. User messages remain operator input and never set this.
+          oneOf:
+            - $ref: "#/components/schemas/Provenance"
+            - type: "null"
         createdAt:
           type:
             - string
@@ -2021,6 +2169,11 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/PhaseState"
+        provenanceSummary:
+          description: The run's latest accepted provenance (requested engine vs actual provider/model, fallback indicator). Null/absent means not recorded — never assume a default.
+          oneOf:
+            - $ref: "#/components/schemas/Provenance"
+            - type: "null"
         createdAt:
           type:
             - string

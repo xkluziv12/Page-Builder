@@ -5,8 +5,10 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { PhaseAttemptEvent } from './phaseAttemptEvent';
 import type { PhaseStatePhase } from './phaseStatePhase';
 import type { PhaseStateStatus } from './phaseStateStatus';
+import type { Provenance } from './provenance';
 
 export interface PhaseState {
   phase: PhaseStatePhase;
@@ -19,4 +21,6 @@ export interface PhaseState {
   startedAt?: string | null;
   /** @nullable */
   completedAt?: string | null;
+  attempts?: PhaseAttemptEvent[];
+  provenance?: Provenance;
 }

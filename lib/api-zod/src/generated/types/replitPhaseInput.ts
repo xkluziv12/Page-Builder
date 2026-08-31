@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { ExecutionSource } from './executionSource';
 
 /**
  * Operator/Agent-produced artifact for a Replit-mode phase. Build and Audit require `html`; Schema requires `schema`. Research and Publish need no body (they reuse the shared research fetch and publisher).
@@ -14,4 +15,5 @@ export interface ReplitPhaseInput {
   html?: string;
   /** JSON-LD produced by the Replit Agent (Schema phase). */
   schema?: string;
+  executionSource?: ExecutionSource;
 }

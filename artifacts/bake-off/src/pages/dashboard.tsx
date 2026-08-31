@@ -1,10 +1,18 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { ModelResult, ScenarioResult } from "@/types";
+import { ModelResult, Provenance, ScenarioResult } from "@/types";
 import { Link } from "wouter";
 import { ChevronRight, Clock, AlertTriangle, CheckCircle2, DollarSign } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useDataset } from "@/contexts/dataset-context";
+
+/** Compact "actual source" label. Never assume direct-api when absent. */
+export function provenanceLabel(p: Provenance | null | undefined): string {
+  if (!p) return "Not recorded";
+  if (p.provider && p.model) return `${p.provider}/${p.model}`;
+  if (p.provider) return p.provider;
+  return p.sourceKind || "Not recorded";
+}
 
 export default function Dashboard() {
   const { dataset, datasets, activeId: datasetId, setActiveId: setDatasetId } = useDataset();
@@ -135,6 +143,13 @@ function ModelRankCard({ model, rank, scenarioId, datasetId }: { model: ModelRes
               <Badge variant="outline" className="font-mono text-[10px]">{model.model}</Badge>
               <Badge variant="secondary" className="font-mono text-[10px]" title="Reasoning-effort setting recorded for this run">
                 effort: {model.effort ?? "unknown"}
+              </Badge>
+              <Badge
+                variant="outline"
+                className="font-mono text-[10px]"
+                title="How this result was actually produced"
+              >
+                source: {provenanceLabel(model.provenance)}
               </Badge>
             </div>
             

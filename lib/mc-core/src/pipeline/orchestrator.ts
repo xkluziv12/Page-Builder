@@ -1,6 +1,7 @@
 import { blockingErrorCount, runCheckers } from "../checkers";
 import { computeStructuralHash } from "../checkers/structural-hash";
 import type { AIEngine } from "../engine/types";
+import { deterministicProvenance, type Provenance } from "../engine/provenance";
 import type { JoomlaPublisher } from "../publisher/joomla";
 import { logBlogEntry, type BlogLogEntry } from "../research/blog-log";
 import { runEntityQualityGate } from "../research/entity-gate";
@@ -55,6 +56,8 @@ export interface PhaseOutput {
    * must NOT mark a run "published" unless this is true.
    */
   published?: boolean;
+  /** Accepted attribution for this phase's output. Absent = not recorded. */
+  provenance?: Provenance;
 }
 
 export interface PipelineDeps {
@@ -114,6 +117,7 @@ export async function runPhase(
           : brief.summary
             ? "Research brief retrieved; no entity data-quality flags."
             : "Research returned no summary; review before building.",
+        provenance: brief.provenance,
       };
     }
 
@@ -126,7 +130,12 @@ export async function runPhase(
         ...checkerBase(ctx, result.content),
         afterAudit: false,
       });
-      return { phase, state, summary: phaseSummary("Page built", state.checkerReport) };
+      return {
+        phase,
+        state,
+        summary: phaseSummary("Page built", state.checkerReport),
+        provenance: result.provenance,
+      };
     }
 
     case "audit": {
@@ -139,7 +148,12 @@ export async function runPhase(
         ...checkerBase(ctx, result.content),
         afterAudit: true,
       });
-      return { phase, state, summary: phaseSummary("Page audited", state.checkerReport) };
+      return {
+        phase,
+        state,
+        summary: phaseSummary("Page audited", state.checkerReport),
+        provenance: result.provenance,
+      };
     }
 
     case "schema": {
@@ -172,6 +186,7 @@ export async function runPhase(
         phase,
         state,
         summary: phaseSummary("Schema generated", state.checkerReport),
+        provenance: result.provenance,
       };
     }
 
@@ -230,7 +245,13 @@ export async function runPhase(
           summary = `${summary} WARNING: blog publish succeeded but mark-blog-log logging failed: ${msg}`;
         }
       }
-      return { phase, state, summary, published: result.published };
+      return {
+        phase,
+        state,
+        summary,
+        published: result.published,
+        provenance: deterministicProvenance({ phase: "publish", status: result.published ? "success" : "error" }),
+      };
     }
 
     default: {

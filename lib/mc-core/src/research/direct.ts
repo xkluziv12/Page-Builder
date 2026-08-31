@@ -2,6 +2,7 @@ import type { ResearchBrief } from "../types";
 import type { ResearchInput, ResearchProvider } from "./provider";
 import type { GroundedResearchFn } from "./perplexity";
 import type { EntityFetchFn } from "./entities";
+import { makeProvenance } from "../engine/provenance";
 
 /** A function that structures grounded research text into a JSON brief string. */
 export type SynthesizeFn = (system: string, user: string) => Promise<string>;
@@ -13,6 +14,9 @@ export interface DirectResearchDeps {
   fetchEntities: EntityFetchFn;
   /** Structuring LLM (e.g. Claude/Gemini): coerce grounded text into JSON. */
   synthesize: SynthesizeFn;
+  /** Provider/model labels for the synthesis LLM, for accurate provenance only. */
+  synthesizeProvider?: string;
+  synthesizeModel?: string;
 }
 
 const SYNTHESIS_SYSTEM = [
@@ -130,6 +134,17 @@ export class DirectResearchProvider implements ResearchProvider {
       sources,
       flags: [],
       raw: JSON.stringify({ grounded, entitySeeds, synthesis: rawSynthesis }),
+      provenance: makeProvenance({
+        sourceKind: "direct-api",
+        provider: this.deps.synthesizeProvider ?? null,
+        model: this.deps.synthesizeModel ?? null,
+        transport: "sdk",
+        requestedEngine: "direct-research",
+        engineMode: "direct",
+        phase: "research",
+        candidate: "none",
+        status: "success",
+      }),
     };
   }
 }

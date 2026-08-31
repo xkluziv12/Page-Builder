@@ -8,6 +8,15 @@ import { Badge } from "@/components/ui/badge";
 import { useDataset } from "@/contexts/dataset-context";
 import { DATASETS, getDataset } from "@/data/datasets";
 import { getModelVersions, type ModelVersion } from "@/data/model-history";
+import type { Provenance } from "@/types";
+
+/** Keep detail-page rendering independent from the dashboard module graph. */
+function provenanceLabel(p: Provenance | null | undefined): string {
+  if (!p) return "Not recorded";
+  if (p.provider && p.model) return `${p.provider}/${p.model}`;
+  if (p.provider) return p.provider;
+  return p.sourceKind || "Not recorded";
+}
 
 /** Resolve a screenshot path stored in results.json against the app's base URL. */
 function shotUrl(path: string | null | undefined): string | null {
@@ -90,6 +99,9 @@ export default function ModelDetail() {
             <Badge variant="outline" className="font-mono">{model.model}</Badge>
             <Badge variant="secondary" className="font-mono text-[10px]" title="Reasoning-effort setting recorded for this run">
               effort: {model.effort ?? "unknown"}
+            </Badge>
+            <Badge variant="outline" className="font-mono text-[10px]" title="How this result was actually produced">
+              source: {provenanceLabel(model.provenance)}
             </Badge>
           </div>
           <div className="flex gap-4 text-sm text-muted-foreground">

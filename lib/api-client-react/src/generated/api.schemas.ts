@@ -168,6 +168,45 @@ export interface SaveHtmlInput {
   html: string;
 }
 
+export type ProvenanceSourceKind = typeof ProvenanceSourceKind[keyof typeof ProvenanceSourceKind];
+
+
+export const ProvenanceSourceKind = {
+  'direct-api': 'direct-api',
+  'claude-cli': 'claude-cli',
+  'claude-web': 'claude-web',
+  'replit-agent': 'replit-agent',
+  'operator-input': 'operator-input',
+  deterministic: 'deterministic',
+  'n8n-webhook': 'n8n-webhook',
+  imported: 'imported',
+  unknown: 'unknown',
+} as const;
+
+export type ProvenanceTransport = typeof ProvenanceTransport[keyof typeof ProvenanceTransport];
+
+
+export const ProvenanceTransport = {
+  sdk: 'sdk',
+  http: 'http',
+  webhook: 'webhook',
+  'operator-paste': 'operator-paste',
+  none: 'none',
+  unknown: 'unknown',
+} as const;
+
+/**
+ * Operator-confirmed detail about how a Replit-mode phase artifact was actually produced (e.g. Gemini Flash via direct API, DeepSeek via Claude CLI). All fields optional; omitted fields default to replit-agent/operator-input rather than being inferred.
+ */
+export interface ExecutionSource {
+  sourceKind?: ProvenanceSourceKind;
+  transport?: ProvenanceTransport;
+  /** @nullable */
+  provider?: string | null;
+  /** @nullable */
+  model?: string | null;
+}
+
 /**
  * Operator/Agent-produced artifact for a Replit-mode phase. Build and Audit require `html`; Schema requires `schema`. Research and Publish need no body (they reuse the shared research fetch and publisher).
  */
@@ -176,6 +215,7 @@ export interface ReplitPhaseInput {
   html?: string;
   /** JSON-LD produced by the Replit Agent (Schema phase). */
   schema?: string;
+  executionSource?: ExecutionSource;
 }
 
 /**
@@ -204,6 +244,84 @@ export interface PhasePrompt {
   user: string;
   /** system + user joined, ready to paste into the Replit Agent in one block. */
   combined: string;
+}
+
+export type ProvenanceCandidate = typeof ProvenanceCandidate[keyof typeof ProvenanceCandidate];
+
+
+export const ProvenanceCandidate = {
+  main: 'main',
+  backup: 'backup',
+  none: 'none',
+} as const;
+
+export type ProvenanceStatus = typeof ProvenanceStatus[keyof typeof ProvenanceStatus];
+
+
+export const ProvenanceStatus = {
+  success: 'success',
+  error: 'error',
+  unknown: 'unknown',
+} as const;
+
+/**
+ * Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render "Not recorded", not assume a default.
+ */
+export interface Provenance {
+  sourceKind: ProvenanceSourceKind;
+  /** @nullable */
+  provider?: string | null;
+  /** @nullable */
+  model?: string | null;
+  transport: ProvenanceTransport;
+  /** @nullable */
+  requestedEngine?: string | null;
+  /** @nullable */
+  engineMode?: string | null;
+  /** @nullable */
+  phase?: string | null;
+  /** @nullable */
+  attempt?: number | null;
+  candidate: ProvenanceCandidate;
+  status: ProvenanceStatus;
+  /** @nullable */
+  startedAt?: string | null;
+  /** @nullable */
+  completedAt?: string | null;
+  fallback: boolean;
+  /** @nullable */
+  fallbackReason?: string | null;
+}
+
+export type PhaseAttemptEventCandidate = typeof PhaseAttemptEventCandidate[keyof typeof PhaseAttemptEventCandidate];
+
+
+export const PhaseAttemptEventCandidate = {
+  main: 'main',
+  backup: 'backup',
+} as const;
+
+export type PhaseAttemptEventStatus = typeof PhaseAttemptEventStatus[keyof typeof PhaseAttemptEventStatus];
+
+
+export const PhaseAttemptEventStatus = {
+  ok: 'ok',
+  invalid: 'invalid',
+  error: 'error',
+  fallback: 'fallback',
+} as const;
+
+/**
+ * One retry/fallback event captured during a phase's execution, scoped to that single run (never a process-global log).
+ */
+export interface PhaseAttemptEvent {
+  model: string;
+  candidate: PhaseAttemptEventCandidate;
+  attempt: number;
+  status: PhaseAttemptEventStatus;
+  /** @nullable */
+  message?: string | null;
+  at: string;
 }
 
 export type PhaseStatePhase = typeof PhaseStatePhase[keyof typeof PhaseStatePhase];
@@ -240,6 +358,8 @@ export interface PhaseState {
   startedAt?: string | null;
   /** @nullable */
   completedAt?: string | null;
+  attempts?: PhaseAttemptEvent[];
+  provenance?: Provenance;
 }
 
 export type CheckResultSeverity = typeof CheckResultSeverity[keyof typeof CheckResultSeverity];
@@ -314,6 +434,7 @@ export interface ResearchBrief {
   flags?: EntityFlag[];
   /** @nullable */
   raw?: string | null;
+  provenance?: Provenance;
   [key: string]: unknown;
  }
 
@@ -419,6 +540,8 @@ export interface ChatMessage {
   id: number;
   role: ChatMessageRole;
   content: string;
+  /** Attribution for assistant-produced messages. User messages remain operator input and never set this. */
+  provenance?: Provenance | null;
   /** @nullable */
   createdAt?: string | null;
 }
@@ -780,6 +903,8 @@ export interface MissionRun {
   checkerReport?: CheckerReport | null;
   linkAuditOverride?: LinkAuditOverride | null;
   phases: PhaseState[];
+  /** The run's latest accepted provenance (requested engine vs actual provider/model, fallback indicator). Null/absent means not recorded — never assume a default. */
+  provenanceSummary?: Provenance | null;
   /** @nullable */
   createdAt?: string | null;
   /** @nullable */

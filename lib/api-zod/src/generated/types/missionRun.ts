@@ -13,6 +13,7 @@ import type { MissionRunEngine } from './missionRunEngine';
 import type { MissionRunStatus } from './missionRunStatus';
 import type { MissionRunTrack } from './missionRunTrack';
 import type { PhaseState } from './phaseState';
+import type { Provenance } from './provenance';
 import type { ResearchBrief } from './researchBrief';
 import type { SeoIntel } from './seoIntel';
 
@@ -54,6 +55,8 @@ export interface MissionRun {
   checkerReport?: CheckerReport | null;
   linkAuditOverride?: LinkAuditOverride | null;
   phases: PhaseState[];
+  /** The run's latest accepted provenance (requested engine vs actual provider/model, fallback indicator). Null/absent means not recorded — never assume a default. */
+  provenanceSummary?: Provenance | null;
   /** @nullable */
   createdAt?: string | null;
   /** @nullable */

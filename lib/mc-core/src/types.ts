@@ -1,4 +1,5 @@
 import type { SeoIntel } from "./seo/types";
+import type { Provenance } from "./engine/provenance";
 
 export type PhaseName = "research" | "build" | "audit" | "schema" | "publish";
 
@@ -85,6 +86,8 @@ export interface ResearchBrief {
   sources: string[];
   flags: EntityFlag[];
   raw: string | null;
+  /** Accepted attribution for this brief. Optional; absent means "not recorded". */
+  provenance?: Provenance;
 }
 
 export interface JoomlaMeta {

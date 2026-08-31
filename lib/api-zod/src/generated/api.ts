@@ -49,7 +49,23 @@ export const ListRunsResponseItem = zod.object({
   "issue": zod.string(),
   "verified": zod.boolean().optional()
 })).optional(),
-  "raw": zod.string().nullish()
+  "raw": zod.string().nullish(),
+  "provenance": zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).optional().describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.')
 }),zod.null()]).optional(),
   "seoIntel": zod.union([zod.object({
   "query": zod.string(),
@@ -130,8 +146,48 @@ export const ListRunsResponseItem = zod.object({
   "summary": zod.string().nullish(),
   "error": zod.string().nullish(),
   "startedAt": zod.string().nullish(),
-  "completedAt": zod.string().nullish()
+  "completedAt": zod.string().nullish(),
+  "attempts": zod.array(zod.object({
+  "model": zod.string(),
+  "candidate": zod.enum(['main', 'backup']),
+  "attempt": zod.number(),
+  "status": zod.enum(['ok', 'invalid', 'error', 'fallback']),
+  "message": zod.string().nullish(),
+  "at": zod.string()
+}).describe('One retry\/fallback event captured during a phase\'s execution, scoped to that single run (never a process-global log).')).optional(),
+  "provenance": zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).optional().describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.')
 })),
+  "provenanceSummary": zod.union([zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.'),zod.null()]).optional().describe('The run\'s latest accepted provenance (requested engine vs actual provider\/model, fallback indicator). Null\/absent means not recorded — never assume a default.'),
   "createdAt": zod.string().nullish(),
   "updatedAt": zod.string().nullish()
 })
@@ -199,7 +255,23 @@ export const GetSummaryResponse = zod.object({
   "issue": zod.string(),
   "verified": zod.boolean().optional()
 })).optional(),
-  "raw": zod.string().nullish()
+  "raw": zod.string().nullish(),
+  "provenance": zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).optional().describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.')
 }),zod.null()]).optional(),
   "seoIntel": zod.union([zod.object({
   "query": zod.string(),
@@ -280,8 +352,48 @@ export const GetSummaryResponse = zod.object({
   "summary": zod.string().nullish(),
   "error": zod.string().nullish(),
   "startedAt": zod.string().nullish(),
-  "completedAt": zod.string().nullish()
+  "completedAt": zod.string().nullish(),
+  "attempts": zod.array(zod.object({
+  "model": zod.string(),
+  "candidate": zod.enum(['main', 'backup']),
+  "attempt": zod.number(),
+  "status": zod.enum(['ok', 'invalid', 'error', 'fallback']),
+  "message": zod.string().nullish(),
+  "at": zod.string()
+}).describe('One retry\/fallback event captured during a phase\'s execution, scoped to that single run (never a process-global log).')).optional(),
+  "provenance": zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).optional().describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.')
 })),
+  "provenanceSummary": zod.union([zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.'),zod.null()]).optional().describe('The run\'s latest accepted provenance (requested engine vs actual provider\/model, fallback indicator). Null\/absent means not recorded — never assume a default.'),
   "createdAt": zod.string().nullish(),
   "updatedAt": zod.string().nullish()
 }))
@@ -399,7 +511,23 @@ export const GetRunResponse = zod.object({
   "issue": zod.string(),
   "verified": zod.boolean().optional()
 })).optional(),
-  "raw": zod.string().nullish()
+  "raw": zod.string().nullish(),
+  "provenance": zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).optional().describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.')
 }),zod.null()]).optional(),
   "seoIntel": zod.union([zod.object({
   "query": zod.string(),
@@ -480,8 +608,48 @@ export const GetRunResponse = zod.object({
   "summary": zod.string().nullish(),
   "error": zod.string().nullish(),
   "startedAt": zod.string().nullish(),
-  "completedAt": zod.string().nullish()
+  "completedAt": zod.string().nullish(),
+  "attempts": zod.array(zod.object({
+  "model": zod.string(),
+  "candidate": zod.enum(['main', 'backup']),
+  "attempt": zod.number(),
+  "status": zod.enum(['ok', 'invalid', 'error', 'fallback']),
+  "message": zod.string().nullish(),
+  "at": zod.string()
+}).describe('One retry\/fallback event captured during a phase\'s execution, scoped to that single run (never a process-global log).')).optional(),
+  "provenance": zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).optional().describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.')
 })),
+  "provenanceSummary": zod.union([zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.'),zod.null()]).optional().describe('The run\'s latest accepted provenance (requested engine vs actual provider\/model, fallback indicator). Null\/absent means not recorded — never assume a default.'),
   "createdAt": zod.string().nullish(),
   "updatedAt": zod.string().nullish()
 })
@@ -532,7 +700,23 @@ export const RunPhaseResponse = zod.object({
   "issue": zod.string(),
   "verified": zod.boolean().optional()
 })).optional(),
-  "raw": zod.string().nullish()
+  "raw": zod.string().nullish(),
+  "provenance": zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).optional().describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.')
 }),zod.null()]).optional(),
   "seoIntel": zod.union([zod.object({
   "query": zod.string(),
@@ -613,8 +797,48 @@ export const RunPhaseResponse = zod.object({
   "summary": zod.string().nullish(),
   "error": zod.string().nullish(),
   "startedAt": zod.string().nullish(),
-  "completedAt": zod.string().nullish()
+  "completedAt": zod.string().nullish(),
+  "attempts": zod.array(zod.object({
+  "model": zod.string(),
+  "candidate": zod.enum(['main', 'backup']),
+  "attempt": zod.number(),
+  "status": zod.enum(['ok', 'invalid', 'error', 'fallback']),
+  "message": zod.string().nullish(),
+  "at": zod.string()
+}).describe('One retry\/fallback event captured during a phase\'s execution, scoped to that single run (never a process-global log).')).optional(),
+  "provenance": zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).optional().describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.')
 })),
+  "provenanceSummary": zod.union([zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.'),zod.null()]).optional().describe('The run\'s latest accepted provenance (requested engine vs actual provider\/model, fallback indicator). Null\/absent means not recorded — never assume a default.'),
   "createdAt": zod.string().nullish(),
   "updatedAt": zod.string().nullish()
 })
@@ -630,7 +854,13 @@ export const RunReplitPhaseParams = zod.object({
 
 export const RunReplitPhaseBody = zod.object({
   "html": zod.string().optional().describe('HTML produced by the Replit Agent (Build \/ Audit phases).'),
-  "schema": zod.string().optional().describe('JSON-LD produced by the Replit Agent (Schema phase).')
+  "schema": zod.string().optional().describe('JSON-LD produced by the Replit Agent (Schema phase).'),
+  "executionSource": zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']).optional(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']).optional(),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish()
+}).optional().describe('Operator-confirmed detail about how a Replit-mode phase artifact was actually produced (e.g. Gemini Flash via direct API, DeepSeek via Claude CLI). All fields optional; omitted fields default to replit-agent\/operator-input rather than being inferred.')
 }).describe('Operator\/Agent-produced artifact for a Replit-mode phase. Build and Audit require `html`; Schema requires `schema`. Research and Publish need no body (they reuse the shared research fetch and publisher).')
 
 export const RunReplitPhaseResponse = zod.object({
@@ -662,7 +892,23 @@ export const RunReplitPhaseResponse = zod.object({
   "issue": zod.string(),
   "verified": zod.boolean().optional()
 })).optional(),
-  "raw": zod.string().nullish()
+  "raw": zod.string().nullish(),
+  "provenance": zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).optional().describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.')
 }),zod.null()]).optional(),
   "seoIntel": zod.union([zod.object({
   "query": zod.string(),
@@ -743,8 +989,48 @@ export const RunReplitPhaseResponse = zod.object({
   "summary": zod.string().nullish(),
   "error": zod.string().nullish(),
   "startedAt": zod.string().nullish(),
-  "completedAt": zod.string().nullish()
+  "completedAt": zod.string().nullish(),
+  "attempts": zod.array(zod.object({
+  "model": zod.string(),
+  "candidate": zod.enum(['main', 'backup']),
+  "attempt": zod.number(),
+  "status": zod.enum(['ok', 'invalid', 'error', 'fallback']),
+  "message": zod.string().nullish(),
+  "at": zod.string()
+}).describe('One retry\/fallback event captured during a phase\'s execution, scoped to that single run (never a process-global log).')).optional(),
+  "provenance": zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).optional().describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.')
 })),
+  "provenanceSummary": zod.union([zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.'),zod.null()]).optional().describe('The run\'s latest accepted provenance (requested engine vs actual provider\/model, fallback indicator). Null\/absent means not recorded — never assume a default.'),
   "createdAt": zod.string().nullish(),
   "updatedAt": zod.string().nullish()
 })
@@ -805,7 +1091,23 @@ export const ApprovePhaseResponse = zod.object({
   "issue": zod.string(),
   "verified": zod.boolean().optional()
 })).optional(),
-  "raw": zod.string().nullish()
+  "raw": zod.string().nullish(),
+  "provenance": zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).optional().describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.')
 }),zod.null()]).optional(),
   "seoIntel": zod.union([zod.object({
   "query": zod.string(),
@@ -886,8 +1188,48 @@ export const ApprovePhaseResponse = zod.object({
   "summary": zod.string().nullish(),
   "error": zod.string().nullish(),
   "startedAt": zod.string().nullish(),
-  "completedAt": zod.string().nullish()
+  "completedAt": zod.string().nullish(),
+  "attempts": zod.array(zod.object({
+  "model": zod.string(),
+  "candidate": zod.enum(['main', 'backup']),
+  "attempt": zod.number(),
+  "status": zod.enum(['ok', 'invalid', 'error', 'fallback']),
+  "message": zod.string().nullish(),
+  "at": zod.string()
+}).describe('One retry\/fallback event captured during a phase\'s execution, scoped to that single run (never a process-global log).')).optional(),
+  "provenance": zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).optional().describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.')
 })),
+  "provenanceSummary": zod.union([zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.'),zod.null()]).optional().describe('The run\'s latest accepted provenance (requested engine vs actual provider\/model, fallback indicator). Null\/absent means not recorded — never assume a default.'),
   "createdAt": zod.string().nullish(),
   "updatedAt": zod.string().nullish()
 })
@@ -975,7 +1317,23 @@ export const OverrideLinkAuditResponse = zod.object({
   "issue": zod.string(),
   "verified": zod.boolean().optional()
 })).optional(),
-  "raw": zod.string().nullish()
+  "raw": zod.string().nullish(),
+  "provenance": zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).optional().describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.')
 }),zod.null()]).optional(),
   "seoIntel": zod.union([zod.object({
   "query": zod.string(),
@@ -1056,8 +1414,48 @@ export const OverrideLinkAuditResponse = zod.object({
   "summary": zod.string().nullish(),
   "error": zod.string().nullish(),
   "startedAt": zod.string().nullish(),
-  "completedAt": zod.string().nullish()
+  "completedAt": zod.string().nullish(),
+  "attempts": zod.array(zod.object({
+  "model": zod.string(),
+  "candidate": zod.enum(['main', 'backup']),
+  "attempt": zod.number(),
+  "status": zod.enum(['ok', 'invalid', 'error', 'fallback']),
+  "message": zod.string().nullish(),
+  "at": zod.string()
+}).describe('One retry\/fallback event captured during a phase\'s execution, scoped to that single run (never a process-global log).')).optional(),
+  "provenance": zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).optional().describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.')
 })),
+  "provenanceSummary": zod.union([zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.'),zod.null()]).optional().describe('The run\'s latest accepted provenance (requested engine vs actual provider\/model, fallback indicator). Null\/absent means not recorded — never assume a default.'),
   "createdAt": zod.string().nullish(),
   "updatedAt": zod.string().nullish()
 })
@@ -1099,7 +1497,23 @@ export const RevokeLinkAuditOverrideResponse = zod.object({
   "issue": zod.string(),
   "verified": zod.boolean().optional()
 })).optional(),
-  "raw": zod.string().nullish()
+  "raw": zod.string().nullish(),
+  "provenance": zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).optional().describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.')
 }),zod.null()]).optional(),
   "seoIntel": zod.union([zod.object({
   "query": zod.string(),
@@ -1180,8 +1594,48 @@ export const RevokeLinkAuditOverrideResponse = zod.object({
   "summary": zod.string().nullish(),
   "error": zod.string().nullish(),
   "startedAt": zod.string().nullish(),
-  "completedAt": zod.string().nullish()
+  "completedAt": zod.string().nullish(),
+  "attempts": zod.array(zod.object({
+  "model": zod.string(),
+  "candidate": zod.enum(['main', 'backup']),
+  "attempt": zod.number(),
+  "status": zod.enum(['ok', 'invalid', 'error', 'fallback']),
+  "message": zod.string().nullish(),
+  "at": zod.string()
+}).describe('One retry\/fallback event captured during a phase\'s execution, scoped to that single run (never a process-global log).')).optional(),
+  "provenance": zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).optional().describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.')
 })),
+  "provenanceSummary": zod.union([zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.'),zod.null()]).optional().describe('The run\'s latest accepted provenance (requested engine vs actual provider\/model, fallback indicator). Null\/absent means not recorded — never assume a default.'),
   "createdAt": zod.string().nullish(),
   "updatedAt": zod.string().nullish()
 })
@@ -1371,6 +1825,22 @@ export const GetChatHistoryResponseItem = zod.object({
   "id": zod.number(),
   "role": zod.enum(['user', 'assistant']),
   "content": zod.string(),
+  "provenance": zod.union([zod.object({
+  "sourceKind": zod.enum(['direct-api', 'claude-cli', 'claude-web', 'replit-agent', 'operator-input', 'deterministic', 'n8n-webhook', 'imported', 'unknown']),
+  "provider": zod.string().nullish(),
+  "model": zod.string().nullish(),
+  "transport": zod.enum(['sdk', 'http', 'webhook', 'operator-paste', 'none', 'unknown']),
+  "requestedEngine": zod.string().nullish(),
+  "engineMode": zod.string().nullish(),
+  "phase": zod.string().nullish(),
+  "attempt": zod.number().nullish(),
+  "candidate": zod.enum(['main', 'backup', 'none']),
+  "status": zod.enum(['success', 'error', 'unknown']),
+  "startedAt": zod.string().nullish(),
+  "completedAt": zod.string().nullish(),
+  "fallback": zod.boolean(),
+  "fallbackReason": zod.string().nullish()
+}).describe('Attribution for a single produced artifact — what actually produced it, never inferred. Absent on legacy rows written before provenance tracking; the client must render \"Not recorded\", not assume a default.'),zod.null()]).optional().describe('Attribution for assistant-produced messages. User messages remain operator input and never set this.'),
   "createdAt": zod.string().nullish()
 })
 export const GetChatHistoryResponse = zod.array(GetChatHistoryResponseItem)
@@ -1818,7 +2288,7 @@ export const GetGithubSyncStatusResponse = zod.object({
 
 
 /**
- * Runs a full mirror pass immediately. Returns 502 when the push failed.
+ * Requires an admin bearer token. Runs a full mirror pass immediately. Returns 502 when the push failed.
  * @summary Trigger a GitHub mirror pass now
  */
 export const RunGithubSyncNowResponse = zod.object({

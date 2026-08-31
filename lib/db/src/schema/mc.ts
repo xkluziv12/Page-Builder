@@ -46,7 +46,22 @@ export const mcRunsTable = pgTable("mc_runs", {
   joomlaMeta: jsonb("joomla_meta").$type<Record<string, unknown> | null>(),
   checkerReport: jsonb("checker_report").$type<Record<string, unknown> | null>(),
   linkAuditOverride: jsonb("link_audit_override").$type<Record<string, unknown> | null>(),
+  /**
+   * Per-phase execution ladder. Each entry may carry an optional `attempts`
+   * array (started/success/error events captured during executePhase) and an
+   * `provenance` object (accepted attribution) alongside the existing
+   * {phase,status,summary,error,startedAt,completedAt} fields. Optional for
+   * backward compatibility with rows written before provenance tracking.
+   */
   phases: jsonb("phases").$type<Record<string, unknown>[]>().notNull().default([]),
+  /**
+   * Denormalized summary of the run's LATEST accepted provenance (requested
+   * engine, actual provider/model/sourceKind, fallback indicator) for fast
+   * dashboard-table display without walking the full phases ladder. Optional;
+   * null/absent on runs that predate this field means "not recorded", never
+   * an assumed value.
+   */
+  provenanceSummary: jsonb("provenance_summary").$type<Record<string, unknown> | null>(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -65,6 +80,12 @@ export const mcChatMessagesTable = pgTable("mc_chat_messages", {
   runId: integer("run_id").notNull(),
   role: text("role").notNull(),
   content: text("content").notNull(),
+  /**
+   * Attribution for assistant-produced messages (accepted provenance from the
+   * engine that produced the edit). User messages remain operator input and
+   * do not set this. Optional for backward compatibility.
+   */
+  provenance: jsonb("provenance").$type<Record<string, unknown> | null>(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
@@ -82,6 +103,8 @@ export const mcPageVersionsTable = pgTable("mc_page_versions", {
   phase: text("phase").notNull(),
   html: text("html"),
   schema: text("schema"),
+  /** Accepted attribution for this version's html/schema. Optional; absent = not recorded. */
+  provenance: jsonb("provenance").$type<Record<string, unknown> | null>(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 

@@ -1,4 +1,4 @@
-import { describeContext, type RunContext } from "@workspace/mc-core";
+import { describeContext, type RunContext, type Provenance } from "@workspace/mc-core";
 import type { ChatMessage, CompleteFn } from "./providers.js";
 import type { TokenUsage } from "./types.js";
 import type { DesignFixtures } from "./fixtures.js";
@@ -89,6 +89,8 @@ export interface TranscriptEntry {
   usage: TokenUsage | null;
   /** Set to the error message when THIS turn threw; null otherwise. */
   error: string | null;
+  /** Accepted attribution for this turn (direct-api provider/model/transport). Absent on turns that threw before returning. */
+  provenance?: Provenance;
 }
 
 export interface ConversationTurn {
@@ -307,6 +309,7 @@ export async function runConversation(deps: ConversationDeps): Promise<Conversat
       entry.ms = ms;
       entry.assistant = res.raw;
       entry.usage = res.usage;
+      entry.provenance = res.provenance;
       console.log(`    ← ${phase}: ${(ms / 1000).toFixed(1)}s, ${res.raw.length} chars`);
       return res.raw;
     } catch (err) {

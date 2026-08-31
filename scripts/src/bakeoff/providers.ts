@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenAI } from "@google/genai";
 import OpenAI from "openai";
-import type { EngineResult } from "@workspace/mc-core";
+import { makeProvenance, type EngineResult } from "@workspace/mc-core";
 import type { TokenUsage } from "./types.js";
 
 /**
@@ -205,16 +205,38 @@ type RawComplete = (
  * refusal returns content normally (no throw) and is therefore NOT retried —
  * only thrown transport/empty-response failures are.
  */
-function guarded(model: string, fn: RawComplete): CompleteFn {
+function guarded(model: string, fn: RawComplete, provider?: string): CompleteFn {
   return async (messages, system, opts) => {
     let lastErr: unknown;
     for (let attempt = 1; attempt <= MAX_ATTEMPTS; attempt++) {
+      const startedAt = new Date().toISOString();
       try {
-        return await withTimeout(
+        const result = await withTimeout(
           (signal) => fn(messages, system, opts, signal),
           WALL_CLOCK_MS,
           `${model} completion`,
         );
+        // Every bake-off adapter calls its provider DIRECTLY with STS's own key
+        // (no proxy) — attach that attribution generically here rather than at
+        // each of the ~7 per-provider return sites, so it can never drift.
+        return {
+          ...result,
+          provenance:
+            result.provenance ??
+            makeProvenance({
+              sourceKind: "direct-api",
+              provider: provider ?? null,
+              model,
+              transport: "sdk",
+              requestedEngine: model,
+              engineMode: "bakeoff",
+              attempt,
+              candidate: "none",
+              status: "success",
+              startedAt,
+              completedAt: new Date().toISOString(),
+            }),
+        };
       } catch (err) {
         lastErr = err;
         const msg = err instanceof Error ? err.message : String(err);
@@ -373,7 +395,7 @@ export function makeClaudeComplete(model: string, effort?: string): CompleteFn {
         }
       : null;
     return { content: unfence(raw), raw, usage };
-  });
+  }, "anthropic");
 }
 
 /** Maps an "effort" level to a Gemini thinking-budget token count — the real
@@ -458,7 +480,7 @@ export function makeGeminiComplete(model: string, effort?: string): CompleteFn {
         }
       : null;
     return { content: unfence(raw), raw, usage };
-  });
+  }, "google");
 }
 
 /** Prepend an optional system message to an OpenAI-style chat history. */
@@ -557,7 +579,7 @@ export function makeOpenAIComplete(model: string, effort?: string): CompleteFn {
     const raw = (resp.output_text ?? "").trim();
     if (!raw) throw new Error(`${model} returned an empty response.`);
     return { content: unfence(raw), raw, usage: responsesUsage(resp.usage) };
-  });
+  }, "openai");
 }
 
 /** Normalize an OpenAI-style Responses `usage` block into {@link TokenUsage}.
@@ -709,7 +731,7 @@ export function makeGrokComplete(model: string, effort?: string): CompleteFn {
         }
       : null;
     return { content: unfence(raw), raw, usage };
-  });
+  }, "xai");
 }
 
 /** DeepSeek direct via its OpenAI-compatible endpoint, using STS's own
@@ -800,7 +822,7 @@ export function makeDeepSeekComplete(model: string, effort?: string): CompleteFn
         }
       : null;
     return { content: unfence(raw), raw, usage };
-  });
+  }, "deepseek");
 }
 
 /**

@@ -43,7 +43,10 @@ export default function PromptLibrary() {
         <div>
           <h1 className="pm-title">Prompt Library</h1>
           <p className="pm-subtitle">
-            Copy the latest published master prompt, then paste it into Claude.
+            Copy the latest published master prompt, then paste it into Claude. This app
+            cannot detect whether you ran it via the Claude CLI, Claude web chat, or a
+            direct API call — confirm which one you actually used wherever the build
+            tool asks for it, rather than leaving it unrecorded.
           </p>
         </div>
       </div>

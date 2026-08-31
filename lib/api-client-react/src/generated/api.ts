@@ -2568,7 +2568,7 @@ export const getRunGithubSyncNowUrl = () => {
 }
 
 /**
- * Runs a full mirror pass immediately. Returns 502 when the push failed.
+ * Requires an admin bearer token. Runs a full mirror pass immediately. Returns 502 when the push failed.
  * @summary Trigger a GitHub mirror pass now
  */
 export const runGithubSyncNow = async ( options?: RequestInit): Promise<GithubSyncSummary> => {
@@ -2585,7 +2585,7 @@ export const runGithubSyncNow = async ( options?: RequestInit): Promise<GithubSy
 
 
 
-export const getRunGithubSyncNowMutationOptions = <TError = ErrorType<GithubSyncSummary>,
+export const getRunGithubSyncNowMutationOptions = <TError = ErrorType<Error | GithubSyncSummary>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runGithubSyncNow>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
 ): UseMutationOptions<Awaited<ReturnType<typeof runGithubSyncNow>>, TError,void, TContext> => {
 
@@ -2614,12 +2614,12 @@ const {mutation: mutationOptions, request: requestOptions} = options ?
 
     export type RunGithubSyncNowMutationResult = NonNullable<Awaited<ReturnType<typeof runGithubSyncNow>>>
 
-    export type RunGithubSyncNowMutationError = ErrorType<GithubSyncSummary>
+    export type RunGithubSyncNowMutationError = ErrorType<Error | GithubSyncSummary>
 
     /**
  * @summary Trigger a GitHub mirror pass now
  */
-export const useRunGithubSyncNow = <TError = ErrorType<GithubSyncSummary>,
+export const useRunGithubSyncNow = <TError = ErrorType<Error | GithubSyncSummary>,
     TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof runGithubSyncNow>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
  ): UseMutationResult<
         Awaited<ReturnType<typeof runGithubSyncNow>>,
