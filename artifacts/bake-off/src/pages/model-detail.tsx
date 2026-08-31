@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "wouter";
+import { Link, useParams } from "wouter";
 import NotFound from "./not-found";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,6 +7,7 @@ import { AlertTriangle, CheckCircle2, Clock, Copy, Check, Database, LayoutTempla
 import { Badge } from "@/components/ui/badge";
 import { useDataset } from "@/contexts/dataset-context";
 import { DATASETS, getDataset } from "@/data/datasets";
+import { getModelVersions, type ModelVersion } from "@/data/model-history";
 
 /** Resolve a screenshot path stored in results.json against the app's base URL. */
 function shotUrl(path: string | null | undefined): string | null {
@@ -77,32 +78,11 @@ export default function ModelDetail() {
 
   if (!scenario || !model) return <NotFound />;
 
-  if (model.status === "error") {
-    return (
-      <div className="p-8 max-w-4xl mx-auto">
-        <header className="mb-8">
-          <Badge variant="outline" className="mb-2">{scenario.label}</Badge>
-          <h1 className="text-3xl font-bold mb-2">{model.label}</h1>
-          <p className="text-muted-foreground font-mono text-sm">{model.model} • {model.provider} • effort: {model.effort ?? "unknown"}</p>
-        </header>
-        <Card className="border-destructive bg-destructive/5">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-destructive">
-              <AlertTriangle className="w-5 h-5" />
-              Run Failed
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="font-mono text-sm">{model.error}</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
+  const versions = getModelVersions(scenario.id, model.model);
 
   return (
     <div className="p-6 md:p-8 max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <header className="mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
+      <header className="mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
         <div>
           <Badge variant="outline" className="mb-2">{scenario.label}</Badge>
           <div className="flex items-center gap-3 mb-2">
@@ -124,32 +104,51 @@ export default function ModelDetail() {
             {model.costEstimate && (
               <div className="flex items-center gap-1.5">
                 <DollarSign className="w-4 h-4" />
-                <span>~${model.costEstimate.totalUsd.toFixed(2)} est. cost</span>
+                <span>
+                  {model.costEstimate.basis.startsWith("Measured") ? "" : "~"}
+                  ${model.costEstimate.totalUsd.toFixed(2)} {model.costEstimate.basis.startsWith("Measured") ? "cost" : "est. cost"}
+                </span>
               </div>
             )}
           </div>
         </div>
-        
+
         <div className="flex items-center gap-3">
           <div className="text-right">
             <div className="text-xs uppercase tracking-wider text-muted-foreground font-semibold mb-1">Composite Score</div>
-            <div className="text-4xl font-bold text-primary">{model.scores?.composite}</div>
+            <div className="text-4xl font-bold text-primary">{model.scores?.composite ?? "—"}</div>
           </div>
         </div>
       </header>
 
-      {model.scores && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-8">
-          <ScoreCell label="HTML Match" value={model.scores.htmlMatch} hint="vs real page" />
-          <ScoreCell label="Visual" value={model.scores.visualMatch} hint="rendered look" />
-          <ScoreCell label="Audit" value={model.scores.audit} />
-          <ScoreCell label="Structure" value={model.scores.structure} />
-          <ScoreCell label="Schema" value={model.scores.schema} />
-          <ScoreCell label="Links" value={model.scores.links} />
-          <ScoreCell label="Word Count" value={model.scores.wordCount} />
-          <ScoreCell label="Speed" value={model.scores.speed} />
-        </div>
-      )}
+      <VersionSelector versions={versions} activeDatasetId={datasetId!} activeModelId={id!} />
+
+      {model.status === "error" ? (
+        <Card className="border-destructive bg-destructive/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="w-5 h-5" />
+              Run Failed
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="font-mono text-sm">{model.error}</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <>
+          {model.scores && (
+            <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3 mb-8">
+              <ScoreCell label="HTML Match" value={model.scores.htmlMatch} hint="vs real page" />
+              <ScoreCell label="Visual" value={model.scores.visualMatch} hint="rendered look" />
+              <ScoreCell label="Audit" value={model.scores.audit} />
+              <ScoreCell label="Structure" value={model.scores.structure} />
+              <ScoreCell label="Schema" value={model.scores.schema} />
+              <ScoreCell label="Links" value={model.scores.links} />
+              <ScoreCell label="Word Count" value={model.scores.wordCount} />
+              <ScoreCell label="Speed" value={model.scores.speed} />
+            </div>
+          )}
 
       <Tabs defaultValue="preview" className="w-full">
         <TabsList className="w-full justify-start border-b rounded-none h-12 bg-transparent p-0 mb-6">
@@ -442,6 +441,81 @@ export default function ModelDetail() {
           )}
         </TabsContent>
       </Tabs>
+        </>
+      )}
+    </div>
+  );
+}
+
+/**
+ * Horizontally scrollable, keyboard-accessible tab strip listing every
+ * recorded version of this exact model (matched by scenario + provider model
+ * id) across the current dataset, old/produce archives, and dated history
+ * snapshots. Each tab links to that version's own shareable route.
+ */
+function VersionSelector({
+  versions,
+  activeDatasetId,
+  activeModelId,
+}: {
+  versions: ModelVersion[];
+  activeDatasetId: string;
+  activeModelId: string;
+}) {
+  if (versions.length === 0) return null;
+
+  return (
+    <div
+      role="tablist"
+      aria-label="Model run versions"
+      className="flex gap-2 overflow-x-auto pb-2 mb-6 -mx-1 px-1"
+    >
+      {versions.map((v) => {
+        const isActive = v.datasetId === activeDatasetId && v.model.id === activeModelId;
+        const archiveLabel = v.isCurrent ? "Current" : "Archived";
+        const costLabel = !v.model.costEstimate
+          ? "cost unavailable"
+          : `${v.model.costEstimate.basis.startsWith("Measured") ? "measured" : "estimated"} cost $${v.model.costEstimate.totalUsd.toFixed(2)}`;
+        const scoreLabel =
+          v.model.status === "error"
+            ? "run failed"
+            : v.model.scores
+              ? `composite score ${v.model.scores.composite}`
+              : "no score recorded";
+        const ariaLabel = `${v.datasetLabel}, ${v.dateLabel}, ${archiveLabel}, ${scoreLabel}, ${costLabel}`;
+
+        return (
+          <Link
+            key={`${v.datasetId}-${v.model.id}`}
+            href={`/model/${v.datasetId}/${v.scenarioId}/${v.model.id}`}
+            role="tab"
+            aria-selected={isActive}
+            aria-label={ariaLabel}
+            title={ariaLabel}
+            data-testid={`version-tab-${v.datasetId}-${v.model.id}`}
+            className={`shrink-0 rounded-md border px-3 py-2 text-xs min-w-[150px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
+              isActive
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-border bg-card text-muted-foreground hover:bg-secondary/5 hover:text-foreground"
+            }`}
+          >
+            <div className="font-semibold font-mono truncate">{v.datasetLabel}</div>
+            <div className="text-[10px] font-mono truncate">
+              {v.dateLabel} · {archiveLabel}
+            </div>
+            <div className="flex items-center justify-between gap-2 mt-1 text-[10px] font-mono">
+              <span className={v.model.status === "error" ? "text-destructive" : ""}>
+                {v.model.status === "error" ? "Error" : (v.model.scores?.composite ?? "—")}
+              </span>
+              <span className="truncate">
+                {v.model.costEstimate
+                  ? `${v.model.costEstimate.basis.startsWith("Measured") ? "" : "~"}$${v.model.costEstimate.totalUsd.toFixed(2)}`
+                  : "n/a"}
+              </span>
+            </div>
+          </Link>
+        );
+      })}
     </div>
   );
 }
