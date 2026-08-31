@@ -249,8 +249,12 @@ function unfence(raw: string): string {
  * silent pass. This rule is uniform across every provider, so it stays
  * apples-to-apples. `count` is the best-available request/citation count for the
  * run log; `searched` is the authoritative gate.
+ *
+ * Exported (alongside the provider adapters) so its fail-loud behaviour can be
+ * covered by a local, network-free unit test — the logic itself takes no
+ * network dependency, only the four already-computed evidence signals.
  */
-function enforceLiveFetch(
+export function enforceLiveFetch(
   model: string,
   requested: boolean | undefined,
   searched: boolean,
@@ -726,8 +730,31 @@ export function makeDeepSeekComplete(model: string, effort?: string): CompleteFn
       },
       { signal },
     );
-    const raw = (resp.choices[0]?.message?.content ?? "").trim();
-    if (!raw) throw new Error(`${model} returned an empty response.`);
+    const choice = resp.choices[0] as
+      | { finish_reason?: string | null; message?: { content?: string | null; reasoning_content?: string | null } }
+      | undefined;
+    const raw = (choice?.message?.content ?? "").trim();
+    if (!raw) {
+      // DeepSeek's reasoning-capable tags can emit their entire chain-of-thought
+      // into a SEPARATE `reasoning_content` field, distinct from `content`. If the
+      // per-call output budget (max_tokens) is exhausted by that hidden reasoning
+      // before any visible answer is written, `content` comes back genuinely empty
+      // with finish_reason "length" — a real provider failure, not a transport
+      // glitch, so this stays a thrown error (no retry-proof content is fabricated
+      // here). The diagnostic below records finish_reason and whether reasoning
+      // content was present so a run log points at the actual cause instead of a
+      // bare "empty response".
+      const reasoningChars = choice?.message?.reasoning_content?.trim().length ?? 0;
+      const finishReason = choice?.finish_reason ?? "unknown";
+      throw new Error(
+        `${model} returned an empty response (finish_reason="${finishReason}"` +
+          (reasoningChars > 0
+            ? `, ${reasoningChars} char(s) of hidden reasoning_content were produced but no visible ` +
+              `content — the output budget was likely exhausted by reasoning before any answer was written`
+            : `, no reasoning_content either`) +
+          `).`,
+      );
+    }
     const cu = resp.usage;
     const usage: TokenUsage | null = cu
       ? {

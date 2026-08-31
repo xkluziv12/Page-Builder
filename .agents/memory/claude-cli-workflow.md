@@ -34,3 +34,11 @@ For large, single-line static prompt strings, a freeform CLI rewrite can time ou
 **Why:** A process that stops without a terminal result cannot be trusted, and mechanical replacements can invalidate stale test expectations.
 
 **How to apply:** Keep the transformation reversible and scoped, inspect the diff, repair only tests made obsolete by the authorized policy change, and do not call the cleanup complete until the literal scan, diff check, and relevant verification all pass.
+
+## CLI OAuth environment handoff
+
+In this workspace, the provisioned Claude CLI OAuth secret is named `claudOauth`, while Claude Code expects `CLAUDE_CODE_OAUTH_TOKEN`. The CLI reports “Not logged in” unless the former is passed to the latter for the process. Check presence only and never print the value.
+
+**Why:** The wrapper is installed and healthy, but its expected environment-variable name differs from the provisioned secret name.
+
+**How to apply:** For a bounded Claude dispatch, use a process-local environment assignment such as `CLAUDE_CODE_OAUTH_TOKEN="$claudOauth"`; do not persist or echo the token.

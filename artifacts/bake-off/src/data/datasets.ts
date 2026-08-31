@@ -49,6 +49,18 @@ const HISTORY_DATASETS: Dataset[] = (historyManifest as Array<{
   .sort((a, b) => (a.ranAt! < b.ranAt! ? 1 : -1));
 
 /**
+ * Derives a human-readable model line-up from a results file's own model
+ * entries, so the blurb can never drift out of sync when results.json is
+ * regenerated with a different set of models.
+ */
+function summarizeModelLineup(results: BakeoffResults): string {
+  const labels = Array.from(
+    new Set(results.scenarios.flatMap((scenario) => scenario.models.map((m) => m.label))),
+  );
+  return labels.length > 0 ? labels.join(", ") : "no models recorded";
+}
+
+/**
  * The bake-off runs the viewer can switch between. "current" is the latest
  * top-tier run; "old" is the archived full-adherence run (different model
  * line-up). Both are No-GMB only.
@@ -57,8 +69,7 @@ export const DATASETS: Dataset[] = [
   {
     id: "current",
     label: "Current Bake-Off",
-    blurb:
-      "Latest top-tier run — Claude Sonnet 5, GPT-5.6-Terra, Gemini 3.1 Pro + 3.5 Flash, Grok 4.5. Fairness-fixed (neutralized intro), with real measured token cost + full per-turn transcripts.",
+    blurb: `Latest top-tier run — ${summarizeModelLineup(currentData as BakeoffResults)}. Fairness-fixed (neutralized intro), with real measured token cost + full per-turn transcripts.`,
     results: currentData as BakeoffResults,
   },
   {
