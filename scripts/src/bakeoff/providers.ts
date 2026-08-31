@@ -667,17 +667,39 @@ export function makeGrokComplete(model: string, effort?: string): CompleteFn {
     // portion as discounted cached tokens with no request-side flag (its
     // OpenAI-compatible surface rejects unknown fields, so no prompt_cache_key is
     // sent). The big verbatim-repeated prefix therefore still lands cache hits.
-    const resp = await client.chat.completions.create({
-      model,
-      max_tokens: opts?.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
-      messages: openAiMessages(messages, system),
-    });
-    const raw = (resp.choices[0]?.message?.content ?? "").trim();
+    //
+    // STREAMED (not a single blocking call): on the full-history build/seo
+    // turns grok-4.6 legitimately runs minutes with a large hidden reasoning
+    // pass before its first visible byte — a plain non-streaming
+    // chat.completions call holds one connection idle that whole time, which is
+    // exactly the shape that trips "Request timed out" on a slower-generating
+    // tag even though the eventual reply is fine (grok-4.20-0309-reasoning is
+    // fast enough that the same non-streaming call never hit this). Streaming
+    // keeps the connection actively receiving bytes throughout, matching the
+    // approach the Claude adapter already uses for its own long generations, and
+    // sidesteps the idle-connection timeout without changing the prompt, turn
+    // order, or final content in any way.
+    const stream = await client.chat.completions.create(
+      {
+        model,
+        max_tokens: opts?.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
+        messages: openAiMessages(messages, system),
+        stream: true,
+        stream_options: { include_usage: true },
+      },
+      { signal },
+    );
+    let raw = "";
+    let cu: OpenAI.CompletionUsage | undefined;
+    for await (const chunk of stream) {
+      raw += chunk.choices[0]?.delta?.content ?? "";
+      if (chunk.usage) cu = chunk.usage;
+    }
+    raw = raw.trim();
     if (!raw) throw new Error(`${model} returned an empty response.`);
     // chat/completions usage: prompt_tokens/completion_tokens INCLUDE their
     // cached / reasoning subsets, reported in the *_details blocks. Null when no
     // usage block came back (so cost falls back to the estimate).
-    const cu = resp.usage;
     const usage: TokenUsage | null = cu
       ? {
           inputTokens: cu.prompt_tokens ?? 0,
@@ -697,6 +719,18 @@ export function makeGrokComplete(model: string, effort?: string): CompleteFn {
  * fails loud at construction rather than silently ignoring the request. */
 const DEEPSEEK_BASE_URL = "https://api.deepseek.com";
 
+/**
+ * DeepSeek's "flash"/"reasoner" tags are hidden-reasoning models: like OpenAI's
+ * pro tier, the reasoning trace is billed against the SAME `max_tokens` budget
+ * as the visible answer (`completion_tokens_details.reasoning_tokens` is a
+ * SUBSET of `completion_tokens`, not additional). On a long generative HTML
+ * build turn the model can burn the entire budget on its hidden reasoning and
+ * hit `finish_reason: "length"` before emitting a single visible character —
+ * that reads as a silent "empty response", not a thrown error. The plain
+ * "-chat" tag has no hidden reasoning and needs no extra headroom. Mirrors
+ * `OPENAI_MAX_OUTPUT_TOKENS`'s reasoning-headroom pattern.
+ */
+const DEEPSEEK_REASONING_MAX_OUTPUT_TOKENS = 64000;
 export function makeDeepSeekComplete(model: string, effort?: string): CompleteFn {
   if (effort) {
     throw new Error(
@@ -722,37 +756,35 @@ export function makeDeepSeekComplete(model: string, effort?: string): CompleteFn
     // rather than silently letting the turn (and the SEO-verify score) pass on
     // pure training-recall content.
     enforceLiveFetch(model, opts?.webSearch, false, 0);
+    const reasoningTag = isDeepSeekReasoningTag(model);
     const resp = await client.chat.completions.create(
       {
         model,
-        max_tokens: opts?.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
+        max_tokens:
+          opts?.maxOutputTokens ?? (reasoningTag ? DEEPSEEK_REASONING_MAX_OUTPUT_TOKENS : MAX_OUTPUT_TOKENS),
         messages: openAiMessages(messages, system),
       },
       { signal },
     );
-    const choice = resp.choices[0] as
-      | { finish_reason?: string | null; message?: { content?: string | null; reasoning_content?: string | null } }
-      | undefined;
-    const raw = (choice?.message?.content ?? "").trim();
+    const raw = (resp.choices[0]?.message?.content ?? "").trim();
     if (!raw) {
-      // DeepSeek's reasoning-capable tags can emit their entire chain-of-thought
-      // into a SEPARATE `reasoning_content` field, distinct from `content`. If the
-      // per-call output budget (max_tokens) is exhausted by that hidden reasoning
-      // before any visible answer is written, `content` comes back genuinely empty
-      // with finish_reason "length" — a real provider failure, not a transport
-      // glitch, so this stays a thrown error (no retry-proof content is fabricated
-      // here). The diagnostic below records finish_reason and whether reasoning
-      // content was present so a run log points at the actual cause instead of a
-      // bare "empty response".
-      const reasoningChars = choice?.message?.reasoning_content?.trim().length ?? 0;
-      const finishReason = choice?.finish_reason ?? "unknown";
+      const finishReason = resp.choices[0]?.finish_reason ?? "unknown";
+      const reasoningTokens =
+        (resp.usage as { completion_tokens_details?: { reasoning_tokens?: number } } | undefined)
+          ?.completion_tokens_details?.reasoning_tokens ?? 0;
+      if (reasoningTag && finishReason === "length") {
+        throw new Error(
+          `${model} returned an empty response: it exhausted its ${
+            opts?.maxOutputTokens ?? DEEPSEEK_REASONING_MAX_OUTPUT_TOKENS
+          }-token budget on hidden reasoning (${reasoningTokens} reasoning tokens) before emitting any ` +
+            `visible content (finish_reason="length"). Raise the output-token budget further or shorten ` +
+            `the turn's input.`,
+        );
+      }
       throw new Error(
-        `${model} returned an empty response (finish_reason="${finishReason}"` +
-          (reasoningChars > 0
-            ? `, ${reasoningChars} char(s) of hidden reasoning_content were produced but no visible ` +
-              `content — the output budget was likely exhausted by reasoning before any answer was written`
-            : `, no reasoning_content either`) +
-          `).`,
+        `${model} returned an empty response (finish_reason="${finishReason}", raw=${JSON.stringify(
+          resp,
+        ).slice(0, 500)}).`,
       );
     }
     const cu = resp.usage;
@@ -798,4 +830,8 @@ export async function discoverNewestGrok(): Promise<string> {
     throw new Error("No general grok model is available from xAI.");
   }
   return candidates[0]!.id;
+}
+
+function isDeepSeekReasoningTag(model: string): boolean {
+  return /flash|reasoner/i.test(model);
 }

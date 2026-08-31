@@ -24,3 +24,4 @@
 - [Page research SSRF guard](page-research-ssrf.md) — validate DNS at the HTTP connection, not only before fetch, to defeat rebinding into internal networks.
 - [API router authorization tests](api-route-auth-tests.md) — use a temporary CommonJS esbuild bundle for isolated real-router tests in this workspace.
 - [CLI provider setup](cli-provider-setup.md) — Claude/Codex/Gemini CLIs use project-local global-bin wiring; Codex needs CODEX_API_KEY and xhigh reasoning.
+- [Bake-off Grok/DeepSeek reliability](bakeoff-grok-deepseek-reliability.md) — Grok needs streaming (idle non-stream connections trip timeouts on slow turns); DeepSeek reasoning tags can exhaust max_tokens on hidden reasoning → empty reply.
