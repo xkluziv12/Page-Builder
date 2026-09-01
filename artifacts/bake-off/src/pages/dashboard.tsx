@@ -1,18 +1,13 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { ModelResult, Provenance, ScenarioResult } from "@/types";
+import { ModelResult, ScenarioResult } from "@/types";
 import { Link } from "wouter";
 import { ChevronRight, Clock, AlertTriangle, CheckCircle2, DollarSign } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useDataset } from "@/contexts/dataset-context";
+import { effortLabel, provenanceLabel } from "@/lib/model-labels";
 
-/** Compact "actual source" label. Never assume direct-api when absent. */
-export function provenanceLabel(p: Provenance | null | undefined): string {
-  if (!p) return "Not recorded";
-  if (p.provider && p.model) return `${p.provider}/${p.model}`;
-  if (p.provider) return p.provider;
-  return p.sourceKind || "Not recorded";
-}
+export { provenanceLabel };
 
 export default function Dashboard() {
   const { dataset, datasets, activeId: datasetId, setActiveId: setDatasetId } = useDataset();
@@ -40,6 +35,12 @@ export default function Dashboard() {
         <h1 className="text-4xl font-bold tracking-tight mb-2">Model Leaderboard</h1>
         <p className="text-muted-foreground">
           Comparing LLM performance for page generation against {results.target.city}, {results.target.state}
+        </p>
+        {/* The exact page every model in THIS dataset was asked to reproduce.
+            Datasets in the switcher can target different cities, so scores are
+            only comparable within one target — show it, don't imply it. */}
+        <p className="text-xs text-muted-foreground font-mono mt-1" data-testid="target-url">
+          target: {results.target.url}
         </p>
       </header>
 
@@ -141,8 +142,13 @@ function ModelRankCard({ model, rank, scenarioId, datasetId }: { model: ModelRes
             <div className="flex items-center gap-3 mb-2">
               <h2 className="text-xl font-semibold">{model.label}</h2>
               <Badge variant="outline" className="font-mono text-[10px]">{model.model}</Badge>
-              <Badge variant="secondary" className="font-mono text-[10px]" title="Reasoning-effort setting recorded for this run">
-                effort: {model.effort ?? "unknown"}
+              <Badge
+                variant="secondary"
+                className="font-mono text-[10px]"
+                title="Reasoning-effort setting recorded for this run. A control run is a provider-default run on a provider with no effort knob — it is NOT a low/medium tier."
+                data-testid={`effort-${model.id}`}
+              >
+                effort: {effortLabel(model)}
               </Badge>
               <Badge
                 variant="outline"

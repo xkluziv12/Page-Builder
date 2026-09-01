@@ -26,9 +26,8 @@ import { loadReferenceHtml, resolveTarget, type BakeoffTarget } from "./target.j
 import { scoreModels } from "./score.js";
 import { judgeVisual, type VisualVerdict } from "./visual.js";
 import { archiveSnapshot } from "./history.js";
-import { backupPriorResults, isForcedId, loadPrior, writeJsonAtomic } from "./resume.js";
+import { backupPriorResults, loadPrior, writeJsonAtomic } from "./resume.js";
 import {
-  baseIdOf,
   parseVariantEnv,
   resolveVariants,
   type BaseModelSpec,
@@ -532,13 +531,24 @@ async function main(): Promise<void> {
     }
     if (pending.length === 0) continue;
 
+    // runModel never throws: runOneModel already converts a model's own failure
+    // into an error ModelResult, and a persist failure is reported but not
+    // rethrown. That is what keeps ONE failed cell from aborting its siblings or
+    // collapsing the whole invocation into a single "run failed".
     const runModel = async (m: ModelSpec): Promise<void> => {
       console.log(`\n=== ${spec.label} → ${m.label} ===`);
       const result = await runOneModel(m, spec, grounding, fixtures);
       scenario.models.push(result);
       didRunAnyModel = true;
-      await queuePersist();
-      console.log(`  …persisted ${spec.id}/${m.id} (${result.status}).`);
+      try {
+        await queuePersist();
+        console.log(`  …persisted ${spec.id}/${m.id} (${result.status}).`);
+      } catch (err) {
+        console.log(
+          `  ! persist after ${spec.id}/${m.id} failed (result kept in memory; a later ` +
+            `persist will include it): ${err instanceof Error ? err.message : String(err)}`,
+        );
+      }
     };
 
     if (sequential) {
@@ -547,8 +557,27 @@ async function main(): Promise<void> {
       console.log(
         `  ↻ ${spec.id}: running ${pending.length} model(s) concurrently: ${pending.map((m) => m.id).join(", ")}`,
       );
-      await Promise.all(pending.map(runModel));
+      // allSettled, not all: even an UNEXPECTED throw in one cell's bookkeeping
+      // must not discard the siblings that already completed.
+      const settled = await Promise.allSettled(pending.map(runModel));
+      for (const [i, outcome] of settled.entries()) {
+        if (outcome.status === "rejected") {
+          console.log(
+            `  ! ${spec.id}/${pending[i]!.id} raised outside its own error handling: ${
+              outcome.reason instanceof Error ? outcome.reason.message : String(outcome.reason)
+            }`,
+          );
+        }
+      }
     }
+  }
+
+  // One unconditional persist after every scenario, so anything a failed interim
+  // write left in memory still lands on disk before the visual pass.
+  try {
+    await queuePersist();
+  } catch (err) {
+    console.log(`  ! final persist failed: ${err instanceof Error ? err.message : String(err)}`);
   }
 
   // Visual judge pass: render every successful model's HTML to a screenshot and
@@ -565,7 +594,7 @@ async function main(): Promise<void> {
       referenceScreenshot = verdict.referenceScreenshot;
       for (const m of s.models) m.screenshot = verdict.screenshots.get(m.id) ?? m.screenshot;
     }
-    await persist();
+    await queuePersist();
     console.log("Visual judge pass complete; rescored with perceptual verdicts.");
   } catch (err) {
     console.log(`Visual judge pass skipped: ${err instanceof Error ? err.message : String(err)}`);
@@ -588,7 +617,13 @@ async function main(): Promise<void> {
         {
           runId,
           label: `${TARGET.city}, ${TARGET.state} — ${new Date().toLocaleDateString("en-US")}`,
-          blurb: `Auto-archived run: ${models.map((m) => m.label).join(", ")}.`,
+          // Name the effort tier per cell so a low/medium matrix is legible from
+          // the history switcher alone, and a knob-less control run says so.
+          blurb:
+            `Auto-archived run (${TARGET.url}): ` +
+            `${models
+              .map((m) => `${m.label} [effort: ${m.effort}${m.effortSupported ? "" : ", no effort control"}]`)
+              .join(", ")}.`,
           sourceScreenshotRoot: SCREENSHOT_DIR,
         },
       );
@@ -602,7 +637,10 @@ async function main(): Promise<void> {
     console.log(`\n[${s.label}]`);
     for (const m of s.models) {
       const score = m.scores ? `${m.scores.composite}/100` : "—";
-      console.log(`  ${m.label}: ${m.status === "ok" ? score : `ERROR (${m.error})`}`);
+      console.log(
+        `  ${m.id} — ${m.label} (effort: ${m.effort ?? "unknown"}): ` +
+          `${m.status === "ok" ? score : `ERROR (${m.error})`}`,
+      );
     }
   }
 }
@@ -644,6 +682,7 @@ async function runOneModel(
 ): Promise<ModelResult> {
   const base: ModelResult = {
     id: spec.id,
+    baseId: spec.baseId,
     label: spec.label,
     provider: spec.provider,
     model: spec.model,
@@ -659,6 +698,8 @@ async function runOneModel(
     totalMs: 0,
     scores: null,
     effort: spec.effort,
+    effortRequested: spec.effortRequested,
+    effortSupported: spec.effortSupported,
     screenshot: null,
     costEstimate: null,
     usage: null,
