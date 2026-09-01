@@ -1,0 +1,135 @@
+Yes, but the guidance is split across several files rather than centralized.
+
+## 1. Universal image-generation prompt
+
+File:
+
+`attached_assets/Pasted--UNIVERSAL-MASTER-PAGE-BUILDER-SOURCE-OF-TRUTH-v1-4-Thi_1788291991646.txt`
+
+Relevant sections:
+
+- `PHASE 2D: IMAGERY STANDARD`
+- `IMAGE ACCEPTANCE`
+- `EXTENDED REALISM GUIDANCE`
+
+It specifically requires:
+
+- Generated imagery rather than stock photography
+- A documentary or commissioned-photography look
+- One frame and one scene
+- Natural composition
+- Realistic lighting and materials
+- No rendered text
+- No logos, badges, seals, or brand marks
+- No recognizable premises or landmarks
+- No unsafe activity
+- No collage, grid, or split-screen composition
+- No CGI or 3D-rendered appearance
+- No “AI-generated look”
+- No plastic skin
+- No oversharpened halos
+- No warped geometry
+- No repeated identical objects
+- No floating objects
+- Actual pixel-level inspection before acceptance
+
+The prompt’s own negative guidance includes:
+
+> “AI-generated look, CGI, 3D render, plastic skin, oversharpened halos, repeating identical objects, warped geometry, floating objects…”
+
+It also says images should look like one of these:
+
+- Phone documentary
+- Corporate commissioned photography
+- Editorial documentary photography
+
+So yes, the prompt already contains direct instructions against fake-looking imagery.
+
+## 2. Existing site image manifest
+
+File:
+
+`artifacts/data2shred/public/images/MANIFEST.md`
+
+This documents the site’s existing image standard:
+
+- 100% AI-generated
+- No stock or competitor screenshots
+- No forward-facing AI faces
+- Gloved hands when hands appear
+- No legible text
+- No reflective surfaces facing the camera
+- Shallow depth of field
+- Metadata stripped
+- No fake EXIF
+- Specific crop sizes
+- WebP conversion
+- SEO filenames
+- Every image recorded in the manifest
+
+It also contains better visual direction than the failed benchmark prompts, including details such as:
+
+- iPhone-style documentary photography
+- Natural available light
+- Cool fluorescent cast
+- Slight motion blur
+- Worn pallet-jack tracks
+- Misaligned bins
+- Scuffed surfaces
+- Real facility context
+- Technicians shown from behind
+- Specific camera placement
+- Imperfect but believable environments
+
+Those details are exactly the kind of direction missing from the bad benchmark images.
+
+## 3. Current image-generation memory rule
+
+File:
+
+`.agents/memory/mandatory-image-generation.md`
+
+This says the supervising Replit chat must:
+
+- Generate the images itself
+- Inspect the actual pixels
+- Optimize the files
+- Wire them into the page
+- Require 2–4 real local image files
+- Reject text-only claims that images were created
+
+That covers execution, but it does not contain the full photographic style guide.
+
+## The problem with the current documentation
+
+The documentation exists, but it has three weaknesses:
+
+1. **It is scattered.**  
+   The visual style is in the master prompt and existing image manifest. The execution gate is in memory. The provider requirement was not consistently defined.
+
+2. **The master prompt says “Gemini” while the project also uses OpenAI.**  
+   That creates provider confusion. It needs one canonical provider instruction.
+
+3. **The prompt’s quality gate was not strong enough in practice.**  
+   It says to check realism, but it also previously said to ship the best available result after a failed retry. That allows a technically compliant but ugly image to pass. The prompt needs to explicitly reject generic AI still lifes, plastic objects, repetitive arrangements, and images that weaken the design.
+
+There is also some inconsistency in the existing manifest. For example, several older image records mention visible serialized labels or certificate text, while the newer master prompt says there must be no rendered text of any kind. The newer rule should take precedence.
+
+## Bottom line
+
+We already have documentation saying the images should not look AI-generated. The most useful existing references are:
+
+- `...UNIVERSAL-MASTER-PAGE-BUILDER-SOURCE-OF-TRUTH-v1-4...txt`
+- `artifacts/data2shred/public/images/MANIFEST.md`
+- `.agents/memory/mandatory-image-generation.md`
+
+What we do not yet have is one authoritative project document that combines:
+
+- OpenAI as the required provider
+- The documentary photography style
+- The anti-AI visual-quality gate
+- Hero-background composition rules
+- The rejection criteria
+- The actual execution and verification requirements
+
+That is the documentation gap that caused the benchmark process to technically pass while producing images you correctly identified as fake and ugly.

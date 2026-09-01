@@ -1,0 +1,310 @@
+I reread the prompt. The main problem is not only that it says Gemini instead of OpenAI. The deeper problem is that it describes image creation as mandatory, but does not give the supervising Replit chat a hard execution contract or a design-quality gate.
+
+Copy and send this to the chat that created the prompt:
+
+```text
+I reread the Universal Master Page Builder prompt carefully. Please revise it as a real v1.5 process update, not just a provider-name replacement.
+
+The current prompt has a serious execution flaw: it calls imagery mandatory, but a text-only page-generation model can receive the prompt, declare image generation unavailable, produce a page without images, and still continue through SEO, schema, and final verification. That must no longer be possible.
+
+The revised prompt must make the supervising Replit chat responsible for actual image creation and must separate image execution from text-only candidate generation.
+
+## 1. Replace Gemini with direct OpenAI image generation
+
+Replace every statement that says:
+
+"Gemini image generation"
+
+with a direct OpenAI Images API requirement.
+
+Use the user's direct OpenAI API key through the secure Replit secret flow. Do not use, propose, or silently add a Replit-managed AI integration or connector.
+
+The required image provider is:
+
+- Provider: OpenAI
+- API: OpenAI Images API
+- Default model: gpt-image-1, unless the user explicitly selects another OpenAI image model
+- Endpoint: POST /v1/images/generations
+- Credential: OPENAI_API_KEY from the secure workspace environment
+
+The key must never be printed, pasted into chat, placed in source files, placed in command-line arguments, or written into logs.
+
+If OPENAI_API_KEY is not available to the supervising Replit chat, the chat must request it through the secure secret form and stop. It must not continue by describing images in prose, using stock images, using existing generic site images, using CSS patterns, or pretending that image generation is complete.
+
+## 2. Make the supervising Replit chat the image orchestrator
+
+The page-generation model may write React, copy, SEO, schema, and a design brief, but it cannot self-certify image creation unless it actually has an image-generation tool and file-writing capability.
+
+The supervising Replit chat must perform these steps itself:
+
+1. Read the Phase 0 Source Facts.
+2. Create the Phase 1 visual and image-slot brief.
+3. Call the direct OpenAI Images API.
+4. Save each returned image to a real local file.
+5. Inspect the actual image pixels.
+6. Reject or regenerate images that fail.
+7. Crop and optimize each accepted image for its planned slot.
+8. Add the actual image paths and alt text to the page source.
+9. Render the page in a browser.
+10. Inspect the images in the actual page context at desktop, tablet, and mobile widths.
+11. Complete the image manifest and only then allow SEO and final verification to pass.
+
+A model response that says "image generation unavailable," "image generation unverified," or "image described but not created" must cause the run to stop as INCOMPLETE. It may not proceed to SEO, schema, or a PASS result.
+
+## 3. Make design come before image generation and image placement
+
+The current prompt says imagery is mandatory, but it still allows images to be created after the page has effectively been designed. That produces disconnected images that are inserted into an existing layout as an afterthought.
+
+The revised process must require this order:
+
+1. Source Facts
+2. Buyer persona and page intent
+3. Section architecture
+4. Visual direction
+5. Image-slot plan
+6. Image briefs and composition plans
+7. Image generation
+8. Pixel acceptance
+9. Page build around the accepted imagery
+10. Browser verification
+11. SEO and schema
+
+The image plan must be part of the page architecture, not an add-on.
+
+For every planned image, define:
+
+- Exact page section
+- Role in the hierarchy
+- Image type: hero background, supporting editorial image, process image, proof image, or other
+- Desired aspect ratio
+- Subject and action
+- Focal point
+- Negative-space requirements for nearby text
+- Intended crop behavior
+- Relationship to the surrounding copy
+- Alt text intent
+- Why the image improves the visitor's understanding or trust
+
+## 4. Add a true visual-quality gate
+
+The current image rules check for text, logos, unsafe elements, and basic realism, but those are not enough. An image can pass those checks and still look fake, ugly, generic, or useless.
+
+Add this hard visual-quality gate:
+
+An image must be rejected if it looks like:
+
+- A generic AI still life
+- A stock-photo substitute
+- A row of repeated identical objects
+- Plastic or toy-like equipment
+- A staged catalog photograph with no believable context
+- A composition with no clear focal point
+- A background that fights the headline or CTA
+- A visually empty image created only to satisfy the image count
+- An image whose lighting, scale, reflections, contact shadows, or geometry look artificial
+- An image that makes the brand feel less credible than the page without the image
+
+The image must be accepted only if it:
+
+- Looks like a believable commissioned documentary or editorial photograph
+- Has one clear visual story
+- Uses natural materials and believable proportions
+- Has purposeful composition and lighting
+- Supports the specific buyer intent of the page
+- Improves hierarchy, comprehension, trust, or conversion
+- Works when viewed inside the actual page, not only as an isolated file
+- Feels specific to the business subject instead of interchangeable with any company
+
+"Contains no text" and "contains no logos" are necessary checks, but they are not sufficient acceptance criteria.
+
+## 5. Change the hero requirement
+
+The prompt must explicitly state that hero imagery is a layout decision.
+
+When the page brief calls for a hero image, the default treatment should be a properly designed full-bleed or contained hero background, not an image panel added below an already-built text hero.
+
+The hero image must be composed for the actual headline placement:
+
+- Reserve calm negative space where the headline and CTA will sit.
+- Place the visual subject away from the text when appropriate.
+- Use overlays only to support readability, not to hide a bad composition.
+- Keep one dominant focal point.
+- Avoid placing the subject underneath or directly behind important copy.
+- Verify the contrast and crop at desktop and mobile widths.
+- Do not add a large separate image panel simply because an image was generated afterward.
+
+A separate image panel is allowed only when the visual brief explicitly calls for an editorial figure or process image. The agent must explain why that placement is better than a background hero.
+
+The prompt must require a design decision between:
+
+- Full-bleed background hero
+- Split hero
+- Contained editorial hero image
+- No hero image
+
+The agent must choose deliberately based on the page intent and document the decision. It must not default to a separate image panel because that is easier to implement.
+
+## 6. Stop forcing generic prompts with excessive negative constraints
+
+The current prompt combines many negative requirements:
+
+- No people
+- No logos
+- No text
+- No labels
+- No screens
+- No identifiable premises
+- No brands
+- No unsafe objects
+- No signage
+- No landmarks
+
+Some of those restrictions are appropriate, but the result can become a generic arrangement of bins, folders, carts, and hard drives.
+
+The revised prompt should require positive art direction before negative constraints:
+
+- Camera position
+- Lens and approximate distance
+- Time of day
+- Lighting behavior
+- Material details
+- One believable imperfection
+- Clear subject action
+- Environmental context
+- Focal point
+- Composition relative to the page headline
+- Desired photographic register
+
+Do not use a long negative prompt as a substitute for visual direction.
+
+People should not be blanket-banned when they would make the scene more credible. If people are relevant, allow cropped or anonymous workers with no identifiable face, no unsafe activity, and no company branding. If people are not relevant, omit them for a positive visual reason rather than automatically banning them.
+
+## 7. Do not ship a known bad image
+
+The current prompt says that if a second generation fails, the agent should pick the best available result, ship it, and flag the flaw.
+
+That is not acceptable for a design-first build. Do not knowingly ship an ugly or obviously artificial image simply because it is technically compliant.
+
+Replace that rule with:
+
+- Regenerate once when a hard rule fails.
+- If the retry fails, create a meaningfully different visual concept rather than repeating the same composition.
+- If no result meets the visual-quality gate, stop the image phase as INCOMPLETE.
+- Do not ship a known bad image just to satisfy the 2–4 image count.
+- Do not replace a failed image with a CSS pattern, generic stock image, archived image, or prose description.
+- Ask the user for a visual decision or report the incomplete state.
+
+Cost control is less important than knowingly damaging the design.
+
+## 8. Require actual image artifacts
+
+The image phase may not pass unless all of the following exist:
+
+- 2–4 actual image files generated through OpenAI
+- Local paths for the original generated files
+- Local paths for the optimized shipped files
+- Actual dimensions for every file
+- Declared and verified aspect ratio for every slot
+- Pixel-level acceptance result
+- Rejected-image record when applicable
+- Descriptive alt text under approximately 125 characters
+- Actual imports or asset references in the page source
+- Actual rendered image elements or background-image references in the page
+- Browser verification at desktop, tablet, and mobile widths
+- No console errors
+- No missing-image network requests
+- No layout shift caused by the image
+
+A manifest must record:
+
+- Provider
+- Model
+- Generation date
+- Page and section slot
+- Source Fact that justified the image
+- Prompt summary
+- Original dimensions
+- Shipped dimensions
+- Format and optimization details
+- Acceptance decision
+- Rejection reason, if rejected
+- Final page reference
+- Alt text
+- Whether the image was reviewed in page context
+
+## 9. Do not let SEO or schema override design
+
+The current prompt says later SEO should not touch the approved design or images, which is correct. However, the process must make clear that SEO cannot be considered complete while required images are missing.
+
+The required order must be:
+
+- Build and visually approve the page and images first.
+- Lock the design and image set.
+- Then run SEO.
+- Then run schema.
+- Then run final verification.
+
+If imagery is incomplete, the page is incomplete regardless of how good its title tag, meta description, schema, or word count is.
+
+## 10. Add a machine-checkable completion gate
+
+Before the final response, the supervising Replit chat must output a gate like this:
+
+IMAGE_EXECUTION_GATE:
+- Direct OpenAI API used: PASS or FAIL
+- OPENAI_API_KEY securely available: PASS or FAIL
+- Required image count generated: PASS or FAIL
+- Actual local image files exist: PASS or FAIL
+- Pixel inspection completed: PASS or FAIL
+- Visual-quality gate passed: PASS or FAIL
+- Image placement matches visual brief: PASS or FAIL
+- Alt text present: PASS or FAIL
+- Optimized files present: PASS or FAIL
+- Desktop render verified: PASS or FAIL
+- Tablet render verified: PASS or FAIL
+- Mobile render verified: PASS or FAIL
+- Console and network image errors: PASS or FAIL
+- Page may proceed to SEO: YES or NO
+- Page may be marked complete: YES or NO
+
+Any FAIL in the required image fields means the page cannot be marked complete.
+
+## 11. Fix the benchmark architecture
+
+The benchmark previously sent the full prompt to text-only model calls and expected those calls to produce page candidates. That is not enough for a prompt containing mandatory external actions.
+
+The revised prompt must explicitly distinguish:
+
+- Text-only candidate generation
+- Supervising-agent image orchestration
+- Browser rendering and visual verification
+- Final approval
+
+If the benchmark is only testing text-generation quality, it must label the output as a text-only candidate and must not claim that it completed the full Universal Master Page Builder process.
+
+If the benchmark is intended to test the full process, the supervising Replit chat must execute the OpenAI image calls and integrate the resulting assets before scoring the candidate.
+
+## 12. Required result from this revision
+
+Please return:
+
+1. The revised v1.5 prompt.
+2. A concise change log identifying every changed section.
+3. The exact OpenAI image-execution contract.
+4. The exact IMAGE_EXECUTION_GATE.
+5. A statement explaining that a text-only model cannot satisfy mandatory image creation without an external orchestrator.
+6. A statement confirming that generated imagery is now part of the page architecture and must be designed in context, not added after the fact.
+
+Do not merely change the word "Gemini" to "OpenAI." The process, ordering, orchestration, design gate, artifact requirements, and failure behavior all need to change.
+```
+
+The most important corrections are:
+
+1. **OpenAI must replace Gemini everywhere.**
+2. **The supervising Replit chat must make the image API call.**
+3. **A text-only page candidate cannot claim image completion.**
+4. **Image planning must happen before page layout is finalized.**
+5. **A full-bleed hero background must be an explicit design option, not an afterthought.**
+6. **A technically compliant but ugly or obviously AI-looking image must fail.**
+7. **The agent must stop rather than ship a known bad image.**
+8. **Actual image files and in-page rendering must be required before SEO or completion.**

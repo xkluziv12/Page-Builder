@@ -1,5 +1,12 @@
 [
   {
+    "id": "2026-09-01T20-45-17-774Z",
+    "file": "2026-09-01T20-45-17-774Z.json",
+    "label": "Bakersfield, CA — 9/1/2026",
+    "blurb": "Auto-archived run (https://www.stselectronicrecyclinginc.com/bakersfield-ca): Grok 4.6 [effort: not-supported, no effort control], Grok 4.20 Reasoning [effort: not-supported, no effort control], Gemini 3.1 Pro [effort: low], Gemini 3.1 Pro [effort: medium], Gemini 3.7 Flash [effort: low], Gemini 3.7 Flash [effort: medium], GPT-5.6 Luna [effort: medium], GPT-5.6 Luna [effort: high], GPT-5.6 Terra [effort: not-applicable, no effort control], DeepSeek v4 Flash [effort: not-supported, no effort control], DeepSeek v4 Pro [effort: not-supported, no effort control].",
+    "ranAt": "2026-09-01T20:45:17.774Z"
+  },
+  {
     "id": "2026-09-01T19-56-18-816Z",
     "file": "2026-09-01T19-56-18-816Z.json",
     "label": "Bakersfield, CA — 9/1/2026",
