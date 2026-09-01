@@ -1,5 +1,19 @@
 [
   {
+    "id": "2026-09-01T14-24-04-493Z",
+    "file": "2026-09-01T14-24-04-493Z.json",
+    "label": "Billings, MT — 9/1/2026",
+    "blurb": "Auto-archived run: Gemini 3.7 Flash, GPT-5.6 Luna, Grok 4.20 Reasoning (newest live Grok 4.x).",
+    "ranAt": "2026-09-01T14:24:04.493Z"
+  },
+  {
+    "id": "2026-09-01T14-06-55-051Z",
+    "file": "2026-09-01T14-06-55-051Z.json",
+    "label": "Billings, MT — 9/1/2026",
+    "blurb": "Auto-archived run: Gemini 3.7 Flash, GPT-5.6 Luna, Grok 4.20 Reasoning (newest live Grok 4.x).",
+    "ranAt": "2026-09-01T14:06:55.051Z"
+  },
+  {
     "id": "2026-08-31T19-36-26-170Z",
     "file": "2026-08-31T19-36-26-170Z.json",
     "label": "Billings, MT — 8/31/2026",
