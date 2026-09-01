@@ -49,12 +49,13 @@
           "costEstimate": {
             "inputTokens": 187384,
             "outputTokens": 32616,
-            "inputUsd": 0.127,
-            "outputUsd": 0.0815,
-            "totalUsd": 0.2085,
-            "pricePerMInput": 1.25,
-            "pricePerMOutput": 2.5,
-            "basis": "Measured — real token usage reported by the provider, summed across all turns: 187,384 input token(s) (95,360 served from prompt cache, billed at 10% of the input rate) and 32,616 output token(s) (incl. 67,496 hidden reasoning token(s)), priced at Grok 4.3 tier list rates ($1.25/$2.5 per 1M in/out). Provider-side web-search fees on the SEO-verify turn are billed separately and are excluded."
+            "inputUsd": 0.2317,
+            "outputUsd": 0.1957,
+            "totalUsd": 0.4274,
+            "pricePerMInput": 2,
+            "pricePerMCachedInput": 0.5,
+            "pricePerMOutput": 6,
+            "basis": "Measured — real token usage reported by the provider, summed across all turns: 187,384 input token(s) (95,360 served from prompt cache, billed at $0.5/1M) and 32,616 output token(s) (incl. 67,496 hidden reasoning token(s)), priced at xAI Grok 4.6 tier (standard, prompts <200k) list rates ($2/$0.5/$6 per 1M input/cached-input/output; verified September 1, 2026 from https://docs.x.ai/developers/pricing).  Per-turn usage was unavailable, so the standard rate was applied without a long-context adjustment. Provider-side web-search fees on the SEO-verify turn are billed separately and are excluded."
           },
           "usage": {
             "inputTokens": 187384,

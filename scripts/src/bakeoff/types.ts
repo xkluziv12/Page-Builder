@@ -29,11 +29,19 @@ export interface PhaseTiming {
  * shape across Anthropic / OpenAI / Gemini / xAI so cost is MEASURED, not
  * estimated. Null on a ModelResult when no turn returned usage.
  */
+export interface TokenUsageTurn {
+  inputTokens: number;
+  cachedInputTokens: number;
+  outputTokens: number;
+}
+
 export interface TokenUsage {
   inputTokens: number;
   cachedInputTokens: number;
   outputTokens: number;
   reasoningTokens: number;
+  /** Per-request usage, retained so provider context-band pricing is exact. */
+  turns?: TokenUsageTurn[];
 }
 
 export interface ModelScores {

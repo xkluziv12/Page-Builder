@@ -105,6 +105,8 @@ export interface CostEstimate {
   outputUsd: number;
   totalUsd: number;
   pricePerMInput: number;
+  /** Present on newly repriced records; absent from older archived snapshots. */
+  pricePerMCachedInput?: number;
   pricePerMOutput: number;
   basis: string;
 }

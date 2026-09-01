@@ -1,6 +1,6 @@
 import { Link, useLocation } from "wouter";
 import { Info, Home, FileText, MapPin, Layers } from "lucide-react";
-import { useDataset } from "@/contexts/dataset-context";
+import { useDataset } from "@/contexts/use-dataset";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();

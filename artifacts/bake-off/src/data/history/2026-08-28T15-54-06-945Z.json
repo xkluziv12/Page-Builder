@@ -384,12 +384,13 @@
           "costEstimate": {
             "inputTokens": 675444,
             "outputTokens": 64990,
-            "inputUsd": 0.7619,
-            "outputUsd": 0.7799,
-            "totalUsd": 1.5418,
-            "pricePerMInput": 2,
-            "pricePerMOutput": 12,
-            "basis": "Measured — real token usage reported by the provider, summed across all turns: 675,444 input token(s) (327,214 served from prompt cache, billed at 10% of the input rate) and 64,990 output token(s) (incl. 5,643 hidden reasoning token(s)), priced at Gemini 3.1 Pro tier list rates ($2/$12 per 1M in/out). Provider-side web-search fees on the SEO-verify turn are billed separately and are excluded."
+            "inputUsd": 0.2857,
+            "outputUsd": 0.2437,
+            "totalUsd": 0.5294,
+            "pricePerMInput": 0.75,
+            "pricePerMCachedInput": 0.075,
+            "pricePerMOutput": 3.75,
+            "basis": "Measured — real token usage reported by the provider, summed across all turns: 675,444 input token(s) (327,214 served from prompt cache, billed at $0.075/1M) and 64,990 output token(s) (incl. 5,643 hidden reasoning token(s)), priced at Gemini 3.7 Flash tier (introductory, through Dec 2026) list rates ($0.75/$0.075/$3.75 per 1M input/cached-input/output; verified September 1, 2026 from https://ai.google.dev/gemini-api/docs/pricing).  Provider-side web-search fees on the SEO-verify turn are billed separately and are excluded."
           },
           "usage": {
             "inputTokens": 675444,
@@ -749,14 +750,53 @@
             "outputUsd": 1.3436,
             "totalUsd": 2.7226,
             "pricePerMInput": 3,
+            "pricePerMCachedInput": 0.3,
             "pricePerMOutput": 15,
-            "basis": "Measured — real token usage reported by the provider, summed across all turns: 819,060 input token(s) (399,302 served from prompt cache, billed at 10% of the input rate) and 89,571 output token(s), priced at Claude Sonnet tier list rates ($3/$15 per 1M in/out). Provider-side web-search fees on the SEO-verify turn are billed separately and are excluded."
+            "basis": "Measured — real token usage reported by the provider, summed across all turns: 819,060 input token(s) (399,302 served from prompt cache, billed at $0.3/1M) and 89,571 output token(s), priced at Claude Sonnet 4.6 tier list rates ($3/$0.3/$15 per 1M input/cached-input/output; verified September 1, 2026 from https://docs.anthropic.com/en/docs/about-claude/pricing).  Provider-side web-search fees on the SEO-verify turn are billed separately and are excluded."
           },
           "usage": {
             "inputTokens": 819060,
             "cachedInputTokens": 399302,
             "outputTokens": 89571,
-            "reasoningTokens": 0
+            "reasoningTokens": 0,
+            "turns": [
+              {
+                "inputTokens": 44331,
+                "cachedInputTokens": 0,
+                "outputTokens": 16028,
+                "reasoningTokens": 0
+              },
+              {
+                "inputTokens": 60989,
+                "cachedInputTokens": 44329,
+                "outputTokens": 16998,
+                "reasoningTokens": 0
+              },
+              {
+                "inputTokens": 102142,
+                "cachedInputTokens": 60986,
+                "outputTokens": 26721,
+                "reasoningTokens": 0
+              },
+              {
+                "inputTokens": 279575,
+                "cachedInputTokens": 132521,
+                "outputTokens": 19213,
+                "reasoningTokens": 0
+              },
+              {
+                "inputTokens": 161469,
+                "cachedInputTokens": 0,
+                "outputTokens": 8730,
+                "reasoningTokens": 0
+              },
+              {
+                "inputTokens": 170554,
+                "cachedInputTokens": 161466,
+                "outputTokens": 1881,
+                "reasoningTokens": 0
+              }
+            ]
           },
           "transcriptPath": "transcripts/no-gmb/claude.json"
         },
@@ -1127,12 +1167,13 @@
           "costEstimate": {
             "inputTokens": 646701,
             "outputTokens": 47719,
-            "inputUsd": 0.7302,
-            "outputUsd": 0.7158,
-            "totalUsd": 1.446,
-            "pricePerMInput": 2.5,
-            "pricePerMOutput": 15,
-            "basis": "Measured — real token usage reported by the provider, summed across all turns: 646,701 input token(s) (394,002 served from prompt cache, billed at 10% of the input rate) and 47,719 output token(s) (incl. 5,933 hidden reasoning token(s)), priced at OpenAI GPT-5 tier list rates ($2.5/$15 per 1M in/out). Provider-side web-search fees on the SEO-verify turn are billed separately and are excluded."
+            "inputUsd": 1.1684,
+            "outputUsd": 0.8589,
+            "totalUsd": 2.0273,
+            "pricePerMInput": 2,
+            "pricePerMCachedInput": 0.2,
+            "pricePerMOutput": 12,
+            "basis": "Measured — real token usage reported by the provider, summed across all turns: 646,701 input token(s) (394,002 served from prompt cache, billed at $0.2/1M) and 47,719 output token(s) (incl. 5,933 hidden reasoning token(s)), priced at OpenAI GPT-5.6 Terra tier (standard, short context) list rates ($2/$0.2/$12 per 1M input/cached-input/output; verified September 1, 2026 from https://developers.openai.com/api/docs/pricing).  Per-turn usage was unavailable, so the standard rate was applied without a long-context adjustment. Provider-side web-search fees on the SEO-verify turn are billed separately and are excluded."
           },
           "usage": {
             "inputTokens": 646701,
@@ -1500,12 +1541,13 @@
           "costEstimate": {
             "inputTokens": 592699,
             "outputTokens": 70291,
-            "inputUsd": 0.5581,
-            "outputUsd": 1.0544,
-            "totalUsd": 1.6125,
-            "pricePerMInput": 3,
-            "pricePerMOutput": 15,
-            "basis": "Measured — real token usage reported by the provider, summed across all turns: 592,699 input token(s) (451,840 served from prompt cache, billed at 10% of the input rate) and 70,291 output token(s) (incl. 18,922 hidden reasoning token(s)), priced at generic tier (no exact price match) list rates ($3/$15 per 1M in/out). Provider-side web-search fees on the SEO-verify turn are billed separately and are excluded."
+            "inputUsd": 0.1029,
+            "outputUsd": 0.1392,
+            "totalUsd": 0.2421,
+            "pricePerMInput": 0.66,
+            "pricePerMCachedInput": 0.022,
+            "pricePerMOutput": 1.98,
+            "basis": "Measured — real token usage reported by the provider, summed across all turns: 592,699 input token(s) (451,840 served from prompt cache, billed at $0.022/1M) and 70,291 output token(s) (incl. 18,922 hidden reasoning token(s)), priced at DeepSeek v4 Pro tier (off-peak) list rates ($0.66/$0.022/$1.98 per 1M input/cached-input/output; verified September 1, 2026 from https://api-docs.deepseek.com/quick_start/pricing).  Provider-side web-search fees on the SEO-verify turn are billed separately and are excluded."
           },
           "usage": {
             "inputTokens": 592699,
@@ -1539,14 +1581,35 @@
             "outputUsd": 0.734,
             "totalUsd": 0.8989,
             "pricePerMInput": 2,
+            "pricePerMCachedInput": 0.2,
             "pricePerMOutput": 12,
-            "basis": "Measured — real token usage reported by the provider, summed across all turns: 207,775 input token(s) (139,207 served from prompt cache, billed at 10% of the input rate) and 61,164 output token(s) (incl. 8,626 hidden reasoning token(s)), priced at Gemini 3.1 Pro tier list rates ($2/$12 per 1M in/out). Provider-side web-search fees on the SEO-verify turn are billed separately and are excluded."
+            "basis": "Measured — real token usage reported by the provider, summed across all turns: 207,775 input token(s) (139,207 served from prompt cache, billed at $0.2/1M) and 61,164 output token(s) (incl. 8,626 hidden reasoning token(s)), priced at Gemini 3.1 Pro tier (standard, prompts ≤200k) list rates ($2/$0.2/$12 per 1M input/cached-input/output; verified September 1, 2026 from https://ai.google.dev/gemini-api/docs/pricing).  0 turn(s) crossed 200,000 prompt tokens and used the long-context rates. Provider-side web-search fees on the SEO-verify turn are billed separately and are excluded."
           },
           "usage": {
             "inputTokens": 207775,
             "cachedInputTokens": 139207,
             "outputTokens": 61164,
-            "reasoningTokens": 8626
+            "reasoningTokens": 8626,
+            "turns": [
+              {
+                "inputTokens": 44068,
+                "cachedInputTokens": 0,
+                "outputTokens": 21463,
+                "reasoningTokens": 4055
+              },
+              {
+                "inputTokens": 62070,
+                "cachedInputTokens": 40940,
+                "outputTokens": 19624,
+                "reasoningTokens": 2205
+              },
+              {
+                "inputTokens": 101637,
+                "cachedInputTokens": 98267,
+                "outputTokens": 20077,
+                "reasoningTokens": 2366
+              }
+            ]
           },
           "transcriptPath": "transcripts/no-gmb/gemini.json"
         },

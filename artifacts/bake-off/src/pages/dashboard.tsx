@@ -4,7 +4,7 @@ import { ModelResult, ScenarioResult } from "@/types";
 import { Link } from "wouter";
 import { ChevronRight, Clock, AlertTriangle, CheckCircle2, DollarSign } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useDataset } from "@/contexts/dataset-context";
+import { useDataset } from "@/contexts/use-dataset";
 import { effortLabel, provenanceLabel } from "@/lib/model-labels";
 
 export default function Dashboard() {

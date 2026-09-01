@@ -8,7 +8,7 @@ import ModelDetail from "@/pages/model-detail";
 import PortlandReview from "@/pages/portland-review";
 import Models from "@/pages/models";
 import Layout from "@/components/layout";
-import { DatasetProvider } from "@/contexts/dataset-context";
+import { DatasetProvider } from "@/contexts/dataset-provider";
 
 const queryClient = new QueryClient();
 

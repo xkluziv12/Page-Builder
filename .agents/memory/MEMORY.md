@@ -25,3 +25,4 @@
 - [API router authorization tests](api-route-auth-tests.md) — use a temporary CommonJS esbuild bundle for isolated real-router tests in this workspace.
 - [CLI provider setup](cli-provider-setup.md) — Claude/Codex/Gemini CLIs use project-local global-bin wiring; Codex needs CODEX_API_KEY and xhigh reasoning.
 - [Bake-off Grok/DeepSeek reliability](bakeoff-grok-deepseek-reliability.md) — Grok needs streaming (idle non-stream connections trip timeouts on slow turns); DeepSeek reasoning tags can exhaust max_tokens on hidden reasoning → empty reply.
+- [Bake-off pricing accounting](bakeoff-pricing-accounting.md) — cost rates are provider/model/context specific; only attach per-turn pricing data when transcript totals match the saved run.

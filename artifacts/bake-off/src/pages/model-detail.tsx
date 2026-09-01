@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, CheckCircle2, Clock, Copy, Check, Database, LayoutTemplate, Link as LinkIcon, ShieldAlert, FileText, Image as ImageIcon, DollarSign } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useDataset } from "@/contexts/dataset-context";
+import { useDataset } from "@/contexts/use-dataset";
 import { DATASETS, getDataset } from "@/data/datasets";
 import { getModelVersions, type ModelVersion } from "@/data/model-history";
 import { effortLabel, provenanceLabel, targetLabel } from "@/lib/model-labels";
@@ -423,7 +423,18 @@ export default function ModelDetail() {
                 <ScoreCell label={measured ? "Total Cost" : "Est. Total"} value={`$${model.costEstimate.totalUsd.toFixed(2)}`} hint="input + output" />
                 <ScoreCell label="Input Cost" value={`$${model.costEstimate.inputUsd.toFixed(2)}`} hint={`${formatTokens(model.costEstimate.inputTokens)} tok`} />
                 <ScoreCell label="Output Cost" value={`$${model.costEstimate.outputUsd.toFixed(2)}`} hint={`${formatTokens(model.costEstimate.outputTokens)} tok`} />
-                <ScoreCell label="List Price" value={`$${model.costEstimate.pricePerMInput}/$${model.costEstimate.pricePerMOutput}`} hint="per 1M in/out" />
+                {(() => {
+                  const cachedRate = model.costEstimate.pricePerMCachedInput;
+                  return (
+                <ScoreCell
+                  label="List Price"
+                  value={cachedRate == null
+                    ? `$${model.costEstimate.pricePerMInput}/$${model.costEstimate.pricePerMOutput}`
+                    : `$${model.costEstimate.pricePerMInput}/$${cachedRate}/$${model.costEstimate.pricePerMOutput}`}
+                  hint={cachedRate == null ? "legacy per 1M in/out" : "per 1M in/cache/out"}
+                />
+                  );
+                })()}
               </div>
               {model.usage && (
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

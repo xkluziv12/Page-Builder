@@ -354,7 +354,18 @@
             "composite": 76
           },
           "screenshot": "screenshots/history/2026-06-23-opus-tier-5model/no-gmb/claude.png",
-          "effort": null
+          "effort": null,
+          "costEstimate": {
+            "inputTokens": 476752,
+            "outputTokens": 24731,
+            "inputUsd": 2.38,
+            "outputUsd": 0.62,
+            "totalUsd": 3,
+            "pricePerMInput": 5,
+            "pricePerMCachedInput": 0.5,
+            "pricePerMOutput": 25,
+            "basis": "Estimate — token usage was not captured at run time. Reconstructed from the verbatim prompts + inlined design files re-sent every turn (~4 chars/token), priced at Claude Opus 4.8 tier list rates ($5/$25 per 1M in/out), no prompt-caching discount and excluding hidden reasoning tokens. The SEO-verify turn runs the provider's native web search, whose per-search fees are billed separately by the provider and are NOT included in this token-based estimate."
+          }
         },
         {
           "id": "openai-std",
@@ -684,7 +695,18 @@
             "composite": 75
           },
           "screenshot": "screenshots/history/2026-06-23-opus-tier-5model/no-gmb/openai-std.png",
-          "effort": null
+          "effort": null,
+          "costEstimate": {
+            "inputTokens": 471103,
+            "outputTokens": 23117,
+            "inputUsd": 2.36,
+            "outputUsd": 0.69,
+            "totalUsd": 3.05,
+            "pricePerMInput": 5,
+            "pricePerMCachedInput": 0.5,
+            "pricePerMOutput": 30,
+            "basis": "Estimate — token usage was not captured at run time. Reconstructed from the verbatim prompts + inlined design files re-sent every turn (~4 chars/token), priced at OpenAI GPT-5.5 tier list rates ($5/$30 per 1M in/out), no prompt-caching discount and excluding hidden reasoning tokens. The SEO-verify turn runs the provider's native web search, whose per-search fees are billed separately by the provider and are NOT included in this token-based estimate."
+          }
         },
         {
           "id": "gemini",
@@ -1016,7 +1038,18 @@
             "composite": 73
           },
           "screenshot": "screenshots/history/2026-06-23-opus-tier-5model/no-gmb/gemini.png",
-          "effort": null
+          "effort": null,
+          "costEstimate": {
+            "inputTokens": 479223,
+            "outputTokens": 25437,
+            "inputUsd": 0.96,
+            "outputUsd": 0.31,
+            "totalUsd": 1.26,
+            "pricePerMInput": 2,
+            "pricePerMCachedInput": 0.2,
+            "pricePerMOutput": 12,
+            "basis": "Estimate — token usage was not captured at run time. Reconstructed from the verbatim prompts + inlined design files re-sent every turn (~4 chars/token), priced at Gemini 3.1 Pro tier (standard, prompts ≤200k) list rates ($2/$12 per 1M in/out), no prompt-caching discount and excluding hidden reasoning tokens. The SEO-verify turn runs the provider's native web search, whose per-search fees are billed separately by the provider and are NOT included in this token-based estimate."
+          }
         },
         {
           "id": "openai",
@@ -1346,7 +1379,18 @@
             "composite": 73
           },
           "screenshot": "screenshots/history/2026-06-23-opus-tier-5model/no-gmb/openai.png",
-          "effort": null
+          "effort": null,
+          "costEstimate": {
+            "inputTokens": 465147,
+            "outputTokens": 21415,
+            "inputUsd": 13.95,
+            "outputUsd": 3.85,
+            "totalUsd": 17.81,
+            "pricePerMInput": 30,
+            "pricePerMCachedInput": 3,
+            "pricePerMOutput": 180,
+            "basis": "Estimate — token usage was not captured at run time. Reconstructed from the verbatim prompts + inlined design files re-sent every turn (~4 chars/token), priced at OpenAI GPT-5.5 Pro tier list rates ($30/$180 per 1M in/out), no prompt-caching discount and excluding hidden reasoning tokens. The SEO-verify turn runs the provider's native web search, whose per-search fees are billed separately by the provider and are NOT included in this token-based estimate."
+          }
         },
         {
           "id": "grok",
@@ -1748,7 +1792,18 @@
             "composite": 72
           },
           "screenshot": "screenshots/history/2026-06-23-opus-tier-5model/no-gmb/grok.png",
-          "effort": null
+          "effort": null,
+          "costEstimate": {
+            "inputTokens": 476904,
+            "outputTokens": 24774,
+            "inputUsd": 0.6,
+            "outputUsd": 0.06,
+            "totalUsd": 0.66,
+            "pricePerMInput": 1.25,
+            "pricePerMCachedInput": 0.2,
+            "pricePerMOutput": 2.5,
+            "basis": "Estimate — token usage was not captured at run time. Reconstructed from the verbatim prompts + inlined design files re-sent every turn (~4 chars/token), priced at xAI Grok 4.3 tier list rates ($1.25/$2.5 per 1M in/out), no prompt-caching discount and excluding hidden reasoning tokens. The SEO-verify turn runs the provider's native web search, whose per-search fees are billed separately by the provider and are NOT included in this token-based estimate."
+          }
         }
       ]
     }

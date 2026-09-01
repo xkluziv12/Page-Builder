@@ -723,7 +723,7 @@ async function loadOrAuthorGrounding(
 function sumUsage(transcript: TranscriptEntry[]): TokenUsage | null {
   const withUsage = transcript.filter((t) => t.usage);
   if (withUsage.length === 0) return null;
-  return withUsage.reduce<TokenUsage>(
+  const totals = withUsage.reduce<TokenUsage>(
     (acc, t) => ({
       inputTokens: acc.inputTokens + t.usage!.inputTokens,
       cachedInputTokens: acc.cachedInputTokens + t.usage!.cachedInputTokens,
@@ -732,6 +732,14 @@ function sumUsage(transcript: TranscriptEntry[]): TokenUsage | null {
     }),
     { inputTokens: 0, cachedInputTokens: 0, outputTokens: 0, reasoningTokens: 0 },
   );
+  return {
+    ...totals,
+    turns: withUsage.map((t) => ({
+      inputTokens: t.usage!.inputTokens,
+      cachedInputTokens: t.usage!.cachedInputTokens,
+      outputTokens: t.usage!.outputTokens,
+    })),
+  };
 }
 
 async function runOneModel(
