@@ -1,7 +1,7 @@
 [
   {
     "letter": "A",
-    "source": "CUR:claude-sonnet-4-6",
+    "source": "CUR:gpt-5.6-luna",
     "run": "current"
   },
   {
@@ -11,8 +11,8 @@
   },
   {
     "letter": "C",
-    "source": "CUR:grok-4.20-0309-reasoning",
-    "run": "current"
+    "source": "OLD:grok-4.3",
+    "run": "archived"
   },
   {
     "letter": "D",
@@ -21,22 +21,32 @@
   },
   {
     "letter": "E",
-    "source": "OLD:gpt-5.5",
-    "run": "archived"
+    "source": "CUR:gemini-3.7-flash",
+    "run": "current"
   },
   {
     "letter": "F",
-    "source": "OLD:claude-sonnet-4-6",
-    "run": "archived"
+    "source": "CUR:grok-4.20-0309-reasoning",
+    "run": "current"
   },
   {
     "letter": "G",
-    "source": "OLD:grok-4.3",
+    "source": "OLD:gemini-3.1-pro-preview",
     "run": "archived"
   },
   {
     "letter": "H",
-    "source": "OLD:gemini-3.1-pro-preview",
+    "source": "OLD:claude-sonnet-4-6",
     "run": "archived"
+  },
+  {
+    "letter": "I",
+    "source": "OLD:gpt-5.5",
+    "run": "archived"
+  },
+  {
+    "letter": "J",
+    "source": "CUR:gpt-5.6-terra",
+    "run": "current"
   }
 ]
