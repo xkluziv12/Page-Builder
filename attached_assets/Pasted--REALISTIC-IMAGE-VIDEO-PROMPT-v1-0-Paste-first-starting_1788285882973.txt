@@ -1,0 +1,264 @@
+# REALISTIC IMAGE/VIDEO PROMPT v1.0
+
+Paste-first starting point for every image and video generation.
+Contains no scene, subject, vertical, city, or service. Those arrive in the
+scene brief that follows this block.
+
+---
+
+## 0. HOW TO USE
+
+Paste this prompt first. Paste the scene brief second.
+
+If pasted alone into a conversational model, do not generate anything.
+Respond only with: `Base prompt loaded. Awaiting scene brief.` and stop.
+
+If concatenated with a scene brief into a direct generation call, this prompt
+governs the whole call.
+
+Conflict rule: if the scene brief contradicts Section 2 (output contract),
+Section 5 (prohibitions), or Section 7 (video), this prompt wins. Say which
+line you overrode. Do not silently comply with the brief.
+
+---
+
+## 1. OPERATOR HEADER
+
+Fill every field before use. Blank fields stop the run. Do not guess.
+
+```
+MEDIUM:    image | video
+REGISTER:  A | B | C        (Section 3)
+ASPECT:    16:9 | 4:5 | 9:16 | 3:2 | 1:1
+PURPOSE:   where this ships (hero, band, inline, social, print)
+```
+
+---
+
+## 2. OUTPUT CONTRACT
+
+One frame. One scene. One generation.
+
+Never produce a collage, grid, contact sheet, multi-panel layout, split
+screen, before-and-after comparison, numbered layout, gallery, or storyboard
+sheet. Never add a border, frame overlay, matte, caption bar, or logo bug.
+
+Never combine two scene types into one crowded frame. If the brief describes
+two scenes, generate the first and flag the second.
+
+Honor the declared aspect ratio natively. Do not letterbox, pillarbox, or pad
+to reach it.
+
+Generate at full native detail on the first pass. Do not produce a soft frame
+with the intent of upscaling it afterward.
+
+---
+
+## 3. REGISTER
+
+Pick exactly one. Never blend elements across registers. The register
+determines the capture spec, so do not hand-write a capture spec.
+
+### A. PHONE-DOCUMENTARY
+
+Use for anything a customer, homeowner, technician, or field worker would
+plausibly film themselves. This is the default.
+
+Capture: modern flagship phone main camera, roughly 26mm equivalent, standard
+phone HDR handling the ambient light, deep depth of field, faint cool auto
+white balance fighting the ambient, crisp phone-level sharpness that is never
+artificially oversharpened, continuous handheld micro-movement consistent with
+a person standing and holding a phone.
+
+Forbidden in this register: shallow depth of field, bokeh balls, anamorphic
+flare, cinematic color grade, film grain overlay, gimbal smoothness, drone
+movement, digital zoom artifacts.
+
+### B. CORPORATE-COMMISSIONED
+
+Use only when the frame must read as a photo the company paid a photographer
+to take. Homepage marquee, trade show wall, printed collateral.
+
+Capture: full-frame body, 24 to 70mm f/2.8 zoom, f/5.6 to f/11, ISO 100 to
+400, corrected verticals, minimal barrel distortion, natural highlight
+rolloff, fine sensor grain, restrained sharpening.
+
+Lighting is professional but not even. Accept and specify one blown window or
+dock door, one dim corner, one hot spot on a floor or metal surface. Perfectly
+even illumination is a marketing preference, not a photographic one, and it
+reads as AI.
+
+### C. EDITORIAL-DOCUMENTARY
+
+A working photojournalist inside a real operation. Sits between A and B. Use
+when B reads too polished and A too casual.
+
+Capture: full-frame body, 35mm prime, available light only, f/4 to f/8,
+slight underexposure to protect highlights, visible natural grain at ISO 800
+to 1600, imperfect framing consistent with reacting to a moment rather than
+composing one.
+
+### Register warning
+
+B is the register current models fake best and viewers reject fastest.
+Balanced composition, even light, and uniform sharpness are the signature
+people now read as AI. Default to A or C unless the deliverable specifically
+requires B.
+
+---
+
+## 4. THE SIX LEVERS
+
+Every generation answers all six with a specific. A category is a failed
+answer. "Add natural imperfections" is a failed answer. Name the object, name
+the flaw, name the hour.
+
+**1. Reason the frame exists.** Who is holding the camera and why they raised
+it. This fixes vantage height, distance, and angle better than any measurement.
+
+**2. Off-center subject.** State where the subject sits in the frame and what
+occupies the remaining space. Never dead center. Never mirror-symmetrical.
+Never mathematically even spacing.
+
+**3. Frame-edge cut.** Name one object the crop slices through: a pallet
+corner, a shoulder, a hanging cable, a mirror, a doorframe. Real photographs
+cut things. Generated ones politely contain everything.
+
+**4. Named defect.** One specific flaw on one specific object. Not "worn
+pallets." Instead: "the third pallet from camera has a cracked bottom board
+and sits half an inch lower on the left."
+
+**5. Uncooperative light.** One thing the light is doing that a photographer
+would not have chosen. A window blowing out behind the subject. A fixture
+reflecting off a monitor. A shadow falling across half a face. Light that
+behaves perfectly is the fastest AI tell after hands.
+
+**6. Time and weather commitment.** An exact hour and a sky condition. Every
+shadow length, shadow direction, color temperature, and reflection follows
+from it. "Daylight" and "natural light" are failed answers.
+
+---
+
+## 5. ABSOLUTE PROHIBITIONS
+
+No text rendered inside the frame. No letters, numbers, captions, labels,
+signage, license plates, screen text, pallet stamps, hand-lettering, or
+watermarks. Screens may show generic graphics, charts, or interface shapes
+with no legible characters.
+
+No logos or brand marks, real or invented, on any surface, garment, vehicle,
+or equipment.
+
+No certification marks, badges, wall certificates, or compliance seals of any
+kind, real or lookalike. A visible cert mark inside an image is a compliance
+claim, and compliance claims are never made in a picture.
+
+No recognizable landmark, skyline, monument, or city signage. Interiors and
+exteriors are location-agnostic by design. Page copy, filename, and alt text
+carry local intent. The image never claims to be somewhere.
+
+No identifiable real person. No depiction of a real named company's premises.
+
+Generated imagery only. No stock sourcing of any kind.
+
+Nothing unsafe on camera. No exposed cutting blades, no unguarded moving
+machinery, no one lifting beyond plausible human capacity, no fire, smoke,
+sparks, flying debris, blood, or injury.
+
+---
+
+## 6. NEGATIVE BLOCK
+
+Use this short block. Do not append a long legacy negative list to it.
+
+```
+AI-generated look, CGI, 3D render, plastic skin, waxy oversmoothed faces,
+neon oversaturation, oversharpened halos, repeating identical objects,
+warped geometry, floating or disconnected objects, readable text,
+collage or grid layout
+```
+
+Status: this short block replaces the legacy 200-term blocks pending a scored
+bake-off. Rationale is that current models expose no separate negative field,
+so appended negatives are read as prompt content, and naming anatomy failures
+may raise attention on them rather than lower it. That rationale is untested
+on this stack. Retain the legacy blocks in their source files until the
+bake-off is scored. Do not delete them on the strength of this note.
+
+---
+
+## 7. VIDEO ONLY
+
+**Continuity method is declared before any multi-shot sequence.** Either a
+reference image passed into every generation, or a last-frame chain where each
+clip seeds the next. Text alone cannot hold continuity across separate
+generations, because the model generating shot two has never seen shot one.
+If no method is declared, generate a single shot and stop.
+
+**One camera move per clip, maximum.** A camera move plus a subject action
+plus a lighting change in one clip is where models break. Pick the move or
+pick the action.
+
+**No on-screen text, ever.** Titles, tips, callouts, phone numbers, URLs, and
+end cards are added in an editor after generation. Asking a video model to
+render a phone number is the most reliable way to produce garbled characters.
+Instead, compose the frame to reserve clean uncluttered space where the
+overlay will sit later, and say which third of the frame that is.
+
+**Do not specify durations in seconds** unless the target model accepts a
+duration parameter. Instead describe an action that completes in one
+continuous take.
+
+**Physics is stated, not assumed.** Say how water arcs, beads, and darkens the
+surface it lands on. Say how fabric loads and releases. Say that each blade,
+cable, or strand moves independently with its own mass. Reject any output
+where a surface moves as one connected mesh.
+
+**Lighting continuity across a sequence.** One sun position, one color
+temperature, one shadow direction across every clip. No mid-clip shift in
+direction or temperature.
+
+---
+
+## 8. ACCEPTANCE TEST
+
+Run on every frame before it ships. No judgment required. Any single failure
+is a reject and regenerate.
+
+1. Hands: every visible hand has five countable, correctly jointed fingers.
+2. Text: zero readable characters anywhere in frame, including screens,
+   labels, and signage.
+3. Cert marks: no badge, seal, certificate, or logo anywhere.
+4. Repetition: no two objects identical in shape, wear, and spacing.
+5. Shadows: every shadow agrees on one light direction.
+6. Reflections: every reflective surface shows what is actually in front of it.
+7. Contact: every object and person meets the floor with a shadow at the
+   contact point. Nothing floats.
+8. Geometry: verticals straight, no melted or merged equipment, no impossible
+   ports, seams, or fasteners.
+9. Composition: subject is off-center and at least one object is cut by the
+   frame edge.
+10. Layout: single frame, no grid, no border, no caption.
+
+Two-attempt rule: if the same scene fails twice on the primary generator,
+escalate to the fallback generator once, then stop and flag for the operator.
+Never ship a failed frame to fill a slot.
+
+---
+
+## 9. OUT OF SCOPE FOR THIS PROMPT
+
+Scene, subject, vertical, city, service: the scene brief.
+
+Model routing, cost, latency, API keys: IMAGERY.md.
+
+Filenames, alt text, page image sets, OG images: IMAGE-PROMPTS.md.
+
+Metadata stripping and the publish gate: IMAGERY.md. Mandatory, not restated
+here.
+
+---
+
+v1.0 initial. Supersedes nothing; the legacy master image prompt and the
+per-vertical scene documents remain in force as scene briefs beneath this
+base prompt.

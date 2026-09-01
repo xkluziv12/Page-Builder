@@ -41,12 +41,6 @@ export function effortLabel(model: ModelResult): string {
   return effort;
 }
 
-/** True when this cell was run at an explicitly requested effort tier — the only
- * case where comparing it against another tier of the same model is meaningful. */
-export function hasRequestedEffort(model: ModelResult): boolean {
-  return typeof model.effortRequested === "string" && model.effortRequested.trim() !== "";
-}
-
 /** One-line target identity for a dataset, so rows from different cities are
  * never silently compared as if they were the same page. */
 export function targetLabel(results: BakeoffResults): string {

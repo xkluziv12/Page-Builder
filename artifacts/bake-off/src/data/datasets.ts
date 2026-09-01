@@ -54,10 +54,26 @@ const HISTORY_DATASETS: Dataset[] = (historyManifest as Array<{
  * regenerated with a different set of models.
  */
 function summarizeModelLineup(results: BakeoffResults): string {
+  // Label alone can collide across effort variants of one model, so qualify a
+  // variant row with its recorded effort. Never invent one for older results.
   const labels = Array.from(
-    new Set(results.scenarios.flatMap((scenario) => scenario.models.map((m) => m.label))),
+    new Set(
+      results.scenarios.flatMap((scenario) =>
+        scenario.models.map((m) =>
+          m.effortRequested ? `${m.label} (effort: ${m.effortRequested})` : m.label,
+        ),
+      ),
+    ),
   );
   return labels.length > 0 ? labels.join(", ") : "no models recorded";
+}
+
+/** The city/state the dataset actually targets, so the switcher never implies
+ * two datasets built the same page. Falls back to an explicit unknown. */
+function summarizeTarget(results: BakeoffResults): string {
+  const t = results.target;
+  const place = [t?.city, t?.state].filter(Boolean).join(", ");
+  return place || t?.url || "target not recorded";
 }
 
 /**
@@ -69,7 +85,7 @@ export const DATASETS: Dataset[] = [
   {
     id: "current",
     label: "Current Bake-Off",
-    blurb: `Latest top-tier run — ${summarizeModelLineup(currentData as BakeoffResults)}. Fairness-fixed (neutralized intro), with real measured token cost + full per-turn transcripts.`,
+    blurb: `Latest top-tier run against ${summarizeTarget(currentData as BakeoffResults)} — ${summarizeModelLineup(currentData as BakeoffResults)}. Fairness-fixed (neutralized intro), with real measured token cost + full per-turn transcripts.`,
     results: currentData as BakeoffResults,
   },
   {

@@ -1,0 +1,57 @@
+{
+  "ranAt": "2026-09-01T19:29:13.169Z",
+  "target": {
+    "url": "https://www.stselectronicrecyclinginc.com/bakersfield-ca",
+    "city": "Bakersfield",
+    "state": "CA",
+    "niche": "electronics recycling",
+    "pageType": "SPOKE",
+    "classification": "NEW_BUILD",
+    "competition": "MEDIUM"
+  },
+  "grounding": {
+    "content": "[MODEL-KNOWLEDGE GROUNDING — Perplexity/SerpAPI keys are not configured in this environment, so this is NOT a live web search. It is one model-authored local-market brief, generated ONCE and shared identically across every model so the page-build comparison is fair.]\n\n### Market Profile & Economic Anchors\n\nBakersfield serves as the commercial and administrative seat of Kern County, anchoring a regional population estimated at over 400,000 residents, with the broader metropolitan area approaching 900,000. Historically driven by energy extraction and industrial agriculture, the local economy generates significant commercial and industrial demand for lifecycle electronics management. \n\nMajor energy operators—including California Resources Corporation (CRC), Chevron, and Aera Energy—maintain substantial administrative, field operations, and control systems infrastructure throughout the San Joaquin Valley. In tandem, industrial agribusiness leaders such as Grimmway Farms, Bolthouse Fresh Foods, and The Wonderful Company require recurring technological refreshes across corporate offices, packing plants, and automated sorting facilities. Furthermore, Bakersfield’s geographic positioning along major freight corridors has accelerated its growth as a regional logistics hub, illustrated by large-scale fulfillment and distribution centers for employers like Amazon.\n\n### Institutional Scale & Enterprise Clients\n\nBakersfield hosts a dense concentration of public-sector, educational, and healthcare institutions requiring secure, compliant IT Asset Disposition (ITAD) and volume e-waste handling:\n\n* **Healthcare:** Major health networks, including Kern Medical (the region’s only Level II trauma center), Adventist Health Bakersfield, and Dignity Health (Mercy and Memorial Hospitals), manage extensive arrays of medical hardware, connected diagnostics, and administrative data centers governed by strict HIPAA data privacy mandates.\n* **Education & Municipalities:** The Kern High School District (one of the largest high school districts in the state), Bakersfield College, and California State University, Bakersfield (CSUB) manage tens of thousands of deployed assets, presenting recurring refresh cycles. The County of Kern and the City of Bakersfield also operate centralized municipal IT departments with formal surplus equipment disposal protocols.\n\n### Competitive Landscape\n\nThe local competitive environment is bifurcated between municipal residential drop-off channels and commercial/industrial service providers:\n\n* **Municipal/Household Channels:** Kern County Public Works operates Special Waste Facilities and periodic household hazardous waste collection events in Bakersfield and surrounding townships, capturing a large share of direct-from-consumer electronics.\n* **Commercial & Scrap Processors:** Several local scrap processors and independent collectors service the general salvage market, including regional scrap operations (such as Western Metal Recycling) and local e-waste hauling outfits. \n* **Enterprise ITAD Gap:** While standard collection networks capture consumer-grade monitors and small appliances, high-level enterprise ITAD services—offering certified on-site data destruction (NIST 800-88 compliance), serialized asset tracking, and verifiable environmental reporting—are primarily fulfilled by vendors dispatching from larger metros like Fresno, Los Angeles, or the broader Central Valley corridor.\n\n### Regulatory Environment & Strategic Outlook\n\nCalifornia enforces some of the nation’s strictest electronic waste and hazardous material frameworks. Under the California Electronic Waste Recycling Act (SB 20/SB 50) and Department of Toxic Substances Control (DTSC) regulations overseen by CalRecycle, electronics are classified as universal waste, legally prohibiting landfill disposal. Businesses face heavy compliance burdens for hazardous material reporting, chain-of-custody documentation, and secure disposal.\n\nFor STS Electronic Recycling, Bakersfield presents a strong, service-driven B2B landscape. Winning market share relies on targeting mid-to-large agricultural enterprises, energy producers, and public agencies with turn-key compliance solutions: certified data sanitization, transparent chain-of-custody reporting, and tailored logistics that bridge the gap between basic municipal drop-offs and complex enterprise ITAD requirements.",
+    "source": "model-knowledge (shared; authored by Google gemini-3.7-flash)"
+  },
+  "scenarios": [
+    {
+      "id": "no-gmb",
+      "label": "No-GMB (production context)",
+      "description": "The exact human No-GMB checklist a VA runs today, one continuous chat per model: verbatim copyPrompt() prompts, the real uploaded design files inlined, city/state targeting only, NO explicit page_url and NO GMB block.",
+      "notes": [
+        "Every model runs the IDENTICAL No-GMB checklist in ONE stateful conversation: intro (files uploaded + rules + model check) → build → design gate / force-rebuild loop → SEO audit → SEO verification → schema (Schema Generator AI turn) → link verification. The prompt text is the tool's verbatim copyPrompt() output; the real uploaded design files are inlined as the API-faithful stand-in for file uploads.",
+        "This is the faithful production reproduction. The context deliberately omits an explicit page_url and any Google Business Profile (GMB) block — STS spoke pages target a service-area city, not a verified storefront.",
+        "Schema is a real AI turn running the uploaded Master Schema Generator (v1.4.1) under the No-GMB overrides (city/state only, NO CID, NO street address). The model must emit a <script type=\"application/ld+json\">…</script> block; the harness extracts and validates the JSON-LD inside it (fail loud otherwise).",
+        "If a model refuses to build under this context (asking for page_url / GMB data first) it surfaces as no HTML and is recorded faithfully as an ERROR — it is NOT patched away, because special-casing one model would break the apples-to-apples comparison."
+      ],
+      "models": [
+        {
+          "id": "grok-4-6",
+          "baseId": "grok",
+          "label": "Grok 4.6",
+          "provider": "xAI",
+          "model": "grok-4.6",
+          "status": "error",
+          "error": "grok-4.6 failed after 1 attempt(s): grok-4.6 stream went silent for 120s after 553 event(s) [http=200 connectMs=373 firstByteMs=3838 rawBytes=153425 quietMs=15009; content=0ch reasoning=14374ch finish=none]. Raise BAKEOFF_GROK_STREAM_IDLE_TIMEOUT_MS if this turn is legitimately slower than that.",
+          "research": null,
+          "html": null,
+          "schema": null,
+          "schemaValid": false,
+          "checkerReport": null,
+          "linkAudit": null,
+          "timings": [],
+          "totalMs": 0,
+          "scores": null,
+          "effort": "not-supported",
+          "effortRequested": null,
+          "effortSupported": false,
+          "screenshot": null,
+          "costEstimate": null,
+          "usage": null,
+          "transcriptPath": "transcripts/no-gmb/grok-4-6.json"
+        }
+      ]
+    }
+  ],
+  "referenceScreenshot": "screenshots/history/2026-09-01T19-29-13-169Z/no-gmb/reference.png"
+}

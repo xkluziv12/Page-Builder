@@ -7,8 +7,6 @@ import { Badge } from "@/components/ui/badge";
 import { useDataset } from "@/contexts/dataset-context";
 import { effortLabel, provenanceLabel } from "@/lib/model-labels";
 
-export { provenanceLabel };
-
 export default function Dashboard() {
   const { dataset, datasets, activeId: datasetId, setActiveId: setDatasetId } = useDataset();
   const results = dataset.results;

@@ -227,14 +227,14 @@ export function resolveVariants(
     }
 
     const id = req.id?.trim() || variantId(base.id, requestedEffort);
-    const previousId = seenIds.get(id);
-    if (previousId) {
+    const previous = seenIds.get(id);
+    if (previous) {
       throw new Error(
-        `Two variants resolve to the same result id "${id}" (${previousId} and ${req.baseId}). ` +
+        `Two variants resolve to the same result id "${id}" (${previous}, then ${req.baseId}/${model}). ` +
           `Give one an explicit effort or a distinct "id" — otherwise the second would overwrite the first.`,
       );
     }
-    seenIds.set(id, req.baseId);
+    seenIds.set(id, `${req.baseId}/${model}`);
 
     const effort = requestedEffort ?? cap.defaultEffort;
     const configKey = `${base.id}|${model}|${effort}`;

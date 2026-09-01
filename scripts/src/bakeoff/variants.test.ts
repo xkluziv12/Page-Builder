@@ -134,13 +134,13 @@ describe("resolveVariants — fails loud instead of faking an effort", () => {
     ).toThrow(/same result id/i);
   });
 
-  it("rejects two cells that send the provider an identical request", () => {
-    // openai (unasked) already resolves to an explicit medium on the reasoning
-    // tier, so an extra explicit "medium" cell would be the SAME request twice.
+  it("rejects two distinctly-named cells that send the provider an identical request", () => {
+    // Different ids, same slot + tag + effort: the provider would receive the
+    // exact same request twice, so these cannot be two different effort tiers.
     expect(() =>
       resolveVariants(BASES, [
-        { baseId: "openai", id: "openai" },
-        { baseId: "openai", effort: effortCapability("OpenAI", "gpt-5.6-luna").defaultEffort },
+        { baseId: "gemini", id: "gemini-a", effort: "low" },
+        { baseId: "gemini", id: "gemini-b", effort: "low" },
       ]),
     ).toThrow(/IDENTICAL request/i);
   });

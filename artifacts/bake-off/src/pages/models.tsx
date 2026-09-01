@@ -4,25 +4,31 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { DATASETS } from "@/data/datasets";
 import type { ModelResult } from "@/types";
-import { provenanceLabel } from "./dashboard";
+import { baseIdOf, effortLabel, provenanceLabel, targetLabel } from "@/lib/model-labels";
 
 /**
  * Flattened row: one model result from one (dataset, scenario) pair. The same
  * provider/model tag can appear many times across datasets/scenarios/efforts —
  * that's the point of this catalog, so an operator can compare every variation
  * of "Claude" (or any provider) side by side by score, cost, and effort.
+ *
+ * `target` is carried per row because datasets in this catalog can point at
+ * DIFFERENT pages (Billings vs. Bakersfield). Scores are only comparable within
+ * one target, so the target is shown rather than left implicit.
  */
 interface CatalogRow {
   datasetId: string;
   datasetLabel: string;
   scenarioId: string;
   scenarioLabel: string;
+  target: string;
   model: ModelResult;
 }
 
 function flatten(): CatalogRow[] {
   const rows: CatalogRow[] = [];
   for (const dataset of DATASETS) {
+    const target = targetLabel(dataset.results);
     for (const scenario of dataset.results.scenarios) {
       for (const model of scenario.models) {
         rows.push({
@@ -30,6 +36,7 @@ function flatten(): CatalogRow[] {
           datasetLabel: dataset.label,
           scenarioId: scenario.id,
           scenarioLabel: scenario.label,
+          target,
           model,
         });
       }
@@ -38,14 +45,19 @@ function flatten(): CatalogRow[] {
   return rows;
 }
 
-/** Group rows by provider, then by base model family (the id, e.g. "claude"). */
+/**
+ * Group rows by provider, then by base model family. Grouping uses the BASE id
+ * (`gemini-flash`), not the variant id (`gemini-flash.low`), so a model's effort
+ * variants sit side by side in one expandable family instead of appearing as
+ * unrelated models. Legacy ids have no variant suffix and group unchanged.
+ */
 function groupByProvider(rows: CatalogRow[]): Map<string, Map<string, CatalogRow[]>> {
   const byProvider = new Map<string, Map<string, CatalogRow[]>>();
   for (const row of rows) {
     const provider = row.model.provider || "Unknown";
     if (!byProvider.has(provider)) byProvider.set(provider, new Map());
     const byFamily = byProvider.get(provider)!;
-    const family = row.model.id;
+    const family = baseIdOf(row.model);
     if (!byFamily.has(family)) byFamily.set(family, []);
     byFamily.get(family)!.push(row);
   }
@@ -109,8 +121,10 @@ export default function Models() {
                           <thead>
                             <tr className="text-xs uppercase tracking-wider text-muted-foreground">
                               <th className="text-left font-semibold px-4 py-2">Dataset</th>
+                              <th className="text-left font-semibold px-4 py-2">Target</th>
                               <th className="text-left font-semibold px-4 py-2">Scenario</th>
                               <th className="text-left font-semibold px-4 py-2">Tag</th>
+                              <th className="text-left font-semibold px-4 py-2">Variant</th>
                               <th className="text-left font-semibold px-4 py-2">Effort</th>
                               <th className="text-left font-semibold px-4 py-2">Source</th>
                               <th className="text-right font-semibold px-4 py-2">Score</th>
@@ -124,9 +138,11 @@ export default function Models() {
                               .map((row, i) => (
                                 <tr key={i} className="border-t border-border/30 hover:bg-secondary/5">
                                   <td className="px-4 py-2">{row.datasetLabel}</td>
+                                  <td className="px-4 py-2 text-xs">{row.target}</td>
                                   <td className="px-4 py-2">{row.scenarioLabel}</td>
                                   <td className="px-4 py-2 font-mono text-xs">{row.model.model}</td>
-                                  <td className="px-4 py-2 font-mono text-xs">{row.model.effort ?? "unknown"}</td>
+                                  <td className="px-4 py-2 font-mono text-xs">{row.model.id}</td>
+                                  <td className="px-4 py-2 font-mono text-xs">{effortLabel(row.model)}</td>
                                   <td className="px-4 py-2 font-mono text-xs">{provenanceLabel(row.model.provenance)}</td>
                                   <td className="px-4 py-2 text-right font-medium">
                                     {row.model.status === "error" ? (

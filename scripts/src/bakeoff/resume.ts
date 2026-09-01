@@ -24,11 +24,22 @@ export interface PriorGrounding {
   content: string;
 }
 
+/** A recorded scenario's own presentation metadata, kept so a scenario that is
+ * NOT run this pass can be persisted verbatim instead of rebuilt from a spec
+ * that may not exist for this target. */
+export interface PriorScenarioMeta {
+  label: string;
+  description: string;
+  notes: string[];
+}
+
 export interface Prior {
   /** Shared grounding to reuse, or null when none is reusable. */
   grounding: PriorGrounding | null;
   /** scenarioId -> (result id -> already-completed ModelResult). */
   done: Map<string, Map<string, ModelResult>>;
+  /** scenarioId -> its recorded label/description/notes. */
+  scenarioMeta: Map<string, PriorScenarioMeta>;
   /**
    * Why the prior dataset was NOT reused, or null when it was (or when there was
    * no prior file). Logged verbatim so a discarded resume is always visible
@@ -40,7 +51,13 @@ export interface Prior {
 }
 
 function emptyPrior(rejectedReason: string | null, hadPriorFile: boolean): Prior {
-  return { grounding: null, done: new Map(), rejectedReason, hadPriorFile };
+  return {
+    grounding: null,
+    done: new Map(),
+    scenarioMeta: new Map(),
+    rejectedReason,
+    hadPriorFile,
+  };
 }
 
 /** Does a force-rerun token select this recorded result? Matches `all`, the exact
@@ -95,6 +112,7 @@ export function readPrior(
       : null;
 
   const done = new Map<string, Map<string, ModelResult>>();
+  const scenarioMeta = new Map<string, PriorScenarioMeta>();
   for (const scenario of obj.scenarios as ScenarioResult[]) {
     if (!scenario || typeof scenario.id !== "string" || !Array.isArray(scenario.models)) continue;
     const models = new Map<string, ModelResult>();
@@ -107,9 +125,14 @@ export function readPrior(
       models.set(model.id, model);
     }
     done.set(scenario.id, models);
+    scenarioMeta.set(scenario.id, {
+      label: typeof scenario.label === "string" ? scenario.label : scenario.id,
+      description: typeof scenario.description === "string" ? scenario.description : "",
+      notes: Array.isArray(scenario.notes) ? scenario.notes : [],
+    });
   }
 
-  return { grounding, done, rejectedReason: null, hadPriorFile: true };
+  return { grounding, done, scenarioMeta, rejectedReason: null, hadPriorFile: true };
 }
 
 /** Read + interpret the prior results file. A missing/corrupt file is a clean

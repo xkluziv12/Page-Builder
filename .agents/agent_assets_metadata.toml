@@ -6,63 +6,102 @@ id = "YK0SL_fX0uHD_X635rBO_"
 uri = "file://exports/bake-off-bundle.tar.gz"
 type = "unspecified"
 title = "Bake-Off bundle (app + harness + mc-core)"
+logical_id = "2f83882f-6eb5-4746-bf02-7756634eef3e"
 
 [[outputs]]
 id = "luA2PQ5bxh1ltqprBmA-e"
 uri = "file://scripts/src/judge/output/seo-judge-report.md"
 type = "text"
 title = "SEO/AIO/GEO Judging Report — all 5 audits + rankings"
+logical_id = "f0d87979-3966-4be3-b3b8-a16f9adab2a6"
 
 [[outputs]]
 id = "zgcIRRFqWtY5w1WHrxeQg"
 uri = "file://scripts/src/judge/output/seo-judge-pages.tar.gz"
 type = "unspecified"
 title = "The 3 pages judged (Sonnet 4.6, GPT-5.5, Gemini 3.1 Pro HTML)"
+logical_id = "ee0e3730-730a-4c2c-a74d-e7b27b2f0c3a"
 
 [[outputs]]
 id = "RioRUG80Us1KH-5JY8H8l"
 uri = "file://docs/seo-aio-geo-judging-master-findings.md"
 type = "text"
 title = "Master Findings — Cross-Model SEO/AIO/GEO Judging Round"
+logical_id = "f3e38f7e-01d7-4ecf-b9de-103ff2052d3c"
 
 [[outputs]]
 id = "n34RGb7XlvnaTxn2_7_gI"
 uri = "file://scripts/src/bakeoff/output/reviews/claude.md"
 type = "text"
 title = "Review — Claude Opus 4.8"
+logical_id = "ec9500a7-d09a-436c-a517-c9c9b7d61486"
 
 [[outputs]]
 id = "egYgS_0DbhiHh5eMMTzas"
 uri = "file://scripts/src/bakeoff/output/reviews/openai-std.md"
 type = "text"
 title = "Review — OpenAI GPT-5.5"
+logical_id = "436fe746-44fe-4c73-98f9-0a8ae4c56c7c"
 
 [[outputs]]
 id = "cX8VyEKIVcVI3lNv61yjP"
 uri = "file://scripts/src/bakeoff/output/reviews/gemini.md"
 type = "text"
 title = "Review — Gemini 3.1 Pro"
+logical_id = "8665803b-ca92-409c-90ea-56034c629cb9"
 
 [[outputs]]
 id = "ySYx0CCc8apy7OTIaD4AP"
 uri = "file://scripts/src/bakeoff/output/reviews/grok.md"
 type = "text"
 title = "Review — Grok (xAI)"
+logical_id = "080994e1-2232-494b-af42-9578d1a55fda"
 
 [[outputs]]
 id = "9l5gqqHgvKBbnq2URy_Us"
 uri = "file://exports/bakeoff-dossier.md"
 type = "text"
 title = "Bake-Off Dossier (the document sent to reviewers)"
+logical_id = "72018a89-12e3-458d-b47c-306c19582325"
 
 [[outputs]]
 id = "YF09NpuPyeo9wGU2zP0c7"
 uri = "file://exports/bakeoff-full.zip"
 type = "unspecified"
 title = "Bake-Off — full review package (zip)"
+logical_id = "3cb4b2de-3db1-4171-b6d2-7fe35f2ef314"
 
 [[outputs]]
 id = "z2kTfbHXt2gpk8x4ZVeX-"
 uri = "file://artifacts/page-terminal/TECHNOCYCLE_HANDOFF.md"
 type = "text"
 title = "TechnoCycle Brand Mode — Status & Handoff"
+logical_id = "e5231520-5240-470f-8a4d-36a2c42eb957"
+
+[[outputs]]
+id = "9YGbKlcIWwFSTdbu4Uhkb"
+uri = "file://.local/tasks/deliverables/universal-page-builder-master-prompt.md"
+type = "text"
+title = "Universal Master Page Builder Prompt v1.4"
+description = "Now matches the real bake-off pipeline's actual SEO/copywriting/schema tactical depth, not just its process discipline."
+logical_id = "e864da85-fe7a-4d69-9db8-b9ab5869cd9b"
+content_hash = "sha256:bc6f8c5a537ea2ef00104f63080ed5b6e6e6dd2c9089955058104a7281f8d25b"
+size = 65426
+mtime_ms = 1788288383996
+storage_uri = "gcs://replit-rams-assets-picard/rams/assets/repl:84315830-deb2-4276-820b-4f1ea787009a/e864da85-fe7a-4d69-9db8-b9ab5869cd9b/d8b3e745-cd5d-4ce5-b73a-7ecacb5be60c"
+storage_version_token = "1788288411962382"
+content_type = "text/markdown"
+
+[[outputs]]
+id = "giQL7FbzOYsu5JxabjHbv"
+uri = "file://.local/tasks/deliverables/README.md"
+type = "text"
+title = "README — what changed and why (v1.4)"
+description = "Documents the v1.4 depth upgrade pulled from the real pipeline's actual prompt files."
+logical_id = "6defdfb0-9966-4353-a89d-626fea360255"
+content_hash = "sha256:b1b5fe2353e9d98b007bc2fe45cc7599a239a28c5094b16512b8b5de1c183e4e"
+size = 11343
+mtime_ms = 1788288406880
+storage_uri = "gcs://replit-rams-assets-picard/rams/assets/repl:84315830-deb2-4276-820b-4f1ea787009a/6defdfb0-9966-4353-a89d-626fea360255/98fc82f4-dfc6-420a-a202-cb228ca4f6b4"
+storage_version_token = "1788288412536942"
+content_type = "text/markdown"

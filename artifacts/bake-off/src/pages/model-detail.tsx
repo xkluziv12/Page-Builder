@@ -8,15 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { useDataset } from "@/contexts/dataset-context";
 import { DATASETS, getDataset } from "@/data/datasets";
 import { getModelVersions, type ModelVersion } from "@/data/model-history";
-import type { Provenance } from "@/types";
-
-/** Keep detail-page rendering independent from the dashboard module graph. */
-function provenanceLabel(p: Provenance | null | undefined): string {
-  if (!p) return "Not recorded";
-  if (p.provider && p.model) return `${p.provider}/${p.model}`;
-  if (p.provider) return p.provider;
-  return p.sourceKind || "Not recorded";
-}
+import { effortLabel, provenanceLabel, targetLabel } from "@/lib/model-labels";
 
 /** Resolve a screenshot path stored in results.json against the app's base URL. */
 function shotUrl(path: string | null | undefined): string | null {
@@ -97,12 +89,21 @@ export default function ModelDetail() {
           <div className="flex items-center gap-3 mb-2">
             <h1 className="text-3xl font-bold">{model.label}</h1>
             <Badge variant="outline" className="font-mono">{model.model}</Badge>
-            <Badge variant="secondary" className="font-mono text-[10px]" title="Reasoning-effort setting recorded for this run">
-              effort: {model.effort ?? "unknown"}
+            <Badge
+              variant="secondary"
+              className="font-mono text-[10px]"
+              title="Reasoning-effort setting recorded for this run. A control run is a provider-default run on a provider with no effort knob — it is NOT a low/medium tier."
+            >
+              effort: {effortLabel(model)}
             </Badge>
             <Badge variant="outline" className="font-mono text-[10px]" title="How this result was actually produced">
               source: {provenanceLabel(model.provenance)}
             </Badge>
+          </div>
+          {/* Which page this cell was asked to reproduce — results from different
+              targets are not comparable, so never leave it implicit. */}
+          <div className="text-xs text-muted-foreground font-mono mb-2">
+            target: {targetLabel(results)} · {results.target?.url ?? "url not recorded"}
           </div>
           <div className="flex gap-4 text-sm text-muted-foreground">
             <div className="flex items-center gap-1.5">
@@ -494,7 +495,11 @@ function VersionSelector({
             : v.model.scores
               ? `composite score ${v.model.scores.composite}`
               : "no score recorded";
-        const ariaLabel = `${v.datasetLabel}, ${v.dateLabel}, ${archiveLabel}, ${scoreLabel}, ${costLabel}`;
+        // getModelVersions matches on the provider model TAG, so two effort
+        // variants of the same tag both appear here. Name the effort so they are
+        // never mistaken for duplicate runs of the same configuration.
+        const effort = effortLabel(v.model);
+        const ariaLabel = `${v.datasetLabel}, ${v.dateLabel}, ${archiveLabel}, effort ${effort}, ${scoreLabel}, ${costLabel}`;
 
         return (
           <Link
@@ -515,6 +520,7 @@ function VersionSelector({
             <div className="text-[10px] font-mono truncate">
               {v.dateLabel} · {archiveLabel}
             </div>
+            <div className="text-[10px] font-mono truncate opacity-80">effort: {effort}</div>
             <div className="flex items-center justify-between gap-2 mt-1 text-[10px] font-mono">
               <span className={v.model.status === "error" ? "text-destructive" : ""}>
                 {v.model.status === "error" ? "Error" : (v.model.scores?.composite ?? "—")}

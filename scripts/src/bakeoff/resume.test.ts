@@ -73,6 +73,27 @@ function dataset(target: BakeoffTarget, models: ModelResult[]): BakeoffResults {
 
 const NO_FORCE = new Set<string>();
 
+describe("readPrior — scenario metadata is preserved for carry-through", () => {
+  it("records each scenario's own label/description/notes", () => {
+    const file = dataset(BILLINGS, [modelResult({ id: "gemini-flash" })]);
+    file.scenarios.push({
+      id: "gmb",
+      label: "GMB-enriched context",
+      description: "explicit page_url + GMB block",
+      notes: ["note one"],
+      models: [modelResult({ id: "claude", provider: "Anthropic", model: "claude-sonnet-5" })],
+    });
+    const prior = readPrior(file, BILLINGS, NO_FORCE);
+    expect(prior.scenarioMeta.get("gmb")).toEqual({
+      label: "GMB-enriched context",
+      description: "explicit page_url + GMB block",
+      notes: ["note one"],
+    });
+    // A scenario not run this pass still has its results available to persist.
+    expect(prior.done.get("gmb")!.size).toBe(1);
+  });
+});
+
 describe("target identity", () => {
   it("keys two different cities differently", () => {
     expect(targetKey(BILLINGS)).not.toBe(targetKey(BAKERSFIELD));

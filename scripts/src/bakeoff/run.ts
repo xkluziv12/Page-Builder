@@ -21,6 +21,7 @@ import { loadDesignFixtures, type DesignFixtures } from "./fixtures.js";
 import { estimateCost, costFromUsage } from "./cost.js";
 import { runConversation, type TranscriptEntry } from "./conversation.js";
 import { generateSharedGrounding, type SharedGrounding } from "./grounding.js";
+import { resolveGroundingAuthor, type ResolvedGroundingAuthor } from "./groundingAuthor.js";
 import { gmbContextSuffix, resolveGmbProfile, promptGmbFrom, type GmbProfile } from "./gmb.js";
 import { loadReferenceHtml, resolveTarget, type BakeoffTarget } from "./target.js";
 import { scoreModels } from "./score.js";
@@ -64,8 +65,16 @@ const TRANSCRIPT_PREFIX = "transcripts";
  * and effort provenance come straight from {@link resolveVariants}, so what is
  * recorded always matches what was actually asked of the provider. */
 interface ModelSpec extends ResolvedVariant {
-  /** The stateful multi-turn completion fn used to drive this model's chat. */
-  complete: CompleteFn;
+  /**
+   * Builds the stateful multi-turn completion fn for this cell. DEFERRED, not a
+   * ready-made fn: constructing an adapter calls `requireEnv`, so an eagerly
+   * built set aborted the ENTIRE run with a bare "XAI_API_KEY is not set" the
+   * moment one provider's credential was absent — every other model lost, and
+   * the operator shown a single opaque run failure. Building it inside each
+   * cell's own try/catch turns a missing credential into THAT cell's recorded
+   * error while its siblings run and persist normally.
+   */
+  makeComplete: () => CompleteFn;
 }
 
 /**
@@ -196,8 +205,10 @@ function buildScenarios(gmb: GmbProfile | null): ScenarioSpec[] {
 
 /**
  * Optional scenario filter (comma-separated scenario ids, e.g. `no-gmb`). When
- * set via `BAKEOFF_SCENARIOS`, only the listed scenarios are run/persisted; the
- * default runs every available scenario. This only narrows WHICH scenarios run —
+ * set via `BAKEOFF_SCENARIOS`, only the listed scenarios RUN; scenarios already
+ * recorded for this target are carried through the persist untouched rather than
+ * dropped. The default runs every available scenario. This only narrows WHICH
+ * scenarios run —
  * it never changes a scenario's context, prompts, or schema, so each scenario
  * stays a faithful reproduction. Fails loudly if a filter names no known scenario.
  */
@@ -282,8 +293,25 @@ const FORCE_RERUN = new Set(
     .filter(Boolean),
 );
 
+/**
+ * Who authors the ONE shared research grounding when none is recorded yet.
+ *
+ * `BAKEOFF_GROUNDING_PROVIDER` (+ optional `BAKEOFF_GROUNDING_MODEL`) selects it;
+ * unset reproduces the historical Claude author exactly. Resolved HERE, at
+ * startup, so an unknown provider aborts immediately — but only the SELECTION is
+ * validated at this point. No adapter is constructed and no credential is read
+ * until a grounding actually has to be authored, so a missing key for a provider
+ * this run does not use can never abort startup.
+ */
+const GROUNDING_AUTHOR: ResolvedGroundingAuthor = resolveGroundingAuthor(process.env, CLAUDE_MODEL);
+
 async function main(): Promise<void> {
   console.log(`Bake-Off target: ${TARGET.city}, ${TARGET.state} — ${TARGET.url}`);
+  console.log(
+    `Shared-grounding author: ${GROUNDING_AUTHOR.label} ` +
+      `[${GROUNDING_AUTHOR.isDefault ? "default" : "selected"}, credential ${GROUNDING_AUTHOR.credentialEnv}] ` +
+      `(used only if no grounding is already recorded for this target).`,
+  );
 
   // Resolve the GMB profile for the GMB scenario. Available for the Billings
   // smoke target (illustrative block) or whenever BAKEOFF_GMB_JSON is supplied;
@@ -350,9 +378,8 @@ async function main(): Promise<void> {
   }
   // Only needed to author the shared grounding when none is recorded yet.
   // Keep this lazy so a filtered run that reuses existing grounding does not
-  // require an unrelated Claude credential just to construct the harness.
-  const claudeComplete: CompleteFn = (...args) =>
-    makeClaudeComplete(CLAUDE_MODEL)(...args);
+  // require the author's credential just to construct the harness.
+  const groundingComplete: CompleteFn = (...args) => GROUNDING_AUTHOR.make()(...args);
 
   const reference = await loadReferenceHtml(TARGET);
   const referenceHtml = reference.html;
@@ -360,7 +387,7 @@ async function main(): Promise<void> {
   // ONE shared grounding feeds BOTH scenarios, so the only difference between
   // them is the GMB enrichment — never the research input. Reuse the grounding
   // already recorded in results.json when present; otherwise author it once.
-  const grounding = await loadOrAuthorGrounding(prior.grounding, claudeComplete);
+  const grounding = await loadOrAuthorGrounding(prior.grounding, groundingComplete);
 
   const MAKE_BY_ID: Record<string, (tag: string, effort?: string) => CompleteFn> = {
     claude: makeClaudeComplete,
@@ -422,7 +449,7 @@ async function main(): Promise<void> {
     const base = baseModels.find((b) => b.id === v.baseId)!;
     if (v.model !== base.model) console.log(`Override: ${v.baseId} model ${base.model} -> ${v.model}`);
     if (v.effortRequested) console.log(`Variant: ${v.id} effort -> ${v.effortRequested}`);
-    return { ...v, complete: make(v.model, v.effortArg) };
+    return { ...v, makeComplete: () => make(v.model, v.effortArg) };
   });
   console.log(
     `Active cell(s): ${models
@@ -435,13 +462,35 @@ async function main(): Promise<void> {
   // models RUN this pass; models absent from the filter still need to survive
   // the next persist(), or a single-model rerun would wipe the rest of the
   // dataset. Forced ids are already dropped from prior.done in loadPrior.
-  const scenarios: ScenarioResult[] = activeScenarios.map((spec) => ({
+  const activeScenarioResults: ScenarioResult[] = activeScenarios.map((spec) => ({
     id: spec.id,
     label: spec.label,
     description: spec.description,
     notes: spec.notes,
     models: [...(prior.done.get(spec.id)?.values() ?? [])],
   }));
+  // ...and carry through any prior scenario this pass is NOT running, for the
+  // same reason: a BAKEOFF_SCENARIOS filter decides what runs, not what survives.
+  // These are persisted verbatim and are excluded from the run/visual passes.
+  const carriedScenarios: ScenarioResult[] = [];
+  for (const [scenarioId, models] of prior.done) {
+    if (activeScenarios.some((s) => s.id === scenarioId)) continue;
+    if (models.size === 0) continue;
+    // Keep the scenario's OWN recorded label/description/notes — a scenario that
+    // is not runnable this pass (e.g. GMB with no GMB block available) has no
+    // live spec to rebuild them from, and inventing blanks would degrade it.
+    const meta = prior.scenarioMeta.get(scenarioId);
+    carriedScenarios.push({
+      id: scenarioId,
+      label: meta?.label ?? scenarioId,
+      description: meta?.description ?? "",
+      notes: meta?.notes ?? [],
+      models: [...models.values()],
+    });
+    console.log(`  • ${scenarioId}: not run this pass; ${models.size} prior result(s) preserved.`);
+  }
+  /** Everything that gets persisted: what runs now, plus what is being kept. */
+  const scenarios: ScenarioResult[] = [...activeScenarioResults, ...carriedScenarios];
 
   // Per-scenario visual verdicts (rendered-screenshot judge). Populated by the
   // visual pass AFTER all model HTML exists; until then scoring falls back to the
@@ -450,7 +499,10 @@ async function main(): Promise<void> {
   let referenceScreenshot: string | null = null;
 
   const persist = async (): Promise<void> => {
-    for (const s of scenarios) {
+    // Score only what this pass is running. A carried-through scenario keeps the
+    // scores (and perceptual visual verdicts) recorded by the run that produced
+    // it — rescoring it here with no visual verdicts would silently downgrade it.
+    for (const s of activeScenarioResults) {
       // Scoring is a presentation aid over already-captured results. If it throws
       // on one scenario, the RESULTS themselves (which cost real money) must
       // still reach disk — so log and keep going rather than losing the write.
@@ -520,7 +572,7 @@ async function main(): Promise<void> {
   let didRunAnyModel = false;
 
   for (const spec of activeScenarios) {
-    const scenario = scenarios.find((s) => s.id === spec.id)!;
+    const scenario = activeScenarioResults.find((s) => s.id === spec.id)!;
     const pending: ModelSpec[] = [];
     for (const m of models) {
       if (scenario.models.some((existing) => existing.id === m.id)) {
@@ -584,7 +636,9 @@ async function main(): Promise<void> {
   // score it perceptually against the reference. Runs once after all HTML exists.
   // Best-effort — a failed render leaves the design-token proxy score in place.
   try {
-    for (const s of scenarios) {
+    // Active scenarios only — a carried-through scenario's screenshots were
+    // captured by the run that produced it and must not be re-rendered here.
+    for (const s of activeScenarioResults) {
       const verdict = await judgeVisual(s.models, referenceHtml, {
         outDir: resolve(SCREENSHOT_DIR, s.id),
         pathPrefix: `${SCREENSHOT_PREFIX}/${s.id}`,
@@ -654,8 +708,14 @@ async function loadOrAuthorGrounding(
     console.log(`Reusing shared grounding from prior results.json (${prior.content.length} chars).`);
     return { content: prior.content, source: prior.source ?? "model-knowledge (shared)" };
   }
-  console.log("Authoring shared research grounding (once)...");
-  return generateSharedGrounding(synth, TARGET.city, TARGET.state, TARGET.niche);
+  console.log(
+    `Authoring shared research grounding (once) with ${GROUNDING_AUTHOR.label}` +
+      `${GROUNDING_AUTHOR.isDefault ? " (default author)" : " (selected via BAKEOFF_GROUNDING_PROVIDER)"}...`,
+  );
+  return generateSharedGrounding(synth, TARGET.city, TARGET.state, TARGET.niche, {
+    provider: GROUNDING_AUTHOR.provider,
+    model: GROUNDING_AUTHOR.model,
+  });
 }
 
 /** Sum the real per-turn token usage into one run-level total. Returns null when
@@ -711,9 +771,11 @@ async function runOneModel(
   // run that fails loud mid-pipeline leaves a partial transcript + usage behind.
   const transcript: TranscriptEntry[] = [];
   try {
+    // Built here, inside this cell's try/catch: a missing/invalid credential is
+    // THIS model's error, never a run-wide abort that hides its siblings.
     const outcome = await runConversation({
       ctx,
-      complete: spec.complete,
+      complete: spec.makeComplete(),
       fixtures,
       grounding: grounding.content,
       introEnrichment: scenario.introEnrichment,

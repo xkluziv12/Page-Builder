@@ -627,6 +627,522 @@ function responsesSearchCount(output: unknown): number {
   return count;
 }
 
+/** Read a positive-millisecond override, failing loud on a malformed value
+ * rather than letting `Number("2 min")` -> NaN silently switch a watchdog off. */
+function positiveMsEnv(name: string, fallback: number): number {
+  const raw = process.env[name]?.trim();
+  if (!raw) return fallback;
+  const n = Number(raw);
+  if (!Number.isFinite(n) || n <= 0) {
+    throw new Error(`${name} must be a positive number of milliseconds (got "${raw}").`);
+  }
+  return n;
+}
+
+/**
+ * Stream watchdog windows for the Grok chat/completions stream, in ms.
+ *
+ * These exist because the OpenAI SDK's `timeout` option does NOT bound a
+ * streamed body. In `openai@6`, `fetchWithTimeout` arms its abort timer around
+ * the `fetch` call only and clears it in a `finally` the moment the RESPONSE
+ * HEADERS arrive — so for `stream: true` the client timeout covers time-to-
+ * headers and nothing else. Once the SSE connection is open the body can idle
+ * indefinitely, and the only remaining bound is the generic `WALL_CLOCK_MS`
+ * backstop, which reports a bare "timed out ... with no response" after ~10.5
+ * minutes and cannot say whether anything was ever received.
+ *
+ * Two distinct windows, because the two stall shapes have different causes:
+ *  - FIRST EVENT: stream opened, but not one parsed SSE event arrived. Either
+ *    the provider sent nothing at all (rawBytes 0) or only keepalive/comment
+ *    frames (rawBytes > 0), which the SSE decoder drops before the SDK yields.
+ *  - IDLE: events were flowing and then stopped mid-generation.
+ *
+ * Both are generous (well above the ~155-230s a large-prompt Grok turn has
+ * historically taken end to end) and both are env-overridable, so a genuinely
+ * slower turn can be given more room without a code change. They only ever make
+ * a hang fail EARLIER and with a diagnosis; they never accept a partial answer.
+ */
+const GROK_FIRST_EVENT_TIMEOUT_MS = positiveMsEnv(
+  "BAKEOFF_GROK_FIRST_EVENT_TIMEOUT_MS",
+  300_000,
+);
+const GROK_STREAM_IDLE_TIMEOUT_MS = positiveMsEnv(
+  "BAKEOFF_GROK_STREAM_IDLE_TIMEOUT_MS",
+  120_000,
+);
+
+/**
+ * Stall windows for the SEPARATE Grok Responses-API stream used by the
+ * web-search turn. Kept distinct from the chat/completions windows above
+ * because the shapes differ: a Responses turn spends real time inside the
+ * server-side `web_search` tool before it emits a single output-text delta, and
+ * xAI is not obliged to surface reasoning deltas while it does. So the idle
+ * window here is deliberately wider than the chat one — it exists to convert a
+ * silent hang into a DIAGNOSIS, not to police a slow-but-working search.
+ */
+const GROK_SEARCH_FIRST_EVENT_TIMEOUT_MS = positiveMsEnv(
+  "BAKEOFF_GROK_SEARCH_FIRST_EVENT_TIMEOUT_MS",
+  300_000,
+);
+const GROK_SEARCH_IDLE_TIMEOUT_MS = positiveMsEnv(
+  "BAKEOFF_GROK_SEARCH_IDLE_TIMEOUT_MS",
+  300_000,
+);
+
+/**
+ * Transport for the Grok web-search turn: STREAMED by default.
+ *
+ * `openai@6`'s client `timeout` clears its abort timer the instant `fetch`
+ * resolves (i.e. when response HEADERS arrive — see `fetchWithTimeout` and the
+ * note on GROK_FIRST_EVENT_TIMEOUT_MS). On a NON-streaming call the headers do
+ * not arrive until the whole answer is generated, so `timeout` silently bounds
+ * the ENTIRE generation; on a streamed call it bounds only time-to-headers and
+ * the watchdogs bound the body. That is exactly the difference between the
+ * chat/completions turns (streamed, succeeded) and this one (blocking, died
+ * with the SDK's verbatim `Request timed out.`).
+ *
+ * Set `BAKEOFF_GROK_SEARCH_STREAM=0` to fall back to the original blocking
+ * create+poll transport if xAI ever rejects `stream: true` for this endpoint.
+ * This is a TRANSPORT switch only: the prompt, history, tool set, output budget
+ * and the mandatory {@link enforceLiveFetch} gate are identical on both paths.
+ */
+const GROK_SEARCH_STREAM = !/^(0|false|no)$/i.test(
+  process.env.BAKEOFF_GROK_SEARCH_STREAM?.trim() ?? "1",
+);
+
+/**
+ * Byte-level transport telemetry for ONE streamed provider call. Records only
+ * METADATA — HTTP status, time to headers, time to the first raw body byte,
+ * total raw bytes, and when the last byte landed. No body content, no request
+ * payload, no headers, and no credential is ever captured or logged.
+ *
+ * This is the only layer that can see SSE keepalive/comment frames: the SDK's
+ * decoder swallows lines starting with ":" and never yields them, so
+ * "connection alive but silent" and "connection dead" look identical above it.
+ */
+interface TransportProbe {
+  startedAt: number;
+  status: number | null;
+  msToHeaders: number | null;
+  msToFirstRawByte: number | null;
+  lastRawByteAt: number | null;
+  rawBytes: number;
+}
+
+function newTransportProbe(): TransportProbe {
+  return {
+    startedAt: Date.now(),
+    status: null,
+    msToHeaders: null,
+    msToFirstRawByte: null,
+    lastRawByteAt: null,
+    rawBytes: 0,
+  };
+}
+
+function describeTransport(p: TransportProbe): string {
+  const quietMs = p.lastRawByteAt === null ? null : Date.now() - p.lastRawByteAt;
+  return (
+    `http=${p.status ?? "none"} connectMs=${p.msToHeaders ?? "n/a"} ` +
+    `firstByteMs=${p.msToFirstRawByte ?? "none"} rawBytes=${p.rawBytes} ` +
+    `quietMs=${quietMs ?? "n/a"}`
+  );
+}
+
+/**
+ * A `fetch` wrapper that fills a {@link TransportProbe} as the response streams.
+ * Passed to the OpenAI client as its `fetch` implementation, so the request
+ * itself is completely unchanged — this only observes the response. Non-OK
+ * responses are returned untouched so the SDK's own error parsing (and its
+ * provider error body) still works normally.
+ */
+function probingFetch(
+  probe: TransportProbe,
+): (input: string | URL | Request, init?: RequestInit) => Promise<Response> {
+  return async (input, init) => {
+    probe.startedAt = Date.now();
+    const res = await fetch(input, init);
+    probe.status = res.status;
+    probe.msToHeaders = Date.now() - probe.startedAt;
+    if (!res.ok || !res.body) return res;
+    const counted = res.body.pipeThrough(
+      new TransformStream<Uint8Array, Uint8Array>({
+        transform(chunk, controller) {
+          const now = Date.now();
+          probe.rawBytes += chunk.byteLength;
+          if (probe.msToFirstRawByte === null) probe.msToFirstRawByte = now - probe.startedAt;
+          probe.lastRawByteAt = now;
+          controller.enqueue(chunk);
+        },
+      }),
+    );
+    // `Response`'s BodyInit names AsyncIterable<Uint8Array> rather than
+    // ReadableStream, which a web ReadableStream satisfies structurally; the
+    // cast just states that directly instead of relying on the alias.
+    return new Response(counted as unknown as AsyncIterable<Uint8Array>, {
+      status: res.status,
+      statusText: res.statusText,
+      headers: res.headers,
+    });
+  };
+}
+
+/**
+ * Render a provider failure as STATUS plus the provider's OWN reported
+ * type/code/message, truncated. The message comes from the provider's error
+ * body, never from the request payload, so no prompt content and no credential
+ * can leak into a log.
+ */
+export function describeProviderError(err: unknown): string {
+  if (err instanceof OpenAI.APIError) {
+    return (
+      `HTTP ${err.status ?? "n/a"} ${err.type ?? "?"}/${err.code ?? "?"}: ` +
+      `${String(err.message ?? "").slice(0, 400)}`
+    );
+  }
+  if (err instanceof Error) return `${err.name}: ${err.message.slice(0, 400)}`;
+  return String(err).slice(0, 400);
+}
+
+/** Everything ONE streamed Grok turn actually produced, as observable facts —
+ * including the parts the old accumulator silently discarded (hidden reasoning
+ * deltas, tool-call deltas, unknown delta fields, and the finish reason). */
+export interface GrokStreamOutcome {
+  /** Concatenated `delta.content` only — hidden reasoning is NEVER folded in. */
+  content: string;
+  usage: OpenAI.CompletionUsage | undefined;
+  /** Parsed SSE events yielded by the SDK (keepalive comments are invisible here). */
+  chunks: number;
+  contentChars: number;
+  reasoningChars: number;
+  toolCallChunks: number;
+  /** Delta fields the accumulator does not read, so a new provider field can
+   * never again cause a silent "empty response" with no explanation. */
+  ignoredDeltaKeys: string[];
+  finishReason: string | null;
+  msToFirstChunk: number | null;
+  msToFirstContent: number | null;
+  msTotal: number;
+}
+
+export interface GrokStreamWatchdog {
+  /** Model tag, used verbatim in stall errors. */
+  label: string;
+  /** Max ms from stream open to the FIRST parsed event. */
+  firstEventTimeoutMs: number;
+  /** Max ms between parsed events once the first has arrived. */
+  idleTimeoutMs: number;
+  /** Abort the underlying request so a stalled call stops billing. */
+  abort: () => void;
+  /** Transport facts folded into a stall error (see {@link describeTransport}). */
+  describeTransport?: () => string;
+}
+
+const STALLED = Symbol("grok-stream-stalled");
+
+/** Race one iterator step against a stall window. A step that settles after the
+ * window still has a handler attached (via `Promise.race`), so a late rejection
+ * can never surface as an unhandled rejection. */
+function raceStep<T>(step: Promise<T>, ms: number): Promise<T | typeof STALLED> {
+  if (!Number.isFinite(ms) || ms <= 0) return step;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const stall = new Promise<typeof STALLED>((resolve) => {
+    timer = setTimeout(() => resolve(STALLED), ms);
+  });
+  return Promise.race([step, stall]).finally(() => {
+    if (timer) clearTimeout(timer);
+  });
+}
+
+/**
+ * Drain a Grok chat/completions stream under a first-event + idle watchdog,
+ * counting everything that arrives.
+ *
+ * Deliberately network-free and provider-object-free (it takes a plain async
+ * iterable of chunks) so the stall and parsing behaviour is unit-testable
+ * without touching xAI. A stall ABORTS the request and throws a diagnostic that
+ * names which window tripped, how much had arrived, and the transport state —
+ * it never returns a truncated answer as if it were complete.
+ */
+export async function consumeGrokStream(
+  stream: AsyncIterable<OpenAI.ChatCompletionChunk>,
+  wd: GrokStreamWatchdog,
+): Promise<GrokStreamOutcome> {
+  const t0 = Date.now();
+  const iterator = stream[Symbol.asyncIterator]();
+  let content = "";
+  let usage: OpenAI.CompletionUsage | undefined;
+  let chunks = 0;
+  let contentChars = 0;
+  let reasoningChars = 0;
+  let toolCallChunks = 0;
+  const ignored = new Set<string>();
+  let finishReason: string | null = null;
+  let msToFirstChunk: number | null = null;
+  let msToFirstContent: number | null = null;
+
+  for (;;) {
+    const windowMs = chunks === 0 ? wd.firstEventTimeoutMs : wd.idleTimeoutMs;
+    const step = await raceStep(iterator.next(), windowMs);
+    if (step === STALLED) {
+      wd.abort();
+      const transport = wd.describeTransport?.() ?? "no transport telemetry";
+      const secs = Math.round(windowMs / 1000);
+      throw new Error(
+        chunks === 0
+          ? `${wd.label} opened a stream but produced NO parsed event within ${secs}s ` +
+            `[${transport}]. rawBytes=0 means the provider sent nothing at all; rawBytes>0 with ` +
+            `no parsed event means it sent only keepalive/comment frames. Raise ` +
+            `BAKEOFF_GROK_FIRST_EVENT_TIMEOUT_MS if this turn is legitimately slower than that.`
+          : `${wd.label} stream went silent for ${secs}s after ${chunks} event(s) ` +
+            `[${transport}; content=${contentChars}ch reasoning=${reasoningChars}ch ` +
+            `finish=${finishReason ?? "none"}]. Raise BAKEOFF_GROK_STREAM_IDLE_TIMEOUT_MS if this ` +
+            `turn is legitimately slower than that.`,
+      );
+    }
+    if (step.done) break;
+    const chunk = step.value;
+    chunks++;
+    if (msToFirstChunk === null) msToFirstChunk = Date.now() - t0;
+    if (chunk.usage) usage = chunk.usage;
+    const choice = chunk.choices?.[0];
+    if (choice?.finish_reason) finishReason = choice.finish_reason;
+    const delta = (choice?.delta ?? {}) as Record<string, unknown>;
+    const text = typeof delta.content === "string" ? delta.content : "";
+    if (text) {
+      if (msToFirstContent === null) msToFirstContent = Date.now() - t0;
+      content += text;
+      contentChars += text.length;
+    }
+    if (typeof delta.reasoning_content === "string") reasoningChars += delta.reasoning_content.length;
+    if (Array.isArray(delta.tool_calls) && delta.tool_calls.length > 0) toolCallChunks++;
+    for (const key of Object.keys(delta)) {
+      if (key !== "content" && key !== "role" && key !== "reasoning_content" && key !== "tool_calls") {
+        ignored.add(key);
+      }
+    }
+  }
+
+  return {
+    content,
+    usage,
+    chunks,
+    contentChars,
+    reasoningChars,
+    toolCallChunks,
+    ignoredDeltaKeys: [...ignored],
+    finishReason,
+    msToFirstChunk,
+    msToFirstContent,
+    msTotal: Date.now() - t0,
+  };
+}
+
+/**
+ * Everything ONE streamed Grok RESPONSES turn produced, as observable facts.
+ *
+ * Deliberately a superset of what the adapter needs, because the whole point of
+ * this struct is to tell the four failure shapes apart after the fact:
+ *  - never connected / no event at all  -> `events === 0` (+ the transport probe)
+ *  - connected, searched, never wrote   -> `searchCalls > 0`, `textChars === 0`
+ *  - connected, wrote, never searched   -> `textChars > 0`, `searchCalls === 0`
+ *    (this one is a GATE failure, not a transport failure)
+ *  - provider gave up                   -> `terminalStatus` / `providerError`
+ *
+ * METADATA ONLY. Character COUNTS are recorded, never the characters; the only
+ * free text retained is the provider's own error message, which is bounded.
+ */
+export interface GrokResponsesOutcome {
+  /** Concatenated `response.output_text.delta` text — the answer, nothing else. */
+  text: string;
+  textChars: number;
+  /** Hidden reasoning deltas are COUNTED and never folded into the answer. */
+  reasoningChars: number;
+  /** Parsed stream events yielded by the SDK. */
+  events: number;
+  /** Distinct server-side web_search calls observed (deduped by output item id). */
+  searchCalls: number;
+  /** Every `response.web_search_call.*` progress event, including repeats. */
+  searchEvents: number;
+  /** `url_citation` annotations streamed onto the answer. */
+  citations: number;
+  /** `completed` | `incomplete` | `failed`, or null if the stream just ended. */
+  terminalStatus: string | null;
+  /** `incomplete_details.reason` when the run ended incomplete. */
+  incompleteReason: string | null;
+  /** Provider-authored error text (bounded), from an `error` event or the
+   * terminal response's own `error` block. Never request content. */
+  providerError: string | null;
+  /** Terminal `Response` snapshot, used for authoritative usage + output items. */
+  finalResponse: OpenAI.Responses.Response | null;
+  /** Event types this consumer does not read, so a new xAI event can never
+   * again make a turn fail with no explanation. Bounded. */
+  unknownEventTypes: string[];
+  msToFirstEvent: number | null;
+  msToFirstSearchEvent: number | null;
+  msToFirstText: number | null;
+  msTotal: number;
+}
+
+/** Cap on distinct unknown event types retained, so a chatty new provider
+ * event can never turn a diagnostic into an unbounded log line. */
+const UNKNOWN_EVENT_TYPE_CAP = 12;
+
+/** Event types this consumer deliberately ignores (lifecycle noise), listed so
+ * they are not reported as "unknown" and do not mask a genuinely new one. */
+const KNOWN_INERT_RESPONSE_EVENTS = new Set([
+  "response.created",
+  "response.in_progress",
+  "response.queued",
+  "response.output_item.done",
+  "response.content_part.added",
+  "response.content_part.done",
+  "response.output_text.done",
+  "response.reasoning_text.done",
+  "response.reasoning_summary_part.added",
+  "response.reasoning_summary_part.done",
+  "response.reasoning_summary_text.done",
+]);
+
+/**
+ * Drain an xAI Responses-API stream under the same first-event + idle watchdog
+ * discipline as {@link consumeGrokStream}, counting live-search activity as it
+ * happens.
+ *
+ * Network-free and provider-object-free (it takes a plain async iterable), so
+ * the stall behaviour, the search accounting and the terminal-status handling
+ * are unit-testable without touching xAI. A stall ABORTS the request and throws
+ * a diagnostic naming which window tripped and what had arrived; it never
+ * returns a partial answer as if it were complete, and it never invents search
+ * evidence — `searchCalls`/`citations` are counted strictly from provider
+ * events and feed the unchanged {@link enforceLiveFetch} gate.
+ */
+export async function consumeGrokResponsesStream(
+  stream: AsyncIterable<OpenAI.Responses.ResponseStreamEvent>,
+  wd: GrokStreamWatchdog,
+): Promise<GrokResponsesOutcome> {
+  const t0 = Date.now();
+  const iterator = stream[Symbol.asyncIterator]();
+  let text = "";
+  let reasoningChars = 0;
+  let events = 0;
+  let searchEvents = 0;
+  let citations = 0;
+  let terminalStatus: string | null = null;
+  let incompleteReason: string | null = null;
+  let providerError: string | null = null;
+  let finalResponse: OpenAI.Responses.Response | null = null;
+  let msToFirstEvent: number | null = null;
+  let msToFirstSearchEvent: number | null = null;
+  let msToFirstText: number | null = null;
+  const searchCallIds = new Set<string>();
+  const unknown = new Set<string>();
+
+  const noteSearch = (id: string | undefined): void => {
+    searchEvents++;
+    if (msToFirstSearchEvent === null) msToFirstSearchEvent = Date.now() - t0;
+    // Dedupe by output-item id so the in_progress/searching/completed trio for
+    // ONE search is not counted as three searches. Events with no id still
+    // count as one call each (an unidentified call is still a real call).
+    searchCallIds.add(id ?? `anon-${searchCallIds.size}`);
+  };
+
+  for (;;) {
+    const windowMs = events === 0 ? wd.firstEventTimeoutMs : wd.idleTimeoutMs;
+    const step = await raceStep(iterator.next(), windowMs);
+    if (step === STALLED) {
+      wd.abort();
+      const transport = wd.describeTransport?.() ?? "no transport telemetry";
+      const secs = Math.round(windowMs / 1000);
+      throw new Error(
+        events === 0
+          ? `${wd.label} opened a web-search response stream but produced NO parsed event ` +
+            `within ${secs}s [${transport}]. rawBytes=0 means the provider sent nothing at all; ` +
+            `rawBytes>0 with no parsed event means it sent only keepalive/comment frames. Raise ` +
+            `BAKEOFF_GROK_SEARCH_FIRST_EVENT_TIMEOUT_MS if this turn is legitimately slower.`
+          : `${wd.label} web-search response stream went silent for ${secs}s after ${events} ` +
+            `event(s) [${transport}; searchCalls=${searchCallIds.size} searchEvents=${searchEvents} ` +
+            `answer=${text.length}ch reasoning=${reasoningChars}ch citations=${citations} ` +
+            `terminal=${terminalStatus ?? "none"}]. Raise BAKEOFF_GROK_SEARCH_IDLE_TIMEOUT_MS if ` +
+            `this turn is legitimately slower.`,
+      );
+    }
+    if (step.done) break;
+    events++;
+    if (msToFirstEvent === null) msToFirstEvent = Date.now() - t0;
+
+    // Read events structurally rather than by exhaustive union narrowing: xAI
+    // may emit event types this SDK build's union does not know, and an
+    // unrecognised event must be RECORDED, never a crash and never silence.
+    const ev = step.value as unknown as {
+      type?: string;
+      delta?: unknown;
+      item_id?: string;
+      item?: { id?: string; type?: string };
+      annotation?: { type?: string };
+      response?: OpenAI.Responses.Response;
+      code?: string | null;
+      message?: string;
+    };
+    const type = typeof ev.type === "string" ? ev.type : "(untyped)";
+
+    if (type === "response.output_text.delta") {
+      const d = typeof ev.delta === "string" ? ev.delta : "";
+      if (d) {
+        if (msToFirstText === null) msToFirstText = Date.now() - t0;
+        text += d;
+      }
+    } else if (
+      type === "response.reasoning_text.delta" ||
+      type === "response.reasoning_summary_text.delta"
+    ) {
+      if (typeof ev.delta === "string") reasoningChars += ev.delta.length;
+    } else if (type.startsWith("response.web_search_call.")) {
+      noteSearch(ev.item_id);
+    } else if (type === "response.output_item.added") {
+      if (typeof ev.item?.type === "string" && ev.item.type.includes("web_search")) {
+        noteSearch(ev.item.id);
+      }
+    } else if (type === "response.output_text.annotation.added") {
+      if (ev.annotation?.type === "url_citation") citations++;
+    } else if (
+      type === "response.completed" ||
+      type === "response.incomplete" ||
+      type === "response.failed"
+    ) {
+      finalResponse = ev.response ?? null;
+      terminalStatus = finalResponse?.status ?? type.replace("response.", "");
+      incompleteReason = finalResponse?.incomplete_details?.reason ?? null;
+      if (finalResponse?.error?.message) {
+        providerError = String(finalResponse.error.message).slice(0, 400);
+      }
+    } else if (type === "error") {
+      providerError = `${ev.code ?? "?"}: ${String(ev.message ?? "").slice(0, 400)}`;
+    } else if (!KNOWN_INERT_RESPONSE_EVENTS.has(type) && unknown.size < UNKNOWN_EVENT_TYPE_CAP) {
+      unknown.add(type);
+    }
+  }
+
+  return {
+    text,
+    textChars: text.length,
+    reasoningChars,
+    events,
+    searchCalls: searchCallIds.size,
+    searchEvents,
+    citations,
+    terminalStatus,
+    incompleteReason,
+    providerError,
+    finalResponse,
+    unknownEventTypes: [...unknown],
+    msToFirstEvent,
+    msToFirstSearchEvent,
+    msToFirstText,
+    msTotal: Date.now() - t0,
+  };
+}
+
 /** Grok direct via xAI's OpenAI-compatible endpoint, with STS's own XAI_API_KEY.
  * The current Grok family exposes NO effort/reasoning knob — an explicit
  * `effort` override is a config mistake, not something to fake, so it fails
@@ -638,12 +1154,9 @@ export function makeGrokComplete(model: string, effort?: string): CompleteFn {
         `effort/reasoning-budget knob to apply it to.`,
     );
   }
-  const client = new OpenAI({
-    apiKey: requireEnv("XAI_API_KEY"),
-    baseURL: XAI_BASE_URL,
-    timeout: REQUEST_TIMEOUT_MS,
-    maxRetries: 0,
-  });
+  // The key is read (and validated) once at construction; each call builds its
+  // own client so it can attach a per-call `probingFetch` transport probe.
+  const apiKey = requireEnv("XAI_API_KEY");
   return guarded(model, async (messages, system, opts, signal) => {
     // Native web search, attached ONLY on the flagged turn. xAI's old Live Search
     // (`search_parameters`) is deprecated (410 → "switch to the Agent Tools API"),
@@ -655,20 +1168,163 @@ export function makeGrokComplete(model: string, effort?: string): CompleteFn {
     // turn/prompt sequence is unchanged. The wall-clock `signal` is threaded into
     // every create/retrieve and the inter-poll sleep so a timeout ABORTS the
     // in-flight request instead of leaking a loop that keeps polling/billing.
+    //
+    // STREAMED, for the same reason the chat/completions turns are: this call
+    // was previously a single BLOCKING `responses.create`, and on a blocking
+    // call `openai@6`'s client `timeout` bounds the whole generation rather than
+    // just the connect (its abort timer is cleared when `fetch` resolves, which
+    // for a non-streamed JSON body is only once the answer is finished). A turn
+    // whose siblings needed 280-446s just to reach their FIRST visible token
+    // therefore died against the client timeout as a bare
+    // `APIConnectionTimeoutError: Request timed out.` — no status, no evidence,
+    // no way to tell a hang from a slow success. Streaming moves the bound onto
+    // the watchdogs and, as a bonus, exposes xAI's own `web_search_call`
+    // progress events, so tool activity is observable while it happens instead
+    // of being inferred from the terminal payload. Prompt, history, tool set,
+    // output budget and the mandatory live-search gate are all unchanged.
     if (opts?.webSearch) {
-      let resp = await client.responses.create(
-        {
-          model,
-          max_output_tokens: opts?.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
-          tools: [{ type: "web_search" as const }],
-          ...(system ? { instructions: system } : {}),
-          input: messages.map((m) => ({ role: m.role, content: m.content })),
-        },
-        { signal },
-      );
+      const maxOut = opts?.maxOutputTokens ?? MAX_OUTPUT_TOKENS;
+      const searchPromptChars =
+        messages.reduce((n, m) => n + m.content.length, 0) + (system?.length ?? 0);
+      // Same request body on BOTH transports, so switching transport can never
+      // change what the model was asked or what it was allowed to spend.
+      const searchBody = {
+        model,
+        max_output_tokens: maxOut,
+        tools: [{ type: "web_search" as const }],
+        ...(system ? { instructions: system } : {}),
+        input: messages.map((m) => ({ role: m.role, content: m.content })),
+      };
+      // Byte-level probe on BOTH transports: `probe.status === null` means no
+      // HTTP response headers ever arrived (a CONNECT/response-header timeout),
+      // while a populated status means xAI answered and the failure is
+      // downstream of the connection. That is the distinction the bare
+      // `Request timed out.` could not make.
+      const searchProbe = newTransportProbe();
+      const searchClient = new OpenAI({
+        apiKey,
+        baseURL: XAI_BASE_URL,
+        timeout: REQUEST_TIMEOUT_MS,
+        maxRetries: 0,
+        fetch: probingFetch(searchProbe),
+      });
+      const searchOpenedAt = Date.now();
+      const searchShape =
+        `(${messages.length} msg(s), ${searchPromptChars} prompt chars, ` +
+        `max_output_tokens=${maxOut})`;
+
+      if (GROK_SEARCH_STREAM) {
+        const stream = await searchClient.responses
+          .create({ ...searchBody, stream: true as const }, { signal })
+          .catch((err: unknown) => {
+            throw new Error(
+              `${model} web-search response stream OPEN failed after ` +
+                `${Date.now() - searchOpenedAt}ms [${describeTransport(searchProbe)}] ` +
+                `${searchShape}: ${describeProviderError(err)}. If xAI is rejecting ` +
+                `stream:true on /responses, set BAKEOFF_GROK_SEARCH_STREAM=0 to use the ` +
+                `blocking transport (the mandatory live-search gate is unchanged either way).`,
+            );
+          });
+        console.log(
+          `    ⏱ ${model} web-search stream open: ${Date.now() - searchOpenedAt}ms ` +
+            `[${describeTransport(searchProbe)}] ${searchShape}`,
+        );
+        const out = await consumeGrokResponsesStream(stream, {
+          label: model,
+          firstEventTimeoutMs: GROK_SEARCH_FIRST_EVENT_TIMEOUT_MS,
+          idleTimeoutMs: GROK_SEARCH_IDLE_TIMEOUT_MS,
+          abort: () => stream.controller.abort(),
+          describeTransport: () => describeTransport(searchProbe),
+        });
+        console.log(
+          `    ⏱ ${model} web-search stream done: firstEvent=${out.msToFirstEvent ?? "never"}ms ` +
+            `firstSearch=${out.msToFirstSearchEvent ?? "never"}ms ` +
+            `firstToken=${out.msToFirstText ?? "never"}ms ` +
+            `total=${(out.msTotal / 1000).toFixed(1)}s events=${out.events} ` +
+            `searchCalls=${out.searchCalls} searchEvents=${out.searchEvents} ` +
+            `citations=${out.citations} answer=${out.textChars}ch ` +
+            `reasoning=${out.reasoningChars}ch terminal=${out.terminalStatus ?? "none"} ` +
+            `rawBytes=${searchProbe.rawBytes}` +
+            (out.unknownEventTypes.length
+              ? ` unreadEventTypes=[${out.unknownEventTypes.join(",")}]`
+              : ""),
+        );
+        const searchState =
+          `searchCalls=${out.searchCalls} citations=${out.citations} ` +
+          `answer=${out.textChars}ch reasoning=${out.reasoningChars}ch ` +
+          `events=${out.events} [${describeTransport(searchProbe)}]`;
+        if (out.terminalStatus && out.terminalStatus !== "completed") {
+          throw new Error(
+            `${model} web-search run ended as ${out.terminalStatus}: ` +
+              `${out.providerError ?? out.incompleteReason ?? "no detail"} — ${searchState}` +
+              (out.incompleteReason === "max_output_tokens"
+                ? ` — the ${maxOut}-token output budget was exhausted (hidden reasoning is ` +
+                  `billed against it). Raise the turn's output budget or shorten its input.`
+                : ""),
+          );
+        }
+        if (out.terminalStatus === null) {
+          // No terminal event means we cannot know the answer is whole, and a
+          // truncated page accepted as complete is worse than a loud failure.
+          throw new Error(
+            `${model} web-search response stream ended with NO terminal ` +
+              `response.completed/incomplete/failed event — ${searchState}` +
+              (out.providerError ? ` provider error: ${out.providerError}.` : ".") +
+              ` If xAI does not emit a terminal event on this endpoint, set ` +
+              `BAKEOFF_GROK_SEARCH_STREAM=0 to use the blocking transport.`,
+          );
+        }
+        // Live-fetch evidence, UNCHANGED in strictness: count provider-emitted
+        // search calls / citations from the stream, cross-check against the
+        // terminal response's own output items, and take whichever saw more. A
+        // run with zero evidence still fails loud through `enforceLiveFetch`.
+        const streamEvidence = out.searchCalls + out.citations;
+        const finalEvidence = responsesSearchCount(out.finalResponse?.output);
+        const searchCount = Math.max(streamEvidence, finalEvidence);
+        enforceLiveFetch(model, opts.webSearch, searchCount > 0, searchCount);
+        const raw = (out.text || out.finalResponse?.output_text || "").trim();
+        if (!raw) {
+          throw new Error(
+            `${model} returned an empty web-search response after ` +
+              `${(out.msTotal / 1000).toFixed(1)}s — ${searchState}, ` +
+              `terminal=${out.terminalStatus}` +
+              (out.unknownEventTypes.length
+                ? `, unread event type(s): ${out.unknownEventTypes.join(",")}`
+                : "."),
+          );
+        }
+        return {
+          content: unfence(raw),
+          raw,
+          usage: responsesUsage(out.finalResponse?.usage),
+        };
+      }
+
+      // Blocking fallback (BAKEOFF_GROK_SEARCH_STREAM=0). Retained verbatim in
+      // behaviour, but instrumented: on this transport the SDK's `timeout`
+      // bounds the WHOLE generation (headers do not arrive until the answer is
+      // finished), so a slow-but-healthy turn dies as a bare
+      // `APIConnectionTimeoutError: Request timed out.` with no status. The
+      // wrapper below names that explicitly instead.
+      let resp = await searchClient.responses
+        .create(searchBody, { signal })
+        .catch((err: unknown) => {
+          throw new Error(
+            `${model} blocking web-search request failed after ` +
+              `${Date.now() - searchOpenedAt}ms [${describeTransport(searchProbe)}] ` +
+              `${searchShape}: ${describeProviderError(err)}` +
+              (searchProbe.status === null
+                ? ` — NO response headers were ever received, so this is a connect/response-header ` +
+                  `timeout, not a provider error. On the blocking transport the ` +
+                  `${REQUEST_TIMEOUT_MS}ms client timeout bounds the ENTIRE generation; leave ` +
+                  `BAKEOFF_GROK_SEARCH_STREAM unset (streamed) or raise BAKEOFF_REQUEST_TIMEOUT_MS.`
+                : ` — xAI responded with HTTP ${searchProbe.status}, so the failure is ` +
+                  `provider-side, not a connection timeout.`),
+          );
+        });
       while (resp.status === "queued" || resp.status === "in_progress") {
         await abortableSleep(5_000, signal);
-        resp = await client.responses.retrieve(resp.id, undefined, { signal });
+        resp = await searchClient.responses.retrieve(resp.id, undefined, { signal });
       }
       if (resp.status && resp.status !== "completed") {
         throw new Error(
@@ -680,7 +1336,7 @@ export function makeGrokComplete(model: string, effort?: string): CompleteFn {
       // Live-fetch evidence: xAI's Responses surface mirrors OpenAI's — a
       // web_search_call output item and/or url_citation annotations on the message.
       const searchCount = responsesSearchCount(resp.output);
-      enforceLiveFetch(model, opts?.webSearch, searchCount > 0, searchCount);
+      enforceLiveFetch(model, opts.webSearch, searchCount > 0, searchCount);
       const raw = (resp.output_text ?? "").trim();
       if (!raw) throw new Error(`${model} returned an empty response.`);
       return { content: unfence(raw), raw, usage: responsesUsage(resp.usage) };
@@ -701,24 +1357,87 @@ export function makeGrokComplete(model: string, effort?: string): CompleteFn {
     // approach the Claude adapter already uses for its own long generations, and
     // sidesteps the idle-connection timeout without changing the prompt, turn
     // order, or final content in any way.
-    const stream = await client.chat.completions.create(
-      {
-        model,
-        max_tokens: opts?.maxOutputTokens ?? MAX_OUTPUT_TOKENS,
-        messages: openAiMessages(messages, system),
-        stream: true,
-        stream_options: { include_usage: true },
-      },
-      { signal },
+    //
+    // OBSERVABILITY + STALL WATCHDOG: the SDK's `timeout` bounds only
+    // time-to-headers on a streamed call (see GROK_FIRST_EVENT_TIMEOUT_MS), so
+    // a stream that opens and then says nothing used to hang all the way to the
+    // generic 630s wall-clock backstop with no clue as to why. The probing
+    // `fetch` below records status / connect time / raw body bytes (metadata
+    // only), and `consumeGrokStream` bounds first-event and inter-event silence
+    // while counting the deltas the accumulator does not read. Neither changes
+    // the request: same model, same budget, same messages, same stream flags.
+    const maxTokens = opts?.maxOutputTokens ?? MAX_OUTPUT_TOKENS;
+    const promptChars =
+      messages.reduce((n, m) => n + m.content.length, 0) + (system?.length ?? 0);
+    const probe = newTransportProbe();
+    const streamingClient = new OpenAI({
+      apiKey,
+      baseURL: XAI_BASE_URL,
+      timeout: REQUEST_TIMEOUT_MS,
+      maxRetries: 0,
+      fetch: probingFetch(probe),
+    });
+    const openedAt = Date.now();
+    const stream = await streamingClient.chat.completions
+      .create(
+        {
+          model,
+          max_tokens: maxTokens,
+          messages: openAiMessages(messages, system),
+          stream: true,
+          stream_options: { include_usage: true },
+        },
+        { signal },
+      )
+      .catch((err: unknown) => {
+        // Surface the provider's OWN status + error body instead of letting a
+        // 4xx read as a generic transport failure three layers up.
+        throw new Error(
+          `${model} stream open FAILED after ${Date.now() - openedAt}ms ` +
+            `[${describeTransport(probe)}] (${messages.length} msg(s), ${promptChars} prompt chars, ` +
+            `max_tokens=${maxTokens}): ${describeProviderError(err)}`,
+        );
+      });
+    console.log(
+      `    ⏱ ${model} stream open: ${Date.now() - openedAt}ms [${describeTransport(probe)}] ` +
+        `(${messages.length} msg(s), ${promptChars} prompt chars, max_tokens=${maxTokens})`,
     );
-    let raw = "";
-    let cu: OpenAI.CompletionUsage | undefined;
-    for await (const chunk of stream) {
-      raw += chunk.choices[0]?.delta?.content ?? "";
-      if (chunk.usage) cu = chunk.usage;
+    const outcome = await consumeGrokStream(stream, {
+      label: model,
+      firstEventTimeoutMs: GROK_FIRST_EVENT_TIMEOUT_MS,
+      idleTimeoutMs: GROK_STREAM_IDLE_TIMEOUT_MS,
+      abort: () => stream.controller.abort(),
+      describeTransport: () => describeTransport(probe),
+    });
+    console.log(
+      `    ⏱ ${model} stream done: firstEvent=${outcome.msToFirstChunk ?? "never"}ms ` +
+        `firstToken=${outcome.msToFirstContent ?? "never"}ms total=${(outcome.msTotal / 1000).toFixed(1)}s ` +
+        `events=${outcome.chunks} content=${outcome.contentChars}ch ` +
+        `reasoning=${outcome.reasoningChars}ch toolDeltas=${outcome.toolCallChunks} ` +
+        `finish=${outcome.finishReason ?? "none"} rawBytes=${probe.rawBytes}` +
+        (outcome.ignoredDeltaKeys.length
+          ? ` unparsedDeltaFields=[${outcome.ignoredDeltaKeys.join(",")}]`
+          : ""),
+    );
+    const cu = outcome.usage;
+    const raw = outcome.content.trim();
+    if (!raw) {
+      // An empty stream is a real provider failure, so it still throws — but now
+      // it says WHY, in the same shape as the DeepSeek diagnostic above.
+      throw new Error(
+        `${model} returned an empty response after a ${(outcome.msTotal / 1000).toFixed(1)}s stream ` +
+          `[${describeTransport(probe)}]: ${outcome.chunks} parsed event(s), ` +
+          `${outcome.contentChars} visible char(s), ${outcome.reasoningChars} hidden reasoning char(s), ` +
+          `${outcome.toolCallChunks} tool-call delta(s), finish_reason="${outcome.finishReason ?? "none"}"` +
+          (outcome.ignoredDeltaKeys.length
+            ? `, unparsed delta field(s): ${outcome.ignoredDeltaKeys.join(",")}`
+            : "") +
+          (outcome.finishReason === "length"
+            ? ` — the ${maxTokens}-token output budget was exhausted before any visible content was ` +
+              `emitted. Raise the output-token budget or shorten the turn's input.`
+            : "."),
+      );
     }
-    raw = raw.trim();
-    if (!raw) throw new Error(`${model} returned an empty response.`);
     // chat/completions usage: prompt_tokens/completion_tokens INCLUDE their
     // cached / reasoning subsets, reported in the *_details blocks. Null when no
     // usage block came back (so cost falls back to the estimate).
