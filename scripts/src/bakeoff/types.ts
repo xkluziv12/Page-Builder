@@ -68,7 +68,21 @@ export interface ModelScores {
 }
 
 export interface ModelResult {
+  /**
+   * VARIANT id — unique within a scenario, and the key resume/force-rerun,
+   * screenshots and transcripts are all filed under. A cell with an explicit
+   * reasoning effort is `<baseId>.<effort>` (e.g. `gemini-flash.low`); a
+   * provider-default / control cell is the bare base id, so every id recorded
+   * before variants existed keeps resolving unchanged.
+   */
   id: string;
+  /**
+   * The model SLOT this variant belongs to (`gemini-flash` for
+   * `gemini-flash.low`), so the UI can still group a family's effort variants
+   * together. Absent on results recorded before variants existed — derive it
+   * from the id in that case, never guess an effort.
+   */
+  baseId?: string;
   label: string;
   provider: string;
   model: string;
@@ -94,6 +108,19 @@ export interface ModelResult {
    * existed.
    */
   effort: string | null;
+  /**
+   * The effort level the OPERATOR asked for on this cell, or null when nothing
+   * was requested (a provider-default / control cell). Recorded separately from
+   * `effort` so a control run can never be read as a low/medium run. Absent on
+   * results recorded before this field existed — render as "not recorded".
+   */
+  effortRequested?: string | null;
+  /**
+   * Whether the provider/tag exposes a REAL effort control at all. False means
+   * the cell is a single provider-default control run and no effort tier can be
+   * claimed for it. Absent on results recorded before this field existed.
+   */
+  effortSupported?: boolean;
   /** Relative path (under the viewer's public dir) to this model's rendered screenshot. */
   screenshot: string | null;
   /**

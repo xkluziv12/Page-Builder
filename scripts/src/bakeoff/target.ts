@@ -96,6 +96,83 @@ export function targetSlug(target: Pick<BakeoffTarget, "city" | "state">): strin
     .replace(/^-+|-+$/g, "");
 }
 
+/** The subset of a recorded `BakeoffResults.target` we can compare against. Every
+ * field is optional/unknown-typed because a historical file may predate a field
+ * or carry a hand-edited shape — an unreadable target is treated as UNKNOWN (and
+ * therefore NOT a match), never as an optimistic match. */
+export type RecordedTarget = Partial<Record<keyof BakeoffTarget, unknown>> | null | undefined;
+
+const TARGET_FIELDS: Array<keyof BakeoffTarget> = [
+  "url",
+  "city",
+  "state",
+  "niche",
+  "pageType",
+  "classification",
+  "competition",
+];
+
+function normalizeField(field: keyof BakeoffTarget, value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+  // URLs compare case-insensitively without a trailing slash; every other field
+  // is a case-insensitive token (the enums are already upper-cased on resolve).
+  if (field === "url") return trimmed.replace(/\/+$/, "").toLowerCase();
+  return trimmed.toLowerCase();
+}
+
+/**
+ * Stable identity for a build target: the seven fields that decide WHICH page is
+ * being reproduced. Two runs share grounding and resumable model results only
+ * when this key matches exactly — that is what stops a Bakersfield run from
+ * inheriting a Billings run's grounding or "already recorded" model rows.
+ */
+export function targetKey(target: BakeoffTarget): string {
+  return TARGET_FIELDS.map((f) => `${f}=${normalizeField(f, target[f]) ?? ""}`).join("|");
+}
+
+export interface TargetMatch {
+  match: boolean;
+  /** Fields that differ (or are unreadable in the recorded target). Empty on a match. */
+  differing: string[];
+  /** One-line, operator-facing explanation. */
+  reason: string;
+}
+
+/**
+ * Compare a recorded target from a prior results file against the target this
+ * run resolved. Missing / non-string fields count as a MISMATCH, never as a
+ * match: a file that does not state its target cannot prove it is the same page.
+ */
+export function compareTarget(recorded: RecordedTarget, current: BakeoffTarget): TargetMatch {
+  if (!recorded || typeof recorded !== "object") {
+    return {
+      match: false,
+      differing: [...TARGET_FIELDS],
+      reason: "the prior dataset records no target block, so it cannot be proven to be the same page",
+    };
+  }
+  const differing: string[] = [];
+  for (const field of TARGET_FIELDS) {
+    const was = normalizeField(field, (recorded as Record<string, unknown>)[field]);
+    const now = normalizeField(field, current[field]);
+    if (was === null || was !== now) differing.push(field);
+  }
+  if (differing.length === 0) {
+    return { match: true, differing: [], reason: "same target" };
+  }
+  const detail = differing
+    .map((f) => {
+      const was = (recorded as Record<string, unknown>)[f];
+      return `${f}: ${typeof was === "string" && was.trim() ? was.trim() : "<not recorded>"} -> ${
+        current[f as keyof BakeoffTarget]
+      }`;
+    })
+    .join("; ");
+  return { match: false, differing, reason: `target changed (${detail})` };
+}
+
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REFERENCE_DIR = resolve(HERE, "reference");
 

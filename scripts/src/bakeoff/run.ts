@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -15,8 +15,6 @@ import {
   makeOpenAIComplete,
   makeGrokComplete,
   makeDeepSeekComplete,
-  isOpenAiReasoningTag,
-  OPENAI_REASONING_EFFORT,
   type CompleteFn,
 } from "./providers.js";
 import { loadDesignFixtures, type DesignFixtures } from "./fixtures.js";
@@ -28,6 +26,15 @@ import { loadReferenceHtml, resolveTarget, type BakeoffTarget } from "./target.j
 import { scoreModels } from "./score.js";
 import { judgeVisual, type VisualVerdict } from "./visual.js";
 import { archiveSnapshot } from "./history.js";
+import { backupPriorResults, isForcedId, loadPrior, writeJsonAtomic } from "./resume.js";
+import {
+  baseIdOf,
+  parseVariantEnv,
+  resolveVariants,
+  type BaseModelSpec,
+  type ResolvedVariant,
+  type VariantRequest,
+} from "./variants.js";
 import type { BakeoffResults, ModelResult, ScenarioResult, TokenUsage } from "./types.js";
 
 /** The build target (city/state/niche/url) — env-driven, defaults to Billings, MT. */
@@ -54,16 +61,12 @@ const SCREENSHOT_PREFIX = "screenshots";
 const TRANSCRIPT_DIR = resolve(HERE, "../../../artifacts/bake-off/public/transcripts");
 const TRANSCRIPT_PREFIX = "transcripts";
 
-interface ModelSpec {
-  id: string;
-  label: string;
-  provider: string;
-  model: string;
+/** One resolved matrix cell plus the completion fn that drives it. The identity
+ * and effort provenance come straight from {@link resolveVariants}, so what is
+ * recorded always matches what was actually asked of the provider. */
+interface ModelSpec extends ResolvedVariant {
   /** The stateful multi-turn completion fn used to drive this model's chat. */
   complete: CompleteFn;
-  /** Resolved effort label recorded on the ModelResult — see the field's doc
-   * comment in types.ts for the full set of values. */
-  effort: string;
 }
 
 /**
@@ -205,13 +208,29 @@ const SCENARIO_FILTER = (process.env.BAKEOFF_SCENARIOS ?? "")
   .filter(Boolean);
 
 /**
- * Optional model filter (comma-separated model ids, e.g. `claude`). Used by the
- * end-to-end smoke check to run a single model. Never changes prompts/fixtures.
+ * Optional model filter (comma-separated ids, e.g. `claude`). Used by the
+ * end-to-end smoke check to run a single model. Matches either a base model id
+ * (selecting every effort variant of that slot) or an exact variant id
+ * (`gemini-flash.low`). Never changes prompts/fixtures.
  */
 const MODEL_FILTER = (process.env.BAKEOFF_MODELS ?? "")
   .split(",")
   .map((s) => s.trim())
   .filter(Boolean);
+
+/**
+ * The run matrix. `BAKEOFF_VARIANTS` is a JSON array of
+ * `{ baseId, effort?, model?, label?, id? }` and is the ONLY way to run the same
+ * provider/model at two reasoning-effort levels in one pass — each entry becomes
+ * its own result row keyed `<baseId>.<effort>`, so low and medium coexist
+ * instead of overwriting each other. Unset (the default) reproduces the legacy
+ * one-cell-per-model behaviour exactly, with ids unchanged.
+ *
+ * A requested effort that the provider does not actually expose FAILS LOUD in
+ * `resolveVariants` rather than recording an unchanged provider-default control
+ * run under a low/medium label.
+ */
+const VARIANT_REQUESTS: VariantRequest[] = parseVariantEnv(process.env.BAKEOFF_VARIANTS);
 
 /**
  * Optional per-model overrides, applied generically by model id — never
@@ -263,47 +282,6 @@ const FORCE_RERUN = new Set(
     .map((s) => s.trim())
     .filter(Boolean),
 );
-const forced = (id: string): boolean => FORCE_RERUN.has("all") || FORCE_RERUN.has(id);
-
-/**
- * Resumable per-model run state, loaded from a prior results.json. The harness
- * persists after EVERY model so a long run that is interrupted (e.g. the
- * environment reaps a long background process) can be relaunched and continues
- * from where it left off — completed (ok OR error) results are never re-run.
- */
-interface Prior {
-  grounding: { source: string; content: string } | null;
-  /** scenarioId -> (modelId -> already-completed ModelResult). */
-  done: Map<string, Map<string, ModelResult>>;
-}
-
-async function loadPrior(): Promise<Prior> {
-  const empty: Prior = { grounding: null, done: new Map() };
-  let parsed: unknown;
-  try {
-    parsed = JSON.parse(await readFile(OUTPUT_PATH, "utf8"));
-  } catch {
-    return empty;
-  }
-  const obj = parsed as Record<string, unknown>;
-  const grounding =
-    obj.grounding && typeof obj.grounding === "object"
-      ? (obj.grounding as Prior["grounding"])
-      : null;
-  const done = new Map<string, Map<string, ModelResult>>();
-
-  if (Array.isArray(obj.scenarios)) {
-    for (const s of obj.scenarios as ScenarioResult[]) {
-      const m = new Map<string, ModelResult>();
-      // Forced ids are dropped from the recorded set so they re-run in place;
-      // every other model resumes from results.json untouched.
-      for (const model of s.models) if (!forced(model.id)) m.set(model.id, model);
-      done.set(s.id, m);
-    }
-  }
-
-  return { grounding, done };
-}
 
 async function main(): Promise<void> {
   console.log(`Bake-Off target: ${TARGET.city}, ${TARGET.state} — ${TARGET.url}`);
@@ -345,7 +323,32 @@ async function main(): Promise<void> {
     `Loaded design fixtures: page-builder ${fixtures.pageBuilder.length}, design-tier2 ${fixtures.designTier2.length}, seo-data ${fixtures.seoData.length}, seo-audit ${fixtures.seoAudit.length} chars.`,
   );
 
-  const prior = await loadPrior();
+  // Resume state, keyed by TARGET as well as scenario+variant id: a results.json
+  // recorded for a different city/url is never reused, so a new target cannot
+  // inherit the previous target's shared grounding or skip models whose ids
+  // happen to match. A rejected prior file is reported, not silently ignored.
+  const prior = await loadPrior(OUTPUT_PATH, TARGET, FORCE_RERUN);
+  if (prior.rejectedReason) {
+    console.log(`Resume: ${prior.rejectedReason}`);
+    if (prior.hadPriorFile) {
+      // Keep a safety copy before this run overwrites another target's dataset.
+      const backup = await backupPriorResults(
+        OUTPUT_PATH,
+        new Date().toISOString().replace(/[:.]/g, "-"),
+      );
+      console.log(
+        backup
+          ? `Resume: previous target's results backed up to ${backup}.`
+          : `Resume: could not back up the previous target's results (continuing).`,
+      );
+    }
+  } else if (prior.done.size) {
+    console.log(
+      `Resume: reusing prior results for this target (${[...prior.done.entries()]
+        .map(([id, m]) => `${id}: ${m.size} recorded`)
+        .join(", ")}).`,
+    );
+  }
   // Only needed to author the shared grounding when none is recorded yet.
   // Keep this lazy so a filtered run that reuses existing grounding does not
   // require an unrelated Claude credential just to construct the harness.
@@ -360,75 +363,73 @@ async function main(): Promise<void> {
   // already recorded in results.json when present; otherwise author it once.
   const grounding = await loadOrAuthorGrounding(prior.grounding, claudeComplete);
 
-  const baseModels: Array<{
-    id: string;
-    label: string;
-    provider: ModelSpec["provider"];
-    model: string;
-    make: (tag: string, effort?: string) => CompleteFn;
-    /** True when this provider has a real effort/reasoning-budget knob at all
-     * (used to resolve the recorded "not-supported" vs "provider-default"). */
-    supportsEffort: boolean;
-  }> = [
-    { id: "claude", label: "Claude Sonnet 5", provider: "Anthropic", model: CLAUDE_MODEL, make: makeClaudeComplete, supportsEffort: true },
-    { id: "gemini", label: "Gemini 3.1 Pro", provider: "Google", model: GEMINI_PRO_MODEL, make: makeGeminiComplete, supportsEffort: true },
-    { id: "gemini-flash", label: "Gemini 3.5 Flash", provider: "Google", model: GEMINI_FLASH_MODEL, make: makeGeminiComplete, supportsEffort: true },
-    { id: "openai", label: `OpenAI ${OPENAI_MODEL.toUpperCase()}`, provider: "OpenAI", model: OPENAI_MODEL, make: makeOpenAIComplete, supportsEffort: true },
-    { id: "grok", label: "Grok 4.5", provider: "xAI", model: GROK_MODEL, make: makeGrokComplete, supportsEffort: false },
-    { id: "deepseek", label: "DeepSeek v4 Pro", provider: "DeepSeek", model: DEEPSEEK_MODEL, make: makeDeepSeekComplete, supportsEffort: false },
-    { id: "deepseek-flash", label: "DeepSeek v4 Flash", provider: "DeepSeek", model: DEEPSEEK_FLASH_MODEL, make: makeDeepSeekComplete, supportsEffort: false },
+  const MAKE_BY_ID: Record<string, (tag: string, effort?: string) => CompleteFn> = {
+    claude: makeClaudeComplete,
+    gemini: makeGeminiComplete,
+    "gemini-flash": makeGeminiComplete,
+    openai: makeOpenAIComplete,
+    grok: makeGrokComplete,
+    deepseek: makeDeepSeekComplete,
+    "deepseek-flash": makeDeepSeekComplete,
+  };
+  const baseModels: BaseModelSpec[] = [
+    { id: "claude", label: "Claude Sonnet 5", provider: "Anthropic", model: CLAUDE_MODEL },
+    { id: "gemini", label: "Gemini 3.1 Pro", provider: "Google", model: GEMINI_PRO_MODEL },
+    { id: "gemini-flash", label: "Gemini 3.5 Flash", provider: "Google", model: GEMINI_FLASH_MODEL },
+    { id: "openai", label: `OpenAI ${OPENAI_MODEL.toUpperCase()}`, provider: "OpenAI", model: OPENAI_MODEL },
+    { id: "grok", label: "Grok 4.5", provider: "xAI", model: GROK_MODEL },
+    { id: "deepseek", label: "DeepSeek v4 Pro", provider: "DeepSeek", model: DEEPSEEK_MODEL },
+    { id: "deepseek-flash", label: "DeepSeek v4 Flash", provider: "DeepSeek", model: DEEPSEEK_FLASH_MODEL },
   ];
-  // Apply per-model overrides (tag/label/effort) generically by id — the
-  // override swaps the provider tag and/or effort and rebuilds that model's
-  // complete fn to match, so the recorded `model`/`effort` fields always
-  // reflect what actually ran.
-  let selectedBaseModels = baseModels;
+
+  // Build the requested matrix. Two mutually exclusive shapes, both resolved by
+  // the SAME generic rules (no per-provider special-casing):
+  //  - BAKEOFF_VARIANTS set  -> an explicit matrix; each entry is its own result
+  //    row keyed `<baseId>.<effort>` (bare base id for a control cell).
+  //  - unset (legacy default) -> one cell per base model, id PINNED to the base
+  //    id so ids already in results.json / archived snapshots keep resuming, with
+  //    BAKEOFF_MODEL_OVERRIDES applied exactly as before.
+  const requests: VariantRequest[] = VARIANT_REQUESTS.length
+    ? VARIANT_REQUESTS
+    : baseModels.map((m) => ({
+        baseId: m.id,
+        id: m.id,
+        model: MODEL_OVERRIDES[m.id]?.model,
+        label: MODEL_OVERRIDES[m.id]?.label,
+        effort: MODEL_OVERRIDES[m.id]?.effort,
+      }));
+
+  // A model filter narrows WHICH cells run this pass; it never changes prompts,
+  // fixtures, or identity. Matching on either the variant id or the base id lets
+  // an operator name a slot ("gemini") or one exact cell ("gemini.low").
+  let selectedRequests = requests;
   if (MODEL_FILTER.length) {
-    selectedBaseModels = baseModels.filter((m) => MODEL_FILTER.includes(m.id));
-    if (selectedBaseModels.length === 0) {
-      throw new Error(`BAKEOFF_MODELS=${MODEL_FILTER.join(",")} matched no known model.`);
+    selectedRequests = requests.filter((r) => {
+      const id = r.id ?? (r.effort ? `${r.baseId}.${r.effort}` : r.baseId);
+      return MODEL_FILTER.includes(id) || MODEL_FILTER.includes(r.baseId);
+    });
+    if (selectedRequests.length === 0) {
+      throw new Error(`BAKEOFF_MODELS=${MODEL_FILTER.join(",")} matched no known model or variant.`);
     }
-    console.log(`Active model(s): ${selectedBaseModels.map((m) => m.id).join(", ")}`);
   }
-  let models: ModelSpec[] = selectedBaseModels.map((m) => {
-    const ovr = MODEL_OVERRIDES[m.id];
-    const model = ovr?.model ?? m.model;
-    if (ovr?.model && ovr.model !== m.model) {
-      console.log(`Override: ${m.id} model ${m.model} -> ${model}`);
-    }
-    // Resolve what to RECORD for this run's effort — never guessed, always
-    // reflects what was actually asked of the provider this pass:
-    //  - no effort knob at all (grok today)          -> "not-supported"
-    //  - openai on a non-reasoning-gated tag          -> "not-applicable"
-    //  - explicit override                            -> the override value
-    //  - otherwise                                    -> "provider-default"
-    let effort: string;
-    if (!m.supportsEffort) {
-      effort = "not-supported";
-    } else if (m.id === "openai" && !isOpenAiReasoningTag(model)) {
-      effort = "not-applicable";
-    } else if (m.id === "openai") {
-      // OpenAI's reasoning tier ALWAYS sends an explicit reasoning.effort (see
-      // makeOpenAIComplete) — the override when set, else the env-derived
-      // OPENAI_REASONING_EFFORT default. Never "provider-default" here: the
-      // call is never made without an explicit value once this tag is reached.
-      effort = ovr?.effort ?? OPENAI_REASONING_EFFORT;
-    } else {
-      // Claude/Gemini only send an explicit thinking budget when an override
-      // requests one; with no override the call carries no effort knob at all,
-      // so "provider-default" (implicit, un-configured) is accurate here.
-      effort = ovr?.effort ?? "provider-default";
-    }
-    if (ovr?.effort) console.log(`Override: ${m.id} effort -> ${ovr.effort}`);
-    return {
-      id: m.id,
-      label: ovr?.label ?? m.label,
-      provider: m.provider,
-      model,
-      complete: m.make(model, ovr?.effort),
-      effort,
-    };
+
+  // Fails loud on an unknown slot, an effort the provider does not actually
+  // accept, a duplicate id, or two cells that would send the provider the
+  // IDENTICAL request while claiming different effort tiers.
+  const variants = resolveVariants(baseModels, selectedRequests);
+  const models: ModelSpec[] = variants.map((v) => {
+    const make = MAKE_BY_ID[v.baseId];
+    if (!make) throw new Error(`No completion factory registered for model id "${v.baseId}".`);
+    const base = baseModels.find((b) => b.id === v.baseId)!;
+    if (v.model !== base.model) console.log(`Override: ${v.baseId} model ${base.model} -> ${v.model}`);
+    if (v.effortRequested) console.log(`Variant: ${v.id} effort -> ${v.effortRequested}`);
+    return { ...v, complete: make(v.model, v.effortArg) };
   });
+  console.log(
+    `Active cell(s): ${models
+      .map((m) => `${m.id} (${m.model}, effort: ${m.effort}${m.effortSupported ? "" : ", no effort control"})`)
+      .join("; ")}`,
+  );
 
   // Seed the working scenario set from EVERY prior (resumable) result — not just
   // the active/filtered models. A BAKEOFF_MODELS filter must only decide which
@@ -451,13 +452,24 @@ async function main(): Promise<void> {
 
   const persist = async (): Promise<void> => {
     for (const s of scenarios) {
-      scoreModels(
-        s.models,
-        buildRegistry().wordCountFloor,
-        WORD_COUNT_CEILINGS[TARGET.pageType] ?? 0,
-        referenceHtml,
-        verdictsByScenario.get(s.id),
-      );
+      // Scoring is a presentation aid over already-captured results. If it throws
+      // on one scenario, the RESULTS themselves (which cost real money) must
+      // still reach disk — so log and keep going rather than losing the write.
+      try {
+        scoreModels(
+          s.models,
+          buildRegistry().wordCountFloor,
+          WORD_COUNT_CEILINGS[TARGET.pageType] ?? 0,
+          referenceHtml,
+          verdictsByScenario.get(s.id),
+        );
+      } catch (err) {
+        console.log(
+          `  ! scoring ${s.id} failed (results still persisted unscored): ${
+            err instanceof Error ? err.message : String(err)
+          }`,
+        );
+      }
       s.models.sort((a, b) => {
         if (a.status === "error" && b.status !== "error") return 1;
         if (b.status === "error" && a.status !== "error") return -1;
@@ -471,8 +483,11 @@ async function main(): Promise<void> {
       scenarios,
       referenceScreenshot,
     };
-    await mkdir(dirname(OUTPUT_PATH), { recursive: true });
-    await writeFile(OUTPUT_PATH, JSON.stringify(output, null, 2), "utf8");
+    // Atomic: serialize fully, write a temp file, rename over the destination —
+    // so results.json is never observed truncated by the viewer's build or by the
+    // next run's resume (a truncated file would read as "no prior run" and
+    // silently re-run every model).
+    await writeJsonAtomic(OUTPUT_PATH, output);
   };
 
   // Run every not-yet-recorded model for a scenario CONCURRENTLY — the bottleneck
@@ -486,10 +501,15 @@ async function main(): Promise<void> {
   // Scenarios stay sequential to bound peak concurrency to one chat per model.
   // Set BAKEOFF_SEQUENTIAL=1 to force the old one-at-a-time behaviour.
   const sequential = /^(1|true|yes)$/i.test(process.env.BAKEOFF_SEQUENTIAL ?? "");
-  let persistChain: Promise<void> = Promise.resolve();
+  // The chain SERIALIZES writes; it must not also propagate one failure into
+  // every later write. A rejected link is swallowed before the next persist is
+  // queued, so a single bad write can never poison the chain and strand every
+  // subsequent (already paid for) model result in memory only.
+  let persistChain: Promise<unknown> = Promise.resolve();
   const queuePersist = (): Promise<void> => {
-    persistChain = persistChain.then(persist);
-    return persistChain;
+    const next = persistChain.then(persist, persist);
+    persistChain = next.catch(() => undefined);
+    return next;
   };
 
   // Tracks whether this invocation actually executed at least one model (vs. a
