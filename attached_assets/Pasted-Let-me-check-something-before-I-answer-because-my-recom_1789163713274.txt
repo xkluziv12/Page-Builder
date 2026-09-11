@@ -1,0 +1,36 @@
+Let me check something before I answer, because my recommendation should survive your pushback or change.
+
+You're right that we keep failing. I checked whether "start fresh" is the fix, and the data says the opposite.
+
+**When each system was built, and whether it ever produced a page:**
+
+| System | Created | Pages shipped |
+|---|---|---|
+| lean runner (framework) | 2026-07-06 | 1 of 1, GREEN |
+| bake-off harness | 2026-07-17 | real pages, 5 models |
+| auto factory | 2026-08-20 | 0 |
+| production factory | 2026-08-24 | 0 |
+
+The two that have never produced a page are the two newest. The production factory took 31 commits in that directory and shipped nothing. Starting fresh is not the untried option, it is the thing that was already tried twice in seven weeks, and both times it produced a system that does not work.
+
+**The distinction that matters:**
+
+Fresh *context* is good. That is why I supported the new Claude Code chat and wrote the kickoff plan for it. A session carrying 300 KB of failed-factory history will rebuild the failed factory.
+
+Fresh *code* is the trap. Every rewrite throws away the parts that were already proven and re-learns the same four failure modes from scratch. That is exactly what happened between August 20 and August 24.
+
+**What I'm actually recommending is not "keep using the factory."** It is three parts that each already work, wired together:
+
+1. Luna generates a `CityData` record (Luna already did this for St. Louis; that is where the live record came from)
+2. `write-city-page.ts` validates the record and splices it into the 5 files (built and round-trip tested against the live record)
+3. The 13 gates verify the result (they pass on the current page)
+
+Nothing new gets written. The only thing that has never happened is running the three back to back in one go.
+
+**So here is the cheap way to settle this instead of arguing about it.** Run one page through that loop. Not St. Louis, a second city. If it fails, you were right and fresh is the answer, and we will know the specific reason rather than guessing. If it works, page 2 exists and the loop is proven.
+
+Cost: roughly 5 minutes and about a dollar. The bake-off pages took 165 to 403 seconds; the lean runner page took 172.7 seconds and $0.156. That is the same order of magnitude.
+
+Compare that to a fourth rewrite, which on the evidence of the last two takes weeks and has a 0 for 2 track record.
+
+Want me to pick the next city and run it, or do you want to name the city?

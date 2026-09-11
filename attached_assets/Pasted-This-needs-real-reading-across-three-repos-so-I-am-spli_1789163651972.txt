@@ -1,0 +1,41 @@
+This needs real reading across three repos, so I am splitting it: one reader maps Mission Control's pipeline end to end, one maps the framework's engine and generic prompts, one maps the STS originals and the protocol prompts that sit between them. I keep the conclusions and write the handoff from them.
+
+All three readers are running now. Nothing else I can usefully do until they report, because the handoff depends on what they find, and I will not guess at it.
+
+What you will get when they finish:
+
+- The real end-to-end sequence, reconstructed from code and from the prompts' own handoff references, not from memory. I expect it to be longer than the four steps you listed, because Mission Control has research, engine routing with a backup model, checkers, and a verify loop wedged between them.
+- A clear answer to read-first versus build-first. My working view, to be confirmed against what the readers find: the new chat should get the assignment first, in one paragraph, and then read in a prescribed order, because reading nine thousand lines with no question in mind produces a summary rather than a design. But the assignment has to name the one decision that sank every earlier attempt, which is what the runner outputs. Mission Control outputs HTML for a CMS. Precision has no CMS. If the first message does not settle that, the new chat will rebuild an HTML emitter and hit the same wall.
+- The first message itself, as a copy box, with the reading list in order and the files each step should produce.
+
+I will write it the moment the third report lands.
+
+One of three reports is in, and it already corrects one assumption in your description. Two facts worth having now while the other two readers finish:
+
+- **The four-step order is confirmed from the prompts themselves.** Hub and spoke planner, then page builder, then SEO audit, then schema generator, and each one names the next in its final delivery block.
+- **The "protocol" files are not the execution prompts between those steps.** Builder, master, and lite protocol are behavioral layers you paste alongside any prompt. The real between-step glue is three things: the next-step block at the end of each master prompt, two artifact files the planner writes to disk, and a fifth document, the enterprise content system, which describes the automated five-stage version of the same chain: research and build, independent audit, a revision loop capped at three passes, schema injection, then a final verification verdict. That fifth document is the closest thing in your prompt library to a spec for the lean runner.
+
+The reader also found two contract gaps in the chain as written: the planner writes a file under one name and the page builder tells you to hand the audit a file under a different name, and the schema generator halts without a research brief file that the SEO audit never actually writes. Both are cheap to fix, but a runner built by copying the prompts verbatim would hit them on page one.
+
+Waiting on the Mission Control map and the framework engine map. The handoff comes right after.
+
+Second report is in, and it is the important one. Four things from the Mission Control code that change the plan:
+
+- **The pipeline is smaller than it looks.** The reader traced a minimum viable runner at roughly 2,200 to 2,800 lines plus the three master prompt documents, against about 9,000 in the full package. Everything else is dashboard, QC, work logs, provenance, and the bake-off harness.
+- **Mission Control's core does not sequence anything.** It runs exactly one phase per call. The order, the human approve gate between phases, and all persistence live in the API server around it. A lean runner has to write that driver itself, about 200 lines, and that is where the "autopilot" feel actually comes from.
+- **The execution prompts you remembered are real, but they live in the bake-off harness, not in Mission Control.** They are small forcing wrappers: a force prefix, an artifact-to-inline converter, an intro neutralizer, a schema-to-inline converter. Production Mission Control sends the raw master document as the system prompt plus a one-line instruction and a context block. There is also a hidden sixth step inside audit: a verify turn with a corrective re-verify loop that never passes without an explicit verdict.
+- **Two seams that only work by accident.** The page builder prompt hard-stops without an uploaded Design Bible and a GMB link, and Mission Control injects neither. The schema prompt demands a script-tag wrapper that the parser cannot strip. Production survives both because a refusal regex catches the halt and the retry happens to land. A copy that does not know this inherits the fragility.
+
+Swapping the CMS is one interface with one method. That part is genuinely easy.
+
+One reader left, on the framework engine layer and how the generic prompts load their fact layer. That decides whether the new chat reuses that runner or writes its own. Handoff follows immediately after.
+
+All three reports are in. One of them changes the assignment before it starts, so read this first.
+
+**A lean runner already exists.** The framework repo has `scripts/src/lean/run.ts`, 920 lines, file based, and it has a real green run on record: one Hilton Head Sod page, seven schema nodes, three images, 172 seconds. It chains page builder, a verified facts refusal, SEO audit, a deterministic schema library, images, assembly, and gates. It skips the planner and the verify step, and it is pinned to a direct Anthropic key, which your policy forbids. But it is the thing you are describing, already written, and a new chat that starts from a blank file would be writing the fourth implementation of the same five stages. The handoff below forbids that and makes the new chat choose a base instead.
+
+**The true sequence, from the code and the prompts together**, is eight steps rather than four: plan, research, build, audit with a verify loop inside it, schema, checkers, publish, then advisory QC. Around all of it sits a driver that sequences phases, stops for approval, and persists state. That driver is not in Mission Control's core, which runs one phase per call. It lives in the API server, and it is where the autopilot feeling comes from.
+
+**Read first or build first: assignment first, then read, then a one page memo, then build.** Reading nine thousand lines with no question in mind yields a summary. Building without reading yields runner number four. So the first message gives the assignment and the acceptance test, prescribes the reading order with line counts, and requires a short base selection memo you approve before any code.
+
+I committed the handoff to the branch as `factory/LEAN-RUNNER-HANDOFF-2026-09-11.md` so it survives any chat, and it is pasted below.

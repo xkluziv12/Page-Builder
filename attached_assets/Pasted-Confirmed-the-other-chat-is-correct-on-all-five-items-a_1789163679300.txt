@@ -1,0 +1,46 @@
+Confirmed the other chat is correct on all five items, and caught my own error: the September 2 proof run used the auto factory testing the shared pipeline, not the production factory, which has never completed a run. Fixing my three files, the run-button hazard, and the logo now.
+
+Correcting myself — the logo file doesn't actually exist in this fresh checkout, so I can't track it here. This needs to be handled as a Replit action instead, since only Replit's workspace has the file.
+
+Done and pushed. Everything below is on `claude/content-blocks` at `85a9115`.
+
+**The two chats converged without talking.** While I was writing, the hand-factory chat committed its own handoff, `docs/HANDOFF-2026-09-11-RESTART.md`. It reached the same two conclusions I did: the framework repo is reference only, and the runner lives in Precision. It also retracted two instructions it had given earlier that day, including telling Replit to clone the framework repo. That is the strongest signal you have that the direction is right.
+
+**It also caught an error in my documents, which I have fixed.** I had written that the production factory works through research, build, audit, and verify, citing the September 2 run. That run was the auto factory exercising the shared pipeline. The production factory chassis itself has never completed a run to review-ready, and the other chat gives the one-line git command that proves it. Both facts are now stated in all three of my files, with the command. Its other four open items also checked out against the tree, and two of them were live hazards:
+
+- **The Run button was launching a paid factory run again.** I removed that on September 2 and a branch reset brought it back. Removed again in this commit.
+- **The brand logo is gitignored and imported by three layout components**, so every fresh checkout fails to build and every browser gate fails for an unrelated reason. I could not fix this one: the file does not exist outside Replit's workspace. It is now step zero of Replit's copy box, one command, one time.
+
+**Three documents, one order of precedence.** The master handoff carries the situation, seven avenues with time and risk, the sequenced recommendation with owners, role rules, the Replit report format, your five open decisions, and the gotchas. The lean-runner handoff is the first message for a fresh chat. The RESTART doc is the other chat's, and the rule I wrote is simple: where the two disagree on a fact, run its re-verify command and believe the output; where they disagree on a plan, you decide.
+
+Copy box for the hand-factory chat:
+
+```
+You own claude/content-blocks from here. First:
+  git fetch origin claude/content-blocks && git checkout claude/content-blocks && git pull
+Then read, in order:
+  factory/MASTER-HANDOFF-2026-09-11.md
+  docs/HANDOFF-2026-09-11-RESTART.md   (yours; the precedence rule between the two is in the master handoff)
+  factory/auto-builder/STATE-2026-09-11.md
+Then do Part 3, Step 1: hand-build /locations/des-moines/data-destruction from the
+research in STATE, using ContentBlock sections, wired and gated. Stop for my review.
+The auto-factory chat has stopped pushing.
+```
+
+Copy box for Replit:
+
+```
+Replit: chatbot and report collector only. Read factory/MASTER-HANDOFF-2026-09-11.md,
+Part 4 (your rules) and Part 5 (your report format). Then run Part 5 step 0 exactly,
+once, and paste the output. Wait for the hand-factory chat before starting any workflow.
+```
+
+Copy box for the fresh lean-runner chat, only if you start it:
+
+```
+Read factory/LEAN-RUNNER-HANDOFF-2026-09-11.md in xkluziv12/precision-ecycle-platform,
+branch claude/content-blocks, as your entire first assignment. Attach framework,
+page-terminal, and master-prompts. Do not write code before the memo it asks for.
+```
+
+The five decisions only you can make are in Part 6 of the master handoff. The one that unblocks the most pages is the per-metro claim list.
