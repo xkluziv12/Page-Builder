@@ -1,0 +1,89 @@
+{
+  "company": {
+    "name": "Precision E-Cycle",
+    "founded": 2018,
+    "website": "https://precisionecycle.com",
+    "email": "info@precisionecycle.com",
+    "verifiedReviews": 35
+  },
+  "phone": {
+    "primary": "402-540-6965",
+    "secondary": "402-243-6922"
+  },
+  "address": {
+    "streetAddress": "4100 Industrial Ave STE D",
+    "addressLocality": "Lincoln",
+    "addressRegion": "NE",
+    "postalCode": "68504",
+    "formatted": "4100 Industrial Ave STE D, Lincoln, NE 68504"
+  },
+  "hours": {
+    "days": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+    "opens": "8:00 AM",
+    "closes": "5:00 PM",
+    "display": "Monday through Friday, 8:00 AM to 5:00 PM",
+    "weekendNote": "Saturday and Sunday must not appear in schema."
+  },
+  "confirmedServiceMetros": [
+    { "city": "Lincoln", "state": "NE", "note": null },
+    { "city": "Omaha", "state": "NE", "note": null },
+    { "city": "Kansas City", "state": "MO", "note": null },
+    { "city": "Overland Park", "state": "KS", "note": null },
+    { "city": "Des Moines", "state": "IA", "note": null },
+    {
+      "city": "Chicago",
+      "state": "IL",
+      "note": "Mobile shredding needs per-engagement confirmation."
+    },
+    { "city": "Denver", "state": "CO", "note": null }
+  ],
+  "marketStatusRule": "Any city that is not one of the seven confirmed service metros is a PLANNING market and must be built with availabilityConfirmationRequired set to true.",
+  "services": [
+    "itad",
+    "computer-recycling",
+    "server-disposal",
+    "data-destruction",
+    "on-site-destruction",
+    "it-asset-liquidation",
+    "data-center-decommissioning"
+  ],
+  "heldCertifications": [
+    {
+      "standard": "ISO/IEC 27001:2022",
+      "certificateNumber": "59247188219687",
+      "issuer": "SkillFront LLC",
+      "scope": "Information security management system"
+    },
+    {
+      "standard": "ISO 14001:2026",
+      "certificateNumber": "48669488322465",
+      "issuer": "SkillFront LLC",
+      "scope": "Environmental management practices"
+    },
+    {
+      "standard": "ISO 9001:2015",
+      "certificateNumber": "11323005267121",
+      "issuer": "SkillFront LLC",
+      "scope": "Quality management system"
+    },
+    {
+      "standard": "ISO 45001:2018",
+      "certificateNumber": "56838075233879",
+      "issuer": "SkillFront LLC",
+      "scope": "Occupational health and safety management system"
+    }
+  ],
+  "nameableClients": [
+    "Bryan Health",
+    "University of Nebraska-Lincoln",
+    "Lincoln Public Schools",
+    "Nelnet"
+  ],
+  "nameableClientsRule": "Any other named organization is MARKET CONTEXT only and needs an explicit disclaimer sentence attached saying it is not a Precision E-Cycle client or partner.",
+  "reusableAssets": {
+    "heroImage": "/images/locations-hero.png",
+    "ogImage": "/images/og-locations.png",
+    "background": "locations-hero.png"
+  },
+  "canonicalSource": "artifacts/precision-ecycle/src/lib/siteConfig.ts"
+}

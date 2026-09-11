@@ -1,0 +1,54 @@
+Their answer is right, and they asked for exactly one thing. Let me produce it — the actual type, paths, facts, and a worked reference record.
+
+Now let me build the handoff packet, extracting the reference record programmatically so it's exact rather than retyped.
+
+Their answer is right, and they asked for exactly one thing. It's written and pushed: `docs/PAGE-FACTORY-OUTPUT-CONTRACT.md` on `claude/st-louis-planning-page` at `5700cca`.
+
+## On "what's so hard about that"
+
+Nothing, and their three-step version is correct. One refinement worth making, because it's where their plan is still slightly off:
+
+**Step 2 isn't "change the last step's output shape from HTML to JSON." It's "delete the HTML step."** Their pipeline's build phase currently asks a model to write a page. For Precision it should ask for a *record*. That's a smaller change than it sounds — and it makes step 3 trivial, because a validated record can't break the build the way generated JSX can.
+
+The packet gives them:
+
+- The verbatim `CityData` type plus every sub-type
+- The hard counts to enforce in code: exactly 8 FAQs, 4 industries, 4 process steps, 3 expanded sections, 3 compliance paragraphs, 1,500-word floor
+- The editorial rules that actually fire, including the 35-word sentence cap that bit me twice today
+- **The credential-phrasing tiers** — R2 is downstream-only, NIST is conformed-to, NAID AAA and e-Stewards must never appear. No generic quality rubric catches these, and getting one wrong is a false compliance claim.
+- The planning-market language ban
+- All six files the write step touches, with insertion points
+- The eight verification commands, in order
+- **The complete St. Louis record as a worked reference** — 34 keys, 20KB, live, passing every gate
+
+Two things in there that will save them a cycle:
+
+**No new route, no new component, no new page file.** `/locations/:slug` already resolves anything in `cityData`. The write step is one record plus five one-line registry entries.
+
+**Reusable OG assets exist.** `og-locations.png` and `locations-hero.png` mean a new city passes `validate-og` and `image-meta-check` with zero image generation. They don't need an image stage to ship page one.
+
+## What to tell them
+
+```
+The contract you asked for is at docs/PAGE-FACTORY-OUTPUT-CONTRACT.md on branch
+claude/st-louis-planning-page of xkluziv12/precision-ecycle-platform, commit
+5700cca. It has the verbatim CityData type, the hard count contracts, the
+editorial and credential rules, all six files your write step touches with
+insertion points, the verification commands, and a complete working record as a
+reference.
+
+One refinement to your step 2. Do not change the build phase's output from HTML
+to JSON. Remove the HTML entirely. The build phase should ask for a CityData
+record from the start, because a record can be schema-validated before it
+touches the app and generated JSX cannot. That also makes your step 3 nearly
+free: no route to add, no component to write, no page file. One record plus five
+one-line registry entries.
+
+Two facts that will save you a cycle. /locations/:slug already resolves any slug
+present in cityData, so there is no routing work. And reusable OG assets already
+exist (og-locations.png, locations-hero.png), so a new city passes validate-og
+and image-meta-check with no image generation at all. You can ship page one
+without an image stage.
+
+Ask for whatever else you need. I have the repo open.
+```

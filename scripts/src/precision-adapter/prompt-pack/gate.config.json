@@ -1,0 +1,182 @@
+{
+  "source": "docs/precision-ecycle-page-factory-output-contract.md sections 2 and 3",
+  "hardCounts": {
+    "faqs": 8,
+    "industries": 4,
+    "processSteps": 4,
+    "expandedSections": 3,
+    "complianceParagraphs": 3
+  },
+  "lengthContracts": {
+    "visibleWordsMin": 1500,
+    "seoTitleMaxChars": 70,
+    "seoDescriptionMinChars": 140,
+    "seoDescriptionMaxChars": 160
+  },
+  "maxSentenceWords": 35,
+  "visibleWordExclusions": {
+    "note": "Fields whose strings are not visible page prose and therefore do not count toward the T1 hub word floor. Everything else in the record counts.",
+    "topLevelFields": [
+      "slug",
+      "seoTitle",
+      "seoDescription",
+      "heroImage",
+      "heroAlt",
+      "bandImage",
+      "bandAlt",
+      "techImage",
+      "techAlt",
+      "mapQuery",
+      "futureMapQuery",
+      "listing"
+    ],
+    "nestedFields": ["href"]
+  },
+  "editorialRules": [
+    {
+      "id": "no-em-en-dash",
+      "label": "No em dashes or en dashes anywhere",
+      "pattern": "[\\u2013\\u2014\\u2015]",
+      "flags": "u"
+    },
+    {
+      "id": "no-emoji",
+      "label": "No emoji",
+      "pattern": "\\p{Extended_Pictographic}",
+      "flags": "u"
+    },
+    {
+      "id": "no-dollar-amount",
+      "label": "No dollar amounts",
+      "pattern": "\\$\\s*\\d",
+      "flags": ""
+    },
+    {
+      "id": "no-stated-price",
+      "label": "No stated prices or currency amounts",
+      "pattern": "\\b\\d[\\d,]*(?:\\.\\d{2})?\\s*(?:dollars|USD)\\b",
+      "flags": "i"
+    },
+    {
+      "id": "no-rate-language",
+      "label": "No prices, rate comparisons, or unit pricing",
+      "pattern": "\\b(?:pricing|price list|price per|cost per|rate per|flat[- ]rate|hourly rate|per[- ](?:pound|lb|unit|device|item|drive))\\b",
+      "flags": "i"
+    },
+    {
+      "id": "no-turnaround-window",
+      "label": "No turnaround, response, or lead-time windows",
+      "pattern": "\\b(?:turnaround|response|lead|processing)\\s+(?:time|window)s?\\b",
+      "flags": "i"
+    },
+    {
+      "id": "no-timeframe-promise",
+      "label": "No promised timeframes",
+      "pattern": "\\b(?:within|in as little as|in under|up to)\\s+\\d+\\s*(?:minute|hour|day|business day|week|month)",
+      "flags": "i"
+    },
+    {
+      "id": "no-day-turnaround",
+      "label": "No same-day or next-day claims",
+      "pattern": "\\b(?:same|next)[- ]day\\b",
+      "flags": "i"
+    },
+    {
+      "id": "no-numeric-turnaround",
+      "label": "No numeric turnaround or response windows",
+      "pattern": "\\b\\d+\\s*[- ]?\\s*(?:minute|hour|day|business[- ]day|week)\\s+(?:turnaround|response|window|guarantee|pickup|service)\\b",
+      "flags": "i"
+    },
+    {
+      "id": "no-volume-minimum",
+      "label": "No device minimums or volume cutoffs",
+      "pattern": "\\b(?:minimum\\s+(?:of\\s+)?\\d+|no\\s+minimum|minimum\\s+(?:device|unit|asset|volume|order|quantity|pickup)|(?:device|unit|asset|volume|order|quantity|pickup)\\s+minimum|at least \\d+\\s+(?:device|unit|asset|item|pound))\\b",
+      "flags": "i"
+    }
+  ],
+  "credentialTiers": [
+    {
+      "credential": "ISO/IEC 27001:2022, ISO 14001, ISO 9001:2015, ISO 45001:2018",
+      "tier": "HELD",
+      "allowed": ["ISO 27001 certified"],
+      "never": []
+    },
+    {
+      "credential": "NIST SP 800-88",
+      "tier": "conformed to",
+      "allowed": ["informed by", "aligned with", "compliant with"],
+      "never": [
+        {
+          "phrase": "NIST certified",
+          "pattern": "\\bNIST\\b[^.]{0,40}\\bcertified\\b",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "credential": "R2",
+      "tier": "downstream only",
+      "allowed": ["routed through R2-certified processors"],
+      "never": [
+        {
+          "phrase": "R2 certified",
+          "pattern": "\\bR2\\s+certified\\b",
+          "flags": "i"
+        },
+        {
+          "phrase": "our R2-certified facility",
+          "pattern": "\\b(?:our|we are|is)\\s+R2[\\s-]+certified\\b",
+          "flags": "i"
+        },
+        {
+          "phrase": "R2-certified facility",
+          "pattern": "\\bR2[\\s-]+certified\\s+(?:facility|facilities|plant|site)\\b",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "credential": "HIPAA",
+      "tier": "aligned",
+      "allowed": ["HIPAA-aligned"],
+      "never": [
+        {
+          "phrase": "HIPAA compliant / HIPAA certified",
+          "pattern": "\\bHIPAA[\\s-]+(?:compliant|certified)\\b",
+          "flags": "i"
+        }
+      ]
+    },
+    {
+      "credential": "NAID AAA, e-Stewards, SERI, RIOS",
+      "tier": "NOT HELD",
+      "allowed": [],
+      "never": [
+        { "phrase": "NAID", "pattern": "\\bNAID\\b", "flags": "i" },
+        { "phrase": "e-Stewards", "pattern": "\\be[\\s-]?stewards\\b", "flags": "i" },
+        { "phrase": "SERI", "pattern": "\\bSERI\\b", "flags": "" },
+        { "phrase": "RIOS", "pattern": "\\bRIOS\\b", "flags": "" }
+      ]
+    }
+  ],
+  "planningMarket": {
+    "note": "Applies only when availabilityConfirmationRequired is true. CITY is replaced at validation time with the record's own city name, regex-escaped.",
+    "approvedFraming": ["project review", "planning"],
+    "bannedPatterns": [
+      { "phrase": "our <city> facility", "pattern": "\\bour\\s+CITY\\s+facilit(?:y|ies)\\b", "flags": "i" },
+      { "phrase": "our facility in <city>", "pattern": "\\bour\\s+facilit(?:y|ies)\\s+in\\s+CITY\\b", "flags": "i" },
+      { "phrase": "<city> location", "pattern": "\\bCITY\\s+locations?\\b", "flags": "i" },
+      { "phrase": "located in <city>", "pattern": "\\blocated\\s+in\\s+CITY\\b", "flags": "i" },
+      { "phrase": "drop-off in <city>", "pattern": "\\bdrop[\\s-]?off\\s+in\\s+CITY\\b", "flags": "i" },
+      { "phrase": "pickup in <city>", "pattern": "\\bpick[\\s-]?up\\s+in\\s+CITY\\b", "flags": "i" },
+      { "phrase": "we serve <city>", "pattern": "\\bwe\\s+serve\\s+CITY\\b", "flags": "i" },
+      { "phrase": "service area", "pattern": "\\bservice\\s+areas?\\b", "flags": "i" },
+      { "phrase": "service radius", "pattern": "\\bservice\\s+radius\\b", "flags": "i" }
+    ]
+  },
+  "sentenceAbbreviations": [
+    "St", "Mr", "Mrs", "Ms", "Dr", "Inc", "Co", "Corp", "Ltd", "Ave", "Ste",
+    "No", "vs", "etc", "Jr", "Sr", "Dept", "Univ", "Sec", "SP", "Rev", "Fig",
+    "approx", "U.S", "e.g", "i.e"
+  ]
+}
