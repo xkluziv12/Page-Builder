@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenAI } from "@google/genai";
 import { z } from "zod";
 import { cityDataSchema, CITY_DATA_FIELD_ORDER, type CityData } from "./cityDataSchema.js";
 import { factLayerSchema, type FactLayer } from "./prompt-pack/factLayer.schema.js";
@@ -14,17 +14,17 @@ import { gateConfig, validate, visibleWordCount, type ValidationResult } from ".
  * markup a human then has to unpick.
  *
  * Provider access follows `scripts/src/bakeoff/providers.ts` exactly: the
- * Anthropic SDK called DIRECTLY with the operator's own credential from the
- * environment, `maxRetries: 0`, and a streamed request (the SDK refuses large
- * non-streaming budgets). No Replit-managed connector, no proxy, no fallback to
+ * `@google/genai` client called DIRECTLY with the operator's own GEMINI_API_KEY
+ * from the environment. No Replit-managed connector, no proxy, no fallback to
  * another provider if the credential is missing.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const FACT_LAYER_PATH = join(HERE, "prompt-pack", "fact-layer.json");
 
-/** Overridable so a run can pin a different Claude tag without a code change. */
-export const MODEL = process.env.PRECISION_ADAPTER_MODEL?.trim() || "claude-sonnet-5";
+/** Overridable so a run can pin a different Gemini tag without a code change.
+ * Default matches the bake-off's primary Gemini tag in `bakeoff/routing.ts`. */
+export const MODEL = process.env.PRECISION_ADAPTER_MODEL?.trim() || "gemini-3.1-pro-preview";
 
 /** Matches the bake-off's generous budget: a full record runs long. */
 const MAX_OUTPUT_TOKENS = 32000;
@@ -46,42 +46,31 @@ export const TARGET: TargetCity = { city: "Milwaukee", state: "WI", slug: "milwa
 // ── Credential resolution ─────────────────────────────────────────────────
 
 export interface Auth {
-  kind: "api-key" | "oauth";
+  kind: "api-key";
   /** Env var the credential came from, for reporting. Never the value. */
   source: string;
   value: string;
 }
 
 /**
- * Pick whichever Anthropic credential is ACTUALLY set, preferring the plain API
- * key. Throws when neither is present: a missing credential is an operator
- * problem to fix, not something to paper over by reaching for another provider's
- * key that happens to be in the environment.
+ * Read the Gemini credential from the environment. Throws when it is absent: a
+ * missing credential is an operator problem to fix, not something to paper over
+ * by reaching for another provider's key that happens to be in the environment.
  */
 export function resolveAuth(env: NodeJS.ProcessEnv = process.env): Auth {
-  const apiKey = env.ANTHROPIC_API_KEY?.trim();
-  if (apiKey) return { kind: "api-key", source: "ANTHROPIC_API_KEY", value: apiKey };
-  const oauth = env.CLAUDE_CODE_OAUTH_TOKEN?.trim();
-  if (oauth) return { kind: "oauth", source: "CLAUDE_CODE_OAUTH_TOKEN", value: oauth };
+  const apiKey = env.GEMINI_API_KEY?.trim();
+  if (apiKey) return { kind: "api-key", source: "GEMINI_API_KEY", value: apiKey };
   throw new Error(
-    "No Anthropic credential is set. Export ANTHROPIC_API_KEY (preferred) or " +
-      "CLAUDE_CODE_OAUTH_TOKEN and re-run. This adapter will not fall back to another " +
-      "provider's key and will not use a Replit-managed LLM connector.",
+    "No Gemini credential is set. Export GEMINI_API_KEY and re-run. This adapter " +
+      "will not fall back to another provider's key and will not use a Replit-managed " +
+      "LLM connector.",
   );
 }
 
-function makeClient(auth: Auth): Anthropic {
-  if (auth.kind === "api-key") {
-    return new Anthropic({ apiKey: auth.value, timeout: REQUEST_TIMEOUT_MS, maxRetries: 0 });
-  }
-  // A Claude Code OAuth token authenticates as a Bearer token and needs the
-  // oauth beta header; the SDK's `authToken` option is the supported path for it.
-  return new Anthropic({
-    apiKey: null,
-    authToken: auth.value,
-    timeout: REQUEST_TIMEOUT_MS,
-    maxRetries: 0,
-    defaultHeaders: { "anthropic-beta": "oauth-2025-04-20" },
+function makeClient(auth: Auth): GoogleGenAI {
+  return new GoogleGenAI({
+    apiKey: auth.value,
+    httpOptions: { timeout: REQUEST_TIMEOUT_MS },
   });
 }
 
@@ -260,21 +249,21 @@ interface ChatMessage {
 }
 
 /**
- * One streamed completion. Deliberately has NO try/catch: an API error, a
- * timeout, or an empty response propagates to the caller and stops the run.
+ * One completion. Deliberately has NO try/catch: an API error, a timeout, or an
+ * empty response propagates to the caller and stops the run. Gemini names the
+ * assistant role "model" and carries text in a `parts` array, exactly as
+ * `makeGeminiComplete` in `scripts/src/bakeoff/providers.ts` maps it.
  */
-async function complete(client: Anthropic, messages: ChatMessage[]): Promise<string> {
-  const stream = client.messages.stream({
+async function complete(client: GoogleGenAI, messages: ChatMessage[]): Promise<string> {
+  const resp = await client.models.generateContent({
     model: MODEL,
-    max_tokens: MAX_OUTPUT_TOKENS,
-    messages: messages.map((m) => ({ role: m.role, content: m.content })),
+    contents: messages.map((m) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }],
+    })),
+    config: { maxOutputTokens: MAX_OUTPUT_TOKENS },
   });
-  const message = await stream.finalMessage();
-  const raw = message.content
-    .filter((b): b is Anthropic.TextBlock => b.type === "text")
-    .map((b) => b.text)
-    .join("\n")
-    .trim();
+  const raw = (resp.text ?? "").trim();
   if (!raw) throw new Error(`${MODEL} returned an empty response.`);
   return raw;
 }

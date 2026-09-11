@@ -37,7 +37,8 @@
     "pixelmatch": "^7.2.0",
     "playwright-core": "^1.61.0",
     "pngjs": "^7.0.0",
-    "yaml": "^2.9.0"
+    "yaml": "^2.9.0",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/node": "catalog:",
