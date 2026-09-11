@@ -54,12 +54,12 @@ outputType = "console"
 name = "Claude Code Factory Audit"
 author = "agent"
 
+[workflows.workflow.metadata]
+outputType = "console"
+
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "claude --model opus --effort high --permission-mode plan -p \"$(cat .claude/factory-audit-prompt.md)\" --output-format text | tee .claude/factory-audit-report.md"
-
-[workflows.workflow.metadata]
-outputType = "console"
 
 [agent]
 stack = "PNPM_WORKSPACE"

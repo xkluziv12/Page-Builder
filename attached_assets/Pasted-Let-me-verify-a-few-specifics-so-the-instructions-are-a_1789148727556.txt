@@ -1,0 +1,125 @@
+Let me verify a few specifics so the instructions are accurate and actionable.
+
+Found something concrete worth handing them: `structure: 50` is identical across all five models in all six runs. It's a 4×25-point signal check, so an identical score everywhere means it's measuring the harness, not the models. That goes in as a specific audit item.
+
+**Copy box for the Page Terminal / Mission Control chat:**
+
+```
+I want a full audit of the bake-off harness and Mission Control, and an honest
+comparison against two other page-building systems that live in repos you
+cannot see. I will paste their facts below; treat those as reported, not
+verifiable from your workspace, and say so wherever it matters.
+
+Background: I have four systems that build SEO pages. Three have produced real
+pages. One has produced zero in 596 commits. I want to know which shape is
+actually right, and whether yours can be the one I standardize on.
+
+=== PART 1: AUDIT YOUR OWN REPO ===
+
+Read these before answering. They are all in your workspace:
+
+  scripts/src/bakeoff/              the harness (run, score, providers,
+                                    miniPrompts, fixtures, extract, cost,
+                                    designGate, dossier, conversation)
+  scripts/src/bakeoff/score.ts      scoring rubric and WEIGHTS
+  exports/bakeoff-dossier.md        the generated technical dossier
+  scripts/src/bakeoff/archive/2026-06-23-full-adherence/pages/no-gmb/
+                                    the actual generated pages
+  scripts/src/bakeoff/reference/billings-mt.html    golden reference page
+  lib/mc-core/src/pipeline/orchestrator.ts          MC's 5 phases
+  lib/mc-core/src/prompts/          pageBuilder, seoAudit, schemaGenerator
+  lib/mc-core/src/checkers/         the checker suite
+  artifacts/page-terminal/public/tools/page-terminal.html   the manual VA tool
+  SYSTEM-MAP.md
+
+Answer these specifically:
+
+1. SCORING VALIDITY. In the last run, "structure" scored exactly 50 for every
+   model, in all six rows. structureScore() is four 25-point signals (rootCss,
+   sectionSequence, equipmentTitles, sacredUrls). A metric identical across five
+   different frontier models is measuring the harness, not the models. Which
+   signals are firing and which never fire? Is structure worth its 0.15 weight,
+   or is it dead weight inflating everyone equally?
+
+2. WHAT htmlMatch AND visualMatch ACTUALLY REWARD. Together they are 0.25 of
+   the composite and both compare against ONE published reference page. Does a
+   model get punished for producing a better page that differs from the
+   reference? Is this a quality rubric or a similarity rubric? Say which.
+
+3. THE COST SPREAD. Claude Opus 4.8 scored 76 at $1.19 in 250s; GPT-5.5-PRO
+   scored 73 at $12.09 in 794s; Grok 4.3 scored 72 at $0.42 in 165s. Four
+   points of composite across a 29x cost range. Is the rubric discriminating at
+   all, or are all five models effectively tied and the ranking is noise?
+
+4. MISSION CONTROL COMPLETION RATE. MC's phases are research, build, audit,
+   schema, publish. How many runs in mc_runs have actually reached publish?
+   How many stalled, and at which phase? If you cannot query the DB, say so
+   rather than estimating. This is the single number I most want.
+
+5. CAN MC ACCEPT AN EXTERNAL BRIEF? If I hand MC a completed research brief and
+   a page brief as JSON, can it run build -> audit -> schema without doing its
+   own URL-derived research first? Or is the research phase mandatory and
+   coupled to a target URL?
+
+6. RERUN COST. If schema fails, can you re-run only schema, reusing the paid
+   research and build? Or does a failure anywhere force a full re-run?
+
+=== PART 2: THE OTHER THREE SYSTEMS (reported; you cannot verify these) ===
+
+A. PRECISION PRODUCTION FACTORY (repo: precision-ecycle-platform,
+   scripts/src/factory/run-city.ts). Eight stages: preflight, controller-probe,
+   research, build, image, seo-verify, schema, gates. Thirteen gates. Durable
+   Postgres manifest with resume. Records go into a typed React data file that
+   a shared template renders; it does NOT emit HTML.
+   Result: ZERO completed pages in 596 commits. Not one manifest ever reached
+   status "review-ready". Every failure was wrapper code, never model output:
+   an editorial check that threw before the audit stage that exists to fix it;
+   a git checkout deleting the live output directory mid-run; citation offsets
+   compared in the wrong coordinate system; an entity-extraction call given
+   4000 max_output_tokens on a reasoning model, so reasoning consumed the whole
+   budget and the empty result was swallowed by a bare catch and reported as
+   "this city has no employers". All now fixed. Still zero pages.
+
+B. LEAN RUNNER (a separate framework repo; reference only).
+   Three files. Sequence: classify -> token-fill -> content (page-builder then
+   seo-audit) -> images -> deterministic schema -> 11 gates. Each stage writes a
+   file the next stage reads. One command per site.
+   Result: 1 of 1 pages GREEN, all 11 gates, 172.7 seconds, $0.156 total,
+   8419 in / 8860 out tokens. Notably its schema generator is DETERMINISTIC
+   code, not an LLM call, with hard exact-count contracts (exactly 8 FAQs,
+   exactly 6 HowTo steps, 3-item breadcrumb, 12+ services) that HALT the build.
+
+C. HAND METHOD (precision repo, factory/skills/page-build/SKILL.md).
+   A written 5-stage workflow a human follows with the master prompts. It built
+   all 44 pages currently live on the site.
+
+Also for context: the master prompts (Master Page Builder v3.7, Master SEO
+Audit v10.12.4, Master Schema Generator v1.4.1, Hub+Spoke Planner v8.2) exist
+in at least three places: the framework repo's lib/prompts/prompts/, your
+bake-off fixtures, and inside your page-terminal.html tool. They have drifted.
+Tell me which version yours carries and whether you can tell.
+
+=== PART 3: WHAT I WANT BACK ===
+
+1. A verdict on your scoring rubric: trustworthy, or does it need rebuilding
+   before I use it to pick anything? Be blunt. I would rather hear it is broken.
+2. Whether MC is closer in shape to the lean runner (stage in, file out,
+   resumable, cheap to retry) or to the production factory (monolith, all or
+   nothing). Evidence from orchestrator.ts, not impressions.
+3. The one change to YOUR system that would most improve it, and roughly what
+   it costs.
+4. Whether you think a bake-off is even the right tool here. All five models
+   passed. The failures in the other systems were never model quality. If model
+   choice is not the bottleneck, say so, and say what is.
+
+Ground rules: verify every claim against the files before stating it. Where you
+cannot verify something, say "cannot verify from this workspace" instead of
+inferring. Do not modify any files. This is an audit, not an implementation
+task.
+```
+
+Two notes for you:
+
+**What I'd actually watch for in their answer.** Question 4 (MC's real completion rate) is the one that matters. If Mission Control has completed runs end to end, it's a stronger candidate than anything else you own, because it already has the VA review UI. If it's also at zero, then three of your four systems have never completed a page, and the hand method plus the lean runner are the only things that have ever worked.
+
+**Where I'd push back on a bake-off generally.** Five frontier models scored 72-76 on the same task. That's a tie. Nothing this session was ever caused by picking the wrong model — it was wrapper code every single time. A new bake-off will probably tell you the models are fine again. That's why I put it in as question 4: I'd rather they tell you it's the wrong tool than build you a nicer version of it.
