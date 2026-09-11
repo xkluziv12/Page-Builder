@@ -59,7 +59,7 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "claude --model opus --effort high --permission-mode plan -p \"$(cat .claude/factory-audit-prompt.md)\" --output-format text | tee .claude/factory-audit-report.md"
+args = "timeout 900s claude --model opus --effort high --permission-mode dontAsk --allowed-tools Read Glob Grep \"Bash(git status)\" -p \"$(cat .claude/factory-audit-prompt.md)\" --output-format text | tee .claude/factory-audit-report.md"
 
 [agent]
 stack = "PNPM_WORKSPACE"
