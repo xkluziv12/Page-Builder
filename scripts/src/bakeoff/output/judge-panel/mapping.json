@@ -1,7 +1,7 @@
 [
   {
     "letter": "A",
-    "source": "CUR:gpt-5.6-luna",
+    "source": "CUR:gemini-3.7-flash",
     "run": "current"
   },
   {
