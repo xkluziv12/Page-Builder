@@ -334,14 +334,30 @@ export interface BuildOutcome {
   visibleWords: number | null;
 }
 
-export async function buildRecord(target: TargetCity = TARGET): Promise<BuildOutcome> {
+export interface BuildRecordOptions {
+  /**
+   * Test-only hook: appended to the FIRST prompt to deliberately steer the
+   * model into a known rule violation, so the repair-turn loop below can be
+   * exercised against a real model reply instead of a hand-built fixture.
+   * Never set in normal operation; undefined reproduces the exact prompt a
+   * real run sends.
+   */
+  sabotageInitialPrompt?: string;
+}
+
+export async function buildRecord(
+  target: TargetCity = TARGET,
+  options: BuildRecordOptions = {},
+): Promise<BuildOutcome> {
   const auth = resolveAuth();
   const client = makeClient(auth);
   const facts = loadFactLayer();
 
-  const messages: ChatMessage[] = [
-    { role: "user", content: buildInitialPrompt(facts, target) },
-  ];
+  const initialPrompt = options.sabotageInitialPrompt
+    ? `${buildInitialPrompt(facts, target)}\n\nONE-TIME TEST INSTRUCTION, THIS REPLY ONLY:\n${options.sabotageInitialPrompt}`
+    : buildInitialPrompt(facts, target);
+
+  const messages: ChatMessage[] = [{ role: "user", content: initialPrompt }];
 
   let repairTurns = 0;
   for (;;) {
