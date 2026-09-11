@@ -24,6 +24,10 @@ args = "Bake-Off Run"
 task = "workflow.run"
 args = "Bake-Off Judge Panel"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Claude Code Factory Audit"
+
 [[workflows.workflow]]
 name = "Bake-Off Run"
 author = "agent"
@@ -42,6 +46,17 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "pnpm --filter @workspace/scripts run bakeoff:judge"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow]]
+name = "Claude Code Factory Audit"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "claude --model opus --effort high --permission-mode plan -p \"$(cat .claude/factory-audit-prompt.md)\" --output-format text | tee .claude/factory-audit-report.md"
 
 [workflows.workflow.metadata]
 outputType = "console"
