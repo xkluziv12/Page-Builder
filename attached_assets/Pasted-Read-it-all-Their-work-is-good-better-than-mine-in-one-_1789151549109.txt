@@ -1,0 +1,124 @@
+Read it all. Their work is good — better than mine in one place. Let me give you my assessment, then a copy box.
+
+## Where they beat me
+
+**They actually solved `structure: 50`.** I hypothesized; they recomputed against the archived run and found the mechanism: `rootCss=true` (25) + sacred-URL count already at cap (25), while `sectionSequence=0` and `equipmentTitles=0` **for all five models**. Two of four signals never fire. And one that does — sacred URLs — is an STS-specific list, so it'd be 0 for any other brand. They also found a fifth signal (`heroMarginTop`) computed and never used. That's a real finding and it's theirs.
+
+**They got the number I most wanted.** MC dashboard: 1 run, failed at audit, 15-minute timeout, **0 publishes**. And they found a strength I didn't know about: MC *can* re-run a single failed phase reusing paid output.
+
+## Where I'd push back
+
+**Three of their four conclusions hold. The output-target question doesn't.**
+
+They're asking whether the Replit target should be a static page, a React component, or a full app. **I think it's none of those, and I have direct evidence from an hour ago.**
+
+The St. Louis page I just built and pushed is a **typed data record** — one `CityData` entry plus five registry entries — rendered by the existing shared template. No new component. No new page file. No LLM writing JSX. It passed `validate-seo` at 2,472 words, `schema-graph-check`, and four other gates.
+
+That matters because every risk Replit itself listed — duplicated nav, broken forms, missed canonicals, bypassed schema graph, lost test IDs — is a risk *only if the model emits markup*. If the final stage emits a **schema-validated data record**, those risks are structurally impossible. The template already guarantees design system, nav, responsive behavior, and schema graph.
+
+**And one caution on the plan's scope.** It proposes three new things at once: extract the runner, build a prompt pack, build a target adapter. Every failure this session lived in new wrapper surface. I'd prove the target adapter on one page before building the other two.
+
+**Copy box for the Page Terminal chat:**
+
+```
+Claude Code here. Strong work, especially the structure=50 recomputation and
+the mc_runs query. Two corrections and four answers.
+
+CORRECTION 1 — the citation-offset bug, precisely. You guessed "byte vs char
+or absolute vs relative." Actual mechanism: OpenAI's url_citation.start_index
+is relative to the individual content PART it hangs off. The text being searched
+was built by concatenating every output_text part across every output item and
+then calling .trim(). So a citation on part 2 carried offsets relative to part
+2 while the search index was relative to the whole joined string, shifted again
+by the leading whitespace. Test with a two-part response: per-part offset 0,
+searched index 42. Guard: build the text and its offsets in ONE pass, never two.
+
+CORRECTION 2 — the bake-off's proven track record does not transfer to a React
+target. It has produced standalone HTML pages for STS. The Precision target is
+a typed record inside an existing React app. Those are different output
+contracts, and "proven" covers the runner mechanics (retries, routing,
+transcripts, failover), not the output path. Treat the target adapter as the
+genuinely unproven piece.
+
+Q1 — extract the bake-off runner rather than fix MC's dashboard path?
+YES on the diagnosis. The synchronous-in-request execution is the disqualifier
+and you identified it correctly. But sequence it differently than proposed.
+Your plan has three new things at once: extracted runner, new prompt pack, new
+target adapter. Every failure in the Precision factory lived in new wrapper
+surface. Build the TARGET ADAPTER first, on one page, with the STS pack if
+necessary, before extracting anything. If the adapter works, the extraction is
+worth doing. If it doesn't, you've saved the extraction.
+
+Q2 — shape of a prompt pack.
+There is a working reference for this. Structure it as clients/<slug>/ with:
+  fact-layer.json    Zod-validated: identity, audience, niche, compliance,
+                     canonicalLinks, negativeScope (things that may NEVER
+                     appear), statisticsDomain (the only numbers allowed)
+  gate.config.json   niche.forbidden/approved rules, plus claims.credentials
+                     as {name, aliases, tier, approvedPhrasings} where tier is
+                     held | process-compliance | regulatory-alignment | not-held
+  pages/<slug>.json  the page brief, carrying the exact-count contracts
+The credential TIER model is the piece worth copying verbatim. It blocks
+"R2 certified" while allowing "routed through R2-certified processors," which is
+exactly the class of overclaim a generic quality rubric cannot catch.
+
+For your prompt-drift governance gap, the fix is a lock file: engines.lock.json
+holding {name, version, kind, provenance, sha256} per prompt, recomputed against
+the actual bytes at startup, failing loud on any mismatch. That turns "multiple
+copies with no source of truth" into a build error. It is maybe 80 lines.
+
+Q3 — the Replit output target. None of your three options.
+Emit a VALIDATED DATA RECORD, not a page. Evidence: a St. Louis city page was
+built for the Precision React app one hour ago as a single typed CityData entry
+plus five registry entries (metadata, locations index, map marker, availability
+list, sitemap), rendered by the existing shared template. No new component, no
+new page file, no model-authored JSX. It passed validate-seo at 2,472 words
+against a 1,500 floor, schema-graph-check, scrub, compliance, OG, and image
+gates.
+
+Every risk in your own "HTML is fine for a prototype" list — duplicated nav,
+disconnected forms, missed canonicals, bypassed schema graph, lost test IDs — is
+a risk only when a model emits markup. A data record makes them structurally
+impossible, and it is schema-checkable BEFORE it touches the app.
+
+So the file contract for the final stage is: one JSON object conforming to a
+published TypeScript/Zod type, with exact-count contracts enforced by CODE, not
+by the model. The deterministic wiring step is then a few dozen lines and is
+fully testable. This is also what made the lean runner reliable: its schema
+generator is code, not an LLM call.
+
+Q4 — what to guard against, with mechanisms not labels.
+1. SEQUENCING. Never run a check before the stage whose job is to fix that class
+   of finding. Concretely: partition findings into repairable-downstream vs
+   fatal, route the first forward as corrections, halt only on the second. A
+   38-word sentence killed a run whose very next stage existed to split it.
+2. OUTPUT DIRECTORY OWNERSHIP. The dead factory's output directory was BOTH live
+   run output AND git-tracked, so a checkout deleted files under a running
+   process. Guard: run output is gitignored, and every write does mkdir -p
+   first, on every write, not once at startup.
+3. TOKEN BUDGET ON REASONING MODELS. Reasoning tokens count against
+   max_output_tokens. A 4000 cap on a reasoning model with a 25k-char input
+   was consumed entirely by reasoning before any visible output. OpenAI's own
+   guide says reserve at least 25,000. Pin effort low for mechanical extraction
+   tasks and set the ceiling high.
+4. NO BARE CATCH. This is the meta-guard and it is the most important one. Three
+   of the four fixes in that factory were not fixing behavior, they were making
+   the system SAY WHAT IT ALREADY KNEW. A swallowed budget error looked exactly
+   like "this city has no employers." A silent attribution drop looked exactly
+   like "the model returned nothing." Rule: every catch records its reason and
+   carries it to the operator.
+5. The one you have not listed: BEFORE investing in a system, check whether it
+   has ever succeeded. `git log --all -S'"status": "review-ready"' -- <output
+   dir> | wc -l` returned 0 across 596 commits. That check takes thirty seconds
+   and would have saved two days. Run the equivalent on MC before extending it.
+
+One last thing on the bake-off itself. Five frontier models scored 72 to 76.
+That is a tie, and your own analysis shows why: htmlMatch and visualMatch are
+similarity-to-one-reference, structure is saturated at 50 for everyone, and
+there is one trial per model with no variance data. If model choice was never
+the bottleneck — and nothing in either system's failure history suggests it was
+— then sharpening the leaderboard is not the highest-value work. Extracting the
+runner is. Rank that rubric repair below the target adapter.
+```
+
+One thing worth deciding, Mark: they're proposing a system that would take weeks. I built one real page by hand in an hour, and it passed every gate. For 30 pages that's roughly 30 hours of my time versus building-plus-running a new factory. Worth knowing which you actually want before they start.
