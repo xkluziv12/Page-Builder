@@ -1,0 +1,248 @@
+Chat gpt said. Mark, I finished the second pass. My recommendation is to give me a bounded implementation trial, with Claude reviewing the plan first and the resulting changes afterward. I would start by repairing the common path that turns a content record into a finished Precision page. That work would benefit both the hand factory and the automated factory.
+
+The closer review strengthens the original diagnosis: there is useful code here, but the instructions, entry points, validators, and output writers have drifted apart. Changing the model may help with implementation quality, but those disagreements need to be resolved explicitly.
+
+What changed since the first review?
+
+The six GitHub revisions I originally reviewed are unchanged:
+
+Repository / branch	Current revision	Change since original review
+Precision: main	a5c2f86	None
+Precision: claude/content-blocks	85a9115	None
+Precision: claude/st-louis-planning-page	83c37f9	None
+Page Terminal: main	54e260c	None
+Framework: main	3777b9f	None
+Master Prompts: main	de26953	None
+
+Your local merge is still outside what I can verify. I also checked Precision’s claude/pec-factory-evaluation-9p58wx branch: it is behind content-blocks, with no commits ahead of it. It does not contain a newer repair that invalidates the findings below.
+
+This pass was source inspection. I did not run the project’s test suites, generate pages, or modify repositories.
+
+There are two different kinds of drift here: the branches have not moved, but the instructions within the same branch contradict the code and each other.
+
+The hand factory needs repairs too
+
+The hand factory is an agent-guided procedure. Its strength is that a capable person or coding agent can notice gaps and resolve them. Its weakness is that those resolutions often stay in the conversation instead of becoming a consistent, repeatable process.
+
+I found several concrete contradictions.
+
+1. It gives different FAQ requirements from the automated recipe
+
+The hand-build skill requires eight FAQs for every city and service page. The current service-spoke recipe requires exactly five.
+
+An agent following the hand instructions can therefore produce a page that violates the automated recipe while reasonably believing it followed the rules.
+
+Evidence: hand skill, lines 49–51⁠, service-spoke recipe, lines 65–70⁠.
+
+Suggested fix: choose the approved requirement for each page type and define it once. The hand instructions, generation prompt, and validator should all read that definition. I would not silently decide that either five or eight is the right business/design choice.
+
+2. Its page-installation instructions are too generic for the current site
+
+The skill tells the builder to create a new component and register a new route. That is a valid method for some page types, but it does not explain the preferred record-based path for existing city templates.
+
+This encourages agents to solve the installation problem differently every time. Hand skill, lines 144–158⁠.
+
+Suggested fix: dispatch by page type. A city hub uses the hub record/writer; a service spoke uses its record/writer; a genuinely new layout follows a separate component-building procedure.
+
+The hand factory should use the same installer as the auto factory. A person supplying the content should not change how the website receives it.
+
+3. Its schema instructions omit market restrictions
+
+The hand skill broadly says to add city-specific LocalBusiness schema to city/location pages. The current schema generator correctly makes that conditional on the market being active and eligible.
+
+The blanket instruction is incomplete for planning-market pages. Hand skill, lines 62–73⁠, schema generator, lines 46–57⁠.
+
+Suggested fix: let the adapter derive schema eligibility from approved market facts. An agent should not independently decide that a city page qualifies as a local business location.
+
+4. It contains obsolete provider prerequisites
+
+The hand skill’s automation section says to wait for ANTHROPIC_API_KEY and PERPLEXITY_API_KEY. The kickoff names APP_ANTHROPIC_KEY instead. Meanwhile, the root permanent policy prohibits Anthropic API calls and describes an OpenAI-based factory controller.
+
+These are actual instructions that different sessions can follow in opposite directions. Hand skill:140⁠, kickoff:135–144⁠, current permanent policy:13–22⁠.
+
+Suggested fix: retain one current provider policy, with other documents linking to it. Mark obsolete instructions as historical.
+
+5. It is described as portable while still embedding Precision-specific rules
+
+The skill hardcodes Precision’s palette and business-specific content restrictions. The operating-model document itself acknowledges that nearly every factory document contains Precision specifics. Hand skill:33–39⁠, operating model:121–139⁠.
+
+Suggested fix: keep workflow instructions generic and supply brand/design/fact rules through the client adapter. Moving files into a folder called “framework” does not make their contents universal.
+
+I would preserve the hand factory as a useful operator-assisted mode. It should remain available for unusual pages and editorial judgment, while sharing the automated system’s record validation, installation, and final checks.
+
+Additional problems in the auto factory
+
+The closer inspection of build-city.ts revealed issues beyond the original report.
+
+Its own description contradicts its implementation
+
+The opening comment says its gates are not staged through the review overlay. Later, the code does exactly that.
+
+The help text also claims OpenAI research returns no sources and will fail. The current research implementation extracts citation URLs and structured entities.
+
+That means someone can read the program’s own help and make an incorrect architecture decision. build-city.ts:1–8⁠, help:78–83⁠, actual staging:521–548⁠, research:655–668⁠.
+
+Fix: update help and comments from current behavior, and derive provider descriptions from the same configuration used to select providers.
+
+“Luna” does not mean the same thing across the factories
+
+In the auto factory, --engine luna selects Gemini research plus OpenAI generation. The root policy describes Luna as operating on a single OpenAI key.
+
+The mixed-provider setup may be intentional, but the name and documentation conceal a meaningful difference. build-city.ts:158–175⁠.
+
+Fix: use one controller-profile definition. Before spending anything, display the actual research, build, audit, and verification providers selected for that run.
+
+Its supplied-brief option bypasses the normal research-validation path
+
+--brief-file accepts nonempty text, creates an empty entity list, inserts an operator-supplied: source marker, and skips the research phase.
+
+That is useful for experiments, but supplied research is not receiving the same checks as retrieved research. It should not automatically carry the same confidence. build-city.ts:314–335⁠.
+
+Fix: load a structured research brief and validate it regardless of whether it came from a provider, a previous run, or a person.
+
+It can discover an impossible image requirement after paying for the content
+
+The auto factory generates no imagery. After research, build, and audit, it checks whether heroImage is a local /images/ path required for its gate setup.
+
+A remote or absent image can therefore stop the run only after the expensive work. build-city.ts:490–514⁠.
+
+Fix: choose and validate an approved existing asset during preflight, or explicitly schedule asset generation. The model should receive a valid asset identifier.
+
+Its durable reporting does not cover every failure path
+
+Build and audit failures receive structured reports, which is good. But research runs before those protected sections, and the overlay/gate call can throw outside them. The outer catch logs an error and exits.
+
+A process interruption between stages can also lose work because the auto factory has no durable resume. research call:330–335⁠, gate call:521–548⁠, outer catch:575–577⁠.
+
+Fix: create the run record before research, checkpoint every accepted stage, and persist failure details from one top-level error handler.
+
+It supports fewer page types and gates than the production command
+
+The auto CLI selects a hub or method spoke. It does not select the core service-spoke recipe. Its final gate call uses recipe.gates; the production command combines recipe gates with global publish gates.
+
+Its “complete” result consequently has a narrower meaning than production readiness. selection:228–236⁠, auto gates:531⁠, production gates:1002–1007⁠.
+
+Fix: preserve the auto factory’s experimental role, but share recipe selection and acceptance definitions with the production path. Unsupported page types should be rejected before generation.
+
+Are the rules too strict?
+
+Some failures come from applying a legitimate requirement at the wrong point, or providing no recovery path.
+
+The shared pipeline now sends repairable editorial findings to audit. That earlier defect is fixed. But structural/count failures still stop the build, and deterministic failures discovered after audit stop the run after the model’s verification loop has finished. orchestrator.ts:626–702⁠.
+
+I would distinguish:
+
+Failure	Appropriate behavior
+Missing market authorization	Stop before generation and request the actual decision
+Missing asset, schema support, or writer support	Stop during preflight
+Temporary provider failure	Retry within an explicit limit
+Wrong count or malformed field	Return precise errors for bounded repair
+Unsupported factual claim	Remove or substantiate it; do not invent support
+Sentence or paragraph too long	Repair the wording
+Exhausted repair attempts	Preserve the best candidate and report the remaining failures
+
+Exact content counts should be agreed design contracts. They should not accidentally differ between the hand procedure and automatic validator.
+
+I would also avoid padding content merely to satisfy a floor. A bounded repair should add useful, supported material or report that the page cannot meet the approved requirements.
+
+The best repair strategy
+
+The most useful change is one common finishing process for both hand-produced and model-produced records.
+
+Today, different paths improvise the final steps. I would centralize those steps:
+
+1. Validate the record against the selected page schema.
+2. Supply code-owned business facts, market posture, and asset references.
+3. Prepare all required site edits.
+4. Render through the actual production template.
+5. Validate the resulting page and schema.
+6. Produce a reviewable change set.
+7. Publish through the approved release process.
+
+That lets the hand factory say, “Here is the completed content record,” and the auto factory say the same thing. The rest should behave identically.
+
+I would implement this in three bounded milestones.
+
+Milestone	Work	Evidence required
+1. Reliable page installation	Reconcile the target contract; harden the existing writer; support the chosen page type; validate assets and registry changes.	A saved record becomes a correctly rendered, validated page in an isolated test checkout, with no model calls.
+2. Reliable generation	Connect existing research/build/audit logic; add consistent checkpoints, repair, and timeout handling.	One complete run, one intentional repair, and one successful interruption/resume test.
+3. Reusable engine	Extract the small coordinator and make site behavior adapter-owned.	The same core works with Precision’s records and a second client/output format.
+
+For the missing service spokes, milestone one must include the schema and overlay support identified earlier. Both currently recognize hubs and method spokes but reject service-spoke. schema.ts:46–87⁠, review-overlay.ts:33–39⁠.
+
+The writer also still needs the fixes from the first review: complete runtime validation, scanning short content fields, asserted insertion points, and staged multi-file edits. Those findings remain applicable because that branch has not changed.
+
+I would not rebuild the shared React templates. They are an advantage: layout and schema can be consistent without asking every model to reconstruct the website.
+
+Should I take over from Claude?
+
+I recommend giving me responsibility for milestone one, after Claude reviews this proposal. Judge that trial by the actual diff and test evidence.
+
+That is a stronger basis for choosing an implementation owner than either my confidence or social-media enthusiasm.
+
+OpenAI positions Astra for difficult coding and end-to-end work. Anthropic positions Fable 5.1 for ambitious coding and long-running projects. Those vendor descriptions support considering both; they do not establish which will repair this particular repository better. I have not run a controlled Astra-versus-Fable comparison on your factory. OpenAI’s Astra documentation⁠, Anthropic’s Fable documentation⁠.
+
+There is also a distinction between the model writing the factory code and the model the factory calls to generate pages. Giving me the implementation assignment does not require switching every page-generation call to Astra.
+
+My proposed division of responsibility is:
+
+* I implement the agreed repair, own its integration, and provide reproducible evidence.
+* Claude reviews the plan and resulting changes, using its knowledge of your local work and prior decisions.
+* The target environment runs the final project checks and visual review.
+* You approve business decisions and the release, rather than resolving contradictory technical instructions between chats.
+
+There should be one active writer for the task. Two independent implementation efforts touching the same pipeline would recreate the coordination problem.
+
+I can take on the coding, but I need to demonstrate execution as well as inspection. So far, this conversation has proved GitHub read access and source analysis. It has not proved that I have a configured checkout capable of running every Precision gate, its real assets, and its environment-specific binaries. Establishing that is part of the implementation assignment, not something I should assume.
+
+And I should correct the earlier “finished everything” wording: the first source review was finished, but the full runtime verification was never performed. The same distinction should apply to my work that I am asking Claude to apply to its own.
+
+What Claude should review first
+
+You can forward this report with the following instruction:
+
+Claude: review the accompanying investigation before any implementation.
+Mark is considering assigning ChatGPT/Codex the first repair milestone:
+make one Precision content record pass through a complete, deterministic
+installation, rendering, and validation path. You would review the plan
+and resulting changes.
+Do not implement from this message. First respond with evidence:
+1. Identify the exact current local branch/revision and any unpushed work.
+   The inspected GitHub tips remain:
+   precision content-blocks: 85a9115
+   precision st-louis-planning-page: 83c37f9
+   precision main: a5c2f86
+   page-terminal main: 54e260c
+   framework main: 3777b9f
+   master-prompts main: de26953
+2. Mark each finding in the report CONFIRMED, FIXED LOCALLY, DISPUTED,
+   or NEEDS A BUSINESS DECISION. For disputes and local fixes, provide
+   file/line or commit evidence.
+3. Resolve the intended target contract:
+   - ContentBlock-based expanded sections.
+   - FAQ counts by page type.
+   - Hub versus CityServiceData spoke support.
+   - Market posture and schema eligibility.
+   - Shared provider profiles.
+   - Mandatory final gates.
+   Do not invent business authorization to resolve a technical blocker.
+4. Confirm the downstream service-spoke gaps:
+   schema.ts and review-overlay.ts currently reject that recipe.
+   Identify any local implementation not visible in GitHub.
+5. Check the additional auto-factory findings:
+   stale help/comments, mixed-provider Luna alias, supplied-brief
+   validation bypass, late image precondition, incomplete failure
+   persistence, and narrower recipe/gate coverage.
+6. Recommend the smallest existing-code change set for milestone one.
+   Prefer a shared finishing path usable by both hand and automatic
+   generation. Explain any reason a new runner would be necessary.
+7. Identify the exact test command and fixture that would prove a record
+   is installed into the real template and validated as the generated
+   page, rather than accidentally testing an existing page.
+Preserve the existing repositories and unpushed work. Framework,
+Page Terminal, and master-prompts remain references for this milestone.
+Do not lower gates, change ratified facts to force success, publish,
+or start another implementation in parallel.
+Return one consolidated review and any necessary corrections to the plan.
+
+My first assignment should end with a page-installation test that Claude can run independently and obtain the same result. Once that works, connecting the prompts becomes a much more controlled task.
