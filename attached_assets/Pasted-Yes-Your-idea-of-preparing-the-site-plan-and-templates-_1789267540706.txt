@@ -1,0 +1,335 @@
+Yes. Your idea of preparing the site plan and templates beforehand is the direction I would propose. The page runner then selects an approved job and produces that page, without redesigning the website or replanning every city each time.
+
+I also need to be candid about my change in recommendation: we have not proved a new runner will be faster to finish than repairing the old one. I favor a small, separate implementation because it would give us one explicit workflow without depending on the conflicting factory instructions. Claude and Replit should challenge that choice before anyone implements it.
+
+The code review is still useful whichever approach wins.
+
+Who builds it versus where it runs
+
+Those are separate decisions:
+
+Responsibility	My proposed arrangement
+Write the runner and adapter code	I implement; Claude reviews. One active writer.
+Store the code	GitHub, at an agreed revision. Initially alongside the Precision project; package it separately after proof.
+Run paid page generation	Inside the client’s Replit environment, using its configured secrets.
+Install generated content	The site adapter does this automatically.
+Verify deployment and runtime	Replit checks its actual environment and release process.
+Choose the generation model	A configuration setting, subject to the client’s allowed providers.
+
+Replit would not need to manually convert every generated page. Installing the engine is a one-time setup; installing each page is the adapter’s job.
+
+The model writing the engine can be different from the model generating pages. Choosing me to write code does not require choosing an OpenAI model for every runtime call.
+
+What the quick Sod review found
+
+I inspected the named repositories and the relevant Austin code, without changing anything or running paid jobs.
+
+Repository	Finding
+usa-sod	No branches returned; no implementation available there to inspect.
+usa-sod-network at 00b9031	Astro site-building system, city fact files, an importer, and output checks. Its importer explicitly supports only Hilton Head.
+usasod-network-sites at 335dac0	Three folders of prebuilt HTML sites, rather than a generation runner.
+austin-sod-fw at 3128e5e	A substantial database-backed pipeline, plus a smaller direct-prompt comparison script and saved outputs.
+
+The useful discoveries:
+
+* Standing hub-and-spoke plans already exist in Austin. It imports a plan and dispatches selected tiers or remaining pages. Your proposed separation between planning and page production is sensible and has an existing implementation to learn from. Plan implementation⁠￼
+* Austin has a smaller direct-prompt script, with saved July 6 outputs. But it saves the builder’s HTML and the audit output separately; it does not demonstrate a complete installed, published page or an audit-revised final page. It is a reference, not a proven replacement. Direct script⁠￼
+* Sod has familiar contract drift. Its page renders schema as an @graph, while its checker expects LocalBusiness at the top level. Copying it would bring that mismatch along. Renderer⁠￼, checker⁠￼
+* Austin’s planner and runner also disagree on page types. The dispatcher passes general, location, or partner; the classifier accepts only HUB, SPOKE, or NATIONAL. The intervening creation function stores the brief unchanged. This is another source-level integration defect, not a runtime test result. Dispatcher⁠￼, classifier⁠￼
+
+Your understanding of the bake-off is partly confirmed: it supports changing the city, niche, target URL, and page classification, and it exposes a common completion interface across direct providers. Those are exactly the mechanics worth preserving. They do not, by themselves, make its STS prompts brand-independent or install its output into Precision. Target configuration⁠￼, provider interface⁠￼
+
+Page Terminal has advanced to 9c7bcfc; the comparison shows new reports and run artifacts, without changes to the runner source in that interval. Precision’s two relevant remote branches remain at 85a9115 and 83c37f9. The local merge still needs reconciliation.
+
+Below is one complete handoff to send to both Claude and Replit.
+
+SECOND-OPINION REQUEST: SMALL PAGE RUNNER WITH PREPARED SITE PLAN
+2026-09-13
+
+Read-only review. Do not implement, push, install packages, run paid generation, change workflows, or publish from this message.
+
+MARK’S GOAL
+
+I want a simple page-generation engine that runs a known sequence of prompts, saves each output, passes it to the next stage, and produces a finished page integrated into my website.
+
+I want the provider switching I already use in the bake-off: choose an available provider/model without rewriting the workflow.
+
+I also want to install the same engine in other Replit client projects, supplying each client’s facts, prompts, templates, rules, and publishing adapter.
+
+We have spent weeks repairing factories. Evaluate the proposal below independently. Do not endorse it merely because ChatGPT proposed it.
+
+THE PROPOSAL TO REVIEW
+
+Create one small, isolated runner with explicit stage contracts. Reuse selected existing mechanics where they are demonstrably suitable. Preserve the existing website templates and business rules.
+
+Do not copy an entire factory.
+Do not recreate Mission Control, a dashboard, or the bake-off’s model comparison machinery.
+Do not rewrite the website.
+Do not alter the existing factories during the initial proof.
+
+This is fresh orchestration with a tested site adapter, not a ground-up replacement of every component.
+
+ChatGPT previously recommended repairing the current factory first. Its revised proposal favors a separate, bounded runner to reduce conflicting entry points, accumulated instructions, and workflow assumptions.
+
+There is no measured evidence yet that the new approach will be faster. Please challenge that tradeoff. If a thin extraction from existing code achieves the same isolation with less work, identify the exact files and recommend it.
+
+1. SEPARATE SITE PREPARATION FROM PAGE PRODUCTION
+
+Prepare and save these per client:
+
+A. Approved business facts and market/service permissions.
+B. A standing site plan.
+C. Approved templates and design rules by page type.
+D. A pinned prompt pack.
+E. Page-type contracts and required gates.
+F. Provider configuration and asset policy.
+G. An installation/publishing adapter.
+
+The standing plan should describe each intended page:
+
+* Stable page ID and URL.
+* Page type.
+* City and service/niche where applicable.
+* Parent hub and planned internal links.
+* Target intent and coverage.
+* Appropriate content requirements.
+* Template and contract version.
+* Approval and production status.
+
+Run the hub-and-spoke planner when creating or materially revising this plan. Do not rerun the whole planner for every sibling page.
+
+A planned page is not automatically an authorized service claim.
+
+A versioned JSON file is sufficient for the first proof. If the target project already has a useful database, it may store the plan there. The core runner should not require a database.
+
+Keep planned URLs distinguishable from published URLs so generated pages do not blindly link to nonexistent pages.
+
+2. MAKE PAGE TYPE EXPLICIT
+
+A contact page, city hub, service spoke, and guide require different content.
+
+Each supported page type needs an explicit:
+
+* Output schema.
+* Template.
+* Section and length requirements.
+* Research requirements.
+* Schema rules.
+* Validation suite.
+* Installation behavior.
+
+Use existing approved requirements as the starting point. Do not invent one universal word floor or FAQ count.
+
+A contact page may need only verified business information. A city service page may need substantial local research. A guide may need a different structure and stronger topical sourcing.
+
+For the initial proof, support one selected page type completely. Service spokes are the business priority, so a hub-only fixture must not be presented as completion of the spoke backlog.
+
+Unsupported page types must fail preflight before paid work.
+
+3. USE DESIGN LAB DURING TEMPLATE PREPARATION
+
+Use Design Lab or the applicable design instructions to establish and approve the site’s page-type templates.
+
+For routine pages, provide the model with the selected template’s content contract and design constraints. Render its output through the actual template.
+
+Do not require a full standalone HTML prototype and a second conversion into React for every Precision page.
+
+Keep the existing ContentBlock requirements. Explicitly validate supported block shapes rather than merely accepting a section count.
+
+A genuinely new layout is a separate template-development task. Once approved, it becomes reusable.
+
+4. PROPOSED PER-PAGE EXECUTION
+
+The page runner selects an approved job from the standing plan.
+
+Stage A: Preflight, code.
+Resolve the job, template, facts, permissions, asset strategy, supported provider capabilities, output adapter, and gate dependencies.
+Reject impossible jobs before generation.
+
+Stage B: Research, retrieval plus model synthesis where required.
+Use actual retrieved sources.
+Write a structured research packet containing claims, supporting URLs, retrieval dates, and uncertainties.
+Validate supplied research packets using the same contract.
+Do not describe model memory or a citation-shaped string as verified research.
+
+Stage C: Build, model.
+Read the page job, research packet, facts, template contract, and pinned builder prompt.
+Write the complete draft artifact in the selected output format.
+
+Stage D: Audit and repair, model plus code.
+Read the actual draft and precise validation findings.
+Write both a complete revised artifact and a structured audit report.
+Do not save the audit only as a report while accidentally retaining the original draft as final.
+Bound repair attempts and total spending.
+
+Stage E: Verification, code plus model where useful.
+Check the revised artifact, sources, and explicit remaining findings.
+A model’s PASS is not a substitute for deterministic checks.
+If a repair changes content, rerun the affected checks.
+
+Stage F: Finalization, code.
+Attach trusted business fields, posture, and assets.
+Generate schema from the accepted content and approved facts where the adapter supports deterministic schema.
+Validate the complete output contract.
+
+Stage G: Installation and rendering, code.
+Stage the actual site changes.
+Render through the production template/build process.
+Run the required page and site gates against the generated route.
+
+Stage H: Review and release.
+Save a reviewable change set and evidence.
+Keep validated, installed, published, and live-verified statuses distinct.
+Publishing occurs only through the project’s authorized release process.
+
+Every stage saves its output. Failure preserves prior accepted outputs and the rejected candidate. Resume must reject incompatible prompt, fact, contract, or adapter changes.
+
+Protocol prompts are behavioral instructions, not automatically separate execution stages. Inspect the selected prompt pack to determine which schema instructions are code specifications versus model prompts.
+
+5. HOW PRECISION RECEIVES THE PAGE
+
+The Precision adapter should receive a validated CityData or CityServiceData record.
+
+It should:
+
+* Validate nested content shapes.
+* Derive market posture and other trusted fields in code.
+* Insert or update the correct data collection.
+* Update every required route or registry, metadata entry, link registration, and sitemap/prerender input for that page type.
+* Render the real page.
+* Validate the resulting content and schema.
+* Produce a recoverable, reviewable change set.
+
+The exact files must be established from the agreed merged revision. Do not assume a hub and spoke touch identical files.
+
+No manual copy/paste or per-page HTML-to-React conversion should be required once this adapter works.
+
+Replit: this is the most important part for you to verify. Identify the actual complete path from saved record to preview and then to live URL.
+
+6. WHERE THE ENGINE LIVES AND WHO BUILDS IT
+
+Proposed ownership:
+
+* ChatGPT/Codex is the implementation writer.
+* Claude reviews the proposed change set and the resulting diff/tests.
+* Replit verifies the actual runtime environment, secrets configuration, rendering, gates, and deployment.
+* Mark decides genuine business-policy questions and authorizes release.
+
+One active writer.
+
+Initially, put the isolated runner and Precision adapter alongside the client project’s code on an agreed non-main branch. After proving portability, package the core for installation in other projects.
+
+This does not make Replit a manual page installer. The program runs inside Replit and invokes its adapter.
+
+The model used to write the engine is independent of the provider/model the engine calls.
+
+7. PROVIDER SWITCHING
+
+Preserve the bake-off’s useful pattern: a common completion interface with direct provider adapters.
+
+A run should explicitly select provider, model, supported effort setting, and spending limits. Client policy determines the allowed providers.
+
+Provider interchangeability must account for differences in:
+
+* Structured output support.
+* Web retrieval and citation support.
+* Context and output budgets.
+* Timeouts, cancellation, and retries.
+* Usage reporting.
+
+Changing the writing model must not silently remove live research, reduce validation, or substitute another provider.
+
+Secrets remain in the target Replit environment. Never print them or put them in GitHub, prompts, transcripts, or browser code.
+
+Mark wants generic support for OpenAI, Gemini, and Anthropic where permitted. Precision’s previously inspected policy prohibits Anthropic API calls. Do not silently change that policy; identify whether Mark intends a future Precision-specific exception.
+
+Do not assume keys exist, have credits, or have model access simply because another Replit project has them.
+
+8. RUNNING PAST THE SHELL LIMIT
+
+The runner must execute as an appropriate long-running workflow or worker, with durable checkpoints. It must not depend on keeping an interactive agent shell command alive or holding one HTTP request open.
+
+Replit: verify the actual available execution model, process lifetime, storage persistence, restart behavior, and build output paths.
+
+A background process alone is not proof of durability. Explain what survives a restart and how the same run resumes without repeating completed paid stages.
+
+9. WHAT TO REUSE
+
+Candidates:
+
+* Bake-off: provider abstraction, target selection, conversation handling, extraction, and useful bounded repair behavior.
+* Framework: generalized prompt assets, version locking, fact-layer contracts, and suitable deterministic schema code.
+* Precision: templates, content records, approved business rules, validators, and writer behavior after repairing confirmed defects.
+* Austin: standing-plan import and page-selection concepts.
+
+Do not copy brand-specific prompts or hardcoded facts into the generic core.
+Do not copy model fan-out, leaderboards, visual judging, or dashboards into the first runner.
+Do not treat a file named “runner” or “engine” as proof that it finishes a page.
+
+10. NEW SOD FINDINGS TO CHECK
+
+Inspected revisions:
+
+* usa-sod: no branches returned.
+* usa-sod-network main: 00b9031cbd8c7c9767731fdf8cead976e6ccc56d
+* usasod-network-sites main: 335dac029fd3e3717ff221b86a590131d8d2575b
+* austin-sod-fw main: 3128e5e0a500b123dc7c2d02af15ea65255b50da
+* page-terminal main: 9c7bcfc21776f3df252358505d676cc1da1f7203
+
+USA Sod Network:
+
+* scripts/importer.ts:252-257 explicitly supports Hilton Head only.
+* It produces draft fact files; it is not the complete generalized prompt chain.
+* src/pages/index.astro:17-28 emits JSON-LD as @graph.
+* scripts/verify-output.ts:63-82 checks top-level LocalBusiness fields.
+* docs/landing-page-builder.md is an STS-derived Sod specification, not a portable execution engine.
+
+Austin:
+
+* artifacts/api-server/src/lib/hubSpoke.ts imports a standing plan and dispatches selected scope.
+* That module uses general/location/partner and passes pageType unchanged at 647-673.
+* pipeline/index.ts:27-50 stores the brief and enqueues classification.
+* pipeline/stages.ts:163-168 accepts only HUB/SPOKE/NATIONAL.
+* The same planner has a hardcoded HQ CID fallback at hubSpoke.ts:595-596. Do not inherit this as universal market policy.
+* clients/austin-sod-fw/run-headtohead.ts is a smaller direct-prompt reference with saved July 6 artifacts.
+* At 276 it saves builder HTML; at 295 it saves audit output separately. This is not evidence of an installed, audit-revised production page.
+
+These are source observations. ChatGPT did not run these repositories or verify their live deployments.
+
+Precision remote tips remain content-blocks 85a9115 and st-louis-planning-page 83c37f9. Claude previously reported two different local merge revisions. Establish the intended accessible revision before implementation.
+
+11. FIRST PROOF AND STOPPING RULE
+
+Before paid generation:
+
+* Establish the real runtime baseline.
+* Install a saved fixture in an isolated checkout.
+* Use a new test route and unique sentinel content.
+* Verify that the actual rendered page contains the fixture.
+* Verify the correct schema and required gates.
+* Prove malformed input or an installation failure does not leave partial site changes.
+
+Then, under separate implementation/spending authorization:
+
+* Run one approved real page through research, build, audit, verification, and installation.
+* Demonstrate one bounded repair.
+* Demonstrate interruption/resume.
+* Demonstrate a second permitted provider without changing the workflow.
+* Report actual usage, cost, failures, and unverified items.
+
+Only call the core portable after a second client adapter works. One successful Precision page is the first proof, not proof of universality.
+
+If the first installation test cannot pass, report the exact blocker. Do not expand into another architecture project or describe generated text as a finished page.
+
+QUESTIONS FOR CLAUDE AND REPLIT
+
+1. Do you recommend this isolated runner, a thin extraction from an existing runner, or repairing the existing entry point? Choose one and explain the concrete difference in work.
+2. Which exact existing files would you reuse, and which defects would come with them?
+3. Does the proposed separation of standing plan, reusable templates, and per-page generation fit the current site?
+4. Replit: exactly how does a generated record become a rendered and then live page? List the actual files, commands, environment requirements, and release steps.
+5. Replit: where should the process run, where should checkpoints live, and how will restart/resume work?
+6. Which provider capabilities and configured key names are available, without revealing values or making paid calls?
+7. Which decisions are already settled, which are technical implementation choices, and which genuinely require Mark?
+8. What is the smallest executable acceptance test, and what would disprove your preferred approach?
+
+Return one concrete recommendation with evidence and corrections. Do not implement yet.
