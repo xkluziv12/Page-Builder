@@ -1,0 +1,61 @@
+Attached is ChatGPT’s complete Milestone 1 page-installer review package.
+
+Please download and unzip it:
+
+```bash
+mkdir precision-page-installer-m1-review
+unzip precision-page-installer-m1-review.zip -d precision-page-installer-m1-review
+cd precision-page-installer-m1-review
+```
+
+Start by reading:
+
+`precision-page-installer-m1-review/READ-ME-FIRST.md`
+
+Then read:
+
+`precision-page-installer-m1-review/repo-files/docs/PAGE-INSTALLER-MILESTONE-1-REVIEW.md`
+
+Important: this is a review package, not a complete repository. Do not blindly copy the included files over the Precision repository.
+
+The work was based primarily on `claude/content-blocks` at revision `85a911560`, with the St. Louis writer at `83c37f9` used as a reference. Claude’s eleven-commit local merge was not available on GitHub when this package was created. The merged branch may contain newer changes.
+
+Please work carefully:
+
+1. Create a new branch or isolated Git worktree from the current merged Precision branch. Never work on `main`.
+2. Keep the original branch untouched.
+3. Compare every included file against the current merged version.
+4. Port the relevant changes using a careful three-way comparison. Do not replace newer files wholesale.
+5. Preserve the existing hub writer. The new service-spoke command is deliberately named `write-city-service-page.ts` so it does not overwrite the merged `write-city-page.ts`.
+6. Do not modify `ratified-markets.ts`.
+7. Do not weaken gates, authorize services, run paid model calls, publish, deploy, or merge anything.
+8. Watch for drift in record shapes, FAQ counts, market posture, provider policy, schema rules, route handling, gate lists, and package scripts.
+
+For every file, classify the proposal as:
+
+* APPLIES CLEANLY
+* ALREADY IMPLEMENTED
+* CONFLICTS WITH NEWER WORK
+* INCORRECT FOR CURRENT CONTRACT
+* REQUIRES BUSINESS DECISION
+
+After carefully applying the compatible changes in the isolated copy, run:
+
+```bash
+pnpm --filter @workspace/scripts run write-city-page-test
+pnpm --filter @workspace/precision-ecycle run typecheck
+```
+
+Then use the real Replit environment and its existing assets to run the synthetic rendered-route proof described in the documentation. Confirm that the new route contains `INSTALL-SENTINEL-7f3a`, uses the real shared React template, emits the required schema, and uses project-review language without pickup claims when the market is planning.
+
+Please return:
+
+1. The exact branch and commit reviewed.
+2. The drift classification for every included file.
+3. Every command run and its result.
+4. Any line-level defects or regressions.
+5. Whether the synthetic rendered route passed.
+6. Any issue requiring Mark’s business decision.
+7. Your recommendation: accept, revise, or reject.
+
+Do not start a competing rewrite. This review is limited to proving and repairing the deterministic record-to-page finishing path.
