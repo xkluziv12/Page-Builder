@@ -1,44 +1,24 @@
 ---
-name: M.A.R.K. canonical prompt set (Drive)
-description: Which Google Drive files are the current/authoritative M.A.R.K. build prompts, and the STS page-build model they describe.
+name: STS prompt source hierarchy
+description: How to distinguish active STS and generic master prompts from stale local and legacy Google Drive copies.
 ---
 
-# Canonical M.A.R.K. prompt set
+# Prompt source hierarchy
 
-The user's current/authoritative STS SEO audit is the uploaded **MASTER SEO AUDIT v10.13.3**, replacing the older `(4.7)` / `(5.0)` SEO audit copies in the Google Drive workflow. The Google Doc named **"(5.0) SEO MASTER AUDIT"** is intended to hold this same content.
+Google Drive contains multiple competing prompt trees. The active STS-specific tree is `PROMPTS/STS-DCD`; the active reusable generic tree is `PROMPTS/Universal-Master`. The legacy `M.A.R.K. Prompts` folder and local Mission Control/Bake-Off prompt snapshots can lag behind both. Do not treat a title, version label, or modified timestamp alone as proof that a copy is canonical.
 
-**Why:** the Drive folder mixes many versions and the operator explicitly selected v10.13.3 as the replacement; title or modified date alone is not a safe source-of-truth signal.
+**Why:** an audit found meaningful version drift: active STS-DCD documents included Page Builder `(3.26.3)` and SEO Master Audit `(10.16.3)`, while the legacy folder had older Page Builder `v3.6` and SEO Audit `v10.12.4`, and local snapshots were also behind. Older memory incorrectly identified the `(4.7)` folder and v10.13.3 as current.
 
-**How to apply:** when grounding any build/SEO/schema/blog workflow, read the `(4.7)`-prefixed doc for that role. Map:
-- Landing pages → `(4.7) Page Builder` (internal version says "MASTER PAGE BUILDER v3.6")
-- SEO audit → uploaded `MASTER SEO AUDIT v10.13.3` / the `(5.0) SEO MASTER AUDIT` Google Doc after its body is successfully replaced
-- Schema → `(4.7) Schema Generator`
-- Hub+Spoke → `(4.7) HUb+Spoke Framework`
-- Blogs → `(4.7) STS BLOG BUILDER`, `(4.7) DCD BLOG BUILDER`, `(4.7) BLOG SEO AUDIT`
-- Job titles → `(4.7) JOB TITLE SEO`, `(4.7) k-12 job titles seo`
-- Performance data → `STS SEO DATA 2026` (spreadsheet, newest copy)
-- Page template → `2 (landing page) Design Bible CODE` (there is NO `(4.7)` design bible; bibles are separately versioned + tiered: TIER 1 / Tier 2 / Tier 3-4 service bible)
+**How to apply:** before changing or describing a canonical prompt, verify its current contents in the correct Drive tree and compare any runtime/local copies that consume it. Keep Universal-Master generic; apply STS-specific CMS rules through STS materials or configuration, not as universal behavior.
 
-# What the Page Builder prompt declares
+# STS landing-page model
 
-`(4.7) Page Builder` top block: `[REQUIRED_INPUTS]` = Master Design Bible CODE (.docx) + STS SEO DATA 2026 (.xlsx) + optional Handoff Document (.md). User also supplies page_url, gmb_url, gmb_data. Output = ONE `final-html.html`.
+- Pages are full custom-coded HTML pasted into the CMS, not CMS-builder-native layouts.
+- The page's single H1 lives in the hero (city in H1, lead form on the right).
+- On Joomla, the CMS title band is hidden with CSS so only the hero H1 shows.
+- Images use verified absolute HTTPS URLs on the STS server; do not construct unverified image URLs.
+- Preserve the prompt's copy, certification-scope, entity-count, and FAQ constraints rather than substituting generic SEO assumptions.
 
-# STS landing-page model (relevant to Joomla->WordPress port)
+# Google Drive access notes
 
-- Pages are FULL custom-coded HTML pasted into the CMS, not CMS-builder-native layouts.
-- The page's single **H1 lives in the hero** (city in H1, lead form on the RIGHT).
-- On Joomla they HIDE the CMS title band via CSS (`.page-header{display:none!important}`, plus item-page/contentheading resets) so only the hero H1 shows — see the Design Bible CODE's "JOOMLA RESETS" block.
-- Images must be **absolute HTTPS URLs** on the STS server (`https://www.stselectronicrecyclinginc.com/images/2017/compressed/<file>_1920.jpg`); root-relative paths silently fail in Joomla. Verified image set is enumerated in the prompt — do NOT construct new image URLs (prompt HALTs with `IMAGE_NOT_VERIFIED`).
-- Output rules: no em dashes in generated copy; 12+ entities/page; FAQ answers 35-45 words; certification scope language is constrained (secure data destruction = data destruction only, certified processing = recycling only, NIST 800-88 = standard, not a held cert).
-
-# SEO audit current version
-
-The SEO audit family is now **v10.13.3** (Aug 2026): the Drive doc "(5.0) SEO MASTER AUDIT", the mc-core inline `seoAuditPrompt`, and the bake-off `master-seo-audit.txt` fixture were all replaced with the same uploaded v10.13.3 text. The `(4.7)`/older SEO audit docs are superseded. Historical bake-off outputs/snapshots were deliberately left on their old versions.
-
-# Editing user's Google Docs from this repl
-
-The google-docs connector can READ docs but its `:batchUpdate` write returns 403 here. Working write path: **google-drive** connector `PATCH /upload/drive/v3/files/{id}?uploadType=media` with `text/plain` body — Drive converts and replaces the Doc body in place (same file id/link preserved). Verify by re-exporting `?mimeType=text/plain`.
-
-# Drive API access
-
-`listConnections('google-drive')[0].settings.access_token`; Drive v3 REST. Export gdocs via `files/{id}/export?mimeType=text/plain` (or `text/html`). The `(4.7) Page Builder` doc has NO meaningful hyperlinks — it names required files by name, not by link. NEVER print the token.
+The Google Drive integration can read/export current prompt documents. Do not assume legacy prompt-publishing UI or a local snapshot is the live source. When reading a Google Doc, export its current body and verify the content rather than relying on Drive full-text search hits alone.

@@ -15,7 +15,7 @@
 - [Model-id display redaction trap](model-id-display-redaction.md) — Anthropic ids are masked on screen (claude-sonnet-4-6→n-4-6); never hand-type them or you 404; import from mc-core.
 - [MC shared prompt builders](mc-shared-prompt-builders.md) — builders.ts is the single per-phase prompt source for both modes; No-GMB byte-for-byte, ctx.gmb drives the branch, schema phase fails loud.
 - [TechnoCycle WordPress stack](technocycle-wordpress-stack.md) — TC tool copies target WordPress/Beaver Builder/Yoast/Kinsta (not Joomla); Themer banner = page H1, output is an H2-start fragment, schema slim-to-gaps.
-- [M.A.R.K. canonical prompt set](mark-prompt-source-of-truth.md) — current build prompts = `(4.7)`-prefixed files in Drive folder "MY STS PROMPTS"; STS page model (single H1 in hero, absolute-HTTPS images).
+- [STS prompt source hierarchy](mark-prompt-source-of-truth.md) — distinguish active `PROMPTS/STS-DCD` and `Universal-Master` from stale legacy Drive and local copies.
 - [Routed Dashboard engine](routed-dashboard-engine.md) — bake-off orchestration (routing/timeout-abort/fallback/verify) lives in RoutedEngine behind the AIEngine seam; null verdict = invalid; main+explicit routes fail loud, default backup degrades.
 - [Bake-off single-model rerun](bakeoff-single-model-rerun.md) — rerun ONE model via BAKEOFF_MODELS+FORCE+MODEL_OVERRIDES same scenario (reuses grounding); filter must not wipe others on persist (seed from ALL prior).
 - [Blind judge panel](bakeoff-judge-panel.md) — newest frontier models score anonymized pages; schema richness is the decider; judges may self-favor, cross-model agreement is the real signal.
@@ -27,4 +27,4 @@
 - [Bake-off Grok/DeepSeek reliability](bakeoff-grok-deepseek-reliability.md) — Grok needs streaming (idle non-stream connections trip timeouts on slow turns); DeepSeek reasoning tags can exhaust max_tokens on hidden reasoning → empty reply.
 - [Bake-off pricing accounting](bakeoff-pricing-accounting.md) — cost rates are provider/model/context specific; only attach per-turn pricing data when transcript totals match the saved run.
 - [Precision-adapter repair-loop testing](precision-adapter-repair-testing.md) — verify a repair loop with a real sabotaged first prompt, not a hand-built fixture; the adapter only builds planning-market records so far, no confirmed-metro branch exists.
-- [Joomla template default](joomla-template-default.md) — use “TOP LOGO 2026 (TESTING TIME)” as the conspicuous default Joomla template across sections and artifacts.
+- [Joomla template default](joomla-template-default.md) — desired STS Joomla label is “TOP LOGO 2026 (TESTING TIME)”; verify the live CMS option and never apply to non-Joomla.
