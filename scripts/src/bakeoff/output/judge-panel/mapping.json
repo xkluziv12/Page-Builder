@@ -11,12 +11,12 @@
   },
   {
     "letter": "C",
-    "source": "CUR:gpt-5.6-terra",
+    "source": "CUR:grok-4.20-0309-reasoning",
     "run": "current"
   },
   {
     "letter": "D",
-    "source": "CUR:gemini-3.7-flash",
+    "source": "CUR:gpt-5.6-terra",
     "run": "current"
   },
   {

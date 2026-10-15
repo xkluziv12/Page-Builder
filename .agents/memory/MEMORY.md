@@ -27,3 +27,4 @@
 - [Bake-off Grok/DeepSeek reliability](bakeoff-grok-deepseek-reliability.md) — Grok needs streaming (idle non-stream connections trip timeouts on slow turns); DeepSeek reasoning tags can exhaust max_tokens on hidden reasoning → empty reply.
 - [Bake-off pricing accounting](bakeoff-pricing-accounting.md) — cost rates are provider/model/context specific; only attach per-turn pricing data when transcript totals match the saved run.
 - [Precision-adapter repair-loop testing](precision-adapter-repair-testing.md) — verify a repair loop with a real sabotaged first prompt, not a hand-built fixture; the adapter only builds planning-market records so far, no confirmed-metro branch exists.
+- [Joomla template default](joomla-template-default.md) — use “TOP LOGO 2026 (TESTING TIME)” as the conspicuous default Joomla template across sections and artifacts.
