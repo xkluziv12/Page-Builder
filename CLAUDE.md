@@ -41,6 +41,10 @@ If a task asks you to add or change model/provider access anywhere in this repo 
 
 Google Drive is out of scope for new work anywhere in this repo. The only live Drive usage is the legacy prompt-library publish target in `artifacts/api-server/src/lib/googleDrive.ts` and `promptSync.ts` — leave it unchanged. Do not add new Drive calls, Drive UI, or Drive auth in any artifact, even if a task seems to imply it.
 
+## STS Joomla template default
+
+For STS Joomla menu items, use the exact operator-facing default label `TOP LOGO 2026 (TESTING TIME)` and make it conspicuous in red in any template-selection checklist or control. This is a CMS menu-item setting, not an HTML/CSS page-design instruction; do not claim the Mission Control publisher sets it automatically. Do not apply it to TechnoCycle/WordPress or generic master prompts.
+
 ## DeepSeek secondary worker
 
 The verified local wrapper is `.config/npm/node_global/bin/deepseek`. It reads the `Deepseek` secret at runtime, routes to `https://api.deepseek.com/anthropic`, and maps the selected `sonnet` alias to `deepseek-v4-pro`, with `deepseek-v4-flash` as the fast model. A direct DeepSeek request and a wrapper probe have succeeded. Claude Code prints a non-fatal `unrecognized_model` warning because its local model registry does not know the DeepSeek ID. Do not treat that warning as a clean CLI setup, and do not remove the compatibility caveat without a new verified test. The wrapper uses `pnpm dlx` because no standalone `claude` binary is on PATH.

@@ -36,6 +36,11 @@ work in this directory.
   access to the React app's state/modules — that breaks the whole point of
   the architecture (each tool is independently copy/pasteable and safe to
   hand-edit without touching the shell).
+- **STS Joomla template checklist:** when an STS Joomla tool asks an operator to
+  select a menu-item template, show the exact default label
+  `TOP LOGO 2026 (TESTING TIME)` conspicuously in red. This is a CMS menu-item
+  setting, not a page HTML/CSS instruction. TechnoCycle tools are WordPress and
+  must not inherit this Joomla setting.
 - **Do not touch Mission Control / the API / `mc-core` / `main`.** Those live
   outside this directory (`../mission-control`, shared `lib/` packages, the
   monorepo's `main` git branch/shared config). If a task seems to require

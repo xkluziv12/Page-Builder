@@ -829,7 +829,7 @@ function parseCSV(){
                 status, tier:(r[tierIdx]||'').trim(),
                 menuId:(r[menuIdIdx]||'').trim(), name:(r[nameIdx]||'').trim(),
                 alias:(r[aliasIdx]||'').trim(), pageTitle:(r[titleIdx]||'').trim(),
-                r1:(r[r1Idx]||'').trim(), certified processing:(r[r2Idx]||'').trim(),
+                r1:(r[r1Idx]||'').trim(), r2:(r[r2Idx]||'').trim(),
                 r3:(r[r3Idx]||'').trim(), r4:(r[r4Idx]||'').trim(),
                 desc:(r[descIdx]||'').trim(), done:false
             });
@@ -942,11 +942,11 @@ function renderCardGroup(containerId, pages, type){
         if(p.menuId&&p.menuId!=='BUILD NEW'&&p.menuId!=='NEED_ID') bodyHTML+=makeRow('Menu ID',p.menuId);
 
         // Redirects for RENAME
-        if(type==='rename' && (p.r1||p.certified processing||p.r3||p.r4)){
+        if(type==='rename' && (p.r1||p.r2||p.r3||p.r4)){
             bodyHTML+=`<div class="redirect-group">
                 <div class="redirect-group-title"><i class="fas fa-directions"></i> 301 Redirects — add all 4 in SEF URL Manager</div>
                 ${p.r1?makeRow('Redirect #1',p.r1):''}
-                ${p.certified processing?makeRow('Redirect #2',p.certified processing):''}
+                ${p.r2?makeRow('Redirect #2',p.r2):''}
                 ${p.r3?makeRow('Redirect #3',p.r3):''}
                 ${p.r4?makeRow('Redirect #4',p.r4):''}
             </div>`;
@@ -954,9 +954,19 @@ function renderCardGroup(containerId, pages, type){
 
         if(p.desc) bodyHTML+=`<div class="page-card-desc">${escHTML(p.desc)}</div>`;
 
+        bodyHTML+=`<div class="instruction-box" style="margin-top:10px;background:#fef2f2;border:1px solid #fecaca;border-left:4px solid #dc2626;color:#7f1d1d;">
+            <strong>Joomla template checklist</strong>
+            <label style="display:flex;align-items:flex-start;gap:8px;margin-top:6px;cursor:pointer;">
+                <input type="checkbox" id="template-check-${p._idx}" aria-label="Confirm Joomla template default" onchange="saveState()" style="margin-top:3px;accent-color:#dc2626;">
+                <span>Confirm the menu item's Details → Template Style is
+                    <code style="display:inline-block;margin-top:4px;background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;padding:3px 7px;border-radius:4px;font-weight:800;">TOP LOGO 2026 (TESTING TIME)</code>
+                </span>
+            </label>
+        </div>`;
+
         // Per-type instructions
         if(type==='keep'){
-            bodyHTML+=`<div style="margin-top:10px;font-size:12px;color:var(--green);font-weight:600;"><i class="fas fa-check"></i> No changes needed — verify page loads correctly</div>`;
+            bodyHTML+=`<div style="margin-top:10px;font-size:12px;color:var(--green);font-weight:600;"><i class="fas fa-check"></i> No content changes needed — verify page loads correctly and complete the Joomla template checklist above</div>`;
         }
         if(type==='rename'){
             bodyHTML+=`<div class="instruction-box" style="margin-top:10px;">

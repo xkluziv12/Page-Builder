@@ -46,6 +46,10 @@ packages — those are out of scope for changes made under this file's authority
   (`output.published === true` in `executePhase`, `src/routes/mc.ts`). The stub
   publisher (no `JOOMLA_PUBLISH_URL`) must keep returning `published: false` and
   leave the run in review — never report a half/no-write as published.
+- **Joomla menu-item template is separate from publishing.** The STS operator
+  default is `TOP LOGO 2026 (TESTING TIME)`, but the publisher writes page
+  content/schema/meta and does not set the menu item's Template Style. Keep the
+  UI checklist explicit; do not claim the backend applied this setting.
 - **Preserve fail-loud checkers/sync.** Checker runs, git prompt sync
   (`src/lib/gitSync.ts`), and the GitHub mirror scheduler
   (`src/lib/github-mirror-scheduler.ts`) log errors every tick and surface

@@ -38,6 +38,10 @@ Routes (`src/App.tsx`):
   an explicit error (never a silent no-op or silent fallback to "unlocked"); network
   errors in `vite.config.ts` (missing `PORT`/`BASE_PATH`) throw rather than defaulting.
   Keep that style — don't introduce silent fallbacks or swallowed errors in new code.
+- **STS Joomla template checklist:** display `TOP LOGO 2026 (TESTING TIME)` in red
+  when a publishing checklist asks operators to set the Joomla menu-item template.
+  The Mission Control publisher does not set that template; do not imply that a
+  successful publish phase changed the menu item's Template Style.
 - **Do not modify unrelated artifacts or `main` from here.** Changes for
   `artifacts/api-server`, `lib/mc-core`, `lib/api-client-react`, or other artifacts
   belong in their own directories/PRs. If a task in this artifact seems to require a

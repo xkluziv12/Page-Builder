@@ -847,6 +847,25 @@ export default function RunDetail() {
                     {st?.summary && (
                       <p className="text-xs text-muted-foreground mt-1.5 pl-[26px]">{st.summary}</p>
                     )}
+                    {p === "publish" && (
+                      <div className="mt-2.5 ml-[26px] rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-950">
+                        <div className="flex items-start gap-2">
+                          <input
+                            type="checkbox"
+                            aria-label="Confirm Joomla menu item uses the default template"
+                            className="mt-1 accent-red-700"
+                          />
+                          <span>
+                            <span className="font-semibold">Joomla template checklist:</span>{" "}
+                            confirm the menu item's Details → Template Style is{" "}
+                            <strong className="rounded bg-red-100 px-1.5 py-0.5 text-red-800">
+                              TOP LOGO 2026 (TESTING TIME)
+                            </strong>
+                            . Mission Control's publisher does not change the menu-item template.
+                          </span>
+                        </div>
+                      </div>
+                    )}
                     {st?.error && (
                       <p className="text-xs text-destructive mt-1.5 pl-[26px]">{st.error}</p>
                     )}
