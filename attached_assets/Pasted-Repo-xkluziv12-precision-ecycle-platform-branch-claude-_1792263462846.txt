@@ -1,0 +1,24 @@
+Repo xkluziv12/precision-ecycle-platform, branch claude/ecstatic-cerf-9vit7c at commit 3a1695e or later. Work alone. Do not edit any page, script or doc that already exists, do not merge, do not publish. Branch from it: runner-review/crossaudit-<LLM>-2026-10-17, with <LLM> = gpt, agy or replit.
+
+Read first: CLAUDE.md, then RUNNER/audits/2026-10-17-test-batch/REPORT.md (levels, scores, known gaps) and RUNNER-LEAN/RUN-A-CITY.md.
+
+Goal to judge: Lean and Super Lean should match the Full Runner's design, SEO and schema standard at about 95 percent, with a very large saving in time. Say, with evidence, whether each level gets there, and what is the cheapest change that closes the gap.
+
+Audit every page set. The same 6 Sioux Falls pages (hub, data-destruction, server-recycling, hard-drive-shredding, medical, contact) were built at each level. The builder is named so you know whose work you are checking. Pay the closest attention to pages built by someone other than you, and say which you built.
+- Full (Antigravity): RUNNER-LEAN/tests/batch-2026-10-16/full/pages/sioux-falls/
+- Lean (Antigravity): RUNNER-LEAN/tests/batch-2026-10-16/lean/pages/sioux-falls/
+- Super Lean (GPT): RUNNER-LEAN/tests/batch-2026-10-16/super-lean/pages/sioux-falls/
+- Lean (Claude Sonnet 5.5): RUNNER-LEAN/tests/batch-2026-10-16/lean-claude/pages/sioux-falls/
+- Lean and Super Lean (Replit): RUNNER-LEAN/tests/batch-2026-10-16/lean-replit/ and super-lean-replit/ if the Replit test is pushed. If a folder is missing, say so and skip it.
+Notes, plans and logs for each set sit in its runs folder next to pages.
+
+For each page and set, audit three things.
+1. SEO and AI answers: title, description, H1 and H2 structure, answer first paragraphs, keyword use that reads naturally, internal links and anchors (one anchor per target), FAQ quality, evidence and sourcing of every number, statute and quote, local usefulness, cannibalization against sibling pages, and the hard floor in CLAUDE.md (no R2, no invented facts, no price, no Sioux Falls facility, approved clients only).
+2. Design: use the screenshots in RUNNER/tests/batch-review-2026-10-17/shots/ for the 18 pages of the earlier blind kit (key in RUNNER/audits/2026-10-17-test-batch/KEY.json). For the other sets use the page source and the row components in artifacts/precision-ecycle/src/components/master/, and run runner-shots if you can run the dev server. Check hierarchy, rhythm, image relevance and alt text, empty or broken blocks, mobile hero, CTA placement, and consistency with the navy #1D4394 and cyan #00AEEF design system.
+3. Schema: Lean and Super Lean generate JSON-LD from the rows, so a page file with no schema array is not schema less. Judge the emitted JSON-LD (BreadcrumbList, Service or ContactPage, LocalBusiness with credentials, FAQPage, HowTo, and no AggregateRating or Review). Use runner-check Part 6 and runner-static-check from the scripts package for each page (flags in RUNNER-LEAN/tests/batch-2026-10-16/README.md: --pages-dir, --runs-dir, --level). Compare against Full's hand written arrays. Do not score a set down only because its schema lives in the row components.
+
+Check these suspected defects and say VERIFIED, NOT REPRODUCED or CANNOT TELL for each, with the file or screenshot: (a) empty white box in the M13 service areas row; (b) mobile Call Now bar covering hero text, remembering that the preview strip may cause it; (c) footer phone 402-243-6922 against CTA phone 402-540-6965; (d) mismatched or other city stock images and a garbled AI image at /images/locations-hero.png; (e) research phrasing leaking into copy, for example "verified state law review"; (f) exact match keyword strings forced into question H2s; (g) M04 cards repeating the same link target.
+
+Then give suggestions, each labeled with expected quality gain and time cost (none, under 1 minute per page, a full extra pass): what would raise Lean, what would raise Super Lean, what to cut from either without losing quality, and anything the Full Runner does that Lean cannot do cheaply. If you disagree with an earlier review in REPORT.md, say which score and why.
+
+Write two files and push the branch: RUNNER/audits/2026-10-17-test-batch/crossaudit/<LLM>.md (per set, per page findings, then the suggestions, then a verdict per level on the 95 percent goal) and <LLM>.json (per page scores for SEO, design, schema, 0 to 10, a verdict PUBLISH, FIX FIRST or REWRITE, and the suggestion list). Use no em dashes. Label every claim VERIFIED, ESTIMATED or GUESSED, never invent a URL, file or statistic, and list what you could not run. If you cannot push, paste both files as your reply.
