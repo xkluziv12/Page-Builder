@@ -119,3 +119,31 @@ mtime_ms = 1789163134324
 storage_uri = "gcs://replit-rams-assets-picard/rams/assets/repl:84315830-deb2-4276-820b-4f1ea787009a/d8bd5cfb-e447-443c-bd18-799c31d2c483/9844593f-f303-4d49-8c1c-fc97c20fa57a"
 storage_version_token = "1789163134911035"
 content_type = "text/markdown"
+
+[[outputs]]
+id = "4ucpfvQU4EY675AN5Hvbc"
+uri = "file://.local/audits/precision-ecycle/claude-opus-5-5-report.md"
+type = "text"
+title = "Claude Opus 5.5 runner audit"
+description = "Unedited read-only audit. Visual coverage was partial and validators were not rerun; page scores are provisional."
+logical_id = "0c235e0b-1823-4185-a105-cab4f456b84c"
+content_hash = "sha256:abc1b00c6697eb0edaba2fd0dcb023a313368afd873d1f754567436df614c509"
+size = 28108
+mtime_ms = 1792265419145
+storage_uri = "gcs://replit-rams-assets-picard/rams/assets/repl:84315830-deb2-4276-820b-4f1ea787009a/0c235e0b-1823-4185-a105-cab4f456b84c/2531210f-020b-4e19-8a9b-80d390419af2"
+storage_version_token = "1792265420557818"
+content_type = "text/markdown"
+
+[[outputs]]
+id = "QbnnNRm4Fo2YNjwrlJP6J"
+uri = "file://.claude/precision-ecycle-crossaudit-prompt.md"
+type = "text"
+title = "Prompt sent to Claude CLI"
+description = "The detailed cross-audit prompt, including repository scope, reference systems, evidence requirements, and read-only restrictions."
+logical_id = "2a1d6fd4-6e00-4c1e-8340-a7fae9780a73"
+content_hash = "sha256:66c8a86e72c5898455823ac2235f3590502ee1cea385db6b6103d47a37bdeffc"
+size = 13460
+mtime_ms = 1792263807673
+storage_uri = "gcs://replit-rams-assets-picard/rams/assets/repl:84315830-deb2-4276-820b-4f1ea787009a/2a1d6fd4-6e00-4c1e-8340-a7fae9780a73/7ab33f0c-6c57-4326-8172-d535b0a2a2b3"
+storage_version_token = "1792265421219987"
+content_type = "text/markdown"

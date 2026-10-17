@@ -16,3 +16,16 @@ run the Claude native installer when its launcher reports a missing binary, and 
 the project's OpenAI key to `CODEX_API_KEY` for Codex CLI invocations. Codex CLI
 version verified here accepts `xhigh` as its highest reasoning setting. Native
 Claude `sonnet` resolved to `claude-sonnet-5` during a medium-effort probe.
+
+## Model support can depend on the CLI version
+
+An explicit Claude model can be available to the account but rejected by an older
+Claude Code client with a minimum-version error. Do not misreport that as a missing
+model or silently substitute another model.
+
+**Why:** The requested Opus model was rejected before the audit began because the
+installed CLI was too old, not because authentication or repository access failed.
+
+**How to apply:** Obtain authorization for a CLI upgrade, update the existing
+global CLI rather than adding it to app dependencies, complete its native
+postinstall if pnpm skipped it, and verify the launcher before redispatching.
