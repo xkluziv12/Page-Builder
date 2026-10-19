@@ -42,3 +42,18 @@ In this workspace, the provisioned Claude CLI OAuth secret is named `claudOauth`
 **Why:** The wrapper is installed and healthy, but its expected environment-variable name differs from the provisioned secret name.
 
 **How to apply:** For a bounded Claude dispatch, use a process-local environment assignment such as `CLAUDE_CODE_OAUTH_TOKEN="$claudOauth"`; do not persist or echo the token.
+
+## Large visual audits
+
+Split large visual audits into page-sized CLI reviews with a saved terminal report
+for each page, followed by a source-only engine review. Verify image and source
+coverage against successful tool results, not the auditor's claimed coverage.
+
+**Why:** An all-in-one screenshot audit repeatedly reread earlier images without
+advancing to page sources or returning a usable report. Bigger prompts did not
+solve the missing coverage.
+
+**How to apply:** Give each review an explicit file/image manifest, persist its
+result independently, record successful image reads without retaining image bytes
+in logs, and reconcile coverage before consolidating. Keep deterministic checker
+execution separate from subjective visual scoring.
