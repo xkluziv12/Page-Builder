@@ -162,6 +162,7 @@ async function executePhase(
     status: "running",
     startedAt: new Date().toISOString(),
     error: null,
+    ...(phase === "publish" ? { templateStyle: null } : {}),
   });
   await db
     .update(mcRunsTable)
@@ -195,6 +196,7 @@ async function executePhase(
       completedAt: new Date().toISOString(),
       attempts,
       provenance: output.provenance,
+      ...(phase === "publish" ? { templateStyle: output.templateStyle ?? null } : {}),
     });
 
     if (output.state.html && output.state.html !== run.pageHtml) {

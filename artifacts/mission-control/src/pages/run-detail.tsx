@@ -113,12 +113,20 @@ interface PhaseAttempt {
   attempt: number;
   status: string;
 }
+interface JoomlaTemplateStyleOutcome {
+  status: "applied" | "unsupported" | "not-configured";
+  label?: string;
+  message: string;
+}
 
 function phaseProvenance(st: unknown): PhaseProvenance | null {
   return (st as { provenance?: PhaseProvenance })?.provenance ?? null;
 }
 function phaseAttempts(st: unknown): PhaseAttempt[] {
   return (st as { attempts?: PhaseAttempt[] })?.attempts ?? [];
+}
+function phaseTemplateStyle(st: unknown): JoomlaTemplateStyleOutcome | null {
+  return (st as { templateStyle?: JoomlaTemplateStyleOutcome | null })?.templateStyle ?? null;
 }
 
 const STATUS_STYLE: Record<string, string> = {
@@ -803,6 +811,7 @@ export default function RunDetail() {
               </div>
               {PHASES.map((p) => {
                 const st = phaseState(p);
+                const templateStyle = p === "publish" ? phaseTemplateStyle(st) : null;
                 const status = st?.status ?? "locked";
                 const busy =
                   (runPhase.isPending && runPhase.variables?.phase === p) ||
@@ -848,21 +857,39 @@ export default function RunDetail() {
                       <p className="text-xs text-muted-foreground mt-1.5 pl-[26px]">{st.summary}</p>
                     )}
                     {p === "publish" && (
-                      <div className="mt-2.5 ml-[26px] rounded-md border border-red-300 bg-red-50 p-3 text-sm text-red-950">
-                        <div className="flex items-start gap-2">
-                          <input
-                            type="checkbox"
-                            aria-label="Confirm Joomla menu item uses the default template"
-                            className="mt-1 accent-red-700"
-                          />
-                          <span>
-                            <span className="font-semibold">Joomla template checklist:</span>{" "}
-                            confirm the menu item's Details → Template Style is{" "}
-                            <strong className="rounded bg-red-100 px-1.5 py-0.5 text-red-800">
-                              TOP LOGO 2026 (TESTING TIME)
-                            </strong>
-                            . Mission Control's publisher does not change the menu-item template.
-                          </span>
+                      <div
+                        className={`mt-2.5 ml-[26px] rounded-md border p-3 text-sm ${
+                          templateStyle?.status === "applied"
+                            ? "border-green-300 bg-green-50 text-green-950"
+                            : "border-red-300 bg-red-50 text-red-950"
+                        }`}
+                        role="status"
+                        data-testid="joomla-template-style-status"
+                      >
+                        <div className="font-semibold">
+                          {templateStyle?.status === "applied"
+                            ? "Joomla menu-item Template Style applied"
+                            : templateStyle?.status === "not-configured"
+                              ? "Joomla menu-item Template Style not applied"
+                              : templateStyle?.status === "unsupported"
+                                ? "Joomla helper cannot apply the menu-item Template Style"
+                                : "Template Style requires manual confirmation"}
+                        </div>
+                        {templateStyle ? (
+                          <p className="mt-1">{templateStyle.message}</p>
+                        ) : (
+                          <p className="mt-1">
+                            The publish helper does not currently report a Template Style update.
+                            Confirm the menu item's Details → Template Style manually before treating
+                            this setting as complete.
+                          </p>
+                        )}
+                        <div className="mt-2">
+                          Requested STS style:{" "}
+                          <strong className="rounded bg-red-100 px-1.5 py-0.5 text-red-800">
+                            TOP LOGO 2026 (TESTING TIME)
+                          </strong>
+                          . Confirm that this exact option exists in the Joomla dropdown.
                         </div>
                       </div>
                     )}

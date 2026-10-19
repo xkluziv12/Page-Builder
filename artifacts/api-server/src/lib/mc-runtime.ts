@@ -38,6 +38,7 @@ import {
   type UrlRegistry,
   type Provenance,
   type ReplitExecutionSource,
+  type JoomlaTemplateStyleOutcome,
 } from "@workspace/mc-core";
 import { logger } from "./logger";
 
@@ -138,6 +139,8 @@ export interface PhaseLadderEntry {
   attempts?: PhaseAttemptEvent[];
   /** Accepted attribution for this phase's output. Absent = not recorded. */
   provenance?: Provenance;
+  /** Joomla publish's explicit menu-item Template Style outcome, when available. */
+  templateStyle?: JoomlaTemplateStyleOutcome | null;
 }
 
 export const publisher = createJoomlaPublisher({

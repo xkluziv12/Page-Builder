@@ -131,6 +131,7 @@ describe("atomic publish seam (orchestrator -> HttpJoomlaPublisher -> real endpo
     });
 
     expect(out.published).toBe(true);
+    expect(out.templateStyle?.status).toBe("unsupported");
     expect(received).toHaveLength(1);
     const payload = received[0];
     expect(payload.body).toBe(PAGE_HTML);

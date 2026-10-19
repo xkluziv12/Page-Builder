@@ -12,7 +12,12 @@ export interface PublishResult {
   url: string | null;
   articleId: string | null;
   message: string;
+  templateStyle: JoomlaTemplateStyleOutcome;
 }
+
+export type JoomlaTemplateStyleOutcome =
+  | { status: "applied"; label: string; message: string }
+  | { status: "unsupported" | "not-configured"; message: string };
 
 /**
  * The publishing seam. Publishing must be ATOMIC: title, HTML, and schema all
@@ -54,6 +59,11 @@ export class StubJoomlaPublisher implements JoomlaPublisher {
       articleId: null,
       message:
         "Validated atomic publish payload (title + HTML + schema), but no Joomla helper endpoint is configured (set JOOMLA_PUBLISH_URL). Nothing was published.",
+      templateStyle: {
+        status: "not-configured",
+        message:
+          "Joomla menu-item Template Style was not changed because no Joomla helper is configured.",
+      },
     };
   }
 }
@@ -139,7 +149,12 @@ export class HttpJoomlaPublisher implements JoomlaPublisher {
         (input.meta.alias ? `/${input.meta.alias}` : null),
       articleId: data.articleId != null ? String(data.articleId) : null,
       message:
-        "Published atomically to Joomla (body HTML + head schema + SEO meta). Created UNPUBLISHED pending human approval.",
+        "Published atomically to Joomla (body HTML + head schema + SEO meta). Created UNPUBLISHED pending human approval. Joomla menu-item Template Style was not changed: the configured helper contract does not expose a menu-item template operation.",
+      templateStyle: {
+        status: "unsupported",
+        message:
+          "Template Style was not applied. The configured helper confirmed the content publish, but its supported contract has no menu-item Template Style operation.",
+      },
     };
   }
 }

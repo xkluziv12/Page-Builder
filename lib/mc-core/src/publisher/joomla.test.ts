@@ -29,11 +29,13 @@ describe("StubJoomlaPublisher", () => {
     const pub = new StubJoomlaPublisher();
     const r = await pub.publish(fullInput);
     expect(r.published).toBe(false);
+    expect(r.templateStyle.status).toBe("not-configured");
+    expect(r.templateStyle.message).toMatch(/not changed/i);
   });
 });
 
 describe("HttpJoomlaPublisher", () => {
-  it("posts all three fields in one request and confirms an atomic write", async () => {
+  it("publishes all three content fields and explicitly reports that template selection was not applied", async () => {
     const fetchImpl = vi.fn(async () =>
       new Response(JSON.stringify({ ok: true, articleId: 42, url: "/austin" }), {
         status: 200,
@@ -49,6 +51,26 @@ describe("HttpJoomlaPublisher", () => {
     expect(body.schema).toBe('{"@graph":[]}');
     expect(body.meta.title).toBe("STS Austin");
     expect(body.published).toBe(false);
+    expect(body).not.toHaveProperty("templateStyle");
+    expect(r.templateStyle).toEqual({
+      status: "unsupported",
+      message:
+        "Template Style was not applied. The configured helper confirmed the content publish, but its supported contract has no menu-item Template Style operation.",
+    });
+  });
+
+  it("treats a helper that confirms only body, schema, and metadata as unsupported for template selection", async () => {
+    const fetchImpl = vi.fn(async () =>
+      new Response(
+        JSON.stringify({ wrote: { body: true, schema: true, meta: true } }),
+        { status: 200, headers: { "content-type": "application/json" } },
+      ),
+    ) as unknown as typeof fetch;
+    const pub = new HttpJoomlaPublisher({ endpoint: "https://h/publish", fetchImpl });
+    const result = await pub.publish(fullInput);
+    expect(result.published).toBe(true);
+    expect(result.templateStyle.status).toBe("unsupported");
+    expect(result.message).toMatch(/Template Style was not changed/i);
   });
 
   it("hard-fails when the helper does not confirm a full atomic write", async () => {

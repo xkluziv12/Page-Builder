@@ -39,6 +39,7 @@ export {
 } from "./publisher/joomla";
 export type {
   JoomlaPublisher,
+  JoomlaTemplateStyleOutcome,
   PublishInput,
   PublishResult,
   HttpJoomlaPublisherConfig,

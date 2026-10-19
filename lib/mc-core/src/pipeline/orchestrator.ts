@@ -2,7 +2,10 @@ import { blockingErrorCount, runCheckers } from "../checkers";
 import { computeStructuralHash } from "../checkers/structural-hash";
 import type { AIEngine } from "../engine/types";
 import { deterministicProvenance, type Provenance } from "../engine/provenance";
-import type { JoomlaPublisher } from "../publisher/joomla";
+import type {
+  JoomlaPublisher,
+  JoomlaTemplateStyleOutcome,
+} from "../publisher/joomla";
 import { logBlogEntry, type BlogLogEntry } from "../research/blog-log";
 import { runEntityQualityGate } from "../research/entity-gate";
 import type { ResearchInput, ResearchProvider } from "../research/provider";
@@ -56,6 +59,8 @@ export interface PhaseOutput {
    * must NOT mark a run "published" unless this is true.
    */
   published?: boolean;
+  /** Only set for publish: whether the Joomla menu-item template was confirmed. */
+  templateStyle?: JoomlaTemplateStyleOutcome;
   /** Accepted attribution for this phase's output. Absent = not recorded. */
   provenance?: Provenance;
 }
@@ -250,6 +255,7 @@ export async function runPhase(
         state,
         summary,
         published: result.published,
+        templateStyle: result.templateStyle,
         provenance: deterministicProvenance({ phase: "publish", status: result.published ? "success" : "error" }),
       };
     }

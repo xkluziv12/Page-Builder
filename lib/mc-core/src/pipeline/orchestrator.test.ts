@@ -68,6 +68,10 @@ describe("runPhase publish state", () => {
         url: null,
         articleId: null,
         message: "no endpoint configured; nothing published",
+        templateStyle: {
+          status: "not-configured",
+          message: "Template Style not changed.",
+        },
       }),
     };
     const out = await runPhase("publish", ctx(), priorState(), { engine: fakeEngine(), publisher });
@@ -82,10 +86,15 @@ describe("runPhase publish state", () => {
         url: "/austin",
         articleId: "42",
         message: "published atomically",
+        templateStyle: {
+          status: "unsupported",
+          message: "Template Style was not applied.",
+        },
       }),
     };
     const out = await runPhase("publish", ctx(), priorState(), { engine: fakeEngine(), publisher });
     expect(out.published).toBe(true);
+    expect(out.templateStyle?.status).toBe("unsupported");
   });
 
   it("marks the publish phase's provenance as deterministic, reflecting the actual write outcome", async () => {
@@ -96,6 +105,10 @@ describe("runPhase publish state", () => {
         url: "/austin",
         articleId: "42",
         message: "published atomically",
+        templateStyle: {
+          status: "unsupported",
+          message: "Template Style was not applied.",
+        },
       }),
     };
     const out = await runPhase("publish", ctx(), priorState(), { engine: fakeEngine(), publisher });
@@ -112,6 +125,10 @@ describe("runPhase publish state", () => {
         url: null,
         articleId: null,
         message: "nothing published",
+        templateStyle: {
+          status: "not-configured",
+          message: "Template Style not changed.",
+        },
       }),
     };
     const blogCtx = { ...ctx(), track: "blog" as const, blogTopic: "recycling" };
