@@ -40,9 +40,9 @@ const BRANDS: Record<Brand, BrandConfig> = {
 
 const TOOLS: Tool[] = [
   { label: "Page Rebuild", icon: "fas fa-sync-alt", file: "index.html", tcFile: "technocycle/index.html" },
-  { label: "Skills Trial: Rebuild", icon: "fas fa-flask", file: "index-skills.html", stsOnly: true },
+  { label: "Skills Trial: Rebuild (GMB)", icon: "fas fa-flask", file: "index-skills.html", stsOnly: true },
   { label: "Page Rebuild (No GMB)", icon: "fas fa-store-slash", file: "no-gmb.html", tcFile: "technocycle/no-gmb.html" },
-  { label: "Skills Trial: No GMB", icon: "fas fa-flask", file: "no-gmb-skills.html", stsOnly: true },
+  { label: "Skills Trial: Rebuild (No GMB)", icon: "fas fa-flask", file: "no-gmb-skills.html", stsOnly: true },
   { label: "Hub + Spoke", icon: "fas fa-sitemap", file: "hub-spoke.html", tcFile: "technocycle/hub-spoke.html" },
   { label: "New Pages", icon: "fas fa-plus-circle", file: "new-pages.html" },
   { label: "Marketing", icon: "fas fa-bullhorn", file: "marketing.html" },
