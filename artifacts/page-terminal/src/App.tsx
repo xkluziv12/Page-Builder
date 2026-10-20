@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import "./terminal.css";
 
 type Brand = "sts" | "tc";
@@ -80,6 +81,7 @@ function App() {
   }, [brand]);
 
   const visibleTools = TOOLS.filter((tool) => brand === "sts" || !tool.stsOnly);
+  const skillTools = visibleTools.filter((tool) => tool.stsOnly);
   const activeTool = visibleTools[activeIndex] ?? visibleTools[0];
   const brandConfig = BRANDS[brand];
   const activeFile = resolveFile(activeTool, brand);
@@ -150,6 +152,7 @@ function App() {
           <div id="pt-menu" className={`pt-menu${menuOpen ? " open" : ""}`}>
             <div className="pt-tools">
               {visibleTools.map((tool, index) => (
+                !tool.stsOnly &&
                 <button
                   type="button"
                   key={tool.file}
@@ -162,6 +165,50 @@ function App() {
                 </button>
               ))}
             </div>
+            {skillTools.length > 0 && (
+              <DropdownMenu.Root>
+                <DropdownMenu.Trigger asChild>
+                  <button
+                    type="button"
+                    className={`pt-item pt-skills-trigger${activeTool.stsOnly ? " active" : ""}`}
+                  >
+                    <i className="fas fa-flask" aria-hidden="true" />
+                    Skills
+                    <i className="fas fa-chevron-down" aria-hidden="true" />
+                  </button>
+                </DropdownMenu.Trigger>
+                <DropdownMenu.Portal>
+                  <DropdownMenu.Content
+                    className="pt-skills-menu"
+                    align="end"
+                    sideOffset={8}
+                    collisionPadding={12}
+                  >
+                    <DropdownMenu.RadioGroup
+                      aria-label="Skills"
+                      value={activeTool.stsOnly ? activeTool.file : ""}
+                      onValueChange={(file) => {
+                        const index = visibleTools.findIndex((tool) => tool.file === file);
+                        if (index !== -1) selectTool(index);
+                      }}
+                    >
+                      {skillTools.map((tool) => (
+                        <DropdownMenu.RadioItem
+                          key={tool.file}
+                          value={tool.file}
+                          className="pt-skills-option"
+                        >
+                          <span>{tool.label.replace(/^Skills Trial: /, "")}</span>
+                          <DropdownMenu.ItemIndicator>
+                            <i className="fas fa-check" aria-hidden="true" />
+                          </DropdownMenu.ItemIndicator>
+                        </DropdownMenu.RadioItem>
+                      ))}
+                    </DropdownMenu.RadioGroup>
+                  </DropdownMenu.Content>
+                </DropdownMenu.Portal>
+              </DropdownMenu.Root>
+            )}
           </div>
         </div>
       </nav>
