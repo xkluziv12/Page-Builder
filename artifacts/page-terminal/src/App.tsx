@@ -8,6 +8,7 @@ type Tool = {
   icon: string;
   file: string;
   tcFile?: string;
+  stsOnly?: boolean;
 };
 
 type BrandConfig = {
@@ -38,11 +39,14 @@ const BRANDS: Record<Brand, BrandConfig> = {
 
 const TOOLS: Tool[] = [
   { label: "Page Rebuild", icon: "fas fa-sync-alt", file: "index.html", tcFile: "technocycle/index.html" },
+  { label: "Skills Trial: Rebuild", icon: "fas fa-flask", file: "index-skills.html", stsOnly: true },
   { label: "Page Rebuild (No GMB)", icon: "fas fa-store-slash", file: "no-gmb.html", tcFile: "technocycle/no-gmb.html" },
+  { label: "Skills Trial: No GMB", icon: "fas fa-flask", file: "no-gmb-skills.html", stsOnly: true },
   { label: "Hub + Spoke", icon: "fas fa-sitemap", file: "hub-spoke.html", tcFile: "technocycle/hub-spoke.html" },
   { label: "New Pages", icon: "fas fa-plus-circle", file: "new-pages.html" },
   { label: "Marketing", icon: "fas fa-bullhorn", file: "marketing.html" },
   { label: "Service Pages", icon: "fas fa-cogs", file: "page-terminal.html", tcFile: "technocycle/page-terminal.html" },
+  { label: "Skills Trial: Service Pages", icon: "fas fa-flask", file: "page-terminal-skills.html", stsOnly: true },
   { label: "Blogs", icon: "fas fa-blog", file: "blog-terminal.html" },
   { label: "A.I. Pages", icon: "fas fa-robot", file: "ai-pages.html" },
 ];
@@ -75,7 +79,8 @@ function App() {
     }
   }, [brand]);
 
-  const activeTool = TOOLS[activeIndex];
+  const visibleTools = TOOLS.filter((tool) => brand === "sts" || !tool.stsOnly);
+  const activeTool = visibleTools[activeIndex] ?? visibleTools[0];
   const brandConfig = BRANDS[brand];
   const activeFile = resolveFile(activeTool, brand);
 
@@ -86,6 +91,7 @@ function App() {
 
   const selectBrand = (next: Brand) => {
     setBrand(next);
+    setActiveIndex(0);
     setMenuOpen(false);
   };
 
@@ -143,7 +149,7 @@ function App() {
 
           <div id="pt-menu" className={`pt-menu${menuOpen ? " open" : ""}`}>
             <div className="pt-tools">
-              {TOOLS.map((tool, index) => (
+              {visibleTools.map((tool, index) => (
                 <button
                   type="button"
                   key={tool.file}

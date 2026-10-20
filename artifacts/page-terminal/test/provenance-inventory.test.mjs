@@ -5,8 +5,11 @@ import { fileURLToPath } from "node:url";
 
 const toolFiles = [
   "../public/tools/index.html",
+  "../public/tools/index-skills.html",
   "../public/tools/page-terminal.html",
+  "../public/tools/page-terminal-skills.html",
   "../public/tools/no-gmb.html",
+  "../public/tools/no-gmb-skills.html",
   "../public/tools/hub-spoke.html",
   "../public/tools/blog-terminal.html",
   "../public/tools/technocycle/index.html",
